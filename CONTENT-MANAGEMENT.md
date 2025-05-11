@@ -33,6 +33,25 @@ Netlify CMS provides a user-friendly interface for creating and editing content 
 3. Make your changes
 4. Click "Save" or "Publish"
 
+### Setting Up Auth0 for Team Access
+
+To enable your team members to access the content management system, you need to set up Auth0 in your Netlify dashboard:
+
+1. **Connect Your Site to Auth0**:
+   - Navigate to Site configuration for your site in the Netlify dashboard
+   - In the sidebar, select Auth0 by Okta under Extensions
+   - Select Add a tenant and follow the prompts to connect to your Auth0 account
+   - Select Save
+
+2. **Invite Team Members**:
+   - Once Auth0 is set up, you can invite team members through the Auth0 dashboard
+   - They'll receive an email invitation to create an account
+   - After they accept, they'll be able to log in to the CMS at `/admin`
+
+3. **Manage Permissions**:
+   - You can set different permission levels for team members in the Auth0 dashboard
+   - This allows you to control who can publish content and who can only draft it
+
 ## Option 2: Direct GitHub Editing (For Technical Users)
 
 For team members comfortable with GitHub, you can edit content directly in the repository:
