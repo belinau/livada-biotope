@@ -83,11 +83,30 @@ export const getStaticProps: GetStaticProps = async ({ params, locale }) => {
   const filePath = path.join(process.cwd(), 'src/content/blog', `${slug}.md`);
   const { frontmatter, content } = getMarkdownContent(filePath);
   
+  // Ensure all data is serializable
+  const serializedFrontmatter = { ...frontmatter };
+  
+  // Convert any Date objects to strings
+  if (serializedFrontmatter.date) {
+    if (serializedFrontmatter.date instanceof Date) {
+      serializedFrontmatter.date = serializedFrontmatter.date.toISOString();
+    } else if (typeof serializedFrontmatter.date === 'string') {
+      // Ensure the date string is valid
+      try {
+        const dateObj = new Date(serializedFrontmatter.date);
+        serializedFrontmatter.date = dateObj.toISOString();
+      } catch (e) {
+        // If date parsing fails, use current date
+        serializedFrontmatter.date = new Date().toISOString();
+      }
+    }
+  }
+  
   return {
     props: {
       post: {
         slug,
-        frontmatter,
+        frontmatter: serializedFrontmatter,
         content
       },
       messages: (await import(`../../../public/locales/${locale || 'en'}.json`)).default

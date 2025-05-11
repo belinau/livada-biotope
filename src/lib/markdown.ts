@@ -39,9 +39,18 @@ export function getAllPosts(contentType: string) {
     const filePath = path.join(process.cwd(), 'src', 'content', contentType, filename);
     const { frontmatter, content } = getMarkdownContent(filePath);
     
+    // Ensure all date objects are converted to strings for serialization
+    const serializedFrontmatter = { ...frontmatter };
+    if (serializedFrontmatter.date && serializedFrontmatter.date instanceof Date) {
+      serializedFrontmatter.date = serializedFrontmatter.date.toISOString();
+    }
+    if (serializedFrontmatter.eventDate && serializedFrontmatter.eventDate instanceof Date) {
+      serializedFrontmatter.eventDate = serializedFrontmatter.eventDate.toISOString();
+    }
+    
     return {
       slug: filename.replace(/\.md$/, ''),
-      frontmatter,
+      frontmatter: serializedFrontmatter,
       content
     };
   });

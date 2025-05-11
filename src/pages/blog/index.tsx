@@ -74,10 +74,37 @@ BlogPage.getLayout = (page: React.ReactElement) => {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   const posts = getAllPosts('blog');
   
+  // Ensure all post data is serializable
+  const serializedPosts = posts.map(post => {
+    // Create a deep copy to avoid modifying the original
+    const serializedPost = {
+      ...post,
+      frontmatter: { ...post.frontmatter }
+    };
+    
+    // Convert any Date objects to strings
+    if (serializedPost.frontmatter.date) {
+      if (serializedPost.frontmatter.date instanceof Date) {
+        serializedPost.frontmatter.date = serializedPost.frontmatter.date.toISOString();
+      } else if (typeof serializedPost.frontmatter.date === 'string') {
+        // Ensure the date string is valid
+        try {
+          const dateObj = new Date(serializedPost.frontmatter.date);
+          serializedPost.frontmatter.date = dateObj.toISOString();
+        } catch (e) {
+          // If date parsing fails, use current date
+          serializedPost.frontmatter.date = new Date().toISOString();
+        }
+      }
+    }
+    
+    return serializedPost;
+  });
+  
   // Use the correct path for locales
   return {
     props: {
-      posts,
+      posts: serializedPosts,
       messages: (await import(`../../../public/locales/${locale || 'en'}.json`)).default
     }
   };
