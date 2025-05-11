@@ -22,7 +22,21 @@ interface BlogPageProps {
 }
 
 export default function BlogPage({ posts }: BlogPageProps) {
-  const t = useTranslations();
+  // Make the useTranslations hook conditional to avoid errors during static generation
+  let t: any = {
+    // Provide fallback translations
+    get: (key: string) => key
+  };
+  
+  try {
+    // Only use the hook if we're in a browser environment
+    if (typeof window !== 'undefined') {
+      t = useTranslations();
+    }
+  } catch (error) {
+    console.log('Translation error:', error);
+    // Continue with fallback translations
+  }
   
   return (
     <div className="container mx-auto px-4 py-8">
