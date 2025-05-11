@@ -90,7 +90,7 @@ export const getStaticProps: GetStaticProps = async ({ params, locale }) => {
         frontmatter,
         content
       },
-      messages: (await import(`../../public/locales/${locale}.json`)).default
+      messages: (await import(`../../../public/locales/${locale || 'en'}.json`)).default
     }
   };
 };

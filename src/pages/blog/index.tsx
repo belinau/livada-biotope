@@ -74,10 +74,11 @@ BlogPage.getLayout = (page: React.ReactElement) => {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   const posts = getAllPosts('blog');
   
+  // Use the correct path for locales
   return {
     props: {
       posts,
-      messages: (await import(`../../public/locales/${locale}.json`)).default
+      messages: (await import(`../../../public/locales/${locale || 'en'}.json`)).default
     }
   };
 };
