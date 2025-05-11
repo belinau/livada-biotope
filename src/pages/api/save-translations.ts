@@ -16,22 +16,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const { translations } = req.body as { translations: TranslationItem[] };
     
-    // Path to the Slovenian translations file
-    const translationsPath = path.join(process.cwd(), 'public/locales/sl.json');
+    // Paths to the translation files
+    const slTranslationsPath = path.join(process.cwd(), 'public/locales/sl.json');
+    const enTranslationsPath = path.join(process.cwd(), 'public/locales/en.json');
     
     // Read the current translations
-    const currentTranslations = JSON.parse(fs.readFileSync(translationsPath, 'utf8'));
+    const slCurrentTranslations = JSON.parse(fs.readFileSync(slTranslationsPath, 'utf8'));
+    const enCurrentTranslations = JSON.parse(fs.readFileSync(enTranslationsPath, 'utf8'));
     
     // Update the translations
     translations.forEach(item => {
       const [category, key] = item.key.split('.');
-      if (currentTranslations[category] && key) {
-        currentTranslations[category][key] = item.sl;
+      
+      // Update Slovenian translations
+      if (slCurrentTranslations[category] && key) {
+        slCurrentTranslations[category][key] = item.sl;
+      }
+      
+      // Update English translations
+      if (enCurrentTranslations[category] && key) {
+        enCurrentTranslations[category][key] = item.en;
       }
     });
     
-    // Write the updated translations back to the file
-    fs.writeFileSync(translationsPath, JSON.stringify(currentTranslations, null, 2));
+    // Write the updated translations back to the files
+    fs.writeFileSync(slTranslationsPath, JSON.stringify(slCurrentTranslations, null, 2));
+    fs.writeFileSync(enTranslationsPath, JSON.stringify(enCurrentTranslations, null, 2));
     
     return res.status(200).json({ message: 'Translations saved successfully' });
   } catch (error) {
