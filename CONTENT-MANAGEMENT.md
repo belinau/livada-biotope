@@ -9,7 +9,8 @@ Netlify CMS provides a user-friendly interface for creating and editing content 
 ### Accessing the CMS
 
 1. Go to your deployed website and navigate to `/admin` (e.g., https://livada-biotope.netlify.app/admin)
-2. Log in with your GitHub account (you must be given access to the repository first)
+2. Log in with your email and password (you must be invited by the site administrator first)
+3. If you haven't received an invitation, contact the site administrator
 
 ### Creating Content
 
