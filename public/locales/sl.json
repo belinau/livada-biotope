@@ -1,0 +1,63 @@
+{
+  "Navbar": {
+    "home": "Domov",
+    "biodiversity": "Biotska raznovrstnost",
+    "projects": "Projekti",
+    "instructables": "Navodila",
+    "ecofeminism": "Ekofeminizem",
+    "events": "Dogodki",
+    "about": "O meni"
+  },
+  "Footer": {
+    "description": "Eko-feministična iniciativa, ki razvija zemljiščne prakse.",
+    "quickLinks": "Hitri povezavi",
+    "contact": "Kontakt",
+    "followUs": "Sledi mi",
+    "home": "Domov",
+    "biodiversity": "Biotska raznovrstnost",
+    "projects": "Projekti",
+    "instructables": "Navodila",
+    "ecofeminism": "Ekofeminizem",
+    "events": "Dogodki",
+    "about": "O meni",
+    "rights": "Vse pravice pridržane."
+  },
+  "Home": {
+    "welcome": "Dobrodošel/a v Biotop Livada",
+    "description": "Eko-feministična iniciativa, ki razvija zemljiščne prakse in podpira trajnostno življenje.",
+    "mission": "Moja misija",
+    "missionDescription": "Razvijamo trajnostne zemljiščne prakse in učimo o pomembnosti skrbi za okolje.",
+    "projects": "Moji projekti",
+    "upcomingEvents": "Prihajajoči dogodki"
+  },
+  "SensorVisualization": {
+    "title": "Nadzor vlažnosti tal",
+    "time": "Čas",
+    "moistureLevel": "Stopnja vlažnosti",
+    "description": "Grafični prikaz podatkov o vlažnosti tal izmerjenih z 6 senzorji."
+  },
+  "Error": {
+    "title": "Napaka",
+    "message": "Zgodila se je napaka. Poskusi še enkrat.",
+    "tryAgain": "Poskusi znova"
+  },
+  "LetsNotDryOutTheFuture": {
+    "title": "Da ne izsušimo prihodnosti",
+    "subtitle": "Projekt za spremljanje vlažnosti tal",
+    "projectDescription": "O projektu",
+    "description": "Projekt za spremljanje vlažnosti tal s senzorji in Reticulum omrežjem. Želimo razviti trajnostne načine za ohranjanje vlažnosti tal.",
+    "technology": "Naša tehnologija",
+    "technologyDescription": "Uporabljamo 6 senzorjev za merjenje vlažnosti tal, povezanih preko Reticulum omrežja. Podatke zbiramo sproti in jih lahko vidiš na naši strani.",
+    "goals": "Cilji projekta",
+    "goal1": "Spremljanje vlažnosti tal v realnem času",
+    "goal2": "Razvoj trajnostnih načinov za ohranjanje vlažnosti tal",
+    "goal3": "Izobraževanje ljudi o tem, zakaj je vlažnost tal pomembna",
+    "howToHelp": "Kako lahko pomagaš"
+  },
+  "Projects": {
+    "title": "Naši projekti",
+    "letsNotDryOutTheFuture": "Da ne izsušimo prihodnosti",
+    "letsNotDryOutTheFutureDescription": "Projekt za spremljanje vlažnosti tal s senzorji in Reticulum omrežjem.",
+    "learnMore": "Poglej več"
+  }
+}
