@@ -1,0 +1,26 @@
+{
+  "components": [
+    {
+      "name": "Slovenian Translation",
+      "path": "src/lib/translations.ts",
+      "fields": [
+        {
+          "name": "Slovenian Text",
+          "pattern": "sl: '([^']*)'",
+          "replace": "sl: '$1'"
+        }
+      ]
+    },
+    {
+      "name": "JSON Translations",
+      "path": "public/locales/sl.json",
+      "fields": [
+        {
+          "name": "Slovenian Text",
+          "pattern": "\"([^\"]*)\": \"([^\"]*)\"",
+          "replace": "\"$1\": \"$2\""
+        }
+      ]
+    }
+  ]
+}
