@@ -1,6 +1,5 @@
 import React from 'react';
 import { GetStaticProps, GetStaticPaths } from 'next';
-import { useTranslations } from 'next-intl';
 import { getAllPosts, getMarkdownContent, getFiles } from '@/lib/markdown';
 import SharedLayout from '@/components/layout/SharedLayout';
 import path from 'path';
@@ -21,21 +20,6 @@ interface BlogPostProps {
 }
 
 export default function BlogPostPage({ post }: BlogPostProps) {
-  // Make the useTranslations hook conditional to avoid errors during static generation
-  let t: any = {
-    // Provide fallback translations
-    get: (key: string) => key
-  };
-  
-  try {
-    // Only use the hook if we're in a browser environment
-    if (typeof window !== 'undefined') {
-      t = useTranslations();
-    }
-  } catch (error) {
-    console.log('Translation error:', error);
-    // Continue with fallback translations
-  }
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -92,7 +76,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async ({ params, locale }) => {
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params as { slug: string };
   const filePath = path.join(process.cwd(), 'src/content/blog', `${slug}.md`);
   const { frontmatter, content } = getMarkdownContent(filePath);
@@ -122,8 +106,7 @@ export const getStaticProps: GetStaticProps = async ({ params, locale }) => {
         slug,
         frontmatter: serializedFrontmatter,
         content
-      },
-      messages: (await import(`../../../public/locales/${locale || 'en'}.json`)).default
+      }
     }
   };
 };
