@@ -21,8 +21,10 @@ This document explains how to use the built-in translation management system for
 1. **Log in**: Enter your username and password
 2. **Find Translations**: Use the search box to find specific translations
 3. **Edit Translations**: Make changes to the English or Slovenian text in the text areas
-4. **Save Changes**: Click the "Save All Changes" button to update the translation files
-5. **Log out**: Click the "Logout" button when you're done
+4. **Download Files**: Click the "Download Translation Files" button to download the updated translation files
+5. **Replace Files**: Replace the files in your repository at `public/locales/` with the downloaded files
+6. **Commit Changes**: Commit and push the changes to your GitHub repository
+7. **Log out**: Click the "Logout" button when you're done
 
 ## Sharing Access with Others
 
@@ -33,6 +35,8 @@ You can share the login credentials with team members who need to edit translati
 The translation management system works by:
 1. Reading translation files from the `public/locales` directory
 2. Displaying them in an editable interface
-3. Saving changes back to the files via an API endpoint
+3. Generating downloadable JSON files with your changes
+
+Since Netlify's file system is read-only in production, we use a download-based approach instead of trying to write directly to the files on the server. This means you'll need to manually replace the files in your repository and commit the changes.
 
 The system is built entirely within the Next.js application and doesn't require any external services.
