@@ -11,14 +11,10 @@ const nextConfig = {
       transform: '@mui/icons-material/{{member}}',
     },
   },
-  // Enable static exports
-  output: 'export',
-  // Disable server components for static export
-  experimental: {
-    appDir: false,
-  },
-  // Needed for static export with Next.js 13+
+  // Needed for static export with Next.js 13
   trailingSlash: true,
+  // Enable static exports for Next.js 13
+  output: 'export',
 }
 
 module.exports = nextConfig
