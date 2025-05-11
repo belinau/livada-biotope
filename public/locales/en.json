@@ -6,20 +6,7 @@
     "instructables": "Instructables",
     "ecofeminism": "Ecofeminism",
     "events": "Events",
-    "about": "About",
-    "contact": "Contact",
-    "blog": "Blog"
-  },
-  "menu": {
-    "home": "Home",
-    "about": "About",
-    "projects": "Projects",
-    "events": "Events",
-    "contact": "Contact",
-    "biodiversity": "Biodiversity",
-    "instructables": "Instructables",
-    "ecofeminism": "Ecofeminism",
-    "blog": "Blog"
+    "about": "About"
   },
   "Footer": {
     "description": "Eco-feminist initiative developing land-based practices.",
