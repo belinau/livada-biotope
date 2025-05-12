@@ -56,24 +56,18 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
 
   // Fetch translations
   useEffect(() => {
-    if (!isAuthenticated) return;
-
     const fetchTranslations = async () => {
       try {
         setLoading(true);
         setError(null);
         console.log('Fetching translations...');
         
-        // Try to fetch from the Netlify function first
+        // Try to fetch from the Netlify function first - without auth headers for GET requests
         try {
-          // Get the access token
-          const token = await getAccessTokenSilently();
-          
-          // Use the Netlify serverless function to fetch translations
+          // No authorization needed for GET requests now
           const response = await fetch('/.netlify/functions/translations', {
             method: 'GET',
             headers: {
-              'Authorization': `Bearer ${token}`,
               'Cache-Control': 'no-cache',
               'Pragma': 'no-cache'
             }
@@ -103,12 +97,10 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
         // Fallback: Try to fetch directly from the JSON file
         try {
           console.log('Trying direct access to translations.json...');
-          const token = await getAccessTokenSilently();
           
           const directResponse = await fetch('/netlify/functions/translations/translations.json', {
             method: 'GET',
             headers: {
-              'Authorization': `Bearer ${token}`,
               'Cache-Control': 'no-cache',
               'Pragma': 'no-cache'
             }
@@ -144,7 +136,8 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
     };
     
     fetchTranslations();
-  }, [isAuthenticated, getAccessTokenSilently]);
+  }, []);
+
 
   // Save edited translation
   const handleSave = async () => {

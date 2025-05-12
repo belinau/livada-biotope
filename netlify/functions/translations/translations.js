@@ -10,6 +10,21 @@ const cache = new NodeCache({ stdTTL: 300 });
 
 // Path to the translations JSON file in the Git repository
 const TRANSLATIONS_PATH = path.join(__dirname, 'translations.json');
+// Path to the public translations JSON file for Netlify CMS
+const PUBLIC_TRANSLATIONS_PATH = path.join(__dirname, '../../../public/translations.json');
+
+// Function to sync translations between files
+const syncTranslationFiles = (data) => {
+  try {
+    // Write to both locations
+    fs.writeFileSync(TRANSLATIONS_PATH, JSON.stringify(data, null, 2));
+    fs.writeFileSync(PUBLIC_TRANSLATIONS_PATH, JSON.stringify(data, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error syncing translation files:', error);
+    return false;
+  }
+};
 
 // GitHub OAuth configuration
 const GITHUB_TOKEN_SECRET = process.env.GITHUB_TOKEN_SECRET || 'livada-biotope-github-secret';
@@ -64,29 +79,33 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Verify authentication for all requests except OPTIONS
-    const authHeader = event.headers.authorization || '';
+    // Only verify authentication for write operations (POST/PUT)
+    let isAuthenticated = false;
     
-    if (!authHeader.startsWith('Bearer ')) {
-      return {
-        statusCode: 401,
-        headers,
-        body: JSON.stringify({ error: 'Unauthorized - No token provided' })
-      };
-    }
-    
-    const token = authHeader.substring(7);
-    
-    try {
-      // Verify the token with Auth0
-      await verifyToken(token);
-    } catch (authError) {
-      console.error('Token verification failed:', authError);
-      return {
-        statusCode: 401,
-        headers,
-        body: JSON.stringify({ error: 'Unauthorized - Invalid token', details: authError.message })
-      };
+    if (event.httpMethod === 'POST' || event.httpMethod === 'PUT') {
+      const authHeader = event.headers.authorization || '';
+      
+      if (!authHeader.startsWith('Bearer ')) {
+        return {
+          statusCode: 401,
+          headers,
+          body: JSON.stringify({ error: 'Unauthorized - No token provided' })
+        };
+      }
+      
+      const token = authHeader.substring(7);
+      
+      try {
+        await verifyToken(token);
+        isAuthenticated = true;
+      } catch (authError) {
+        console.error('Token verification failed:', authError);
+        return {
+          statusCode: 401,
+          headers,
+          body: JSON.stringify({ error: 'Unauthorized - Invalid token', details: authError.message })
+        };
+      }
     }
 
     // Parse query parameters
@@ -100,7 +119,7 @@ exports.handler = async (event, context) => {
     // Check if we have a cached response
     const cachedData = cache.get(cacheKey);
     if (cachedData) {
-      console.log(`Serving cached translations for key: ${cacheKey}`);
+      console.log(`Serving cached translations for locale: ${locale}, key: ${key || 'all'}`);
       return {
         statusCode: 200,
         headers,
@@ -108,230 +127,143 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Read the translations file
-    let translations;
-    try {
-      const translationsData = fs.readFileSync(TRANSLATIONS_PATH, 'utf8');
-      translations = JSON.parse(translationsData);
-    } catch (error) {
-      console.error('Error reading translations file:', error);
-      // If the file doesn't exist or can't be parsed, return an empty object
-      translations = {};
-    }
-
-    // If a specific key is requested, return only that translation
-    if (key) {
-      const translation = translations[key] ? translations[key][locale] : null;
-      
-      // Cache the result
-      cache.set(cacheKey, { key, translation });
-      
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ key, translation })
-      };
-    }
-    
-    // Otherwise, return all translations for the requested locale
-    const localeTranslations = {};
-    
-    for (const [k, value] of Object.entries(translations)) {
-      localeTranslations[k] = value[locale] || value.en || k;
-    }
-    
-    // Cache the result
-    cache.set(cacheKey, localeTranslations);
-    
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify(localeTranslations)
-    };
-  } catch (error) {
-    console.error('Error in translations function:', error);
-    
-    return {
-      statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ 
-        error: 'Error fetching translations',
-        message: error.message
-      })
-    };
-  }
-};
-
-// Handle POST requests to update translations
-exports.handler = async (event, context) => {
-  try {
-    // Set CORS headers
-    const headers = {
-      'Access-Control-Allow-Origin': '*', // Replace with your domain in production
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Content-Type': 'application/json'
-    };
-
-    // Handle OPTIONS request (preflight)
-    if (event.httpMethod === 'OPTIONS') {
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ message: 'CORS preflight request successful' })
-      };
-    }
-
-    // Verify authentication for all requests except OPTIONS
-    const authHeader = event.headers.authorization || '';
-    
-    if (!authHeader.startsWith('Bearer ')) {
-      return {
-        statusCode: 401,
-        headers,
-        body: JSON.stringify({ error: 'Unauthorized - No token provided' })
-      };
-    }
-    
-    const token = authHeader.substring(7);
-    
-    try {
-      // Verify the token with Auth0
-      await verifyToken(token);
-    } catch (authError) {
-      console.error('Token verification failed:', authError);
-      return {
-        statusCode: 401,
-        headers,
-        body: JSON.stringify({ error: 'Unauthorized - Invalid token', details: authError.message })
-      };
-    }
-
-    // Handle GET requests (fetch translations)
+    // For GET requests - read translations and return them
     if (event.httpMethod === 'GET') {
-      // Parse query parameters
-      const params = event.queryStringParameters || {};
-      const locale = params.locale || 'en';
-      const key = params.key || null;
-      
-      // Create a cache key
-      const cacheKey = `translations_${locale}_${key || 'all'}`;
-
-      // Check if we have a cached response
-      const cachedData = cache.get(cacheKey);
-      if (cachedData) {
-        console.log(`Serving cached translations for key: ${cacheKey}`);
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify(cachedData)
-        };
-      }
-
-      // Read the translations file
-      let translations;
       try {
-        const translationsData = fs.readFileSync(TRANSLATIONS_PATH, 'utf8');
-        translations = JSON.parse(translationsData);
-      } catch (error) {
-        console.error('Error reading translations file:', error);
-        // If the file doesn't exist or can't be parsed, return an empty object
-        translations = {};
-      }
+        // Read and parse the translations file
+        let translationsData = {};
+        
+        if (fs.existsSync(TRANSLATIONS_PATH)) {
+          const fileContent = fs.readFileSync(TRANSLATIONS_PATH, 'utf8');
+          translationsData = JSON.parse(fileContent);
+        } else {
+          console.warn(`Translations file not found at ${TRANSLATIONS_PATH}. Creating empty translations file.`);
+          
+          // Create an empty translations file
+          translationsData = {
+            en: {},
+            sl: {}
+          };
+          
+          syncTranslationFiles(translationsData);
+        }
 
-      // If a specific key is requested, return only that translation
-      if (key) {
-        const translation = translations[key] ? translations[key][locale] : null;
+        // Get translations for the specified locale
+        const localeTranslations = translationsData[locale] || {};
+        
+        // Filter by key if specified
+        let result = localeTranslations;
+        if (key) {
+          result = localeTranslations[key] || null;
+        }
         
         // Cache the result
-        cache.set(cacheKey, { key, translation });
+        cache.set(cacheKey, result);
         
+        // Return the result
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify({ key, translation })
+          body: JSON.stringify(result)
         };
-      }
-      
-      // Otherwise, return all translations for the requested locale
-      const localeTranslations = {};
-      
-      for (const [k, value] of Object.entries(translations)) {
-        localeTranslations[k] = value[locale] || value.en || k;
-      }
-      
-      // Cache the result
-      cache.set(cacheKey, localeTranslations);
-      
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify(localeTranslations)
-      };
-    }
-    
-    // Handle POST requests (update translations)
-    if (event.httpMethod === 'POST') {
-      // Parse the request body
-      const requestBody = JSON.parse(event.body);
-      const { key, translations: newTranslations } = requestBody;
-      
-      if (!key || !newTranslations) {
-        return {
-          statusCode: 400,
-          headers,
-          body: JSON.stringify({ error: 'Missing required fields' })
-        };
-      }
-      
-      // Read the current translations
-      let translations;
-      try {
-        const translationsData = fs.readFileSync(TRANSLATIONS_PATH, 'utf8');
-        translations = JSON.parse(translationsData);
       } catch (error) {
-        // If the file doesn't exist or can't be parsed, create a new object
-        translations = {};
+        console.error('Error reading translations:', error);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ error: 'Error reading translations', details: error.message })
+        };
+      }
+    }
+
+    // Handle POST requests to update translations (only if authenticated)
+    if (event.httpMethod === 'POST') {
+      if (!isAuthenticated) {
+        return {
+          statusCode: 401,
+          headers,
+          body: JSON.stringify({ error: 'Unauthorized - Authentication required for updating translations' })
+        };
       }
       
-      // Update the translations
-      translations[key] = newTranslations;
-      
-      // Write the updated translations back to the file
-      fs.writeFileSync(TRANSLATIONS_PATH, JSON.stringify(translations, null, 2));
-      
-      // Clear the cache
-      cache.flushAll();
-      
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ success: true, key, translations: newTranslations })
-      };
+      try {
+        // Parse the request body
+        const requestBody = JSON.parse(event.body);
+        const { locale: updateLocale, key: updateKey, value } = requestBody;
+        
+        if (!updateLocale || !updateKey || value === undefined) {
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ error: 'Bad request - Missing required fields (locale, key, value)' })
+          };
+        }
+        
+        // Read and parse the translations file
+        let translationsData = {};
+        
+        if (fs.existsSync(TRANSLATIONS_PATH)) {
+          const fileContent = fs.readFileSync(TRANSLATIONS_PATH, 'utf8');
+          translationsData = JSON.parse(fileContent);
+        } else {
+          translationsData = {
+            en: {},
+            sl: {}
+          };
+        }
+        
+        // Create the locale object if it doesn't exist
+        if (!translationsData[updateLocale]) {
+          translationsData[updateLocale] = {};
+        }
+        
+        // Update the translation
+        translationsData[updateLocale][updateKey] = value;
+        
+        // Write the updated translations back to both files
+        syncTranslationFiles(translationsData);
+        
+        // Invalidate cache for the updated locale
+        const cacheKeyPattern = `translations_${updateLocale}_`;
+        const keys = cache.keys();
+        for (const key of keys) {
+          if (key.startsWith(cacheKeyPattern)) {
+            cache.del(key);
+          }
+        }
+        
+        // Return success
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ success: true, message: 'Translation updated successfully' })
+        };
+      } catch (error) {
+        console.error('Error updating translations:', error);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ error: 'Error updating translations', details: error.message })
+        };
+      }
     }
     
-    // Handle unsupported methods
+    // Return 405 Method Not Allowed for any other method
     return {
       statusCode: 405,
       headers,
       body: JSON.stringify({ error: 'Method not allowed' })
     };
-  } catch (error) {
-    console.error('Error in translations function:', error);
     
+  } catch (error) {
+    console.error('Serverless function error:', error);
     return {
       statusCode: 500,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ 
-        error: 'Error processing translations',
-        message: error.message
-      })
+      body: JSON.stringify({ error: 'Internal server error', details: error.message })
     };
   }
 };

@@ -83,7 +83,7 @@ collections:
     files:
       - label: "Site Translations"
         name: "site_translations"
-        file: "netlify/functions/translations/translations.json"
+        file: "public/translations.json"
         fields:
           - label: "All Translations"
             name: "body"
