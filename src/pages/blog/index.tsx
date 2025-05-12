@@ -26,7 +26,7 @@ export default function BlogPage({ posts }: BlogPageProps) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Blog</h1>
+        <h1 className="text-4xl font-bold text-green-700 mb-4">Blog</h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           Explore our latest articles, stories, and insights about ecology, biodiversity, and sustainable living.
         </p>
@@ -63,9 +63,9 @@ export default function BlogPage({ posts }: BlogPageProps) {
               </h2>
               <p className="text-gray-700 mb-4 line-clamp-3">{post.frontmatter.summary}</p>
               <div className="flex justify-between items-center">
-                <Link href={`/blog/${post.slug}`} className="text-green-700 hover:text-green-900 font-medium inline-flex items-center">
+                <Link href={`/blog/${post.slug}`} className="text-green-700 hover:text-green-900 font-medium inline-flex items-center transition-colors hover:bg-green-50 px-3 py-1 rounded-md">
                   Read more
-                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <svg className="w-3.5 h-3.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
                   </svg>
                 </Link>
