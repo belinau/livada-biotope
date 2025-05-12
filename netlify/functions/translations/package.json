@@ -1,0 +1,9 @@
+{
+  "name": "translations-function",
+  "version": "1.0.0",
+  "description": "Netlify serverless function for translations management",
+  "main": "translations.js",
+  "dependencies": {
+    "node-cache": "^5.1.2"
+  }
+}

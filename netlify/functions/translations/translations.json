@@ -1,0 +1,386 @@
+{
+  "Navbar.home": {
+    "en": "Home",
+    "sl": "Domov"
+  },
+  "Navbar.climateChange": {
+    "en": "Climate Change",
+    "sl": "Podnebne spremembe"
+  },
+  "Navbar.sensorData": {
+    "en": "Sensor Data",
+    "sl": "Podatki senzorjev"
+  },
+  "Navbar.getInvolved": {
+    "en": "Get Involved",
+    "sl": "Pridruži se"
+  },
+  "Navbar.biodiversity": {
+    "en": "Biodiversity",
+    "sl": "Biotska raznovrstnost"
+  },
+  "Navbar.projects": {
+    "en": "Projects",
+    "sl": "Projekti"
+  },
+  "Navbar.instructables": {
+    "en": "Instructables",
+    "sl": "Instructables"
+  },
+  "Navbar.ecofeminism": {
+    "en": "Ecofeminism",
+    "sl": "Ekofeminizem"
+  },
+  "Navbar.events": {
+    "en": "Events",
+    "sl": "Dogodki"
+  },
+  "Navbar.about": {
+    "en": "About",
+    "sl": "O nas"
+  },
+  "Navbar.contact": {
+    "en": "Contact",
+    "sl": "Kontakt"
+  },
+  "Navbar.blog": {
+    "en": "Blog",
+    "sl": "Blog"
+  },
+  "menu.home": {
+    "en": "Home",
+    "sl": "Domov"
+  },
+  "menu.biodiversity": {
+    "en": "Biodiversity",
+    "sl": "Biotska raznovrstnost"
+  },
+  "menu.projects": {
+    "en": "Projects",
+    "sl": "Projekti"
+  },
+  "menu.instructables": {
+    "en": "Instructables",
+    "sl": "Instructables"
+  },
+  "menu.ecofeminism": {
+    "en": "Ecofeminism",
+    "sl": "Eko-feminizem"
+  },
+  "menu.events": {
+    "en": "Events",
+    "sl": "Dogodki"
+  },
+  "menu.about": {
+    "en": "About",
+    "sl": "O nas"
+  },
+  "menu.contact": {
+    "en": "Contact",
+    "sl": "Kontakt"
+  },
+  "menu.blog": {
+    "en": "Blog",
+    "sl": "Blog"
+  },
+  "project.drought.title": {
+    "en": "Climate Change and Drought in Europe",
+    "sl": "Podnebne spremembe in suša v Evropi"
+  },
+  "project.drought.intro": {
+    "en": "Climate change in Europe is causing increasingly frequent and intense droughts, with far-reaching consequences for the environment, economy, and society. The average temperature in Europe has risen by approximately 1.5 degrees Celsius in the last thirty years, which is twice as fast as the global average.",
+    "sl": "Podnebne spremembe v Evropi povzročajo vse pogostejše in močnejše suše, kar ima velike posledice za okolje, gospodarstvo in družbo. Povprečna temperatura v Evropi se je v zadnjih tridesetih letih dvignila za približno 1,5 stopinje Celzija, kar je dvakrat hitreje od svetovnega povprečja."
+  },
+  "project.drought.slovenia": {
+    "en": "Slovenia is facing significant atmospheric warming, with the average air temperature having risen by 1.1 degrees Celsius in the last 50 years, accelerating the occurrence of droughts. These have the greatest impact on agriculture, causing reduced yields and increased need for irrigation. Historical examples, such as droughts in 2003, 2013, and 2022, have caused millions in agricultural losses. ARSO Meteorology",
+    "sl": "Slovenija se sooča z izrazitim segrevanjem ozračja, povprečna temperatura zraka se je v zadnjih 50 letih dvignila za 1,1 stopinje Celzija, kar pospešuje pojav suš. Te imajo največji vpliv na kmetijstvo, kjer povzročajo zmanjšanje pridelkov in povečanje potrebe po namakanju. Zgodovinski primeri, kot so suše v letih 2003, 2013 in 2022, so povzročili milijonske izgube v kmetijstvu. ARSO Meteorology"
+  },
+  "project.drought.geographical": {
+    "en": "Geographically, the eastern, southern, and southwestern parts of the country are most affected, where the frequency and intensity of droughts are highest. ARSO Meteorology",
+    "sl": "Geografsko gledano so najbolj prizadeti vzhodni, južni in jugozahodni deli države, kjer je pogostost in intenzivnost suš največja. ARSO Meteorology"
+  },
+  "project.drought.response": {
+    "en": "Slovenia is responding to these challenges with the Resolution on Long-term Climate Strategy until 2050, which includes measures to improve irrigation systems, adapt agricultural practices, and raise public awareness. Drought conditions are monitored using the Sušomer tool, which provides weekly information on the state of the country.",
+    "sl": "Slovenija se na te izzive odziva z Resolucijo o dolgoročni podnebni strategiji do leta 2050, ki vključuje ukrepe za boljše namakalne sisteme, prilagoditev kmetijskih praks in ozaveščanje ljudi. Sušne razmere spremljajo s pomočjo orodja Sušomer, ki daje tedenske informacije o stanju v državi."
+  },
+  "project.drought.ljubljana": {
+    "en": "As the capital of Slovenia, Ljubljana also feels the effects of increasingly frequent droughts. Despite a relatively rich supply of water resources, the city faces growing challenges in ensuring a stable water supply, especially due to increasing urbanization and increased demand. Droughts directly affect vegetation, reduce biodiversity of urban green spaces, and increase the risk of heat waves, which further strain water resources.",
+    "sl": "Kot glavno mesto Slovenije Ljubljana prav tako čuti posledice vse pogostejših suš. Kljub relativno bogati zalogi vodnih virov ima mesto vedno več izzivov pri zagotavljanju stabilne oskrbe z vodo, zlasti zaradi naraščajoče urbanizacije in povečanega povpraševanja. Suše neposredno vplivajo na vegetacijo, zmanjšujejo biodiverziteto mestnih zelenih površin in povečujejo tveganje za vročinske valove, ki še dodatno obremenjujejo vodne vire."
+  },
+  "project.drought.efforts": {
+    "en": "Efforts for sustainable water management in Ljubljana include modernization of the water supply network, promotion of rainwater collection, and raising awareness among residents about the importance of economical water use. As part of broader national and European efforts, there should be even more intensive investment in urban green infrastructures that enable mitigation of drought impacts, and in the development of systems for efficient water use in the urban environment.",
+    "sl": "Prizadevanja za trajnostno upravljanje vode v Ljubljani vključujejo posodobitev vodovodnega omrežja, spodbujanje zbiranja deževnice in ozaveščanje ljudi o tem, kako pomembno je varčevati z vodo. V okviru širših nacionalnih in evropskih prizadevanj bi morali še bolj vlagati v mestne zelene infrastrukture, ki blažijo vplive suš, in v razvoj sistemov za boljšo rabo vode v mestih."
+  },
+  "project.drought.challenge": {
+    "en": "Droughts are becoming one of the biggest environmental challenges of modern times, as they threaten environmental and economic systems and quality of life. At the level of Ljubljana, it is crucial to recognize the connection between local measures for water management, green areas, and the broader climate strategy. Ljubljana has the opportunity to become a model of urban adaptation to climate change with comprehensive and sustainable approaches to drought management.",
+    "sl": "Suše postajajo eden največjih okoljskih izzivov sodobnega časa, saj ogrožajo okoljske in gospodarske sisteme ter kakovost življenja. Na ravni Ljubljane je ključno prepoznati povezavo med lokalnimi ukrepi za upravljanje voda, zelenimi površinami in širšo podnebno strategijo. Ljubljana ima priložnost, da postane zgled urbanega prilagajanja podnebnim spremembam s celovitimi in trajnostnimi pristopi k obvladovanju suš."
+  },
+  "project.drought.consequences.title": {
+    "en": "Specific drought consequences we are addressing:",
+    "sl": "Specifične posledice suše katere naslavljamo:"
+  },
+  "project.drought.consequences.cracks": {
+    "en": "Cracks on the soil surface: When the moisture content in the soil decreases, the earth shrinks, which can cause cracks to form on the surface. These cracks are often visible as deep and wide lines on the soil surface, occurring due to soil contraction.",
+    "sl": "Razpoke na površini tal: Ko se vsebnost vlage v tleh zmanjša, se zemlja skrči, kar lahko povzroči nastanek razpok na površini. Te razpoke so pogosto vidne kot globoke in široke linije na površini tal, ki se pojavijo zaradi krčenja tal."
+  },
+  "project.drought.consequences.drying": {
+    "en": "Drying of the top layer of soil: Lack of precipitation and high temperatures cause moisture to evaporate from the top layer of soil, leading to its drying. Dry soil becomes dusty, the soil structure becomes loose, which can affect the tillage properties of the soil.",
+    "sl": "Sušenje zgornje plasti zemlje: Pomanjkanje padavin in visoke temperature povzročijo izhlapevanje vlage iz zgornje plasti tal, kar vodi v njihovo sušenje. Suha tla postanejo prašna, struktura tal postane rahla, kar lahko vpliva na obdelovalne lastnosti tal."
+  },
+  "project.drought.consequences.dusting": {
+    "en": "Soil dusting: Drought can cause the top layer of soil to break down and become dusty, leading to soil dusting. This can reduce soil fertility and affect plants by reducing their ability to retain moisture and nutrients.",
+    "sl": "Posipanje tal: Suša lahko povzroči, da se zgornja plast tal razpade in postane prašna, kar vodi v posipanje tal. To lahko zmanjša rodovitnost tal in vpliva na rastline, saj zmanjša njihovo sposobnost zadrževanja vlage in hranilnih snovi."
+  },
+  "project.drought.theme.title": {
+    "en": "PROJECT THEME",
+    "sl": "PROJEKTNA TEMA"
+  },
+  "project.drought.theme.problem": {
+    "en": "Description of the specific problem we are researching and addressing:",
+    "sl": "Opis konkretnega problema, ki ga raziskujemo in naslavljamo:"
+  },
+  "project.drought.theme.description": {
+    "en": "At the location where we will be implementing the project (Biotope Livada), we are facing the problem of cracked turf in the spring-summer period. During extreme drought periods (June, July, and August), these cracks are so intense and deep that on marsh soil, the peat layer beneath the turf layer dries out. A radical consequence is micro-erosion into the cracks, creating smaller or larger depressions in the grassy surface.",
+    "sl": "Na lokaciji, kjer delamo projekt (Biotop Livada) imamo v pomladno poletnem času problem razpokane ruše. V ekstremnih obdobjih suše (junij, julij in avgust) so te razpoke tako močne in globoke, da se na barjanskih tleh suši šotna plast pod rušo. Posledica je mikroerozija v razpoke in nastajanje manjših ali večjih vdolbin v travi."
+  },
+  "project.drought.theme.turf": {
+    "en": "By turf, we describe the upper layer of natural soil, which is predominantly filled with a plant layer or plant cover. The soil that makes up the top layer of soil is interwoven with the roots of numerous plants, such as grasses, legumes, mosses, etc. The density of plants and their root interweaving is also the main reason for preventing soil erosion. Turf protects against too rapid and excessive soil drying, as it enables the absorption and retention of a certain amount of water. At the same time, it is also a natural living environment or habitat for many animal species (insects, rodents, etc.) and an area of abundance of food for many other animals.",
+    "sl": "Ruša je zgornja plast naravnih tal, ki jo večinoma zapolnjuje rastlinska plast ali odeja. Zemlja v zgornji plasti je prepletena s koreninami različnih rastlin, kot so trave, metuljnice, mahovi in podobno. Gostota rastlin in njihovih korenin je glavni razlog, da se zemlja ne spira. Ruša ščiti pred prehitrim sušenjem tal, ker vpija in zadrži vodo. Hkrati je tudi naravni dom za številne živali (insekte, glodalce,...) in vir hrane za mnoge druge živali."
+  },
+  "project.drought.theme.research": {
+    "en": "At the location, we will research the effects of so-called Conservation Agriculture, which addresses the covering of growing surfaces with plant mulch, especially by studying the effects of local (indigenous) cover plants.",
+    "sl": "Na lokaciji bomo raziskovali učinke t.i. Ohranitvenega kmetijstva, ki pokriva rastne površine z rastlinsko zastirko. Posebej bomo gledali učinke lokalnih (domačih) pokrovnih rastlin."
+  },
+  "project.drought.theme.coverplants": {
+    "en": "Cover plants are a very diverse group, including annuals, biennials, and perennials, in our climate winter-hardy and non-winter-hardy species, botanically belonging to various groups of higher plants – from ferns, conifers to angiosperms. From cover plants, we expect them to be hardy, without special care requirements, and sufficiently vigorous that as little weeding as possible will be needed. In addition to lower growth, many cover plants are also characterized by a rather deep root system, especially resistant to drought. Many are also quite resistant to occasional walking. Key characteristics are: ground-level or creeping growth, long and arched shoots, fast, even, and dense growth, growth from root offshoots, possibility of rooting upon contact with soil or propagation by cuttings, simple and fast propagation, undemanding cultivation, and resistance to lack of soil moisture.",
+    "sl": "Pokrovne rastline so zelo raznolika skupina, med katere prištevamo tako enoletnice, dvoletnice in trajnice, v naši klimi prezimne in neprezimne vrste, botanično pripadajoče najrazličnejšim skupinam višjih rastlin – od praprotnic, iglavcev do kritosemenk. Od pokrovnih rastlin pričakujemo, da bodo trpežne, brez posebnih zahtev glede oskrbe in dovolj raščave, da bo potrebnega čim manj pletja. Poleg nižje rasti je za mnoge pokrovne rastline značilen tudi precej globok koreninski sistem še posebej odporen na sušo. Mnogo jih je tudi precej odpornih na občasno hojo. Ključne lastnosti so: pritlehna ali plazeča se rast, dolgi in usločeni poganjki, hitra, enakomerna in gosta razrast, rast iz koreninskih odrastkov, možnost ukoreninjenja ob dotiku tal ali razmnoževanje z živicami, preprosto in hitro razmnoževanje, nezahtevno gojenje in odpornost na pomanjkanje talne vlage."
+  },
+  "project.drought.theme.soil": {
+    "en": "For the specific public green area Biotope Livada, we have a soil study, which also describes the (indigenous) plant species present on the mentioned meadow. The research will primarily serve as a basis for in-depth study of the conditions for successful growth in the given microclimatic conditions and the expected effects of global climate change, with special attention to potential extreme droughts of the future. Based on the study, we will select four locally present most effective plants that can be counted among cover species.",
+    "sl": "Za konkretno javno zeleno površino Biotop Livada imamo izdelano raziskavo tal, katera opisuje tudi (avtohtone) rastlinske vrste, ki so prisotne na omenjenem travniku. Raziskava nam bo v prvi vrsti služila kot podlaga za poglobljeno proučevanje pogojev uspešne rasti v danih mikroklimatskih pogojih in pričakovanih učinkov globalnih podnebnih sprememb s posebno pozornostjo na potencialnih ekstremnih sušah prihodnosti. Na podlagi proučevanja bomo izbrali štiri lokalno prisotne najučinkovitejše rastline, ki jih lahko štejemo med pokrivne vrste."
+  },
+  "nav.home": {
+    "en": "Home",
+    "sl": "Domov"
+  },
+  "nav.about": {
+    "en": "About",
+    "sl": "O nas"
+  },
+  "nav.projects": {
+    "en": "Projects",
+    "sl": "Projekti"
+  },
+  "nav.events": {
+    "en": "Events",
+    "sl": "Dogodki"
+  },
+  "nav.contact": {
+    "en": "Contact",
+    "sl": "Kontakt"
+  },
+  "home.title": {
+    "en": "Livada Biotope",
+    "sl": "Livada Biotop"
+  },
+  "home.subtitle": {
+    "en": "A playground of encounters",
+    "sl": "Igrišče srečanj"
+  },
+  "home.intro.p1": {
+    "en": "The Livada Biotope is conceived as a counter-space, a playground of encounters that supports different ways of relating to our kin in a decolonial manner. Under auspices of BOB Institute, we foster horizontality with other beings, plants, animals, fungi and microbiota, combining art, science, (post)humanities, ecofeminism, agriculture, somatics and other domains through transdisciplinary educational, experiential, social and political activities.",
+    "sl": "Livada Biotop je zasnovan kot proti-prostor, igrišče srečanj, ki podpira različne načine povezovanja z našimi sorodniki na dekolonialen način. Pod okriljem Inštituta BOB spodbujamo horizontalnost z drugimi bitji, rastlinami, živalmi, glivami in mikrobioto, združujoč umetnost, znanost, (post)humanistiko, ekofeminizem, kmetijstvo, somatiko in druga področja skozi transdisciplinarne izobraževalne, izkustvene, družbene in politične dejavnosti."
+  },
+  "home.intro.p2": {
+    "en": "We are tackling the challenge of abandoning anthropocentric principles and immersing ourselves in the wetlands, to reactivate the inherent relational links between all the actors of the ecosystem. We want to empower the community to use the space according to ecofeminist biocentric notions where humans are part of the cross-species communal life on earth to the same extent and under the same conditions as other living beings. Humans are now custodians of the meadow, no longer masters or dominant extractive users of the environment.",
+    "sl": "Soočamo se z izzivom opuščanja antropocentričnih načel in potapljanja v mokrišča, da bi ponovno aktivirali inherentne relacijske povezave med vsemi akterji ekosistema. Želimo opolnomočiti skupnost, da uporablja prostor v skladu z ekofeministično biocentrično predstavo, kjer so ljudje del medvrstnega skupnostnega življenja na Zemlji v enakem obsegu in pod enakimi pogoji kot druga živa bitja. Ljudje so zdaj skrbniki travnika, ne več gospodarji ali dominantni ekstraktivni uporabniki okolja."
+  },
+  "projects.title": {
+    "en": "Our Projects",
+    "sl": "Naši projekti"
+  },
+  "projects.subtitle": {
+    "en": "Explore our initiatives",
+    "sl": "Raziščite naše pobude"
+  },
+  "projects.letsNotDryOut.description": {
+    "en": "A project focused on sustainable water management and soil moisture monitoring.",
+    "sl": "Projekt, osredotočen na trajnostno upravljanje z vodo in spremljanje vlažnosti tal."
+  },
+  "events.title": {
+    "en": "Upcoming Events",
+    "sl": "Prihajajoči dogodki"
+  },
+  "events.subtitle": {
+    "en": "Join us for these activities",
+    "sl": "Pridružite se nam pri teh aktivnostih"
+  },
+  "events.noEvents": {
+    "en": "No upcoming events at the moment.",
+    "sl": "Trenutno ni prihajajočih dogodkov."
+  },
+  "sensors.title": {
+    "en": "Environmental Sensors - Reticulum Network",
+    "sl": "Okoljski senzorji - Reticulum omrežje"
+  },
+  "sensors.description": {
+    "en": "Real-time environmental data collected from Samsung Galaxy and MacBook devices via Reticulum network. The chart displays soil moisture, temperature, humidity, and light intensity readings.",
+    "sl": "Okoljski podatki v realnem času, zbrani iz naprav Samsung Galaxy in MacBook prek omrežja Reticulum. Graf prikazuje odčitke vlažnosti tal, temperature, vlažnosti in intenzivnosti svetlobe."
+  },
+  "sensors.connectedDevices": {
+    "en": "Connected Devices",
+    "sl": "Povezane naprave"
+  },
+  "sensors.sensorsActive": {
+    "en": "sensors active",
+    "sl": "aktivnih senzorjev"
+  },
+  "sensors.lastUpdate": {
+    "en": "Last update",
+    "sl": "Zadnja posodobitev"
+  },
+  "sensors.online": {
+    "en": "Online",
+    "sl": "Povezan"
+  },
+  "sensors.location": {
+    "en": "Location",
+    "sl": "Lokacija"
+  },
+  "sensors.battery": {
+    "en": "Battery",
+    "sl": "Baterija"
+  },
+  "sensors.altitude": {
+    "en": "Alt",
+    "sl": "Višina"
+  },
+  "sensors.dataSource": {
+    "en": "Data Source",
+    "sl": "Vir podatkov"
+  },
+  "sensors.mockData": {
+    "en": "Simulated Data",
+    "sl": "Simulirani podatki"
+  },
+  "sensors.reticulumData": {
+    "en": "Reticulum Network",
+    "sl": "Omrežje Reticulum"
+  },
+  "sensors.hashAddress": {
+    "en": "Collector Hash Address",
+    "sl": "Naslov zbiralnika"
+  },
+  "sensors.apply": {
+    "en": "Apply",
+    "sl": "Uporabi"
+  },
+  "sensors.usingSimulatedData": {
+    "en": "Using simulated sensor data",
+    "sl": "Uporaba simuliranih podatkov senzorja"
+  },
+  "sensors.connectedToReticulum": {
+    "en": "Connected to Reticulum network via Sideband",
+    "sl": "Povezan z omrežjem Reticulum preko Sideband"
+  },
+  "sensors.simulated": {
+    "en": "Simulated",
+    "sl": "Simulirano"
+  },
+  "sensors.reticulumNetwork": {
+    "en": "Reticulum Network",
+    "sl": "Omrežje Reticulum"
+  },
+  "sensors.connecting": {
+    "en": "Connecting...",
+    "sl": "Povezovanje..."
+  },
+  "sensors.toggleDetails": {
+    "en": "Toggle details",
+    "sl": "Preklopi podrobnosti"
+  },
+  "sensors.connectionDetails": {
+    "en": "Connection Details",
+    "sl": "Podrobnosti povezave"
+  },
+  "sensors.enterHashAddress": {
+    "en": "Enter Sideband collector hash address",
+    "sl": "Vnesite naslov zbiralnika Sideband"
+  },
+  "sensors.configured": {
+    "en": "Configured",
+    "sl": "Konfigurirano"
+  },
+  "sensors.configure": {
+    "en": "Configure",
+    "sl": "Konfiguriraj"
+  },
+  "sensors.hashAddressDescription": {
+    "en": "The hash address of the Sideband collector running on this Mac",
+    "sl": "Naslov zbiralnika Sideband, ki teče na tem Macu"
+  },
+  "events.pageTitle": {
+    "en": "Events Calendar",
+    "sl": "Koledar dogodkov"
+  },
+  "events.description": {
+    "en": "Join us for workshops, lectures, and community events focused on eco-feminist practices and sustainable living.",
+    "sl": "Pridružite se nam na delavnicah, predavanjih in skupnostnih dogodkih, osredotočenih na eko-feministične prakse in trajnostno življenje."
+  },
+  "events.upcomingEvents": {
+    "en": "Upcoming Events",
+    "sl": "Prihajajoči dogodki"
+  },
+  "events.subscribeToCalendar": {
+    "en": "Subscribe to Our Calendar",
+    "sl": "Naročite se na naš koledar"
+  },
+  "events.stayUpdated": {
+    "en": "Stay updated with all our events by adding our calendar to your favorite calendar app.",
+    "sl": "Ostanite obveščeni o vseh naših dogodkih z dodajanjem našega koledarja v vašo priljubljeno aplikacijo za koledar."
+  },
+  "events.addToGoogleCalendar": {
+    "en": "Add to Google Calendar",
+    "sl": "Dodaj v Google Koledar"
+  },
+  "events.downloadIcal": {
+    "en": "Download iCal File",
+    "sl": "Prenesi iCal datoteko"
+  },
+  "events.selectDate": {
+    "en": "Select a date to see events",
+    "sl": "Izberite datum za ogled dogodkov"
+  },
+  "events.eventsOn": {
+    "en": "Events on",
+    "sl": "Dogodki na dan"
+  },
+  "events.noEventsOnDate": {
+    "en": "No events on this date",
+    "sl": "Na ta dan ni dogodkov"
+  },
+  "events.location": {
+    "en": "Location",
+    "sl": "Lokacija"
+  },
+  "events.type": {
+    "en": "Type",
+    "sl": "Vrsta"
+  },
+  "events.types.workshop": {
+    "en": "workshop",
+    "sl": "delavnica"
+  },
+  "events.types.lecture": {
+    "en": "lecture",
+    "sl": "predavanje"
+  },
+  "events.types.community": {
+    "en": "community",
+    "sl": "skupnost"
+  },
+  "events.types.other": {
+    "en": "other",
+    "sl": "drugo"
+  }
+}
