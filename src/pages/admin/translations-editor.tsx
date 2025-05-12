@@ -203,12 +203,11 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
     }
   };
 
-  // Handle login
+  // Handle login with GitHub OAuth or database connection
   const handleLogin = () => {
     loginWithRedirect({
-      authorizationParams: {
-        connection: 'Username-Password-Authentication'
-      }
+      // Allow Auth0 to show all available login options
+      // This will include GitHub if configured in Auth0 dashboard
     });
   };
 

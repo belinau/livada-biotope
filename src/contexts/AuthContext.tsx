@@ -25,7 +25,9 @@ const auth0Config = {
   clientId: process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID || '',
   redirectUri: typeof window !== 'undefined' ? window.location.origin : '',
   audience: process.env.NEXT_PUBLIC_AUTH0_AUDIENCE || '',
-  scope: 'read:translations update:translations'
+  scope: 'read:translations update:translations',
+  // Allow both GitHub and database authentication
+  connection: ''
 };
 
 // Auth Provider component
