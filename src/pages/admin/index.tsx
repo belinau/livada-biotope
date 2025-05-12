@@ -1,11 +1,15 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useAuth } from '@/contexts/AuthContext';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
+import CircularProgress from '@mui/material/CircularProgress';
 import SharedLayout from '@/components/layout/SharedLayout';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 // Define the type for pages with custom layouts
 interface PageWithLayout {
@@ -14,13 +18,57 @@ interface PageWithLayout {
 
 const AdminPage: React.FC & PageWithLayout = () => {
   const router = useRouter();
+  const { isAuthenticated, isLoading, loginWithRedirect, logout } = useAuth();
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <Container maxWidth="md" sx={{ py: 8 }}>
+        <Paper elevation={3} sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Livada Biotope Admin
+          </Typography>
+          <Typography variant="body1" paragraph>
+            You need to be authenticated to access the admin area.
+          </Typography>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            startIcon={<LoginIcon />}
+            onClick={() => loginWithRedirect()}
+            sx={{ mt: 2 }}
+          >
+            Log In with Auth0
+          </Button>
+        </Paper>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="md" sx={{ py: 8 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Livada Biotope Admin
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h4" component="h1">
+            Livada Biotope Admin
+          </Typography>
+          <Button
+            variant="outlined"
+            color="secondary"
+            startIcon={<LogoutIcon />}
+            onClick={() => logout()}
+          >
+            Logout
+          </Button>
+        </Box>
+        
         <Typography variant="body1" paragraph>
           Welcome to the Livada Biotope admin area. Please select an option below:
         </Typography>
