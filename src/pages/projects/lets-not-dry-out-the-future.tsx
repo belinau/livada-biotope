@@ -47,8 +47,8 @@ export default function LetsNotDryOutTheFuture() {
       <div
         role="tabpanel"
         hidden={value !== index}
-        id={`project-tabpanel-${index}`}
-        aria-labelledby={`project-tab-${index}`}
+        id={`drought-project-tabpanel-${index}`}
+        aria-labelledby={`drought-project-tab-${index}`}
         {...other}
       >
         {value === index && (
@@ -85,9 +85,21 @@ export default function LetsNotDryOutTheFuture() {
             indicatorColor="primary"
             aria-label="project navigation tabs"
           >
-            <Tab label={t('project.tabs.sensors')} />
-            <Tab label={t('project.tabs.climateChange')} />
-            <Tab label={t('project.tabs.joinUs')} />
+            <Tab 
+              label={t('project.tabs.sensors')} 
+              id={`drought-project-tab-0`}
+              aria-controls={`drought-project-tabpanel-0`}
+            />
+            <Tab 
+              label={t('project.tabs.climateChange')} 
+              id={`drought-project-tab-1`}
+              aria-controls={`drought-project-tabpanel-1`}
+            />
+            <Tab 
+              label={t('project.tabs.joinUs')} 
+              id={`drought-project-tab-2`}
+              aria-controls={`drought-project-tabpanel-2`}
+            />
           </Tabs>
         </Paper>
 

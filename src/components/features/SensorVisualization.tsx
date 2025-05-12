@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TimeScale } from 'chart.js';
 import 'chartjs-adapter-date-fns';
+import { Box, Typography, Paper, CircularProgress, Button, Alert, Grid } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { sensorConfigs } from '@/lib/sensorConfig';
 import { SensorService, DataSource } from '@/lib/sensorService';
 import { ReticulumDataSourceSelector } from './ReticulumDataSourceSelector';
@@ -180,100 +182,110 @@ export const SensorVisualization: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <Box sx={{ mb: 4 }}>
       <ReticulumDataSourceSelector />
       
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium text-gray-800">Soil Moisture Sensors</h3>
+      <Paper elevation={2} sx={{ p: 3, borderRadius: 2, mt: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 'medium', color: 'text.primary' }}>Soil Moisture Sensors</Typography>
           {lastUpdated && (
-            <div className="text-sm text-gray-500">
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               Last updated: {lastUpdated.toLocaleTimeString()}
-            </div>
+            </Typography>
           )}
-        </div>
+        </Box>
         
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
-          </div>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
+            <CircularProgress color="primary" />
+          </Box>
         ) : error ? (
-          <div className="text-center text-red-500 py-4">
-            <p>Error loading sensor data</p>
-            <button
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Alert severity="error" sx={{ mb: 2 }}>Error loading sensor data</Alert>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<RefreshIcon />}
               onClick={fetchSensorData}
-              className="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
             >
               Retry
-            </button>
-          </div>
+            </Button>
+          </Box>
         ) : (
           <>
-            <p className="text-gray-600 mb-4">
-              {t('sensors.description')}
-            </p>
-            <div className={isMobile ? "h-80" : "h-64"}>
+            <Typography variant="body1" sx={{ color: 'text.secondary', mb: 3 }}>
+              {t('sensors.description') || 'Real-time soil moisture data from our sensor network at Livada Biotope.'}
+            </Typography>
+            <Box sx={{ height: isMobile ? 320 : 260, mb: 2 }}>
               <Line data={getChartData()} options={options} />
-            </div>
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <div className="flex justify-between mb-2">
-                <h4 className="text-sm font-medium text-gray-700">{t('sensors.connectedDevices')}</h4>
-                <span className="text-xs text-gray-500">4 {t('sensors.sensorsActive')} • {t('sensors.lastUpdate')}: {new Date().toLocaleTimeString()}</span>
-              </div>
+            </Box>
+            <Box sx={{ mt: 4, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>{t('sensors.connectedDevices') || 'Connected Devices'}</Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>4 {t('sensors.sensorsActive') || 'sensors active'} • {t('sensors.lastUpdate') || 'Last update'}: {new Date().toLocaleTimeString()}</Typography>
+              </Box>
               
-              <div className="space-y-3">
-                <div className="p-3 bg-gray-50 rounded-md">
-                  <div className="flex justify-between items-center mb-2">
-                    <h5 className="text-sm font-medium text-gray-800">Samsung Galaxy</h5>
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">{t('sensors.online')}</span>
-                  </div>
-                  <div className="text-xs text-gray-500 mb-3">
-                    {t('sensors.location')}: 46.075219, 14.480671 ({t('sensors.altitude')}: 363.2m) • {t('sensors.battery')}: 69%
-                  </div>
-                  <div className="space-y-2">
-                    {sensorConfigs
-                      .filter(config => config.deviceType === 'Samsung Galaxy')
-                      .map(config => (
-                        <div key={config.id} className="p-2 bg-white border border-gray-200 rounded-md shadow-sm">
-                          <div className="flex items-center">
-                            <span className="w-3 h-3 mr-2 rounded-full" style={{ backgroundColor: config.color }}></span>
-                            <span className="text-sm font-medium text-gray-800">{config.name}</span>
-                          </div>
-                          <div className="mt-1 text-xs text-gray-600 pl-5">{config.description}</div>
-                          <div className="mt-1 text-xs text-gray-500 pl-5">{t('sensors.location')}: {config.location}</div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Paper elevation={1} sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle2">Samsung Galaxy</Typography>
+                      <Box sx={{ px: 1, py: 0.5, bgcolor: 'success.light', color: 'success.dark', borderRadius: 10, fontSize: '0.75rem' }}>
+                        {t('sensors.online') || 'Online'}
+                      </Box>
+                    </Box>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 2 }}>
+                      {t('sensors.location') || 'Location'}: 46.075219, 14.480671 ({t('sensors.altitude') || 'Altitude'}: 363.2m) • {t('sensors.battery') || 'Battery'}: 69%
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      {sensorConfigs
+                        .filter(config => config.deviceType === 'Samsung Galaxy')
+                        .map(config => (
+                          <Paper key={config.id} variant="outlined" sx={{ p: 1.5, borderRadius: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <Box sx={{ width: 12, height: 12, borderRadius: '50%', mr: 1, bgcolor: config.color }} />
+                              <Typography variant="body2" sx={{ fontWeight: 'medium' }}>{config.name}</Typography>
+                            </Box>
+                            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5, ml: 3 }}>{config.description}</Typography>
+                            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5, ml: 3 }}>{t('sensors.location') || 'Location'}: {config.location}</Typography>
+                          </Paper>
+                        ))}
+                    </Box>
+                  </Paper>
+                </Grid>
                 
-                <div className="p-3 bg-gray-50 rounded-md">
-                  <div className="flex justify-between items-center mb-2">
-                    <h5 className="text-sm font-medium text-gray-800">MacBook</h5>
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">{t('sensors.online')}</span>
-                  </div>
-                  <div className="text-xs text-gray-500 mb-3">
-                    {t('sensors.location')}: Indoor • {t('sensors.lastUpdate')}: {new Date().toLocaleTimeString()}
-                  </div>
-                  <div className="space-y-2">
-                    {sensorConfigs
-                      .filter(config => config.deviceType === 'MacBook')
-                      .map(config => (
-                        <div key={config.id} className="p-2 bg-white border border-gray-200 rounded-md shadow-sm">
-                          <div className="flex items-center">
-                            <span className="w-3 h-3 mr-2 rounded-full" style={{ backgroundColor: config.color }}></span>
-                            <span className="text-sm font-medium text-gray-800">{config.name}</span>
-                          </div>
-                          <div className="mt-1 text-xs text-gray-600 pl-5">{config.description}</div>
-                          <div className="mt-1 text-xs text-gray-500 pl-5">{t('sensors.location')}: {config.location}</div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+                <Grid item xs={12}>
+                  <Paper elevation={1} sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle2">MacBook Pro</Typography>
+                      <Box sx={{ px: 1, py: 0.5, bgcolor: 'success.light', color: 'success.dark', borderRadius: 10, fontSize: '0.75rem' }}>
+                        {t('sensors.online') || 'Online'}
+                      </Box>
+                    </Box>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 2 }}>
+                      {t('sensors.location') || 'Location'}: 46.075219, 14.480671 ({t('sensors.altitude') || 'Altitude'}: 363.2m) • {t('sensors.battery') || 'Battery'}: 87%
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      {sensorConfigs
+                        .filter(config => config.deviceType === 'MacBook Pro')
+                        .map(config => (
+                          <Paper key={config.id} variant="outlined" sx={{ p: 1.5, borderRadius: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <Box sx={{ width: 12, height: 12, borderRadius: '50%', mr: 1, bgcolor: config.color }} />
+                              <Typography variant="body2" sx={{ fontWeight: 'medium' }}>{config.name}</Typography>
+                            </Box>
+                            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5, ml: 3 }}>{config.description}</Typography>
+                            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5, ml: 3 }}>{t('sensors.location') || 'Location'}: {config.location}</Typography>
+                          </Paper>
+                        ))}
+                    </Box>
+                  </Paper>
+                </Grid>
+              </Grid>
+            </Box>
           </>
         )}
-      </div>
-    </div>
+      </Paper>
+    </Box>
   );
 };
