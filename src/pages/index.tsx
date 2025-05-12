@@ -70,6 +70,7 @@ export default function Home() {
             pattern="waves"
             height="100%"
             width="100%"
+            imageSrc="/images/fritillaria.jpg"
           />
         </Box>
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
@@ -189,6 +190,7 @@ export default function Home() {
                     pattern="dots"
                     height="100%"
                     width="100%"
+                    imageSrc="/images/more-than-human.jpg"
                   />
                 </Box>
               </Paper>
@@ -228,18 +230,18 @@ export default function Home() {
             {/* Project Card 1 */}
             <Grid item xs={12} sm={6} md={4}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ height: '220px', position: 'relative' }}>
+                <Box sx={{ height: '200px', mb: 2 }}>
                   <StylizedImage 
                     speciesName={{
-                      en: "European Marsh Marigold",
-                      sl: "Mokriška zlatika"
+                      en: "Wetland Restoration",
+                      sl: "Obnova mokrišč"
                     }}
-                    latinName="Caltha palustris"
                     backgroundColor="#f8f5e6"
                     patternColor="#2e7d32"
-                    pattern="lines"
+                    pattern="waves"
                     height="100%"
                     width="100%"
+                    imageSrc="/images/illustrations/botanical-1.jpg"
                   />
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>
@@ -275,6 +277,7 @@ export default function Home() {
                     pattern="waves"
                     height="100%"
                     width="100%"
+                    imageSrc="/images/illustrations/zoological-1.jpg"
                   />
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>
@@ -302,7 +305,7 @@ export default function Home() {
                   <StylizedImage 
                     speciesName={{
                       en: "Bee Orchid",
-                      sl: "Čebelaška muhičnica"
+                      sl: "Čebelaska muhičnica"
                     }}
                     latinName="Ophrys apifera"
                     backgroundColor="#f9f3f3"
@@ -310,6 +313,7 @@ export default function Home() {
                     pattern="lines"
                     height="100%"
                     width="100%"
+                    imageSrc="/images/biodiversity-monitoring.jpg"
                   />
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>
