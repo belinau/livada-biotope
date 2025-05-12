@@ -17,6 +17,7 @@ export const Navbar = () => {
     { href: '/instructables', label: t('Navbar.instructables') },
     { href: '/ecofeminism', label: t('Navbar.ecofeminism') },
     { href: '/events', label: t('Navbar.events') },
+    { href: '/galleries', label: t('Navbar.galleries') },
     { href: '/about', label: t('Navbar.about') },
     { href: '/contact', label: t('Navbar.contact', 'Contact') },
     { href: '/blog', label: t('Navbar.blog', 'Blog') },
