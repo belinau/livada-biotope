@@ -12,9 +12,7 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
-import { GetStaticProps } from 'next';
-import path from 'path';
-import fs from 'fs';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // Define styled links to avoid TypeScript errors with '&:hover'
 const StyledLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
@@ -28,84 +26,97 @@ interface CalendarEvent {
   id: string;
   title: string;
   description: string;
-  start: string;
-  end: string;
+  start: string | Date;
+  end: string | Date;
   location: string;
   type: 'workshop' | 'lecture' | 'community' | 'other';
   url?: string;
 }
 
-interface EventsProps {
-  staticEvents: CalendarEvent[];
-}
-
-function Events({ staticEvents }: EventsProps) {
+function Events() {
   const { language } = useLanguage();
   const [upcomingEvents, setUpcomingEvents] = useState<CalendarEvent[]>([]);
   const [pastEvents, setPastEvents] = useState<CalendarEvent[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [pastEventsVisible, setPastEventsVisible] = useState<boolean>(false);
   const [isClient, setIsClient] = useState<boolean>(false);
 
   // Set isClient to true when component mounts on client
   useEffect(() => {
     setIsClient(true);
-    processEvents();
   }, []);
-  
-  // Update when language changes
+
+  // Fetch events when the component mounts or language changes
   useEffect(() => {
     if (isClient) {
-      processEvents();
+      fetchEvents();
     }
   }, [language, isClient]);
-  
+
+  // Function to fetch events from the serverless function
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Set locale based on language
+      const locale = language === 'sl' ? 'sl' : 'en';
+
+      // Use Netlify serverless function to fetch calendar events
+      const functionUrl = `/.netlify/functions/calendar/calendar?locale=${locale}`;
+
+      const response = await fetch(functionUrl);
+
+      if (!response.ok) {
+        throw new Error(`Error fetching from serverless function: ${response.status}`);
+      }
+
+      const events: CalendarEvent[] = await response.json();
+
+      // Process events and separate into upcoming and past
+      processEvents(events);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      setError(language === 'en' ? 'Failed to load events' : 'Napaka pri nalaganju dogodkov');
+      setLoading(false);
+    }
+  };
+
   // Process events and separate into upcoming and past
-  const processEvents = () => {
-    if (!staticEvents || staticEvents.length === 0) {
+  const processEvents = (events: CalendarEvent[]) => {
+    if (!events || events.length === 0) {
+      setError(language === 'en' ? 'No events found' : 'Ni najdenih dogodkov');
+      setLoading(false);
       return;
     }
-    
-    // Convert string dates to Date objects for comparison
-    const processedEvents = staticEvents.map(event => ({
+
+    // Convert string dates to Date objects
+    const processedEvents = events.map(event => ({
       ...event,
-      startDate: new Date(event.start),
-      endDate: new Date(event.end)
+      start: new Date(event.start),
+      end: new Date(event.end)
     }));
-    
+
+    // Get upcoming events (next 3 months)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
-    // Get upcoming events
+
     const upcoming = processedEvents
-      .filter(event => event.startDate >= today)
-      .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
+      .filter(event => event.start >= today)
+      .sort((a, b) => a.start.getTime() - b.start.getTime())
       .slice(0, 3);
-    
-    setUpcomingEvents(upcoming.map(event => ({
-      ...event,
-      title: translateText(event.title, language),
-      description: translateText(event.description, language),
-      location: translateText(event.location, language)
-    })));
-    
-    // Get past events
+
+    setUpcomingEvents(upcoming);
+
+    // Get past events (last 3 months)
     const past = processedEvents
-      .filter(event => event.startDate < today)
-      .sort((a, b) => b.startDate.getTime() - a.startDate.getTime())
+      .filter(event => event.start < today)
+      .sort((a, b) => b.start.getTime() - a.start.getTime()) // Most recent first
       .slice(0, 3);
       
-    setPastEvents(past.map(event => ({
-      ...event,
-      title: translateText(event.title, language),
-      description: translateText(event.description, language),
-      location: translateText(event.location, language)
-    })));
-  };
-  
-  // Simple translation function (in a real app, use a proper translation service)
-  const translateText = (text: string, lang: string): string => {
-    // This is a placeholder - in a real app, implement proper translations
-    return text;
+    setPastEvents(past);
+    setLoading(false);
   };
   
   // Toggle past events visibility
@@ -114,8 +125,8 @@ function Events({ staticEvents }: EventsProps) {
   };
 
   // Format date for display
-  const formatEventDate = (dateStr: string): string => {
-    const date = new Date(dateStr);
+  const formatEventDate = (dateInput: string | Date): string => {
+    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
     return date.toLocaleDateString(language === 'sl' ? 'sl-SI' : 'en-US', {
       year: 'numeric',
       month: 'long',
@@ -124,9 +135,9 @@ function Events({ staticEvents }: EventsProps) {
   };
   
   // Format time for display
-  const formatEventTime = (startStr: string, endStr: string): string => {
-    const start = new Date(startStr);
-    const end = new Date(endStr);
+  const formatEventTime = (startInput: string | Date, endInput: string | Date): string => {
+    const start = typeof startInput === 'string' ? new Date(startInput) : startInput;
+    const end = typeof endInput === 'string' ? new Date(endInput) : endInput;
     return `${start.toLocaleTimeString(language === 'sl' ? 'sl-SI' : 'en-US', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString(language === 'sl' ? 'sl-SI' : 'en-US', { hour: '2-digit', minute: '2-digit' })}`;
   };
 
@@ -275,28 +286,6 @@ Events.getLayout = (page: React.ReactNode) => {
   return <SharedLayout>{page}</SharedLayout>;
 };
 
-export const getStaticProps: GetStaticProps = async () => {
-  try {
-    // Read the events data from the JSON file
-    const eventsFilePath = path.join(process.cwd(), 'src/content/events/events.json');
-    const eventsData = fs.readFileSync(eventsFilePath, 'utf8');
-    const events = JSON.parse(eventsData);
-    
-    return {
-      props: {
-        staticEvents: events
-      }
-    };
-  } catch (error) {
-    console.error('Error loading events data:', error);
-    
-    // Return empty events array if there's an error
-    return {
-      props: {
-        staticEvents: []
-      }
-    };
-  }
-};
+// No longer need getStaticProps as we're fetching data client-side
 
 export default Events;
