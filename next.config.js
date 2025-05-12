@@ -37,8 +37,6 @@ const nextConfig = {
   },
   // Needed for better URL handling
   trailingSlash: true,
-  // Auth0 requires server-side functionality, so we can't use static export
-  // output: 'export',
   // Ensure assets are properly handled
   assetPrefix: process.env.NODE_ENV === 'production' ? 'https://livada-bio.netlify.app' : '',
 }

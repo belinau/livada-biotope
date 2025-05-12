@@ -203,9 +203,8 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
     }
   };
 
-  // Handle login
+  // Handle login - redirect to Netlify CMS admin
   const handleLogin = () => {
-    // Simple login without specifying connection to let Auth0 handle it
     loginWithRedirect();
   };
 
@@ -319,7 +318,7 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
             onClick={handleLogin}
             sx={{ mt: 2 }}
           >
-            Log In with Auth0
+            Log In with GitHub
           </Button>
         </Paper>
       </Container>

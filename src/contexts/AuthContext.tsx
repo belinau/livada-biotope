@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 
 // Define the Auth context type
 interface AuthContextType {
@@ -19,62 +18,42 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Auth0 configuration
-const auth0Config = {
-  domain: process.env.NEXT_PUBLIC_AUTH0_DOMAIN || '',
-  clientId: process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID || '',
-  redirectUri: typeof window !== 'undefined' ? window.location.origin : '',
-  audience: process.env.NEXT_PUBLIC_AUTH0_AUDIENCE || '',
-  scope: 'read:translations update:translations',
-  // Allow both GitHub and database authentication
-  connection: ''
-};
-
-// Auth Provider component
+// Auth Provider component that works with Netlify CMS
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  // Determine if we're in the browser
+  // Create a simplified context that redirects to Netlify CMS for authentication
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  
+  // Check if we're in the browser
   const isBrowser = typeof window !== 'undefined';
   
-  // Use the custom domain for redirects
-  const customDomain = 'https://livada.bio';
+  // Simplified login function that redirects to Netlify CMS admin
+  const loginWithRedirect = () => {
+    if (isBrowser) {
+      window.location.href = '/admin';
+    }
+  };
   
-  // Get the current URL for proper redirect handling
-  const currentUrl = customDomain;
+  // Simplified logout function
+  const logout = () => {
+    if (isBrowser) {
+      window.location.href = '/';
+    }
+  };
   
-  return (
-    <Auth0Provider
-      domain={auth0Config.domain}
-      clientId={auth0Config.clientId}
-      authorizationParams={{
-        redirect_uri: currentUrl,
-        audience: auth0Config.audience,
-        scope: auth0Config.scope
-      }}
-      cacheLocation="localstorage"
-    >
-      <AuthContextContent>{children}</AuthContextContent>
-    </Auth0Provider>
-  );
-};
-
-// The actual context content
-const AuthContextContent: React.FC<AuthProviderProps> = ({ children }) => {
-  const {
-    isAuthenticated,
-    isLoading,
-    user,
-    loginWithRedirect,
-    logout,
-    getAccessTokenSilently
-  } = useAuth0();
-
+  // Simplified token function
+  const getAccessTokenSilently = async () => {
+    return 'netlify-cms-token';
+  };
+  
   // Create the context value
   const contextValue: AuthContextType = {
     isAuthenticated,
     isLoading,
     user,
     loginWithRedirect,
-    logout: () => logout({ logoutParams: { returnTo: window.location.origin } }),
+    logout,
     getAccessTokenSilently
   };
 

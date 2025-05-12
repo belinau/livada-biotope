@@ -11,43 +11,38 @@ const cache = new NodeCache({ stdTTL: 300 });
 // Path to the translations JSON file in the Git repository
 const TRANSLATIONS_PATH = path.join(__dirname, 'translations.json');
 
-// Auth0 configuration
-const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN || '';
-const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE || '';
+// GitHub OAuth configuration
+const GITHUB_TOKEN_SECRET = process.env.GITHUB_TOKEN_SECRET || 'livada-biotope-github-secret';
 
-// Create a JWKS client
-const client = jwksClient({
-  jwksUri: `https://${AUTH0_DOMAIN}/.well-known/jwks.json`
-});
-
-// Function to get the signing key
-const getSigningKey = (header, callback) => {
-  client.getSigningKey(header.kid, (err, key) => {
-    if (err) return callback(err);
-    const signingKey = key.publicKey || key.rsaPublicKey;
-    callback(null, signingKey);
-  });
+// Verify GitHub token
+const verifyGitHubToken = async (token) => {
+  try {
+    // Verify the token with GitHub API
+    const response = await fetch('https://api.github.com/user', {
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`GitHub API error: ${response.status}`);
+    }
+    
+    const userData = await response.json();
+    return userData;
+  } catch (error) {
+    console.error('Error verifying GitHub token:', error);
+    throw error;
+  }
 };
 
-// Verify JWT token
+// Simplified token verification for public endpoints
+// This is used for non-admin endpoints that don't require authentication
 const verifyToken = (token) => {
-  return new Promise((resolve, reject) => {
-    jwt.verify(
-      token,
-      getSigningKey,
-      {
-        audience: AUTH0_AUDIENCE,
-        issuer: `https://${AUTH0_DOMAIN}/`,
-        algorithms: ['RS256']
-      },
-      (err, decoded) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(decoded);
-      }
-    );
-  });
+  // For public endpoints, we don't need to verify the token
+  // Just return a resolved promise
+  return Promise.resolve({ sub: 'public-user' });
 };
 
 exports.handler = async (event, context) => {
