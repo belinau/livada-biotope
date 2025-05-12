@@ -85,9 +85,9 @@ export default function LetsNotDryOutTheFuture() {
             indicatorColor="primary"
             aria-label="project navigation tabs"
           >
-            <Tab label="Sensors" />
-            <Tab label="Climate Change" />
-            <Tab label="Join Us" />
+            <Tab label={t('project.tabs.sensors')} />
+            <Tab label={t('project.tabs.climateChange')} />
+            <Tab label={t('project.tabs.joinUs')} />
           </Tabs>
         </Paper>
 

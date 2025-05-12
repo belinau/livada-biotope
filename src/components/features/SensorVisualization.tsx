@@ -75,15 +75,44 @@ export const SensorVisualization: React.FC = () => {
     };
   };
 
+  // Use window.innerWidth to determine if we're on mobile
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Check initially
+    checkMobile();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkMobile);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: {
+          // Reduce font size on mobile
+          font: {
+            size: isMobile ? 10 : 12
+          },
+          boxWidth: isMobile ? 10 : 40
+        }
       },
       title: {
         display: true,
         text: t('sensors.title'),
+        font: {
+          size: isMobile ? 14 : 16
+        }
       },
       tooltip: {
         callbacks: {
@@ -92,6 +121,11 @@ export const SensorVisualization: React.FC = () => {
             const sensor = sensorConfigs.find(s => s.id === sensorId);
             let label = context.dataset.label || '';
             let value = context.parsed.y;
+            
+            // For mobile, shorten the label
+            if (isMobile && label.length > 15) {
+              label = label.substring(0, 15) + '...';
+            }
             
             if (sensor) {
               if (sensor.name.includes('Temperature')) {
@@ -111,22 +145,35 @@ export const SensorVisualization: React.FC = () => {
       x: {
         type: 'time' as const,
         time: {
-          unit: 'hour' as const
+          unit: 'hour' as const,
+          // Display fewer ticks on mobile
+          stepSize: isMobile ? 2 : 1
         },
         title: {
-          display: true,
+          display: !isMobile, // Hide title on mobile
           text: 'Time'
+        },
+        ticks: {
+          maxRotation: isMobile ? 45 : 0,
+          font: {
+            size: isMobile ? 8 : 12
+          },
+          // Show fewer ticks on mobile
+          maxTicksLimit: isMobile ? 5 : 10
         }
       },
       y: {
         title: {
-          display: true,
+          display: !isMobile, // Hide title on mobile
           text: 'Sensor Values'
         },
         min: 0,
         max: 100,
         ticks: {
-          stepSize: 20
+          stepSize: isMobile ? 25 : 20,
+          font: {
+            size: isMobile ? 8 : 12
+          }
         }
       },
     },
@@ -165,7 +212,7 @@ export const SensorVisualization: React.FC = () => {
             <p className="text-gray-600 mb-4">
               {t('sensors.description')}
             </p>
-            <div className="h-64">
+            <div className={isMobile ? "h-80" : "h-64"}>
               <Line data={getChartData()} options={options} />
             </div>
             <div className="mt-4 pt-4 border-t border-gray-100">

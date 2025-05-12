@@ -73,22 +73,30 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {isOpen && (
-        <div className="sm:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            {menuItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="block px-3 py-2 text-base font-medium text-gray-900 hover:text-livada-green"
-                onClick={toggleMenu}
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
+      <div className={`sm:hidden ${isOpen ? 'block' : 'hidden'}`}>
+        <div className="px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg">
+          {menuItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="block px-3 py-2 text-base font-medium text-gray-900 hover:text-livada-green"
+              onClick={toggleMenu}
+            >
+              {item.label}
+            </Link>
+          ))}
+          <button
+            onClick={() => {
+              const newLanguage = language === 'sl' ? 'en' : 'sl';
+              setLanguage(newLanguage);
+              toggleMenu();
+            }}
+            className="w-full text-left px-3 py-2 text-base font-medium text-white bg-livada-green hover:bg-livada-green/90 rounded-md mt-2"
+          >
+            {language === 'sl' ? 'English' : 'Slovenščina'}
+          </button>
         </div>
-      )}
+      </div>
     </nav>
   );
 };

@@ -231,6 +231,18 @@
     "en": "Real-time environmental data collected from Samsung Galaxy and MacBook devices via Reticulum network. The chart displays soil moisture, temperature, humidity, and light intensity readings.",
     "sl": "Okoljski podatki v realnem času, zbrani iz naprav Samsung Galaxy in MacBook prek omrežja Reticulum. Graf prikazuje odčitke vlažnosti tal, temperature, vlažnosti in intenzivnosti svetlobe."
   },
+  "project.tabs.sensors": {
+    "en": "Sensors",
+    "sl": "Senzorji"
+  },
+  "project.tabs.climateChange": {
+    "en": "Climate Change",
+    "sl": "Podnebne spremembe"
+  },
+  "project.tabs.joinUs": {
+    "en": "Join Us",
+    "sl": "Pridruži se nam"
+  },
   "sensors.connectedDevices": {
     "en": "Connected Devices",
     "sl": "Povezane naprave"
