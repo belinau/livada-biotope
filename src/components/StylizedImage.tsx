@@ -14,6 +14,8 @@ interface StylizedImageProps {
   height?: string | number;
   width?: string | number;
   pattern?: 'dots' | 'lines' | 'waves' | 'leaves';
+  imageSrc?: string; // Optional image source URL
+  objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down'; // Optional object-fit property
 }
 
 // Create a placeholder component for server-side rendering
