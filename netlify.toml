@@ -23,7 +23,23 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# This redirect is essential for client-side routing
+# Handle static assets and images
+[[redirects]]
+  from = "/images/*"
+  to = "/images/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/assets/*"
+  to = "/assets/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/favicon.ico"
+  to = "/favicon.ico"
+  status = 200
+
+# This redirect is essential for client-side routing (must be last)
 [[redirects]]
   from = "/*"
   to = "/index.html"

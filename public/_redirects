@@ -2,8 +2,13 @@
 /api/*  /.netlify/functions/:splat  200
 /_next/*  /_next/:splat  200
 
+# Handle static assets and images
+/images/*  /images/:splat  200
+/assets/*  /assets/:splat  200
+/favicon.ico  /favicon.ico  200
+
 # Handle Auth0 callback
 /callback  /  200
 
-# Handle client-side routing
+# Handle client-side routing (must be last)
 /*  /index.html  200
