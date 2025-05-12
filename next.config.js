@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Specify dependencies that should be transpiled
+  transpilePackages: ['react-markdown', 'remark', 'remark-html'],
   reactStrictMode: true,
   images: {
-    domains: ['localhost', 'livada-bio.netlify.app', 'livada-biotope.netlify.app', 'static.inaturalist.org', 'inaturalist-open-data.s3.amazonaws.com', 'via.placeholder.com'],
+    domains: ['localhost', 'livada-bio.netlify.app', 'livada-biotope.netlify.app', 'static.inaturalist.org', 'inaturalist-open-data.s3.amazonaws.com', 'via.placeholder.com', 'inaturalist-assets.s3.amazonaws.com', 'static.inaturalist.org'],
     unoptimized: true,
     remotePatterns: [
       {

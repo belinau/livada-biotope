@@ -1,6 +1,7 @@
 import React from 'react';
 import { GetStaticProps } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getAllPosts } from '@/lib/markdown';
 import SharedLayout from '@/components/layout/SharedLayout';
 
@@ -35,11 +36,13 @@ export default function BlogPage({ posts }: BlogPageProps) {
         {posts.map((post) => (
           <div key={post.slug} className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:transform hover:-translate-y-1">
             {post.frontmatter.thumbnail ? (
-              <div className="h-56 overflow-hidden">
-                <img 
+              <div className="h-56 overflow-hidden relative">
+                <Image 
                   src={post.frontmatter.thumbnail} 
                   alt={post.frontmatter.title}
-                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-cover transition-transform duration-500 hover:scale-105"
                 />
               </div>
             ) : (

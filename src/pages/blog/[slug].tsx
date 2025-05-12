@@ -1,5 +1,7 @@
 import React from 'react';
 import { GetStaticProps, GetStaticPaths } from 'next';
+import Link from 'next/link';
+import Image from 'next/image';
 import { getAllPosts, getMarkdownContent, getFiles } from '@/lib/markdown';
 import SharedLayout from '@/components/layout/SharedLayout';
 import path from 'path';
@@ -26,12 +28,12 @@ export default function BlogPostPage({ post }: BlogPostProps) {
       <div className="max-w-3xl mx-auto">
         {/* Back to blog link */}
         <div className="mb-8">
-          <a href="/blog" className="text-green-700 hover:text-green-900 font-medium inline-flex items-center">
+          <Link href="/blog" className="text-green-700 hover:text-green-900 font-medium inline-flex items-center">
             <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
             </svg>
             Back to all articles
-          </a>
+          </Link>
         </div>
         
         {/* Article header */}
@@ -46,11 +48,14 @@ export default function BlogPostPage({ post }: BlogPostProps) {
         
         {/* Featured image */}
         {post.frontmatter.thumbnail && (
-          <figure className="mb-10">
-            <img 
+          <figure className="mb-10 relative w-full h-[400px]">
+            <Image 
               src={post.frontmatter.thumbnail} 
               alt={post.frontmatter.title}
-              className="w-full h-auto rounded-lg shadow-md"
+              fill
+              sizes="(max-width: 768px) 100vw, 800px"
+              priority
+              className="object-cover rounded-lg shadow-md"
             />
           </figure>
         )}

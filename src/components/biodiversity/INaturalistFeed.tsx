@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { useLanguage } from '../../contexts/LanguageContext';
 import useTranslations from '../../hooks/useTranslations';
 import { fetchWithCache } from '../../lib/cacheUtils';
@@ -288,94 +289,19 @@ const INaturalistFeed: React.FC = () => {
                 },
               }}
             >
-              <Box sx={{ position: 'relative', height: 240, overflow: 'hidden' }}>
-                <CardMedia
-                  component="img"
-                  height="100%"
-                  image={observation.imageUrl || 'https://via.placeholder.com/800x600?text=No+Image'}
-                  alt={observation.formattedName || observation.species_guess}
-                  onError={(e) => {
-                    // Fallback to alternative URLs if available
-                    const target = e.target as HTMLImageElement;
-                    const currentSrc = target.src;
-                    console.log(`Image failed to load: ${currentSrc}`);
-                    
-                    // Try fallback URLs in order
-                    if (observation.largeUrl && currentSrc !== observation.largeUrl) {
-                      target.src = observation.largeUrl;
-                    } else if (observation.mediumUrl && currentSrc !== observation.mediumUrl) {
-                      target.src = observation.mediumUrl;
-                    } else if (observation.originalUrl && currentSrc !== observation.originalUrl) {
-                      target.src = observation.originalUrl;
-                    } else {
-                      // Final fallback
-                      target.src = 'https://via.placeholder.com/800x600?text=No+Image';
-                    }
-                    
-                    // Track attempts to prevent infinite loops
-                    if (!target.dataset.fallbackAttempts) {
-                      target.dataset.fallbackAttempts = '1';
-                    } else {
-                      const attempts = parseInt(target.dataset.fallbackAttempts, 10);
-                      target.dataset.fallbackAttempts = (attempts + 1).toString();
-                      
-                      if (attempts >= 2) {
-                        // Use placeholder after two failed attempts
-                        target.src = 'https://via.placeholder.com/800x600?text=No+Image';
-                        target.onerror = null;
-                        return;
-                      }
-                    }
-                    
-                    // Fast path for common cases
-                    if (currentSrc.includes('original.jpg') && observation.largeUrl) {
-                      // If original failed, try large
-                      target.src = observation.largeUrl;
-                      return;
-                    }
-                    
-                    if (currentSrc.includes('large.jpg') && observation.mediumUrl) {
-                      // If large failed, try medium
-                      target.src = observation.mediumUrl;
-                      return;
-                    }
-                    
-                    // Handle square thumbnails from any iNaturalist domain
-                    if ((currentSrc.includes('square.jpg') || currentSrc.includes('square.jpeg')) &&
-                        (currentSrc.includes('inaturalist.org') || currentSrc.includes('s3.amazonaws.com'))) {
-                      const isJpeg = currentSrc.includes('.jpeg');
-                      const squarePattern = isJpeg ? 'square.jpeg' : 'square.jpg';
-                      const largePattern = isJpeg ? 'large.jpeg' : 'large.jpg';
-                      
-                      console.log(`Found iNaturalist thumbnail, upgrading to large: ${currentSrc}`);
-                      // Replace square with large directly
-                      target.src = currentSrc.replace(squarePattern, largePattern);
-                      return;
-                    }
-                    
-                    // Simplified fallback chain
-                    if (observation.mediumUrl && !currentSrc.includes('medium')) {
-                      // Try medium if we haven't already
-                      target.src = observation.mediumUrl;
-                    } else if (observation.baseUrl && !currentSrc.includes(observation.baseUrl)) {
-                      // Try base URL if we haven't already
-                      target.src = observation.baseUrl;
-                    } else {
-                      // Final fallback
-                      target.src = 'https://via.placeholder.com/800x600?text=No+Image';
-                      target.onerror = null;
-                    }
-                  }}
-                  sx={{ 
-                    objectFit: 'cover',
-                    objectPosition: 'center',
-                    width: '100%',
-                    transition: 'transform 0.3s ease-in-out',
-                    '&:hover': {
-                      transform: 'scale(1.05)'
-                    }
-                  }}
-                />
+              <Box sx={{ position: 'relative', height: 240, width: '100%', overflow: 'hidden' }}>
+                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                  <Image
+                    src={observation.imageUrl || observation.largeUrl || observation.mediumUrl || observation.originalUrl || 'https://via.placeholder.com/800x600?text=No+Image'}
+                    alt={observation.formattedName || observation.species_guess}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 300px"
+                    style={{ objectFit: 'cover' }}
+                    onError={() => {
+                      console.log(`Image failed to load: ${observation.imageUrl}`);
+                    }}
+                  />
+                </div>
               </Box>
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography variant="h6" component="h3" gutterBottom>
