@@ -1,0 +1,9 @@
+# Redirects for Next.js with Auth0
+/api/*  /.netlify/functions/:splat  200
+/_next/*  /_next/:splat  200
+
+# Handle Auth0 callback
+/callback  /  200
+
+# Handle client-side routing
+/*  /index.html  200

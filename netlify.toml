@@ -12,13 +12,22 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# These redirects ensure Auth0 callback works properly
+# Handle Next.js routes and Auth0 callbacks
+[[redirects]]
+  from = "/_next/*"
+  to = "/_next/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# This redirect is essential for client-side routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false
-  conditions = {Role = ["anonymous"]}
 
 # Add CORS headers for the API
 [[headers]]
