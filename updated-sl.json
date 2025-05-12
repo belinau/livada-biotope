@@ -1,0 +1,63 @@
+{
+  "Navbar": {
+    "home": "Domov",
+    "biodiversity": "Biotska raznovrstnost",
+    "projects": "Projekti",
+    "instructables": "Naredi sam_a",
+    "ecofeminism": "Ekofeminizem",
+    "events": "Dogodki",
+    "about": "O skupnostni pobudi"
+  },
+  "Footer": {
+    "description": "Ekofeministična iniciativa, ki razvija z zemljo povezane prakse.",
+    "quickLinks": "Hitri povezavi",
+    "contact": "Kontakt",
+    "followUs": "Spremljaj nas",
+    "home": "Domov",
+    "biodiversity": "Biotska raznovrstnost",
+    "projects": "Projekti",
+    "instructables": "Naredi sam_a",
+    "ecofeminism": "Ekofeminizem",
+    "events": "Dogodki",
+    "about": "O meni",
+    "rights": "Vse pravice pridržane."
+  },
+  "Home": {
+    "welcome": "Dobrodošel_a v Biotopu Livada",
+    "description": "Ekofeministična pobuda, ki razvija z zemljo povezane prakse in drugačne načine bivanja.",
+    "mission": "Moja misija",
+    "missionDescription": "Razvijamo trajnostne zemljiščne prakse in učimo o pomembnosti skrbi za okolje.",
+    "projects": "Moji projekti",
+    "upcomingEvents": "Prihajajoči dogodki"
+  },
+  "SensorVisualization": {
+    "title": "Nadzor vlažnosti tal",
+    "time": "Čas",
+    "moistureLevel": "Stopnja vlažnosti",
+    "description": "Grafični prikaz podatkov o vlažnosti prsti izmerjenih z 6 senzorji."
+  },
+  "Error": {
+    "title": "Napaka",
+    "message": "Šment. Poskusi še enkrat.",
+    "tryAgain": "Poskusi znova"
+  },
+  "LetsNotDryOutTheFuture": {
+    "title": "Ne izsušimo prihodnosti",
+    "subtitle": "Projekt za spremljanje vlažnosti prsti",
+    "projectDescription": "O projektu",
+    "description": "Projekt za spremljanje vlažnosti prsti s senzorji in lora RF povezavo z Reticulum omrežjem. Želimo razviti trajnostne načine za ohranjanje vlažnosti zemlje.",
+    "technology": "Tehnološka rešitev",
+    "technologyDescription": "Uporabljamo 6 senzorjev za merjenje vlažnosti prsti, povezanih preko Reticulum omrežja. Podatke zbiramo sproti in jih lahko spremljaš na našem spletišču.",
+    "goals": "Cilji projekta",
+    "goal1": "Spremljanje vlažnosti prsti v realnem času",
+    "goal2": "Razvoj trajnostnih načinov za ohranjanje vlažnosti prsti",
+    "goal3": "Izobraževanje ljudi o tem, zakaj je vlažnost prsti pomembna",
+    "howToHelp": "Kako lahko pomagaš"
+  },
+  "Projects": {
+    "title": "Naši projekti",
+    "letsNotDryOutTheFuture": "Ne izsušimo prihodnosti",
+    "letsNotDryOutTheFutureDescription": "Projekt za spremljanje vlažnosti prsti s senzorji preko Reticulum omrežja.",
+    "learnMore": "Poglej več"
+  }
+}

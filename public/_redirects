@@ -2,6 +2,11 @@
 /api/*  /.netlify/functions/:splat  200
 /_next/*  /_next/:splat  200
 
+# Explicit redirects for serverless functions
+/.netlify/functions/translations/*  /.netlify/functions/translations  200
+/.netlify/functions/inaturalist/*  /.netlify/functions/inaturalist  200
+/.netlify/functions/calendar/*  /.netlify/functions/calendar  200
+
 # Handle static assets and images
 /images/*  /images/:splat  200
 /assets/*  /assets/:splat  200

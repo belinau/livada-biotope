@@ -54,7 +54,7 @@ function Events() {
       const locale = language === 'sl' ? 'sl' : 'en';
 
       // Use Netlify serverless function to fetch calendar events
-      const functionUrl = `/.netlify/functions/calendar/calendar?locale=${locale}`;
+      const functionUrl = `/.netlify/functions/calendar?locale=${locale}`;
 
       const response = await fetch(functionUrl);
 

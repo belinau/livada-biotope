@@ -65,7 +65,7 @@ export const useTranslations = () => {
         
         // Use the serverless function to fetch translations
         try {
-          const response = await fetch(`/.netlify/functions/translations/translations?locale=${language}`);
+          const response = await fetch(`/.netlify/functions/translations?locale=${language}`);
           
           if (response.ok) {
             const data = await response.json();

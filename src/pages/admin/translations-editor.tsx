@@ -70,7 +70,7 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
           const token = await getAccessTokenSilently();
           
           // Use the Netlify serverless function to fetch translations
-          const response = await fetch('/.netlify/functions/translations/translations', {
+          const response = await fetch('/.netlify/functions/translations', {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -167,7 +167,7 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
       const token = await getAccessTokenSilently();
       
       // Save to the API
-      const response = await fetch('/.netlify/functions/translations/translations', {
+      const response = await fetch('/.netlify/functions/translations', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -256,7 +256,7 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
     const token = await getAccessTokenSilently();
     
     // Save to the API
-    const response = await fetch('/.netlify/functions/translations/translations', {
+    const response = await fetch('/.netlify/functions/translations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -1,0 +1,63 @@
+{
+  "Navbar": {
+    "home": "Home",
+    "biodiversity": "Biodiversity",
+    "projects": "Projects",
+    "instructables": "Instructables",
+    "ecofeminism": "Ecofeminism",
+    "events": "Events",
+    "about": "About"
+  },
+  "Footer": {
+    "description": "Eco-feminist initiative developing land-based practices.",
+    "quickLinks": "Quick Links",
+    "contact": "Contact",
+    "followUs": "Follow Us",
+    "home": "Home",
+    "biodiversity": "Biodiversity",
+    "projects": "Projects",
+    "instructables": "Instructables",
+    "ecofeminism": "Ecofeminism",
+    "events": "Events",
+    "about": "About",
+    "rights": "All rights reserved."
+  },
+  "Home": {
+    "welcome": "Welcome to The Livada Biotope",
+    "description": "Eco-feminist initiative developing land-based practices and promoting sustainable living.",
+    "mission": "Our Mission",
+    "missionDescription": "We develop sustainable land practices and educate about environmental awareness.",
+    "projects": "Our Projects",
+    "upcomingEvents": "Upcoming Events"
+  },
+  "SensorVisualization": {
+    "title": "Soil Moisture Monitoring",
+    "time": "Time",
+    "moistureLevel": "Moisture Level",
+    "description": "Graphical representation of soil moisture data collected by 6 sensors."
+  },
+  "Error": {
+    "title": "Error",
+    "message": "An error occurred. Please try again.",
+    "tryAgain": "Try again"
+  },
+  "LetsNotDryOutTheFuture": {
+    "title": "Let's Not Dry Out The Future",
+    "subtitle": "Soil Moisture Monitoring Project",
+    "projectDescription": "About the Project",
+    "description": "Project for monitoring soil moisture using sensors and Reticulum network. The goal is to develop sustainable practices for monitoring and maintaining soil moisture.",
+    "technology": "Technology Used",
+    "technologyDescription": "We use 6 soil moisture sensors connected via Reticulum network. Data is collected in real-time and is accessible through our website.",
+    "goals": "Project Goals",
+    "goal1": "Real-time soil moisture monitoring",
+    "goal2": "Development of sustainable practices for maintaining soil moisture",
+    "goal3": "Public education about the importance of soil moisture",
+    "howToHelp": "How to Help"
+  },
+  "Projects": {
+    "title": "Our Projects",
+    "letsNotDryOutTheFuture": "Let's Not Dry Out The Future",
+    "letsNotDryOutTheFutureDescription": "Project for monitoring soil moisture using sensors and Reticulum network.",
+    "learnMore": "Learn More"
+  }
+}
