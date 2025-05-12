@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 import { useLanguage } from '../../contexts/LanguageContext';
+import useTranslations from '../../hooks/useTranslations';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import { 
   Box, 
@@ -83,18 +84,19 @@ const SharedLayout: React.FC<SharedLayoutProps> = ({
   title = 'Livada Biotope',
   description = 'Urban biotope for climate resilience and biodiversity in Ljubljana, Slovenia'
 }) => {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
+  const { t, loading } = useTranslations();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
-    { href: '/', title: t('Navbar.home') },
-    { href: '/projects', title: t('Navbar.projects') },
-    { href: '/biodiversity', title: t('Navbar.biodiversity') },
-    { href: '/instructables', title: t('Navbar.instructables') },
-    { href: '/ecofeminism', title: t('Navbar.ecofeminism') },
-    { href: '/events', title: language === 'en' ? 'Events' : 'Dogodki' },
-    { href: '/contact', title: t('Navbar.contact') },
-    { href: '/blog', title: t('Navbar.blog') }
+    { href: '/', title: t('nav.home', 'Home') },
+    { href: '/projects', title: t('nav.projects', 'Projects') },
+    { href: '/biodiversity', title: t('Navbar.biodiversity', 'Biodiversity') },
+    { href: '/instructables', title: t('Navbar.instructables', 'Instructables') },
+    { href: '/ecofeminism', title: t('Navbar.ecofeminism', 'Ecofeminism') },
+    { href: '/events', title: t('nav.events', 'Events') },
+    { href: '/contact', title: t('nav.contact', 'Contact') },
+    { href: '/blog', title: t('Navbar.blog', 'Blog') }
   ];
 
   return (

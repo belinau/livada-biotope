@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Livada Biotope - Slovenian Translation Preview</title>
+    <title>Livada Biotope - Serverless Translations Demo</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -53,118 +53,161 @@
     </style>
 </head>
 <body>
-    <h1>Livada Biotope - Slovenian Translation Preview</h1>
-    <p>This page shows the updated Slovenian translations using informal language ("ti" instead of "vi") and more laid-back expressions.</p>
+    <h1>Livada Biotope - Serverless Translations Demo</h1>
+    <p>This page demonstrates how the new serverless translations system works. The translations are fetched from a Netlify serverless function based on the selected language.</p>
     
-    <div class="section">
-        <h2>Navigation & UI Elements</h2>
-        
-        <div class="translation-item">
-            <div class="key">Navbar.getInvolved</div>
-            <div class="english">English: Get Involved</div>
-            <div class="slovenian">Slovenian: Pridruži se</div>
-            <div class="note">Changed from formal "Pridružite se" to informal "Pridruži se"</div>
-        </div>
-        
-        <div class="translation-item">
-            <div class="key">Footer.followUs</div>
-            <div class="english">English: Follow Us</div>
-            <div class="slovenian">Slovenian: Sledi nam</div>
-            <div class="note">Changed from formal "Sledite nam" to informal "Sledi nam"</div>
-        </div>
-        
-        <div class="translation-item">
-            <div class="key">Home.welcome</div>
-            <div class="english">English: Welcome to Biotope Livada</div>
-            <div class="slovenian">Slovenian: Dobrodošel/a v Biotop Livada</div>
-            <div class="note">Changed from formal "Dobrodošli" to informal "Dobrodošel/a"</div>
-        </div>
+    <div style="margin: 20px 0; padding: 15px; background-color: #e8f5e9; border-radius: 4px; border-left: 4px solid #2c7744;">
+        <h3 style="margin-top: 0;">How It Works</h3>
+        <ol>
+            <li>The <code>useTranslations</code> hook fetches translations from the serverless function</li>
+            <li>Translations are loaded based on the current language setting</li>
+            <li>The serverless function caches translations to improve performance</li>
+            <li>You can manage translations through the admin interface at <code>/admin/translations-editor</code></li>
+        </ol>
+        <p><strong>Try it out:</strong> Visit <a href="/translation-preview" style="color: #2c7744;">the interactive preview page</a> to see it in action!</p>
+    </div>
+    
+    <div style="display: flex; margin-bottom: 20px;">
+        <button id="en-btn" style="padding: 10px 15px; background-color: #2c7744; color: white; border: none; border-radius: 4px; margin-right: 10px; cursor: pointer;">English</button>
+        <button id="sl-btn" style="padding: 10px 15px; background-color: #f0f0f0; color: #333; border: none; border-radius: 4px; cursor: pointer;">Slovenian</button>
+    </div>
+    
+    <div id="loading" style="display: none; padding: 20px; text-align: center;">
+        <p>Loading translations...</p>
     </div>
     
     <div class="section">
-        <h2>Common Phrases</h2>
-        
-        <div class="translation-item">
-            <div class="key">Common phrases: Please bring your own</div>
-            <div class="english">English: Please bring your own</div>
-            <div class="slovenian">Slovenian: Prinesi s sabo</div>
-            <div class="note">Changed from formal "Prosimo, prinesite svoje" to informal "Prinesi s sabo"</div>
-        </div>
-        
-        <div class="translation-item">
-            <div class="key">Common phrases: Learn how to</div>
-            <div class="english">English: Learn how to</div>
-            <div class="slovenian">Slovenian: Nauči se</div>
-            <div class="note">Changed from formal "Naučite se" to informal "Nauči se"</div>
-        </div>
-        
-        <div class="translation-item">
-            <div class="key">Common phrases: Contact us at</div>
-            <div class="english">English: Contact us at</div>
-            <div class="slovenian">Slovenian: Piši nam na</div>
-            <div class="note">Changed from formal "Kontaktirajte nas na" to informal "Piši nam na"</div>
-        </div>
+        <h2>Navigation</h2>
+        <div id="nav-translations" class="translation-container"></div>
     </div>
     
     <div class="section">
-        <h2>Project Descriptions</h2>
-        
-        <div class="translation-item">
-            <div class="key">project.drought.intro (excerpt)</div>
-            <div class="english">English: Climate change in Europe is causing increasingly frequent and intense droughts...</div>
-            <div class="slovenian">Slovenian: Podnebne spremembe v Evropi povzročajo vse pogostejše in močnejše suše, kar ima velike posledice za okolje...</div>
-            <div class="note">Simplified language, using more direct and conversational terms</div>
-        </div>
-        
-        <div class="translation-item">
-            <div class="key">project.drought.theme.description (excerpt)</div>
-            <div class="english">English: At the location where we will be implementing the project...</div>
-            <div class="slovenian">Slovenian: Na lokaciji, kjer delamo projekt (Biotop Livada) imamo v pomladno poletnem času problem razpokane ruše...</div>
-            <div class="note">Simplified from formal academic language to more conversational style</div>
-        </div>
+        <h2>Homepage</h2>
+        <div id="home-translations" class="translation-container"></div>
     </div>
     
     <div class="section">
-        <h2>Event Descriptions</h2>
-        
-        <div class="translation-item">
-            <div class="key">Event translation: Group visit</div>
-            <div class="english">English: We are getting a group visit, if anyone can join, you are all welcome.</div>
-            <div class="slovenian">Slovenian: Dobili bomo skupinski obisk, če se lahko pridružiš, si dobrodošel/a.</div>
-            <div class="note">Changed from formal "ste vsi dobrodošli" to informal "si dobrodošel/a"</div>
-        </div>
-        
-        <div class="translation-item">
-            <div class="key">Event translation: Workshop</div>
-            <div class="english">English: At the workshop we will learn to identify young plants...</div>
-            <div class="slovenian">Slovenian: Na delavnici se bomo učili prepoznavati mlade rastline, preveriti kako dobro kalijo, redčiti rastline kjer je treba...</div>
-            <div class="note">Simplified technical language, using more everyday terms</div>
-        </div>
+        <h2>Events</h2>
+        <div id="events-translations" class="translation-container"></div>
     </div>
     
     <div class="section">
-        <h2>Error Messages & UI Text</h2>
-        
-        <div class="translation-item">
-            <div class="key">Error.message</div>
-            <div class="english">English: An error occurred. Please try again.</div>
-            <div class="slovenian">Slovenian: Zgodila se je napaka. Poskusi še enkrat.</div>
-            <div class="note">Changed from formal "Prosim poskusite znova" to informal "Poskusi še enkrat"</div>
-        </div>
-        
-        <div class="translation-item">
-            <div class="key">LetsNotDryOutTheFuture.howToHelp</div>
-            <div class="english">English: How to help</div>
-            <div class="slovenian">Slovenian: Kako lahko pomagaš</div>
-            <div class="note">Changed from formal "Kako pomagati" to informal "Kako lahko pomagaš"</div>
-        </div>
-        
-        <div class="translation-item">
-            <div class="key">Projects.learnMore</div>
-            <div class="english">English: Learn more</div>
-            <div class="slovenian">Slovenian: Poglej več</div>
-            <div class="note">Changed from formal "Več o projektu" to informal "Poglej več"</div>
-        </div>
+        <h2>Projects</h2>
+        <div id="projects-translations" class="translation-container"></div>
     </div>
+    
+    <div class="section">
+        <h2>Sensors</h2>
+        <div id="sensors-translations" class="translation-container"></div>
+    </div>
+    
+    <script>
+        // Current language
+        let currentLanguage = 'en';
+        
+        // Sample translation keys
+        const translationKeys = {
+            nav: ['nav.home', 'nav.about', 'nav.projects', 'nav.events', 'nav.contact'],
+            home: ['home.title', 'home.subtitle', 'home.intro.p1'],
+            events: ['events.title', 'events.subtitle', 'events.noEvents', 'events.location', 'events.type'],
+            projects: ['projects.title', 'projects.subtitle', 'projects.letsNotDryOut', 'projects.letsNotDryOut.description'],
+            sensors: ['sensors.title', 'sensors.description', 'sensors.connectedDevices', 'sensors.sensorsActive']
+        };
+        
+        // Function to create a translation item
+        function createTranslationItem(key, value) {
+            const item = document.createElement('div');
+            item.className = 'translation-item';
+            
+            const keyElement = document.createElement('div');
+            keyElement.className = 'key';
+            keyElement.textContent = key;
+            
+            const valueElement = document.createElement('div');
+            valueElement.className = currentLanguage === 'en' ? 'english' : 'slovenian';
+            valueElement.textContent = `${currentLanguage.toUpperCase()}: ${value}`;
+            
+            item.appendChild(keyElement);
+            item.appendChild(valueElement);
+            
+            return item;
+        }
+        
+        // Function to fetch translations
+        async function fetchTranslations(locale) {
+            document.getElementById('loading').style.display = 'block';
+            
+            try {
+                const response = await fetch(`/.netlify/functions/translations/translations?locale=${locale}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status}`);
+                }
+                
+                const translations = await response.json();
+                
+                // Update UI with translations
+                updateTranslationsUI(translations);
+                
+                document.getElementById('loading').style.display = 'none';
+            } catch (error) {
+                console.error('Error fetching translations:', error);
+                document.getElementById('loading').style.display = 'none';
+                alert('Error fetching translations. Please try again.');
+            }
+        }
+        
+        // Function to update UI with translations
+        function updateTranslationsUI(translations) {
+            // Clear existing translations
+            document.getElementById('nav-translations').innerHTML = '';
+            document.getElementById('home-translations').innerHTML = '';
+            document.getElementById('events-translations').innerHTML = '';
+            document.getElementById('projects-translations').innerHTML = '';
+            document.getElementById('sensors-translations').innerHTML = '';
+            
+            // Add new translations
+            for (const category in translationKeys) {
+                const container = document.getElementById(`${category}-translations`);
+                
+                translationKeys[category].forEach(key => {
+                    const translation = translations[key];
+                    let value = translation ? translation[currentLanguage] : `[Translation not found for: ${key}]`;
+                    
+                    if (!value) {
+                        value = `[No ${currentLanguage} translation for: ${key}]`;
+                    }
+                    
+                    container.appendChild(createTranslationItem(key, value));
+                });
+            }
+        }
+        
+        // Event listeners for language buttons
+        document.getElementById('en-btn').addEventListener('click', function() {
+            if (currentLanguage !== 'en') {
+                currentLanguage = 'en';
+                this.style.backgroundColor = '#2c7744';
+                this.style.color = 'white';
+                document.getElementById('sl-btn').style.backgroundColor = '#f0f0f0';
+                document.getElementById('sl-btn').style.color = '#333';
+                fetchTranslations('en');
+            }
+        });
+        
+        document.getElementById('sl-btn').addEventListener('click', function() {
+            if (currentLanguage !== 'sl') {
+                currentLanguage = 'sl';
+                this.style.backgroundColor = '#2c7744';
+                this.style.color = 'white';
+                document.getElementById('en-btn').style.backgroundColor = '#f0f0f0';
+                document.getElementById('en-btn').style.color = '#333';
+                fetchTranslations('sl');
+            }
+        });
+        
+        // Initial fetch
+        fetchTranslations('en');
+    </script>
 </body>
 </html>
