@@ -205,7 +205,11 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
 
   // Handle login
   const handleLogin = () => {
-    loginWithRedirect();
+    loginWithRedirect({
+      authorizationParams: {
+        connection: 'Username-Password-Authentication'
+      }
+    });
   };
 
   // Handle logout

@@ -6,7 +6,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: any;
-  loginWithRedirect: () => void;
+  loginWithRedirect: (options?: any) => void;
   logout: () => void;
   getAccessTokenSilently: () => Promise<string>;
 }

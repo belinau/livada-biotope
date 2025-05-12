@@ -19,6 +19,15 @@ interface PageWithLayout {
 const AdminPage: React.FC & PageWithLayout = () => {
   const router = useRouter();
   const { isAuthenticated, isLoading, loginWithRedirect, logout } = useAuth();
+  
+  // Handle login with database connection
+  const handleLogin = () => {
+    loginWithRedirect({
+      authorizationParams: {
+        connection: 'Username-Password-Authentication'
+      }
+    });
+  };
 
   if (isLoading) {
     return (
@@ -42,7 +51,7 @@ const AdminPage: React.FC & PageWithLayout = () => {
             variant="contained" 
             color="primary" 
             startIcon={<LoginIcon />}
-            onClick={() => loginWithRedirect()}
+            onClick={handleLogin}
             sx={{ mt: 2 }}
           >
             Log In with Auth0
