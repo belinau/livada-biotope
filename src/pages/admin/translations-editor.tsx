@@ -61,9 +61,8 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
         setLoading(true);
         setError(null);
         
-        // For now, we'll read from the static file
-        // In production, this would use the serverless function
-        const response = await fetch('/api/translations');
+        // Use the Netlify serverless function to fetch translations
+        const response = await fetch('/.netlify/functions/translations/translations');
         
         if (!response.ok) {
           throw new Error(`Error fetching translations: ${response.status}`);
@@ -141,8 +140,24 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
       // Update the state
       setTranslations(updatedTranslations);
       
-      // In a real app, this would call the serverless function to save the changes
-      // For now, we'll just update the local state
+      // Call the Netlify function to save the translations
+      const dataToSave = updatedTranslations.map(t => ({
+        key: t.key,
+        en: t.en,
+        sl: t.sl
+      }));
+      
+      const response = await fetch('/.netlify/functions/translations/translations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ translations: dataToSave }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error saving translations: ${response.status}`);
+      }
       setMessage({ type: 'success', text: 'Translation updated successfully' });
       
       // Clear editing state
@@ -187,8 +202,24 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
     // Add new translation to the list
     setTranslations(prev => [...prev, newTranslation]);
     
-    // In a real app, this would call the serverless function to save the changes
-    // For now, we'll just update the local state
+    // Call the Netlify function to save the translations
+    const dataToSave = [...translations, newTranslation].map(t => ({
+      key: t.key,
+      en: t.en,
+      sl: t.sl
+    }));
+    
+    const response = await fetch('/.netlify/functions/translations/translations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ translations: dataToSave }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error saving translations: ${response.status}`);
+    }
     setMessage({ type: 'success', text: 'Translation added successfully' });
     
     // Clear the form and close the dialog
