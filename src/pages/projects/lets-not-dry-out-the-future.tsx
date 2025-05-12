@@ -7,6 +7,7 @@ import StylizedImage from '@/components/StylizedImage';
 import { getBotanicalIllustrations, getZoologicalIllustrations } from '@/lib/illustrationsData';
 import { biodiversityItems } from '@/lib/biodiversityData';
 import { useLanguage } from '@/contexts/LanguageContext';
+import useTranslations from '@/hooks/useTranslations';
 import Link from 'next/link';
 import { 
   Typography, 
@@ -28,7 +29,8 @@ import {
 } from '@mui/material';
 
 export default function LetsNotDryOutTheFuture() {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
+  const { t } = useTranslations();
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState(0);
   const botanicalIllustrations = getBotanicalIllustrations();
@@ -159,7 +161,7 @@ export default function LetsNotDryOutTheFuture() {
 
           <Box sx={{ my: 6 }}>
             <Typography variant="h5" sx={{ mb: 3, color: 'primary.dark', fontWeight: 600 }}>
-              {t('project.drought.plants.title') || (language === 'en' ? 'Plants That Combat Drought' : 'Rastline, ki se borijo proti suši')}
+              {t('project.drought.plants.title', language === 'en' ? 'Selected Plant Species' : 'Izbrane rastlinske vrste')}
             </Typography>
             
             <Grid container spacing={3}>
