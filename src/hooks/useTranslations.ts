@@ -35,9 +35,17 @@ const defaultTranslations: Record<string, Record<string, string>> = {
     
     // Events page
     'events.title': 'Upcoming Events',
+    'events.pageTitle': 'Events',
+    'events.description': 'Discover upcoming events at Livada Biotope, from workshops to volunteer opportunities and educational activities.',
+    'events.upcomingEvents': 'Upcoming Events',
+    'events.pastEvents': 'Past Events',
+    'events.showPastEvents': 'Show Past Events',
+    'events.hidePastEvents': 'Hide Past Events',
     'events.noEvents': 'No upcoming events at the moment.',
     'events.loadingEvents': 'Loading events...',
     'events.errorLoading': 'Error loading events. Please try again later.',
+    'events.error.noEvents': 'No events found',
+    'events.error.fetchFailed': 'Failed to load events. Please try again later.',
     'events.dateTime': 'Date & Time',
     'events.location': 'Location',
     'events.type': 'Event Type',
@@ -48,6 +56,8 @@ const defaultTranslations: Record<string, Record<string, string>> = {
     'events.type.lecture': 'Lecture',
     'events.type.community': 'Community Event',
     'events.type.other': 'Other Event',
+    'nav.home': 'Home',
+    'nav.events': 'Events',
     
     // iNaturalist
     'inaturalist.title': 'Recent Observations',
@@ -86,9 +96,17 @@ const defaultTranslations: Record<string, Record<string, string>> = {
     
     // Events page
     'events.title': 'Prihajajoči Dogodki',
+    'events.pageTitle': 'Dogodki',
+    'events.description': 'Odkrijte prihajajoče dogodke v Biotopu Livada, od delavnic do priložnosti za prostovoljstvo in izobraževalnih aktivnosti.',
+    'events.upcomingEvents': 'Prihajajoči Dogodki',
+    'events.pastEvents': 'Pretekli Dogodki',
+    'events.showPastEvents': 'Prikaži Pretekle Dogodke',
+    'events.hidePastEvents': 'Skrij Pretekle Dogodke',
     'events.noEvents': 'Trenutno ni prihajajočih dogodkov.',
     'events.loadingEvents': 'Nalaganje dogodkov...',
     'events.errorLoading': 'Napaka pri nalaganju dogodkov. Poskusite znova kasneje.',
+    'events.error.noEvents': 'Ni najdenih dogodkov',
+    'events.error.fetchFailed': 'Napaka pri nalaganju dogodkov. Poskusite znova kasneje.',
     'events.dateTime': 'Datum in Čas',
     'events.location': 'Lokacija',
     'events.type': 'Vrsta Dogodka',
@@ -99,6 +117,8 @@ const defaultTranslations: Record<string, Record<string, string>> = {
     'events.type.lecture': 'Predavanje',
     'events.type.community': 'Skupnostni Dogodek',
     'events.type.other': 'Drugi Dogodek',
+    'nav.home': 'Domov',
+    'nav.events': 'Dogodki',
     
     // iNaturalist
     'inaturalist.title': 'Nedavna Opažanja',
