@@ -70,20 +70,18 @@ const INaturalistFeed: React.FC = () => {
       // Set locale based on language
       const locale = language === 'sl' ? 'sl' : 'en';
       
-      // API URL
-      const apiUrl = `https://api.inaturalist.org/v1/observations?project_id=the-livada-biotope-monitoring&verifiable=any&order=desc&order_by=created_at&per_page=${ITEMS_PER_PAGE}&page=${pageNum}&locale=${locale}`;
+      // Use Netlify serverless function instead of direct API call
+      // This will handle caching, rate limiting, and optimize the response
+      const functionUrl = `/.netlify/functions/inaturalist/inaturalist?page=${pageNum}&per_page=${ITEMS_PER_PAGE}&locale=${locale}&project_id=the-livada-biotope-monitoring`;
       
-      // Cache key includes page number for pagination
-      const cacheKey = `inaturalist_observations_page_${pageNum}`;
+      // Simple fetch without cache since the function handles caching
+      const response = await fetch(functionUrl);
       
-      // Use fetchWithCache utility with 10-minute cache expiry
-      const data: INaturalistApiResponse = await fetchWithCache<INaturalistApiResponse>(
-        apiUrl,
-        undefined,
-        cacheKey,
-        10 * 60 * 1000, // 10 minutes cache
-        language
-      );
+      if (!response.ok) {
+        throw new Error(`Error fetching from serverless function: ${response.status}`);
+      }
+      
+      const data: INaturalistApiResponse = await response.json();
         
         // Process observations to ensure high-res images and proper localization
         const processedObservations = data.results.map(observation => {
