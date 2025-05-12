@@ -86,19 +86,19 @@ export default function LetsNotDryOutTheFuture() {
             aria-label="project navigation tabs"
           >
             <Tab 
-              label={t('project.tabs.sensors')} 
-              id={`drought-project-tab-0`}
-              aria-controls={`drought-project-tabpanel-0`}
+              label={language === 'en' ? "Sensor Data" : "Podatki senzorjev"}
+              id="drought-project-tab-0"
+              aria-controls="drought-project-tabpanel-0"
             />
             <Tab 
-              label={t('project.tabs.climateChange')} 
-              id={`drought-project-tab-1`}
-              aria-controls={`drought-project-tabpanel-1`}
+              label={language === 'en' ? "Climate Change" : "Podnebne spremembe"}
+              id="drought-project-tab-1"
+              aria-controls="drought-project-tabpanel-1"
             />
             <Tab 
-              label={t('project.tabs.joinUs')} 
-              id={`drought-project-tab-2`}
-              aria-controls={`drought-project-tabpanel-2`}
+              label={language === 'en' ? "Join Us" : "Pridruži se"}
+              id="drought-project-tab-2"
+              aria-controls="drought-project-tabpanel-2"
             />
           </Tabs>
         </Paper>
@@ -107,10 +107,11 @@ export default function LetsNotDryOutTheFuture() {
         <TabPanel value={activeTab} index={0}>
           {/* Sensors Tab Content */}
           <Typography variant="h4" sx={{ mb: 4, textAlign: 'center', color: 'primary.dark', fontWeight: 600 }}>
-            Sensor Data
+            {language === 'en' ? "Soil Moisture Monitoring" : "Spremljanje vlažnosti tal"}
           </Typography>
           
-          <SensorVisualization />
+          {/* Only render SensorVisualization when this tab is active to prevent duplication */}
+          {activeTab === 0 && <SensorVisualization />}
         </TabPanel>
         
         <TabPanel value={activeTab} index={1}>
