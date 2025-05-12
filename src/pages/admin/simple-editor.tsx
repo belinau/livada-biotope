@@ -40,12 +40,17 @@ export default function SimpleEditorPage({ posts: initialPosts }: EditorPageProp
   }, []);
 
   const handleLogin = () => {
+    // More secure password with special characters and numbers
+    const securePassword = 'Livada@Biotope#2025!';
+    
     // Simple password check - in a real app, use a more secure method
-    if (password === 'livada2025') {
+    if (password === securePassword) {
       setIsAuthenticated(true);
       localStorage.setItem('livada_auth', 'true');
+      console.log('Authentication successful');
     } else {
-      setMessage('Incorrect password');
+      setMessage('Incorrect password. Please try again.');
+      console.log('Authentication failed: incorrect password');
     }
   };
 

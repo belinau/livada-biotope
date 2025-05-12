@@ -91,8 +91,11 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
 
   // Handle login
   const handleLogin = () => {
+    // More secure password with special characters and numbers
+    const securePassword = 'Livada@Biotope#2025!';
+    
     // Simple password check - in a real app, use a more secure method
-    if (password === 'livada2025') {
+    if (password === securePassword) {
       console.log('Authentication successful');
       setIsAuthenticated(true);
       setError(null); // Clear any errors
