@@ -39,7 +39,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       authorizationParams={{
         redirect_uri: auth0Config.redirectUri,
         audience: auth0Config.audience,
-        scope: auth0Config.scope
+        scope: auth0Config.scope,
+        connection: 'github' // Explicitly use GitHub as the connection
       }}
     >
       <AuthContextContent>{children}</AuthContextContent>

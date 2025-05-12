@@ -20,11 +20,12 @@ const AdminPage: React.FC & PageWithLayout = () => {
   const router = useRouter();
   const { isAuthenticated, isLoading, loginWithRedirect, logout } = useAuth();
   
-  // Handle login with GitHub OAuth or database connection
+  // Handle login with GitHub OAuth
   const handleLogin = () => {
     loginWithRedirect({
-      // Allow Auth0 to show all available login options
-      // This will include GitHub if configured in Auth0 dashboard
+      authorizationParams: {
+        connection: 'github' // Explicitly use GitHub as the connection
+      }
     });
   };
 
