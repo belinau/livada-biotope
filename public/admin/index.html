@@ -4,11 +4,132 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Livada Biotope Content Manager</title>
+    <style>
+      /* Custom styles for the translations editor */
+      .translations-editor {
+        margin-top: 20px;
+      }
+      .translation-row {
+        display: flex;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+      }
+      .translation-key {
+        flex: 1;
+        font-weight: bold;
+        padding-right: 10px;
+      }
+      .translation-values {
+        flex: 2;
+        display: flex;
+      }
+      .translation-value {
+        flex: 1;
+        padding: 0 5px;
+      }
+      .add-translation-btn {
+        margin-top: 15px;
+        background-color: #2e7d32;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .add-translation-btn:hover {
+        background-color: #1b5e20;
+      }
+    </style>
   </head>
   <body>
     <!-- Include the script that builds the page and powers Netlify CMS -->
     <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
     <script>
+      // Custom widget for translations
+      const TranslationsControl = createClass({
+        getInitialState() {
+          return {
+            translations: this.props.value || {}
+          };
+        },
+
+        handleChange(key, lang, e) {
+          const newTranslations = { ...this.state.translations };
+          if (!newTranslations[key]) {
+            newTranslations[key] = { en: '', sl: '' };
+          }
+          newTranslations[key][lang] = e.target.value;
+          this.setState({ translations: newTranslations });
+          this.props.onChange(newTranslations);
+        },
+
+        handleAddTranslation() {
+          const key = prompt('Enter translation key (e.g., "common.button.submit"):');
+          if (key && key.trim() !== '') {
+            const newTranslations = { ...this.state.translations };
+            if (!newTranslations[key]) {
+              newTranslations[key] = { en: '', sl: '' };
+              this.setState({ translations: newTranslations });
+              this.props.onChange(newTranslations);
+            } else {
+              alert('This key already exists!');
+            }
+          }
+        },
+
+        render() {
+          const { translations } = this.state;
+          const translationKeys = Object.keys(translations).sort();
+
+          return h('div', { className: 'translations-editor' },
+            h('h3', {}, 'Translations Editor'),
+            h('p', {}, 'Edit translations for all languages in one place.'),
+            
+            translationKeys.map(key => {
+              return h('div', { className: 'translation-row', key },
+                h('div', { className: 'translation-key' }, key),
+                h('div', { className: 'translation-values' },
+                  h('div', { className: 'translation-value' },
+                    h('label', {}, 'English'),
+                    h('input', {
+                      type: 'text',
+                      value: translations[key].en || '',
+                      onChange: this.handleChange.bind(this, key, 'en')
+                    })
+                  ),
+                  h('div', { className: 'translation-value' },
+                    h('label', {}, 'Slovenian'),
+                    h('input', {
+                      type: 'text',
+                      value: translations[key].sl || '',
+                      onChange: this.handleChange.bind(this, key, 'sl')
+                    })
+                  )
+                )
+              );
+            }),
+            
+            h('button', {
+              className: 'add-translation-btn',
+              onClick: this.handleAddTranslation
+            }, 'Add New Translation')
+          );
+        }
+      });
+
+      const TranslationsPreview = createClass({
+        render() {
+          return h('div', {},
+            h('h3', {}, 'Translations'),
+            h('p', {}, 'Translations are being edited in the admin interface.')
+          );
+        }
+      });
+
+      // Register the custom widget
+      CMS.registerWidget('translations', TranslationsControl, TranslationsPreview);
+
       // Instructions for users
       window.addEventListener('DOMContentLoaded', (event) => {
         // Add a small delay to ensure the CMS has loaded
