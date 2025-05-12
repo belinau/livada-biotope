@@ -73,13 +73,21 @@ const INaturalistFeed: React.FC = () => {
       // Set locale based on language
       const locale = language === 'sl' ? 'sl' : 'en';
       
+      // Create a timeout promise to cancel the request if it takes too long
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), 10000);
+      });
+      
       // Use Netlify serverless function instead of direct API call
       // This will handle caching, rate limiting, and optimize the response
       // Using place_id for Ljubljana, Slovenia instead of project_id for more reliable results
       const functionUrl = `/.netlify/functions/inaturalist?page=${pageNum}&per_page=${ITEMS_PER_PAGE}&locale=${locale}`;
       
-      // Simple fetch without cache since the function handles caching
-      const response = await fetch(functionUrl);
+      // Race between fetch and timeout
+      const response = await Promise.race([
+        fetch(functionUrl),
+        timeoutPromise
+      ]) as Response;
       
       if (!response.ok) {
         throw new Error(`Error fetching from serverless function: ${response.status}`);
@@ -219,15 +227,13 @@ const INaturalistFeed: React.FC = () => {
   
   // Initial load of observations
   useEffect(() => {
-    // Reset pagination when language changes
-    setPage(1);
-    setHasMore(true);
-    fetchObservations(1, false);
+    // Load initial data with a short delay to ensure reliable loading
+    const timer = setTimeout(() => {
+      fetchObservations(1, false);
+    }, 100);
     
-    return () => {
-      // Cleanup if needed
-    };
-  }, [language, fetchObservations]);
+    return () => clearTimeout(timer);
+  }, [fetchObservations]);
   
   // Function to load more observations
   const loadMore = () => {
@@ -238,25 +244,27 @@ const INaturalistFeed: React.FC = () => {
     }
   };
   
-  if (loading) {
+  // Render loading state
+  if (loading && observations.length === 0) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-        <CircularProgress color="success" />
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+        <CircularProgress color="primary" />
+        <Typography sx={{ ml: 2 }}>
+          {language === 'sl' ? 'Nalaganje podatkov...' : 'Loading observations...'}
+        </Typography>
       </Box>
     );
   }
-  
-  if (error) {
+
+  // Render error state - only if we have no observations to show
+  if (error && observations.length === 0) {
     return (
-      <Box sx={{ p: 3, textAlign: 'center' }}>
+      <Alert severity="error" sx={{ mb: 4 }}>
         <Typography color="error">{error}</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          {language === 'en' 
-            ? 'You can view all observations directly on iNaturalist:' 
-            : 'Vsa opažanja si lahko ogledate neposredno na iNaturalist:'}
+        <Typography sx={{ mt: 2 }}>
+          {language === 'sl' ? 'Poskusite osvežiti stran kasneje.' : 'Please try refreshing the page later.'}
         </Typography>
-        <Button 
-          href="https://www.inaturalist.org/projects/the-livada-biotope-monitoring"
+      </Alert>
           target="_blank"
           rel="noopener noreferrer"
           variant="contained"

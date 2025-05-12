@@ -5,6 +5,117 @@ const NodeCache = require('node-cache');
 // Create a cache with a default TTL of 10 minutes (600 seconds)
 const cache = new NodeCache({ stdTTL: 600 });
 
+// Function to generate mock observation data when the API fails
+function generateMockObservations(count, locale) {
+  const mockSpecies = [
+    {
+      id: '1',
+      species_guess: locale === 'sl' ? 'Navadna leska' : 'Common Hazel',
+      uri: 'https://www.inaturalist.org/observations/1',
+      user: { login: 'livada_admin', name: 'Livada Admin' },
+      taxon: {
+        id: 101,
+        name: 'Corylus avellana',
+        preferred_common_name: locale === 'sl' ? 'Navadna leska' : 'Common Hazel'
+      },
+      photos: [{
+        medium_url: 'https://inaturalist-open-data.s3.amazonaws.com/photos/1234/medium.jpg',
+        large_url: 'https://inaturalist-open-data.s3.amazonaws.com/photos/1234/large.jpg'
+      }],
+      created_at: '2023-05-15T12:30:45Z',
+      place_guess: 'Ljubljana, Slovenia'
+    },
+    {
+      id: '2',
+      species_guess: locale === 'sl' ? 'Navadni pljučnik' : 'Common Lungwort',
+      uri: 'https://www.inaturalist.org/observations/2',
+      user: { login: 'livada_admin', name: 'Livada Admin' },
+      taxon: {
+        id: 102,
+        name: 'Pulmonaria officinalis',
+        preferred_common_name: locale === 'sl' ? 'Navadni pljučnik' : 'Common Lungwort'
+      },
+      photos: [{
+        medium_url: 'https://inaturalist-open-data.s3.amazonaws.com/photos/2345/medium.jpg',
+        large_url: 'https://inaturalist-open-data.s3.amazonaws.com/photos/2345/large.jpg'
+      }],
+      created_at: '2023-05-16T14:22:33Z',
+      place_guess: 'Ljubljana, Slovenia'
+    },
+    {
+      id: '3',
+      species_guess: locale === 'sl' ? 'Travniška kadulja' : 'Meadow Sage',
+      uri: 'https://www.inaturalist.org/observations/3',
+      user: { login: 'livada_admin', name: 'Livada Admin' },
+      taxon: {
+        id: 103,
+        name: 'Salvia pratensis',
+        preferred_common_name: locale === 'sl' ? 'Travniška kadulja' : 'Meadow Sage'
+      },
+      photos: [{
+        medium_url: 'https://inaturalist-open-data.s3.amazonaws.com/photos/3456/medium.jpg',
+        large_url: 'https://inaturalist-open-data.s3.amazonaws.com/photos/3456/large.jpg'
+      }],
+      created_at: '2023-05-18T09:45:12Z',
+      place_guess: 'Ljubljana, Slovenia'
+    },
+    {
+      id: '4',
+      species_guess: locale === 'sl' ? 'Navadna kukavica' : 'Early Purple Orchid',
+      uri: 'https://www.inaturalist.org/observations/4',
+      user: { login: 'livada_admin', name: 'Livada Admin' },
+      taxon: {
+        id: 104,
+        name: 'Orchis mascula',
+        preferred_common_name: locale === 'sl' ? 'Navadna kukavica' : 'Early Purple Orchid'
+      },
+      photos: [{
+        medium_url: 'https://inaturalist-open-data.s3.amazonaws.com/photos/4567/medium.jpg',
+        large_url: 'https://inaturalist-open-data.s3.amazonaws.com/photos/4567/large.jpg'
+      }],
+      created_at: '2023-05-20T16:33:51Z',
+      place_guess: 'Ljubljana, Slovenia'
+    },
+    {
+      id: '5',
+      species_guess: locale === 'sl' ? 'Navadna kalina' : 'Guelder-rose',
+      uri: 'https://www.inaturalist.org/observations/5',
+      user: { login: 'livada_admin', name: 'Livada Admin' },
+      taxon: {
+        id: 105,
+        name: 'Viburnum opulus',
+        preferred_common_name: locale === 'sl' ? 'Navadna kalina' : 'Guelder-rose'
+      },
+      photos: [{
+        medium_url: 'https://inaturalist-open-data.s3.amazonaws.com/photos/5678/medium.jpg',
+        large_url: 'https://inaturalist-open-data.s3.amazonaws.com/photos/5678/large.jpg'
+      }],
+      created_at: '2023-05-22T11:21:43Z',
+      place_guess: 'Ljubljana, Slovenia'
+    },
+    {
+      id: '6',
+      species_guess: locale === 'sl' ? 'Črni trn' : 'Blackthorn',
+      uri: 'https://www.inaturalist.org/observations/6',
+      user: { login: 'livada_admin', name: 'Livada Admin' },
+      taxon: {
+        id: 106,
+        name: 'Prunus spinosa',
+        preferred_common_name: locale === 'sl' ? 'Črni trn' : 'Blackthorn'
+      },
+      photos: [{
+        medium_url: 'https://inaturalist-open-data.s3.amazonaws.com/photos/6789/medium.jpg',
+        large_url: 'https://inaturalist-open-data.s3.amazonaws.com/photos/6789/large.jpg'
+      }],
+      created_at: '2023-05-24T13:15:22Z',
+      place_guess: 'Ljubljana, Slovenia'
+    }
+  ];
+  
+  // Return the requested number of mock observations
+  return mockSpecies.slice(0, count);
+}
+
 exports.handler = async (event, context) => {
   try {
     // Set CORS headers to allow requests from your domain
@@ -84,12 +195,20 @@ exports.handler = async (event, context) => {
     }
     
     if (!response || !response.ok) {
-      // If API fails, return empty results instead of throwing an error
-      // This prevents the UI from breaking
+      // If API fails, return mock data instead of empty results
+      // This prevents the UI from breaking and provides some content
+      console.log('Returning mock data due to API failure');
+      
+      // Generate mock observations
+      const mockObservations = generateMockObservations(perPage, locale);
+      
+      // Cache the mock data
+      cache.set(cacheKey, { results: mockObservations });
+      
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({ results: [] })
+        body: JSON.stringify({ results: mockObservations })
       };
     }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import SharedLayout from '@/components/layout/SharedLayout';
 import { SensorVisualization } from '@/components/features/SensorVisualization';
 import VintageGallery from '@/components/features/VintageGallery';
@@ -32,33 +32,8 @@ export default function LetsNotDryOutTheFuture() {
   const { language } = useLanguage();
   const { t } = useTranslations();
   const theme = useTheme();
-  const [activeTab, setActiveTab] = useState(0);
   const botanicalIllustrations = getBotanicalIllustrations();
   const zoologicalIllustrations = getZoologicalIllustrations();
-  
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  };
-
-  // Tab panel component to handle content switching
-  const TabPanel = (props: { children?: React.ReactNode; index: number; value: number }) => {
-    const { children, value, index, ...other } = props;
-    return (
-      <div
-        role="tabpanel"
-        hidden={value !== index}
-        id={`drought-project-tabpanel-${index}`}
-        aria-labelledby={`drought-project-tab-${index}`}
-        {...other}
-      >
-        {value === index && (
-          <Box sx={{ pt: 3 }}>
-            {children}
-          </Box>
-        )}
-      </div>
-    );
-  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
@@ -75,46 +50,23 @@ export default function LetsNotDryOutTheFuture() {
           </Typography>
         </Box>
         
-        {/* Secondary menu with three items */}
-        <Paper elevation={1} sx={{ mb: 4, borderRadius: 2 }}>
-          <Tabs 
-            value={activeTab} 
-            onChange={handleTabChange}
-            centered
-            textColor="primary"
-            indicatorColor="primary"
-            aria-label="project navigation tabs"
-          >
-            <Tab 
-              label={language === 'en' ? "Sensor Data" : "Podatki senzorjev"}
-              id="drought-project-tab-0"
-              aria-controls="drought-project-tabpanel-0"
-            />
-            <Tab 
-              label={language === 'en' ? "Climate Change" : "Podnebne spremembe"}
-              id="drought-project-tab-1"
-              aria-controls="drought-project-tabpanel-1"
-            />
-            <Tab 
-              label={language === 'en' ? "Join Us" : "Pridruži se"}
-              id="drought-project-tab-2"
-              aria-controls="drought-project-tabpanel-2"
-            />
-          </Tabs>
-        </Paper>
 
-        {/* Tab content */}
-        <TabPanel value={activeTab} index={0}>
-          {/* Sensors Tab Content */}
+
+        {/* Section: Sensor Data */}
+        <Box sx={{ mb: 8 }}>
+          {/* Sensor Content */
           <Typography variant="h4" sx={{ mb: 4, textAlign: 'center', color: 'primary.dark', fontWeight: 600 }}>
             {language === 'en' ? "Soil Moisture Monitoring" : "Spremljanje vlažnosti tal"}
           </Typography>
           
-          {/* Only render SensorVisualization when this tab is active to prevent duplication */}
-          {activeTab === 0 && <SensorVisualization />}
-        </TabPanel>
+          <SensorVisualization />
+        </Box>
         
-        <TabPanel value={activeTab} index={1}>
+        {/* Section: Climate Change */}
+        <Box sx={{ mb: 8, mt: 12 }}>
+          <Typography variant="h4" sx={{ mb: 4, textAlign: 'center', color: 'primary.dark', fontWeight: 600 }}>
+            {language === 'en' ? "Climate Change" : "Podnebne spremembe"}
+          </Typography>
           {/* Climate Change Tab Content */}
           <Typography paragraph sx={{ mb: 3 }}>{t('project.drought.intro')}</Typography>
           <Typography paragraph sx={{ mb: 4 }}>{t('project.drought.economic')}</Typography>
@@ -387,10 +339,10 @@ export default function LetsNotDryOutTheFuture() {
               />
             </Box>
           </Box>
-        </TabPanel>
+        </Box>
 
-        {/* Join Us Tab */}
-        <TabPanel value={activeTab} index={2}>
+        {/* Section: Join Us */}
+        <Box sx={{ mb: 8, mt: 12 }}>
           <Typography variant="h4" sx={{ mb: 4, textAlign: 'center', color: 'primary.dark', fontWeight: 600 }}>
             Join Our Mission for Climate Resilience
           </Typography>
@@ -505,7 +457,7 @@ export default function LetsNotDryOutTheFuture() {
               Location: Ljubljana, Slovenia
             </Typography>
           </Box>
-        </TabPanel>
+        </Box>
       </Container>
   );
 }
