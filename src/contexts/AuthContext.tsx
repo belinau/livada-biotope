@@ -32,16 +32,22 @@ const auth0Config = {
 
 // Auth Provider component
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  // Determine if we're in the browser
+  const isBrowser = typeof window !== 'undefined';
+  
+  // Get the current URL for proper redirect handling
+  const currentUrl = isBrowser ? window.location.origin : '';
+  
   return (
     <Auth0Provider
       domain={auth0Config.domain}
       clientId={auth0Config.clientId}
       authorizationParams={{
-        redirect_uri: auth0Config.redirectUri,
+        redirect_uri: currentUrl,
         audience: auth0Config.audience,
-        scope: auth0Config.scope,
-        connection: 'github' // Explicitly use GitHub as the connection
+        scope: auth0Config.scope
       }}
+      cacheLocation="localstorage"
     >
       <AuthContextContent>{children}</AuthContextContent>
     </Auth0Provider>
