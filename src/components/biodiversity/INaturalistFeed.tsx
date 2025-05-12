@@ -75,7 +75,8 @@ const INaturalistFeed: React.FC = () => {
       
       // Use Netlify serverless function instead of direct API call
       // This will handle caching, rate limiting, and optimize the response
-      const functionUrl = `/.netlify/functions/inaturalist?page=${pageNum}&per_page=${ITEMS_PER_PAGE}&locale=${locale}&project_id=the-livada-biotope-monitoring`;
+      // Using place_id for Ljubljana, Slovenia instead of project_id for more reliable results
+      const functionUrl = `/.netlify/functions/inaturalist?page=${pageNum}&per_page=${ITEMS_PER_PAGE}&locale=${locale}`;
       
       // Simple fetch without cache since the function handles caching
       const response = await fetch(functionUrl);

@@ -92,6 +92,15 @@ export default function LetsNotDryOutTheFuture() {
         </Paper>
 
         {/* Tab content */}
+        <TabPanel value={activeTab} index={0}>
+          {/* Sensors Tab Content */}
+          <Typography variant="h4" sx={{ mb: 4, textAlign: 'center', color: 'primary.dark', fontWeight: 600 }}>
+            Sensor Data
+          </Typography>
+          
+          <SensorVisualization />
+        </TabPanel>
+        
         <TabPanel value={activeTab} index={1}>
           {/* Climate Change Tab Content */}
           <Typography paragraph sx={{ mb: 3 }}>{t('project.drought.intro')}</Typography>
