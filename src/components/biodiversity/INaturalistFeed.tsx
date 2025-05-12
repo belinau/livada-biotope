@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import useTranslations from '../../hooks/useTranslations';
 import { fetchWithCache } from '../../lib/cacheUtils';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -54,6 +55,7 @@ interface INaturalistApiResponse {
 
 const INaturalistFeed: React.FC = () => {
   const { language } = useLanguage();
+  const { t } = useTranslations();
   const [observations, setObservations] = useState<INaturalistObservation[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -63,7 +65,7 @@ const INaturalistFeed: React.FC = () => {
   const ITEMS_PER_PAGE = 6; // Number of observations to load per page
   
   // Function to fetch observations - can be called multiple times for pagination
-  const fetchObservations = async (pageNum: number, append: boolean = false) => {
+  const fetchObservations = useCallback(async (pageNum: number, append: boolean = false) => {
     try {
       append ? setLoadingMore(true) : setLoading(true);
       
@@ -211,7 +213,7 @@ const INaturalistFeed: React.FC = () => {
         setError(language === 'sl' ? 'Napaka pri nalaganju podatkov.' : 'Error loading data.');
         append ? setLoadingMore(false) : setLoading(false);
       }
-    };
+    }, [language, t]);
   
   // Initial load of observations
   useEffect(() => {
@@ -223,7 +225,7 @@ const INaturalistFeed: React.FC = () => {
     return () => {
       // Cleanup if needed
     };
-  }, [language]);
+  }, [language, fetchObservations]);
   
   // Function to load more observations
   const loadMore = () => {

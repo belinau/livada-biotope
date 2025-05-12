@@ -107,7 +107,7 @@ function Events() {
       setError(t('events.error.failedToLoad', 'Failed to load events'));
       setLoading(false);
     }
-  }, [language, t]);
+  }, [language, t, processEvents]);
 
   // Set isClient to true when component mounts on client
   useEffect(() => {

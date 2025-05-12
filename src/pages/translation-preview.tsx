@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
 import SharedLayout from '@/components/layout/SharedLayout';
+import Link from 'next/link';
 import { 
   Box, 
   Container, 
@@ -183,7 +184,7 @@ const TranslationPreview: React.FC & PageWithLayout = () => {
         <Divider sx={{ mb: 3 }} />
         
         <Typography variant="body1" paragraph>
-          To manage translations, visit the <a href="/admin/translations-editor" style={{ color: '#2e7d32', fontWeight: 'bold' }}>Translations Editor</a>.
+          To manage translations, visit the <Link href="/admin/translations-editor" style={{ color: '#2e7d32', fontWeight: 'bold' }}>Translations Editor</Link>.
         </Typography>
         
         <Typography variant="body1" paragraph>
