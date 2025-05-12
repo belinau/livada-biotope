@@ -70,9 +70,15 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 
   // Translation function
   const t = useCallback((key: string, defaultValue?: string): string => {
-    // If translations are still loading or key doesn't exist, return the key or default value
+    // Handle nested translations with language structure
+    if (translations[key] && typeof translations[key] === 'object') {
+      // @ts-ignore - We know this structure exists
+      const translatedValue = translations[key][language];
+      return translatedValue || defaultValue || key;
+    }
+    // If direct string translation is available
     return translations[key] || defaultValue || key;
-  }, [translations]);
+  }, [translations, language]);
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>

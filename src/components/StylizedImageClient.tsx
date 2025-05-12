@@ -66,40 +66,45 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
   
   // Generate pattern styles using CSS - more reliable than SVG
   const getPatternStyle = () => {
-    // Convert opacity values to decimal
-    const color10 = hexToRgba(patternColor, 0.1); // 10% opacity
+    // Use stronger opacity values for better visibility
     const color20 = hexToRgba(patternColor, 0.2); // 20% opacity
     const color30 = hexToRgba(patternColor, 0.3); // 30% opacity
-    const color70 = hexToRgba(patternColor, 0.7); // 70% opacity
+    const color50 = hexToRgba(patternColor, 0.5); // 50% opacity
+    const color80 = hexToRgba(patternColor, 0.8); // 80% opacity
     
     switch (pattern) {
       case 'dots':
         return {
-          backgroundImage: `radial-gradient(${patternColor} 3px, transparent 3px), radial-gradient(${color30} 2px, transparent 2px)`,
+          backgroundImage: `radial-gradient(${color80} 4px, transparent 4px), radial-gradient(${color50} 3px, transparent 3px)`,
           backgroundSize: '30px 30px, 20px 20px',
           backgroundPosition: '0 0, 15px 15px',
+          backgroundColor: backgroundColor, // Ensure background color is applied
         };
       case 'lines':
         return {
-          backgroundImage: `repeating-linear-gradient(45deg, ${color20}, ${color20} 1px, transparent 1px, transparent 10px), repeating-linear-gradient(135deg, ${color10}, ${color10} 1px, transparent 1px, transparent 15px)`,
+          backgroundImage: `repeating-linear-gradient(45deg, ${color50}, ${color50} 2px, transparent 2px, transparent 10px), repeating-linear-gradient(135deg, ${color30}, ${color30} 2px, transparent 2px, transparent 15px)`,
+          backgroundColor: backgroundColor, // Ensure background color is applied
         };
       case 'waves':
         return {
-          backgroundImage: `radial-gradient(circle at 50% 50%, ${color30} 5px, transparent 5px), radial-gradient(circle at 70% 30%, ${color20} 3px, transparent 3px)`,
-          backgroundSize: '50px 50px, 30px 30px',
-          backgroundPosition: '0 0, 25px 25px',
+          backgroundImage: `radial-gradient(circle at 50% 50%, ${color50} 6px, transparent 6px), radial-gradient(circle at 70% 30%, ${color30} 4px, transparent 4px)`,
+          backgroundSize: '40px 40px, 25px 25px',
+          backgroundPosition: '0 0, 20px 20px',
+          backgroundColor: backgroundColor, // Ensure background color is applied
         };
       case 'leaves':
         return {
-          backgroundImage: `linear-gradient(45deg, ${color30} 25%, transparent 25%, transparent 75%, ${color20} 75%, ${color20}), linear-gradient(135deg, ${color20} 25%, transparent 25%, transparent 75%, ${color30} 75%, ${color30})`,
+          backgroundImage: `linear-gradient(45deg, ${color50} 25%, transparent 25%, transparent 75%, ${color30} 75%, ${color30}), linear-gradient(135deg, ${color30} 25%, transparent 25%, transparent 75%, ${color50} 75%, ${color50})`,
           backgroundSize: '30px 30px, 40px 40px',
           backgroundPosition: '0 0, 15px 15px',
+          backgroundColor: backgroundColor, // Ensure background color is applied
         };
       default:
         // Default pattern when none specified
         return {
-          backgroundImage: `radial-gradient(${color70} 3px, transparent 3px)`,
+          backgroundImage: `radial-gradient(${color80} 4px, transparent 4px)`,
           backgroundSize: '20px 20px',
+          backgroundColor: backgroundColor, // Ensure background color is applied
         };
     }
   };
@@ -110,7 +115,6 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
         position: 'relative',
         height,
         width,
-        backgroundColor,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
