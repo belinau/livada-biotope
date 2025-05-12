@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -30,6 +30,23 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
   objectFit = 'cover'
 }) => {
   const { language } = useLanguage();
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  
+  // Check if the image exists and can be loaded
+  useEffect(() => {
+    if (!imageSrc) return;
+    
+    const img = new Image();
+    img.onload = () => setImageLoaded(true);
+    img.onerror = () => setImageError(true);
+    img.src = imageSrc;
+    
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [imageSrc]);
   
   // Helper function to convert hex to rgba
   const hexToRgba = (hex: string, opacity: number) => {
@@ -87,39 +104,39 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
         justifyContent: 'center',
         alignItems: 'center',
         overflow: 'hidden',
-        // Always apply pattern styles, but with a fallback image or pattern
-        ...(imageSrc 
-          ? {
-              backgroundImage: `url(${imageSrc})`,
-              backgroundSize: objectFit,
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                ...getPatternStyle(),
-                opacity: 0.3,
-                mixBlendMode: 'overlay',
-                zIndex: 1
-              }
-            } 
-          : getPatternStyle()),
+        // Apply pattern styles first
+        ...getPatternStyle(),
+        // Then conditionally apply image styles if image is available and loaded
+        ...(imageSrc && !imageError ? {
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: `url(${imageSrc})`,
+            backgroundSize: objectFit,
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            zIndex: 1
+          }
+        } : {}),
       }}
     >
       {/* Only show species name and latin name if they are provided */}
       {(typeof speciesName === 'string' ? speciesName : (language === 'en' ? speciesName.en : speciesName.sl)) && (
         <Box
           sx={{
-            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
             padding: 2,
             borderRadius: 1,
             textAlign: 'center',
             maxWidth: '80%',
-            ...(imageSrc ? { position: 'absolute', bottom: '20px', zIndex: 2 } : {}),
+            position: 'absolute', 
+            bottom: '20px', 
+            zIndex: 10,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
           }}
         >
           <div style={{ 

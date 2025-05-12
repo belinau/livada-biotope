@@ -54,9 +54,13 @@ const StylizedImageClient = dynamic(
 
 // Main component that delegates to the client-only component
 const StylizedImage: React.FC<StylizedImageProps> = (props) => {
-  // We need to return the dynamically imported component, not directly reference StylizedImageClient
-  // This ensures proper client-side rendering
-  return React.createElement(StylizedImageClient, props);
+  // For server-side rendering, show the placeholder
+  if (typeof window === 'undefined') {
+    return <StylizedImagePlaceholder {...props} />;
+  }
+  
+  // For client-side, use the dynamic component
+  return <StylizedImageClient {...props} />;
 };
 
 export default StylizedImage;
