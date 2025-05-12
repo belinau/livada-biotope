@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { SensorService, DataSource } from '@/lib/sensorService';
 import ReticulumClient from '@/lib/reticulumClient';
 import { useLanguage } from '../../contexts/LanguageContext';
+import useTranslations from '../../hooks/useTranslations';
 
 export const ReticulumDataSourceSelector: React.FC = () => {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  const { t } = useTranslations();
   const [dataSource, setDataSource] = useState<DataSource>(DataSource.MOCK);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
@@ -31,7 +33,7 @@ export const ReticulumDataSourceSelector: React.FC = () => {
     }, 1000);
     
     return () => clearInterval(timer);
-  }, []);
+  }, [sensorService]);
 
   const configureSidebandHash = () => {
     if (!sidebandHash.trim()) {

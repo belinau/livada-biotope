@@ -213,7 +213,7 @@ const INaturalistFeed: React.FC = () => {
         setError(language === 'sl' ? 'Napaka pri nalaganju podatkov.' : 'Error loading data.');
         append ? setLoadingMore(false) : setLoading(false);
       }
-    }, [language, t]);
+    }, [language]);
   
   // Initial load of observations
   useEffect(() => {

@@ -159,6 +159,10 @@
     "en": "For the specific public green area Biotope Livada, we have a soil study, which also describes the (indigenous) plant species present on the mentioned meadow. The research will primarily serve as a basis for in-depth study of the conditions for successful growth in the given microclimatic conditions and the expected effects of global climate change, with special attention to potential extreme droughts of the future. Based on the study, we will select four locally present most effective plants that can be counted among cover species.",
     "sl": "Za konkretno javno zeleno površino Biotop Livada imamo izdelano raziskavo tal, katera opisuje tudi (avtohtone) rastlinske vrste, ki so prisotne na omenjenem travniku. Raziskava nam bo v prvi vrsti služila kot podlaga za poglobljeno proučevanje pogojev uspešne rasti v danih mikroklimatskih pogojih in pričakovanih učinkov globalnih podnebnih sprememb s posebno pozornostjo na potencialnih ekstremnih sušah prihodnosti. Na podlagi proučevanja bomo izbrali štiri lokalno prisotne najučinkovitejše rastline, ki jih lahko štejemo med pokrivne vrste."
   },
+  "project.drought.plants.title": {
+    "en": "Selected Plant Species",
+    "sl": "Izbrane rastlinske vrste"
+  },
   "nav.home": {
     "en": "Home",
     "sl": "Domov"

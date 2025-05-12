@@ -44,42 +44,6 @@ function Events() {
   const [pastEventsVisible, setPastEventsVisible] = useState<boolean>(false);
   const [isClient, setIsClient] = useState<boolean>(false);
 
-  // Process events and separate into upcoming and past
-  const processEvents = (events: CalendarEvent[]) => {
-    if (!events || events.length === 0) {
-      setError(t('events.error.noEvents', 'No events found'));
-      setLoading(false);
-      return;
-    }
-
-    // Convert string dates to Date objects
-    const processedEvents = events.map(event => ({
-      ...event,
-      start: new Date(event.start),
-      end: new Date(event.end)
-    }));
-
-    // Get upcoming events (next 3 months)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const upcoming = processedEvents
-      .filter(event => event.start >= today)
-      .sort((a, b) => a.start.getTime() - b.start.getTime())
-      .slice(0, 3);
-
-    setUpcomingEvents(upcoming);
-
-    // Get past events (last 3 months)
-    const past = processedEvents
-      .filter(event => event.start < today)
-      .sort((a, b) => b.start.getTime() - a.start.getTime()) // Most recent first
-      .slice(0, 3);
-      
-    setPastEvents(past);
-    setLoading(false);
-  };
-
   // Function to fetch events from the serverless function
   const fetchEvents = useCallback(async () => {
     try {
@@ -99,15 +63,46 @@ function Events() {
       }
 
       const events: CalendarEvent[] = await response.json();
-
+      
       // Process events and separate into upcoming and past
-      processEvents(events);
+      if (!events || events.length === 0) {
+        setError(t('events.error.noEvents', 'No events found'));
+        setLoading(false);
+        return;
+      }
+
+      // Convert string dates to Date objects
+      const processedEvents = events.map(event => ({
+        ...event,
+        start: new Date(event.start),
+        end: new Date(event.end)
+      }));
+
+      // Get upcoming events (next 3 months)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const upcoming = processedEvents
+        .filter(event => event.start >= today)
+        .sort((a, b) => a.start.getTime() - b.start.getTime())
+        .slice(0, 3);
+
+      setUpcomingEvents(upcoming);
+
+      // Get past events (last 3 months)
+      const past = processedEvents
+        .filter(event => event.start < today)
+        .sort((a, b) => b.start.getTime() - a.start.getTime()) // Most recent first
+        .slice(0, 3);
+        
+      setPastEvents(past);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching events:', error);
-      setError(t('events.error.failedToLoad', 'Failed to load events'));
+      setError(t('events.error.fetchFailed', 'Failed to load events. Please try again later.'));
       setLoading(false);
     }
-  }, [language, t, processEvents]);
+  }, [language, t]);
 
   // Set isClient to true when component mounts on client
   useEffect(() => {
