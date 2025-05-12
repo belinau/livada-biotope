@@ -56,13 +56,17 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     fetchTranslations();
   }, [language]);
 
-  // Wrapper for setLanguage that also saves to localStorage
-  const setLanguage = (newLanguage: Language) => {
+  // Set language and save to localStorage
+  const setLanguage = useCallback((newLanguage: Language) => {
     setLanguageState(newLanguage);
     if (typeof window !== 'undefined') {
       localStorage.setItem('livada_language', newLanguage);
+      
+      // Force page reload to ensure all components update with new language
+      // This helps with components that might not properly re-render with language changes
+      window.location.reload();
     }
-  };
+  }, [setLanguageState]);
 
   // Translation function
   const t = useCallback((key: string, defaultValue?: string): string => {

@@ -292,13 +292,25 @@ const INaturalistFeed: React.FC = () => {
                 <CardMedia
                   component="img"
                   height="100%"
-                  image={observation.imageUrl}
+                  image={observation.imageUrl || 'https://via.placeholder.com/800x600?text=No+Image'}
                   alt={observation.formattedName || observation.species_guess}
                   onError={(e) => {
-                    // Simplified error handling for better performance
+                    // Fallback to alternative URLs if available
                     const target = e.target as HTMLImageElement;
                     const currentSrc = target.src;
                     console.log(`Image failed to load: ${currentSrc}`);
+                    
+                    // Try fallback URLs in order
+                    if (observation.largeUrl && currentSrc !== observation.largeUrl) {
+                      target.src = observation.largeUrl;
+                    } else if (observation.mediumUrl && currentSrc !== observation.mediumUrl) {
+                      target.src = observation.mediumUrl;
+                    } else if (observation.originalUrl && currentSrc !== observation.originalUrl) {
+                      target.src = observation.originalUrl;
+                    } else {
+                      // Final fallback
+                      target.src = 'https://via.placeholder.com/800x600?text=No+Image';
+                    }
                     
                     // Track attempts to prevent infinite loops
                     if (!target.dataset.fallbackAttempts) {

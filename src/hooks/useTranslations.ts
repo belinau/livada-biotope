@@ -21,7 +21,40 @@ const defaultTranslations: Record<string, Record<string, string>> = {
     'Navbar.instructables': 'Instructables',
     'Navbar.ecofeminism': 'Ecofeminism',
     'Navbar.events': 'Events',
-    'Navbar.about': 'About'
+    'Navbar.about': 'About',
+    
+    // Climate change page
+    'climate.title': 'Climate Change',
+    'climate.subtitle': 'Understanding Our Impact',
+    'climate.intro': 'Climate change is one of the most pressing challenges of our time, affecting ecosystems, communities, and future generations.',
+    'climate.localImpact': 'Local Impact',
+    'climate.globalContext': 'Global Context',
+    'climate.actionPlan': 'Our Action Plan',
+    
+    // Events page
+    'events.title': 'Upcoming Events',
+    'events.noEvents': 'No upcoming events at the moment.',
+    'events.loadingEvents': 'Loading events...',
+    'events.errorLoading': 'Error loading events. Please try again later.',
+    'events.dateTime': 'Date & Time',
+    'events.location': 'Location',
+    'events.type': 'Event Type',
+    'events.details': 'Details',
+    'events.registerButton': 'Register',
+    'events.moreInfo': 'More Information',
+    'events.type.workshop': 'Workshop',
+    'events.type.lecture': 'Lecture',
+    'events.type.community': 'Community Event',
+    'events.type.other': 'Other Event',
+    
+    // iNaturalist
+    'inaturalist.title': 'Recent Observations',
+    'inaturalist.loadMore': 'Load More',
+    'inaturalist.loading': 'Loading observations...',
+    'inaturalist.error': 'Error loading observations',
+    'inaturalist.observedBy': 'Observed by',
+    'inaturalist.noObservations': 'No observations found',
+    'inaturalist.viewOnINaturalist': 'View on iNaturalist'
   },
   sl: {
     'projects.letsNotDryOut': 'Ne Izsušimo Prihodnosti',
@@ -37,7 +70,40 @@ const defaultTranslations: Record<string, Record<string, string>> = {
     'Navbar.instructables': 'Navodila',
     'Navbar.ecofeminism': 'Ekofeminizem',
     'Navbar.events': 'Dogodki',
-    'Navbar.about': 'O nas'
+    'Navbar.about': 'O nas',
+    
+    // Climate change page
+    'climate.title': 'Podnebne Spremembe',
+    'climate.subtitle': 'Razumevanje našega vpliva',
+    'climate.intro': 'Podnebne spremembe so eden najpomembnejših izzivov našega časa, ki vplivajo na ekosisteme, skupnosti in prihodnje generacije.',
+    'climate.localImpact': 'Lokalni Vpliv',
+    'climate.globalContext': 'Globalni Kontekst',
+    'climate.actionPlan': 'Naš Akcijski Načrt',
+    
+    // Events page
+    'events.title': 'Prihajajoči Dogodki',
+    'events.noEvents': 'Trenutno ni prihajajočih dogodkov.',
+    'events.loadingEvents': 'Nalaganje dogodkov...',
+    'events.errorLoading': 'Napaka pri nalaganju dogodkov. Poskusite znova kasneje.',
+    'events.dateTime': 'Datum in Čas',
+    'events.location': 'Lokacija',
+    'events.type': 'Vrsta Dogodka',
+    'events.details': 'Podrobnosti',
+    'events.registerButton': 'Prijava',
+    'events.moreInfo': 'Več Informacij',
+    'events.type.workshop': 'Delavnica',
+    'events.type.lecture': 'Predavanje',
+    'events.type.community': 'Skupnostni Dogodek',
+    'events.type.other': 'Drugi Dogodek',
+    
+    // iNaturalist
+    'inaturalist.title': 'Nedavna Opažanja',
+    'inaturalist.loadMore': 'Naloži Več',
+    'inaturalist.loading': 'Nalaganje opažanj...',
+    'inaturalist.error': 'Napaka pri nalaganju opažanj',
+    'inaturalist.observedBy': 'Opazil/a',
+    'inaturalist.noObservations': 'Ni najdenih opažanj',
+    'inaturalist.viewOnINaturalist': 'Ogled na iNaturalist'
   }
 };
 
