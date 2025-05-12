@@ -62,13 +62,80 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
     return `rgba(${r}, ${g}, ${b}, ${opacity})`;
   };
   
-  // Generate a unique pattern based on the species
-  const getPatternStyle = () => {
+  // Generate SVG pattern based on the species type
+  const getSvgPattern = () => {
+    // Generate a unique ID for each pattern instance to avoid conflicts
+    const uniqueId = Math.random().toString(36).substring(2, 9);
+    
     // Convert opacity values to decimal
     const color10 = hexToRgba(patternColor, 0.1); // 10% opacity
     const color20 = hexToRgba(patternColor, 0.2); // 20% opacity
     const color30 = hexToRgba(patternColor, 0.3); // 30% opacity
     const color40 = hexToRgba(patternColor, 0.4); // 40% opacity
+    
+    switch (pattern) {
+      case 'dots':
+        return (
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1 }}>
+            <defs>
+              <pattern id={`dots-${uniqueId}`} width="30" height="30" patternUnits="userSpaceOnUse">
+                <circle cx="5" cy="5" r="3" fill={patternColor} />
+                <circle cx="20" cy="20" r="2" fill={color30} />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill={`url(#dots-${uniqueId})`} />
+          </svg>
+        );
+      case 'lines':
+        return (
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1 }}>
+            <defs>
+              <pattern id={`lines-${uniqueId}`} width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <line x1="0" y1="0" x2="0" y2="20" stroke={color20} strokeWidth="1" />
+              </pattern>
+              <pattern id={`lines2-${uniqueId}`} width="15" height="15" patternUnits="userSpaceOnUse" patternTransform="rotate(135)">
+                <line x1="0" y1="0" x2="0" y2="15" stroke={color10} strokeWidth="1" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill={`url(#lines-${uniqueId})`} />
+            <rect width="100%" height="100%" fill={`url(#lines2-${uniqueId})`} />
+          </svg>
+        );
+      case 'waves':
+        return (
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1 }}>
+            <defs>
+              <pattern id={`waves-${uniqueId}`} width="50" height="50" patternUnits="userSpaceOnUse">
+                <path d="M0 25C5 15, 15 5, 25 5S45 15, 50 25S35 45, 25 45S5 35, 0 25" stroke={color30} strokeWidth="2" fill="none" />
+                <path d="M0 25C5 35, 15 45, 25 45S45 35, 50 25S35 5, 25 5S5 15, 0 25" stroke={color20} strokeWidth="2" fill="none" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill={`url(#waves-${uniqueId})`} />
+          </svg>
+        );
+      case 'leaves':
+        return (
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1 }}>
+            <defs>
+              <pattern id={`leaves-${uniqueId}`} width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M0,0 L20,20 L40,0 L20,-20 Z" fill={color20} transform="translate(0, 20)" />
+                <path d="M0,0 L20,20 L40,0 L20,-20 Z" fill={color30} transform="translate(20, 0)" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill={`url(#leaves-${uniqueId})`} />
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
+  
+  // Generate a unique pattern based on the species (keep this as fallback)
+  const getPatternStyle = () => {
+    // Convert opacity values to decimal
+    const color10 = hexToRgba(patternColor, 0.1); // 10% opacity
+    const color20 = hexToRgba(patternColor, 0.2); // 20% opacity
+    const color30 = hexToRgba(patternColor, 0.3); // 30% opacity
     
     switch (pattern) {
       case 'dots':
@@ -110,10 +177,12 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
         justifyContent: 'center',
         alignItems: 'center',
         overflow: 'hidden',
-        // Apply pattern styles only - no images
+        // Apply pattern styles as fallback
         ...getPatternStyle(),
       }}
     >
+      {/* Add SVG pattern overlay */}
+      {getSvgPattern()}
       {/* Only show species name and latin name if they are provided */}
       {(typeof speciesName === 'string' ? speciesName : (language === 'en' ? speciesName.en : speciesName.sl)) && (
         <Box
