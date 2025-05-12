@@ -186,7 +186,7 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
   };
 
   // Add new translation
-  const handleAddTranslation = () => {
+  const handleAddTranslation = async () => {
     // Validate new translation
     if (!newTranslation.key || !newTranslation.en) {
       setMessage({ type: 'error', text: 'Key and English translation are required' });
