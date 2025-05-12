@@ -1,6 +1,7 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { LanguageProvider } from '../contexts/LanguageContext';
+import { AuthProvider } from '../contexts/AuthContext';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import SharedLayout from '../components/layout/SharedLayout';
@@ -70,12 +71,14 @@ function App({ Component, pageProps }: AppProps) {
   const getLayout = (Component as any).getLayout || ((page: React.ReactNode) => <SharedLayout>{page}</SharedLayout>);
 
   return (
-    <LanguageProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {getLayout(<Component {...pageProps} />)}
-      </ThemeProvider>
-    </LanguageProvider>
+    <AuthProvider>
+      <LanguageProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          {getLayout(<Component {...pageProps} />)}
+        </ThemeProvider>
+      </LanguageProvider>
+    </AuthProvider>
   );
 }
 

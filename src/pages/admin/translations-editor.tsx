@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import SharedLayout from '@/components/layout/SharedLayout';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -25,6 +26,8 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 // Define the translation interface
 interface Translation {
@@ -40,11 +43,10 @@ interface PageWithLayout {
 
 const TranslationsEditor: React.FC & PageWithLayout = () => {
   const { language } = useLanguage();
+  const { isAuthenticated, isLoading: authLoading, loginWithRedirect, logout, getAccessTokenSilently } = useAuth();
   const [translations, setTranslations] = useState<Translation[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [password, setPassword] = useState<string>('');
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<{ en: string; sl: string }>({ en: '', sl: '' });
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -64,10 +66,14 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
         
         // Try to fetch from the Netlify function first
         try {
+          // Get the access token
+          const token = await getAccessTokenSilently();
+          
           // Use the Netlify serverless function to fetch translations
           const response = await fetch('/.netlify/functions/translations/translations', {
             method: 'GET',
             headers: {
+              'Authorization': `Bearer ${token}`,
               'Cache-Control': 'no-cache',
               'Pragma': 'no-cache'
             }
@@ -97,9 +103,12 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
         // Fallback: Try to fetch directly from the JSON file
         try {
           console.log('Trying direct access to translations.json...');
+          const token = await getAccessTokenSilently();
+          
           const directResponse = await fetch('/netlify/functions/translations/translations.json', {
             method: 'GET',
             headers: {
+              'Authorization': `Bearer ${token}`,
               'Cache-Control': 'no-cache',
               'Pragma': 'no-cache'
             }
@@ -135,53 +144,7 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
     };
     
     fetchTranslations();
-  }, [isAuthenticated]);
-
-  // Handle login
-  const handleLogin = () => {
-    // More secure password with special characters and numbers
-    const securePassword = 'Livada@Biotope#2025!';
-    
-    // Simple password check - in a real app, use a more secure method
-    if (password === securePassword) {
-      console.log('Authentication successful');
-      setIsAuthenticated(true);
-      setError(null); // Clear any errors
-      localStorage.setItem('translations_auth', 'true');
-      
-      // Force a reload of translations after authentication
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
-    } else {
-      console.log('Authentication failed: incorrect password');
-      setError('Incorrect password. Please try again.');
-    }
-  };
-
-  // Handle logout
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('translations_auth');
-  };
-
-  // Check if user is already authenticated
-  useEffect(() => {
-    const auth = localStorage.getItem('translations_auth');
-    if (auth === 'true') {
-      console.log('User is already authenticated via localStorage');
-      setIsAuthenticated(true);
-    } else {
-      console.log('User is not authenticated');
-      setIsAuthenticated(false);
-    }
-  }, []);
-
-  // Start editing a translation
-  const handleEdit = (translation: Translation) => {
-    setEditingKey(translation.key);
-    setEditValues({ en: translation.en, sl: translation.sl });
-  };
+  }, [isAuthenticated, getAccessTokenSilently]);
 
   // Save edited translation
   const handleSave = async () => {
@@ -200,50 +163,60 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
         sl: editValues.sl
       };
 
-      // Update the state
-      setTranslations(updatedTranslations);
+      // Get the access token
+      const token = await getAccessTokenSilently();
       
-      // Call the Netlify function to save the translations
-      console.log('Preparing to save translations...');
-      const dataToSave = updatedTranslations.map(t => ({
-        key: t.key,
-        en: t.en,
-        sl: t.sl
-      }));
-      
-      console.log('Sending save request to Netlify function...');
-      try {
-        const response = await fetch('/.netlify/functions/translations/translations', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ translations: dataToSave }),
-        });
+      // Save to the API
+      const response = await fetch('/.netlify/functions/translations/translations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          key: editingKey,
+          translations: {
+            en: editValues.en,
+            sl: editValues.sl
+          }
+        })
+      });
+
+      if (response.ok) {
+        // Update local state
+        setTranslations(updatedTranslations);
+        setEditingKey(null);
+        setMessage({ type: 'success', text: 'Translation updated successfully!' });
         
-        console.log('Save response status:', response.status);
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Error response from save function:', errorText);
-          throw new Error(`Error saving translations: ${response.status} - ${errorText}`);
-        }
-        
-        const responseData = await response.json();
-        console.log('Save successful:', responseData);
-        setMessage({ type: 'success', text: 'Translation updated successfully' });
-      } catch (saveError) {
-        console.error('Error during save operation:', saveError);
-        throw saveError;
+        // Clear message after 3 seconds
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update translation');
       }
-      
-      // Clear editing state
-      setEditingKey(null);
-      setEditValues({ en: '', sl: '' });
     } catch (error) {
       console.error('Error saving translation:', error);
-      setMessage({ type: 'error', text: 'Failed to save translation' });
+      setMessage({ type: 'error', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` });
+      
+      // Clear message after 5 seconds
+      setTimeout(() => setMessage(null), 5000);
     }
+  };
+
+  // Handle login
+  const handleLogin = () => {
+    loginWithRedirect();
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+  };
+
+  // Start editing a translation
+  const handleEdit = (translation: Translation) => {
+    setEditingKey(translation.key);
+    setEditValues({ en: translation.en, sl: translation.sl });
   };
 
   // Cancel editing
@@ -279,25 +252,34 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
     // Add new translation to the list
     setTranslations(prev => [...prev, newTranslation]);
     
-    // Call the Netlify function to save the translations
-    const dataToSave = [...translations, newTranslation].map(t => ({
-      key: t.key,
-      en: t.en,
-      sl: t.sl
-    }));
+    // Get the access token
+    const token = await getAccessTokenSilently();
     
+    // Save to the API
     const response = await fetch('/.netlify/functions/translations/translations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ translations: dataToSave }),
+      body: JSON.stringify({
+        key: newTranslation.key,
+        translations: {
+          en: newTranslation.en,
+          sl: newTranslation.sl
+        }
+      })
     });
-    
-    if (!response.ok) {
-      throw new Error(`Error saving translations: ${response.status}`);
+
+    if (response.ok) {
+      setMessage({ type: 'success', text: 'Translation added successfully!' });
+      
+      // Clear message after 3 seconds
+      setTimeout(() => setMessage(null), 3000);
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to add translation');
     }
-    setMessage({ type: 'success', text: 'Translation added successfully' });
     
     // Clear the form and close the dialog
     setNewTranslation({ key: '', en: '', sl: '' });
@@ -305,51 +287,39 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
   };
 
   // Filter translations based on search term
-  const filteredTranslations = translations.filter(
-    t => t.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
-         t.en.toLowerCase().includes(searchTerm.toLowerCase()) ||
-         t.sl.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTranslations = translations.filter(translation => 
+    translation.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    translation.en.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    translation.sl.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Login form
+  if (authLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
-      <Container maxWidth="sm" sx={{ py: 8 }}>
-        <Paper elevation={3} sx={{ p: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom align="center">
+      <Container maxWidth="md" sx={{ py: 8 }}>
+        <Paper elevation={3} sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h4" component="h1" gutterBottom>
             Translations Editor
           </Typography>
-          
-          <Box component="form" noValidate sx={{ mt: 2 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="password"
-              label="Password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            
-            {error && (
-              <Alert severity="error" sx={{ mt: 2 }}>
-                {error}
-              </Alert>
-            )}
-            
-            <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              onClick={handleLogin}
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Login
-            </Button>
-          </Box>
+          <Typography variant="body1" paragraph>
+            You need to be authenticated to access this page.
+          </Typography>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            startIcon={<LoginIcon />}
+            onClick={handleLogin}
+            sx={{ mt: 2 }}
+          >
+            Log In with Auth0
+          </Button>
         </Paper>
       </Container>
     );
@@ -366,6 +336,7 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
           variant="outlined"
           color="secondary"
           onClick={handleLogout}
+          startIcon={<LogoutIcon />}
         >
           Logout
         </Button>

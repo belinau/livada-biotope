@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Language, getTranslation } from '../lib/translations';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import { Language } from '../lib/translations';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (language: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, defaultValue?: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -14,11 +14,61 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  // Initialize language from localStorage if available, otherwise default to 'en'
+  const [language, setLanguageState] = useState<Language>('en');
+  const [translations, setTranslations] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const t = (key: string): string => {
-    return getTranslation(key, language);
+  // Load language preference from localStorage on initial render
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedLanguage = localStorage.getItem('livada_language') as Language;
+      if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'sl')) {
+        setLanguageState(savedLanguage);
+      }
+    }
+  }, []);
+
+  // Fetch translations when language changes
+  useEffect(() => {
+    const fetchTranslations = async () => {
+      try {
+        setLoading(true);
+        
+        // Use the serverless function to fetch translations if on client
+        if (typeof window !== 'undefined') {
+          const response = await fetch(`/.netlify/functions/translations/translations?locale=${language}`);
+          
+          if (response.ok) {
+            const data = await response.json();
+            setTranslations(data);
+          }
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching translations:', error);
+        setLoading(false);
+        setTranslations({});
+      }
+    };
+    
+    fetchTranslations();
+  }, [language]);
+
+  // Wrapper for setLanguage that also saves to localStorage
+  const setLanguage = (newLanguage: Language) => {
+    setLanguageState(newLanguage);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('livada_language', newLanguage);
+    }
   };
+
+  // Translation function
+  const t = useCallback((key: string, defaultValue?: string): string => {
+    // If translations are still loading or key doesn't exist, return the key or default value
+    return translations[key] || defaultValue || key;
+  }, [translations]);
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>

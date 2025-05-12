@@ -1,12 +1,27 @@
 [build]
   command = "npm install --legacy-peer-deps && next build"
-  publish = "out"
+  publish = ".next"
   functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "18.17.0"
+  NEXT_USE_NETLIFY_EDGE = "true"
 
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# These redirects ensure Auth0 callback works properly
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
+  conditions = {Role = ["anonymous"]}
+
+# Add CORS headers for the API
+[[headers]]
+  for = "/api/*"
+    [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"

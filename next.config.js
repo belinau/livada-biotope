@@ -11,10 +11,10 @@ const nextConfig = {
       transform: '@mui/icons-material/{{member}}',
     },
   },
-  // Needed for static export with Next.js 13
+  // Needed for better URL handling
   trailingSlash: true,
-  // Enable static exports for Next.js 13
-  output: 'export',
+  // Auth0 requires server-side functionality, so we can't use static export
+  // output: 'export',
 }
 
 module.exports = nextConfig
