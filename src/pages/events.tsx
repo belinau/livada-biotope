@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 import { useLanguage } from '@/contexts/LanguageContext';
+import useTranslations from '@/hooks/useTranslations';
 import SharedLayout from '@/components/layout/SharedLayout';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -35,6 +36,7 @@ interface CalendarEvent {
 
 function Events() {
   const { language } = useLanguage();
+  const { t } = useTranslations();
   const [upcomingEvents, setUpcomingEvents] = useState<CalendarEvent[]>([]);
   const [pastEvents, setPastEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -42,51 +44,10 @@ function Events() {
   const [pastEventsVisible, setPastEventsVisible] = useState<boolean>(false);
   const [isClient, setIsClient] = useState<boolean>(false);
 
-  // Set isClient to true when component mounts on client
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Fetch events when the component mounts or language changes
-  useEffect(() => {
-    if (isClient) {
-      fetchEvents();
-    }
-  }, [language, isClient]);
-
-  // Function to fetch events from the serverless function
-  const fetchEvents = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Set locale based on language
-      const locale = language === 'sl' ? 'sl' : 'en';
-
-      // Use Netlify serverless function to fetch calendar events
-      const functionUrl = `/.netlify/functions/calendar/calendar?locale=${locale}`;
-
-      const response = await fetch(functionUrl);
-
-      if (!response.ok) {
-        throw new Error(`Error fetching from serverless function: ${response.status}`);
-      }
-
-      const events: CalendarEvent[] = await response.json();
-
-      // Process events and separate into upcoming and past
-      processEvents(events);
-    } catch (error) {
-      console.error('Error fetching events:', error);
-      setError(language === 'en' ? 'Failed to load events' : 'Napaka pri nalaganju dogodkov');
-      setLoading(false);
-    }
-  };
-
   // Process events and separate into upcoming and past
   const processEvents = (events: CalendarEvent[]) => {
     if (!events || events.length === 0) {
-      setError(language === 'en' ? 'No events found' : 'Ni najdenih dogodkov');
+      setError(t('events.error.noEvents', 'No events found'));
       setLoading(false);
       return;
     }
@@ -118,6 +79,51 @@ function Events() {
     setPastEvents(past);
     setLoading(false);
   };
+
+  // Function to fetch events from the serverless function
+  const fetchEvents = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Set locale based on language
+      const locale = language === 'sl' ? 'sl' : 'en';
+
+      // Use Netlify serverless function to fetch calendar events
+      const functionUrl = `/.netlify/functions/calendar/calendar?locale=${locale}`;
+
+      const response = await fetch(functionUrl);
+
+      if (!response.ok) {
+        throw new Error(`Error fetching from serverless function: ${response.status}`);
+      }
+
+      const events: CalendarEvent[] = await response.json();
+
+      // Process events and separate into upcoming and past
+      processEvents(events);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      setError(t('events.error.failedToLoad', 'Failed to load events'));
+      setLoading(false);
+    }
+  }, [language, t]);
+
+  // Set isClient to true when component mounts on client
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Fetch events when the component mounts or language changes
+  useEffect(() => {
+    if (isClient) {
+      fetchEvents();
+    }
+  }, [isClient, fetchEvents]);
+
+
+
+
   
   // Toggle past events visibility
   const togglePastEvents = () => {
@@ -147,9 +153,7 @@ function Events() {
         <title>{language === 'en' ? 'Events | The Livada Biotope' : 'Dogodki | Biotop Livada'}</title>
         <meta 
           name="description" 
-          content={language === 'en' 
-            ? "Discover upcoming events at Livada Biotope, from workshops to volunteer opportunities and educational activities." 
-            : "Odkrijte prihodnje dogodke v Biotopu Livada, od delavnic do priložnosti za prostovoljstvo in izobraževalne dejavnosti."}
+          content={t('events.description', 'Discover upcoming events at Livada Biotope, from workshops to volunteer opportunities and educational activities.')}
         />
       </Head>
       
@@ -157,11 +161,11 @@ function Events() {
         <Box sx={{ mb: 4 }}>
           <Typography variant="body2" color="text.secondary" component="nav">
             <StyledLink href="/">
-              {language === 'en' ? 'Home' : 'Domov'}
+              {t('nav.home', 'Home')}
             </StyledLink>
             {' / '}
             <Typography component="span" color="primary.main" fontWeight="medium" display="inline">
-              {language === 'en' ? 'Events' : 'Dogodki'}
+              {t('nav.events', 'Events')}
             </Typography>
           </Typography>
         </Box>
@@ -169,20 +173,18 @@ function Events() {
         <Paper elevation={2} sx={{ mb: 6, overflow: 'hidden' }}>
           <Box sx={{ p: { xs: 3, md: 4 } }}>
             <Typography variant="h3" component="h1" gutterBottom sx={{ color: 'primary.main' }}>
-              {language === 'en' ? 'Events' : 'Dogodki'}
+              {t('events.pageTitle', 'Events')}
             </Typography>
             
             <Typography variant="body1" paragraph>
-              {language === 'en'
-                ? "Discover upcoming events at Livada Biotope, from workshops to volunteer opportunities and educational activities."
-                : "Odkrijte prihodnje dogodke v Biotopu Livada, od delavnic do priložnosti za prostovoljstvo in izobraževalne dejavnosti."}
+              {t('events.description', 'Discover upcoming events at Livada Biotope, from workshops to volunteer opportunities and educational activities.')}
             </Typography>
           </Box>
         </Paper>
           
         {/* Upcoming Events Section */}
         <Typography variant="h4" component="h2" gutterBottom sx={{ mt: 6, mb: 4, color: 'primary.main' }}>
-          {language === 'en' ? 'Upcoming Events' : 'Prihajajoči dogodki'}
+          {t('events.upcomingEvents', 'Upcoming Events')}
         </Typography>
         
         {upcomingEvents.length > 0 ? (
@@ -204,13 +206,13 @@ function Events() {
                       {event.description}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      <strong>{language === 'en' ? 'Location:' : 'Lokacija:'}</strong> {event.location}
+                      <strong>{t('events.location', 'Location:')} </strong> {event.location}
                     </Typography>
                   </CardContent>
                   {event.url && (
                     <CardActions>
                       <Button size="small" color="primary" href={event.url} target="_blank">
-                        {language === 'en' ? 'Learn More' : 'Več informacij'}
+                        {t('common.learnMore', 'Learn More')}
                       </Button>
                     </CardActions>
                   )}
@@ -221,7 +223,7 @@ function Events() {
         ) : (
           <Paper sx={{ p: 4, textAlign: 'center', bgcolor: 'background.paper' }}>
             <Typography variant="body1" color="text.secondary">
-              {language === 'en' ? 'No upcoming events at the moment. Check back soon!' : 'Trenutno ni prihajajočih dogodkov. Preverite kmalu!'}
+              {t('events.noUpcomingEvents', 'No upcoming events at the moment. Check back soon!')}
             </Typography>
           </Paper>
         )}
@@ -230,7 +232,7 @@ function Events() {
         {pastEvents.length > 0 && pastEventsVisible && (
           <Box sx={{ mt: 8 }}>
             <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 4, color: 'primary.main' }}>
-              {language === 'en' ? 'Past Events' : 'Pretekli dogodki'}
+              {t('events.pastEvents', 'Past Events')}
             </Typography>
             
             <Grid container spacing={3}>

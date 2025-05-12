@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import StylizedImage from '../components/StylizedImage';
 import { useLanguage } from '../contexts/LanguageContext';
+import useTranslations from '../hooks/useTranslations';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -23,18 +24,16 @@ const StyledLink = ({ href, children, style }: { href: string; children: React.R
 
 export default function Home() {
   const { language } = useLanguage();
+  const { t } = useTranslations();
   
   return (
     <>
       <Head>
-        <title>{language === 'en' ? 'The Livada Biotope' : 'Biotop Livada'} | {language === 'en' ? 'Urban Biodiversity & Drought Resilience' : 'Urbana biotska raznovrstnost in odpornost proti suši'}</title>
+        <title>{t('home.title', 'The Livada Biotope')} | {t('home.subtitle', 'Urban Biodiversity & Drought Resilience')}</title>
         <meta 
           name="description" 
-          content={language === 'en' 
-            ? "The Livada Biotope is a community-driven ecological project dedicated to preserving biodiversity and building drought resilience in Ljubljana, Slovenia." 
-            : "Biotop Livada je ekološki projekt, ki ga vodi skupnost, namenjen ohranjanju biotske raznovrstnosti in krepitvi odpornosti proti suši v Ljubljani, Sloveniji."}
+          content={t('home.description', 'The Livada Biotope is a community-driven ecological project dedicated to preserving biodiversity and building drought resilience in Ljubljana, Slovenia.')}
         />
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
       
       {/* Hero Section with Full-width Image */}

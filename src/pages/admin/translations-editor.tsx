@@ -33,7 +33,12 @@ interface Translation {
   sl: string;
 }
 
-const TranslationsEditor: React.FC = () => {
+// Define the type for pages with custom layouts
+interface PageWithLayout {
+  getLayout?: (page: React.ReactNode) => React.ReactNode;
+}
+
+const TranslationsEditor: React.FC & PageWithLayout = () => {
   const { language } = useLanguage();
   const [translations, setTranslations] = useState<Translation[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
