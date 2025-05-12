@@ -22,6 +22,8 @@ const defaultTranslations: Record<string, Record<string, string>> = {
     'Navbar.ecofeminism': 'Ecofeminism',
     'Navbar.events': 'Events',
     'Navbar.about': 'About',
+    'Navbar.contact': 'Contact',
+    'Navbar.blog': 'Blog',
     
     // Climate change page
     'climate.title': 'Climate Change',
@@ -71,6 +73,8 @@ const defaultTranslations: Record<string, Record<string, string>> = {
     'Navbar.ecofeminism': 'Ekofeminizem',
     'Navbar.events': 'Dogodki',
     'Navbar.about': 'O nas',
+    'Navbar.contact': 'Kontakt',
+    'Navbar.blog': 'Blog',
     
     // Climate change page
     'climate.title': 'Podnebne Spremembe',

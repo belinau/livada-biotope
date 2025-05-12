@@ -1,23 +1,25 @@
-import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import Link from 'next/link';
+import useTranslations from '../../hooks/useTranslations';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export const Navbar = () => {
-  const t = useTranslations('Navbar');
+  const { t } = useTranslations();
+  const { language, setLanguage } = useLanguage();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
-    { href: '/', label: t('home') },
-    { href: '/biodiversity', label: t('biodiversity') },
-    { href: '/projects', label: t('projects') },
-    { href: '/instructables', label: t('instructables') },
-    { href: '/ecofeminism', label: t('ecofeminism') },
-    { href: '/events', label: t('events') },
-    { href: '/about', label: t('about') },
-    { href: '/contact', label: t('contact') },
-    { href: '/blog', label: t('blog') },
+    { href: '/', label: t('Navbar.home') },
+    { href: '/biodiversity', label: t('Navbar.biodiversity') },
+    { href: '/projects', label: t('Navbar.projects') },
+    { href: '/instructables', label: t('Navbar.instructables') },
+    { href: '/ecofeminism', label: t('Navbar.ecofeminism') },
+    { href: '/events', label: t('Navbar.events') },
+    { href: '/about', label: t('Navbar.about') },
+    { href: '/contact', label: t('Navbar.contact', 'Contact') },
+    { href: '/blog', label: t('Navbar.blog', 'Blog') },
   ];
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -47,12 +49,12 @@ export const Navbar = () => {
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
             <button
               onClick={() => {
-                const newLocale = router.locale === 'sl' ? 'en' : 'sl';
-                router.push(router.pathname, router.asPath, { locale: newLocale });
+                const newLanguage = language === 'sl' ? 'en' : 'sl';
+                setLanguage(newLanguage);
               }}
               className="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-livada-green hover:bg-livada-green/90"
             >
-              {router.locale === 'sl' ? 'EN' : 'SL'}
+              {language === 'sl' ? 'EN' : 'SL'}
             </button>
           </div>
           <div className="flex items-center sm:hidden">

@@ -70,21 +70,29 @@ exports.handler = async (event, context) => {
       results: data.results.map(observation => {
         // Extract and optimize image URLs
         let imageUrl = null;
-        let fallbackUrls = {};
+        let originalUrl = null;
+        let largeUrl = null;
+        let mediumUrl = null;
+        let baseUrl = null;
         
         if (observation.photos && observation.photos.length > 0) {
           const photo = observation.photos[0];
           
-          // Collect all available image URLs
-          fallbackUrls = {
-            original: photo.original_url,
-            large: photo.large_url,
-            medium: photo.medium_url,
-            small: photo.url
-          };
+          // Store all available image URLs separately
+          originalUrl = photo.original_url;
+          largeUrl = photo.large_url;
+          mediumUrl = photo.medium_url;
+          baseUrl = photo.url;
           
           // Choose the best available image
-          imageUrl = photo.large_url || photo.original_url || photo.medium_url || photo.url;
+          // Prefer medium-sized images for better loading performance
+          imageUrl = photo.medium_url || photo.large_url || photo.original_url || photo.url;
+          
+          // Fix common iNaturalist URL issues
+          if (imageUrl && imageUrl.includes('square')) {
+            // Replace square thumbnails with regular images
+            imageUrl = imageUrl.replace('square', 'medium');
+          }
         }
 
         // Format date according to locale
@@ -101,25 +109,14 @@ exports.handler = async (event, context) => {
         
         // Return optimized observation object
         return {
-          id: observation.id,
-          species_guess: observation.species_guess,
+          ...observation,
           formattedName,
-          uri: observation.uri,
-          user: {
-            login: observation.user.login,
-            name: observation.user.name
-          },
           imageUrl,
-          fallbackUrls,
-          date: formattedDate,
-          created_at: observation.created_at,
-          place_guess: observation.place_guess,
-          // Include taxon info for scientific names
-          taxon: observation.taxon ? {
-            id: observation.taxon.id,
-            name: observation.taxon.name,
-            preferred_common_name: observation.taxon.preferred_common_name
-          } : null
+          originalUrl,
+          largeUrl,
+          mediumUrl,
+          baseUrl,
+          date: formattedDate
         };
       })
     };
