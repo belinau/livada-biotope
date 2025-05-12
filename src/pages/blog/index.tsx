@@ -4,6 +4,23 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getAllPosts } from '@/lib/markdown';
 import SharedLayout from '@/components/layout/SharedLayout';
+import { useLanguage } from '@/contexts/LanguageContext';
+import useTranslations from '@/hooks/useTranslations';
+import { 
+  Box, 
+  Container, 
+  Typography, 
+  Grid, 
+  Card, 
+  CardContent, 
+  CardMedia, 
+  CardActionArea,
+  CardActions,
+  Button,
+  Chip,
+  Paper,
+  Divider
+} from '@mui/material';
 
 interface BlogPost {
   slug: string;
@@ -22,75 +39,133 @@ interface BlogPageProps {
 }
 
 export default function BlogPage({ posts }: BlogPageProps) {
+  const { language } = useLanguage();
+  const { t } = useTranslations();
   
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-green-700 mb-4">Blog</h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Explore our latest articles, stories, and insights about ecology, biodiversity, and sustainable living.
-        </p>
-      </div>
+    <Container maxWidth="lg" sx={{ py: 6 }}>
+      <Box sx={{ textAlign: 'center', mb: 6 }}>
+        <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main', mb: 2 }}>
+          {language === 'en' ? 'Blog' : 'Blog'}
+        </Typography>
+        <Typography variant="h5" component="p" sx={{ maxWidth: '800px', mx: 'auto', color: 'text.secondary' }}>
+          {language === 'en' 
+            ? 'Explore our latest articles, stories, and insights about ecology, biodiversity, and sustainable living.'
+            : 'Raziščite naše najnovejše članke, zgodbe in vpoglede o ekologiji, biotski raznovrstnosti in trajnostnem življenju.'}
+        </Typography>
+      </Box>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <Grid container spacing={4}>
         {posts.map((post) => (
-          <div key={post.slug} className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:transform hover:-translate-y-1">
-            {post.frontmatter.thumbnail ? (
-              <div className="h-56 overflow-hidden relative">
-                <Image 
-                  src={post.frontmatter.thumbnail} 
-                  alt={post.frontmatter.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-500 hover:scale-105"
-                />
-              </div>
-            ) : (
-              <div className="h-56 bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center">
-                <span className="text-white text-2xl font-semibold px-6 text-center">{post.frontmatter.title}</span>
-              </div>
-            )}
-            <div className="p-6">
-              <div className="flex items-center mb-3">
-                <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                  {new Date(post.frontmatter.date).toLocaleDateString()}
-                </span>
-              </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-3 hover:text-green-700">
-                <Link href={`/blog/${post.slug}`}>
-                  {post.frontmatter.title}
-                </Link>
-              </h2>
-              <p className="text-gray-700 mb-4 line-clamp-3">{post.frontmatter.summary}</p>
-              <div className="flex justify-between items-center">
-                <Link href={`/blog/${post.slug}`} className="text-green-700 hover:text-green-900 font-medium inline-flex items-center transition-colors hover:bg-green-50 px-3 py-1 rounded-md">
-                  Read more
-                  <svg className="w-3.5 h-3.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
-                  </svg>
-                </Link>
-              </div>
+          <Grid item xs={12} md={6} lg={4} key={post.slug}>
+            <Card sx={{ 
+              height: '100%', 
+              display: 'flex', 
+              flexDirection: 'column',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-8px)',
+                boxShadow: 6
+              }
+            }}>
+              <CardActionArea component={Link} href={`/blog/${post.slug}`}>
+                {post.frontmatter.thumbnail ? (
+                  <Box sx={{ height: 220, position: 'relative', overflow: 'hidden' }}>
+                    <Image 
+                      src={post.frontmatter.thumbnail} 
+                      alt={post.frontmatter.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      style={{ 
+                        objectFit: 'cover',
+                        transition: 'transform 0.5s ease'
+                      }}
+                    />
+                  </Box>
+                ) : (
+                  <Box sx={{ 
+                    height: 220, 
+                    background: 'linear-gradient(to right, #60ad5e, #2e7d32)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 2
+                  }}>
+                    <Typography variant="h5" component="span" sx={{ color: 'white', fontWeight: 600, textAlign: 'center' }}>
+                      {post.frontmatter.title}
+                    </Typography>
+                  </Box>
+                )}
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Box sx={{ mb: 2 }}>
+                    <Chip 
+                      label={new Date(post.frontmatter.date).toLocaleDateString(language === 'sl' ? 'sl-SI' : 'en-US')}
+                      size="small"
+                      sx={{ 
+                        bgcolor: 'primary.light', 
+                        color: 'white',
+                        fontWeight: 500,
+                        fontSize: '0.75rem'
+                      }}
+                    />
+                  </Box>
+                  <Typography gutterBottom variant="h6" component="h2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                    {post.frontmatter.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ 
+                    mb: 2,
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                  }}>
+                    {post.frontmatter.summary}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+              <CardActions sx={{ p: 2, pt: 0, justifyContent: 'space-between' }}>
+                <Button 
+                  size="small" 
+                  color="primary" 
+                  component={Link} 
+                  href={`/blog/${post.slug}`}
+                  endIcon={
+                    <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
+                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                      </svg>
+                    </Box>
+                  }
+                >
+                  {language === 'en' ? 'Read more' : 'Preberi več'}
+                </Button>
+              </CardActions>
               
               {post.frontmatter.tags && post.frontmatter.tags.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <Box sx={{ px: 2, pb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                   {post.frontmatter.tags.map(tag => (
-                    <span key={tag} className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                      {tag}
-                    </span>
+                    <Chip 
+                      key={tag} 
+                      label={tag}
+                      size="small"
+                      sx={{ bgcolor: 'background.paper', fontSize: '0.7rem' }}
+                    />
                   ))}
-                </div>
+                </Box>
               )}
-            </div>
-          </div>
+            </Card>
+          </Grid>
         ))}
-      </div>
+      </Grid>
       
       {posts.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-xl text-gray-600">No blog posts found. Check back soon for new content!</p>
-        </div>
+        <Paper elevation={0} sx={{ textAlign: 'center', py: 6, bgcolor: 'background.paper' }}>
+          <Typography variant="h6" color="text.secondary">
+            {language === 'en' ? 'No blog posts found. Check back soon for new content!' : 'Ni najdenih objav na blogu. Kmalu preverite za novo vsebino!'}
+          </Typography>
+        </Paper>
       )}
-    </div>
+    </Container>
   );
 }
 
