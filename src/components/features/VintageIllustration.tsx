@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 interface VintageIllustrationProps {
   src: string;
@@ -23,11 +24,15 @@ const VintageIllustration: React.FC<VintageIllustrationProps> = ({
     <figure className={`vintage-illustration my-6 ${className}`}>
       <div className="relative overflow-hidden border-2 border-sepia-300 rounded-md bg-sepia-50 p-2">
         <div className="absolute inset-0 bg-sepia-100 opacity-20"></div>
-        <img
-          src={src}
-          alt={alt}
-          className={`w-${width} h-${height} object-contain relative z-10 mx-auto`}
-        />
+        <div className={`relative w-${width} h-${height} mx-auto`} style={{ minHeight: '200px' }}>
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            className="object-contain relative z-10"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
       </div>
       {(caption || credit) && (
         <figcaption className="text-center mt-2 text-sm italic text-gray-600">
