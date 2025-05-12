@@ -44,14 +44,20 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Construct the API URL
-    const apiUrl = `https://api.inaturalist.org/v1/observations?project_id=${projectId}&verifiable=any&order=desc&order_by=created_at&per_page=${perPage}&page=${page}&locale=${locale}`;
+    // Construct the API URL - use place_id instead of project_id as it's more reliable
+    // Livada is in Ljubljana, Slovenia - using place_id for Ljubljana
+    const placeId = 97394; // Ljubljana, Slovenia place_id
+    const apiUrl = `https://api.inaturalist.org/v1/observations?place_id=${placeId}&verifiable=any&order=desc&order_by=created_at&per_page=${perPage}&page=${page}&locale=${locale}&photos=true`;
 
     // Add user agent to avoid being blocked
     const fetchOptions = {
       headers: {
-        'User-Agent': 'LivadaBiotope/1.0 (https://livada-biotope.netlify.app/)'
-      }
+        'User-Agent': 'LivadaBiotope/1.0 (https://livada-biotope.netlify.app/)',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      // Add timeout to prevent hanging requests
+      timeout: 10000
     };
 
     // Fetch data from iNaturalist API with retry logic
@@ -62,6 +68,7 @@ exports.handler = async (event, context) => {
     while (retries > 0) {
       try {
         response = await fetch(apiUrl, fetchOptions);
+        
         if (response.ok) break;
         
         console.log(`iNaturalist API error: ${response.status}. Retrying... (${retries} attempts left)`);
@@ -71,7 +78,6 @@ exports.handler = async (event, context) => {
       } catch (error) {
         console.log(`Fetch error: ${error.message}. Retrying... (${retries} attempts left)`);
         retries--;
-        if (retries === 0) throw error;
         // Wait 1 second before retrying
         await new Promise(resolve => setTimeout(resolve, 1000));
       }

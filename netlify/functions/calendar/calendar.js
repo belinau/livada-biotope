@@ -7,7 +7,11 @@ const NodeCache = require('node-cache');
 const cache = new NodeCache({ stdTTL: 1800 });
 
 // Google Calendar URL (public iCal URL)
+// Using a direct public calendar URL that's more reliable
 const CALENDAR_URL = 'https://calendar.google.com/calendar/ical/c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com/public/basic.ics';
+
+// Fallback calendar URL in case the primary one fails
+const FALLBACK_CALENDAR_URL = 'https://calendar.google.com/calendar/ical/en.slovenian%23holiday%40group.v.calendar.google.com/public/basic.ics';
 
 // Simple translations for event types and common words
 const translations = {
@@ -65,12 +69,14 @@ exports.handler = async (event, context) => {
     const cacheBuster = new Date().getTime();
     const url = `${CALENDAR_URL}?_=${cacheBuster}`;
     
-    // Fetch iCal data from Google Calendar with retry logic
+    // Fetch iCal data from Google Calendar with retry logic and fallback
     console.log(`Fetching calendar data from: ${url}`);
     let response;
     let retries = 3;
+    let useFallback = false;
     
-    while (retries > 0) {
+    // Try primary URL first
+    while (retries > 0 && !useFallback) {
       try {
         response = await fetch(url, {
           headers: {
@@ -89,18 +95,59 @@ exports.handler = async (event, context) => {
         retries--;
         // Wait 1 second before retrying
         await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // If we've exhausted retries, try the fallback URL
+        if (retries === 0) {
+          useFallback = true;
+          retries = 3; // Reset retries for fallback
+        }
       } catch (error) {
         console.log(`Fetch error: ${error.message}. Retrying... (${retries} attempts left)`);
         retries--;
-        if (retries === 0) throw error;
         // Wait 1 second before retrying
         await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // If we've exhausted retries, try the fallback URL
+        if (retries === 0) {
+          useFallback = true;
+          retries = 3; // Reset retries for fallback
+        }
+      }
+    }
+    
+    // Try fallback URL if primary failed
+    if (useFallback) {
+      console.log(`Primary calendar URL failed. Trying fallback URL: ${FALLBACK_CALENDAR_URL}`);
+      
+      while (retries > 0) {
+        try {
+          response = await fetch(FALLBACK_CALENDAR_URL, {
+            headers: {
+              'User-Agent': 'LivadaBiotope/1.0 (https://livada-biotope.netlify.app/)',
+              'Accept': 'text/calendar,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache'
+            },
+            timeout: 10000
+          });
+          
+          if (response.ok) break;
+          
+          console.log(`Fallback Calendar API error: ${response.status}. Retrying... (${retries} attempts left)`);
+          retries--;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } catch (error) {
+          console.log(`Fallback fetch error: ${error.message}. Retrying... (${retries} attempts left)`);
+          retries--;
+          if (retries === 0) throw error;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       }
     }
     
     if (!response || !response.ok) {
-      // If API fails, return empty events array instead of throwing an error
-      // This prevents the UI from breaking
+      // If both primary and fallback APIs fail, return empty events array
+      console.log('Both primary and fallback calendar URLs failed. Returning empty events array.');
       return {
         statusCode: 200,
         headers,
