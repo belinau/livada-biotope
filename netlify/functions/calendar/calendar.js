@@ -65,19 +65,47 @@ exports.handler = async (event, context) => {
     const cacheBuster = new Date().getTime();
     const url = `${CALENDAR_URL}?_=${cacheBuster}`;
     
-    // Fetch iCal data from Google Calendar
+    // Fetch iCal data from Google Calendar with retry logic
     console.log(`Fetching calendar data from: ${url}`);
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'LivadaBiotope/1.0 (https://livada-biotope.netlify.app/)',
-        'Accept': 'text/calendar,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
+    let response;
+    let retries = 3;
+    
+    while (retries > 0) {
+      try {
+        response = await fetch(url, {
+          headers: {
+            'User-Agent': 'LivadaBiotope/1.0 (https://livada-biotope.netlify.app/)',
+            'Accept': 'text/calendar,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          },
+          // Add timeout to prevent hanging requests
+          timeout: 10000
+        });
+        
+        if (response.ok) break;
+        
+        console.log(`Calendar API error: ${response.status}. Retrying... (${retries} attempts left)`);
+        retries--;
+        // Wait 1 second before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.log(`Fetch error: ${error.message}. Retrying... (${retries} attempts left)`);
+        retries--;
+        if (retries === 0) throw error;
+        // Wait 1 second before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
-    });
-
-    if (!response.ok) {
-      throw new Error(`Calendar API error: ${response.status} ${response.statusText}`);
+    }
+    
+    if (!response || !response.ok) {
+      // If API fails, return empty events array instead of throwing an error
+      // This prevents the UI from breaking
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify([])
+      };
     }
 
     const icalData = await response.text();

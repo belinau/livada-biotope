@@ -101,6 +101,7 @@ export default function Projects() {
                       pattern={index === 0 ? "dots" : index === 1 ? "waves" : "lines"}
                       height="100%"
                       width="100%"
+                      imageSrc={index === 0 ? "/images/illustrations/botanical-2.jpg" : index === 1 ? "/images/illustrations/botanical-3.jpg" : "/images/illustrations/botanical-4.jpg"}
                     />
                   </Box>
                   <CardContent sx={{ flexGrow: 1 }}>

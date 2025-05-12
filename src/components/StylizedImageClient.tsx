@@ -87,13 +87,27 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
         justifyContent: 'center',
         alignItems: 'center',
         overflow: 'hidden',
-        ...(imageSrc ? {} : getPatternStyle()),
-        ...(imageSrc ? {
-          backgroundImage: `url(${imageSrc})`,
-          backgroundSize: objectFit,
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        } : {}),
+        // Always apply pattern styles, but with a fallback image or pattern
+        ...(imageSrc 
+          ? {
+              backgroundImage: `url(${imageSrc})`,
+              backgroundSize: objectFit,
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                ...getPatternStyle(),
+                opacity: 0.3,
+                mixBlendMode: 'overlay',
+                zIndex: 1
+              }
+            } 
+          : getPatternStyle()),
       }}
     >
       {/* Only show species name and latin name if they are provided */}

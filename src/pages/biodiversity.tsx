@@ -65,6 +65,7 @@ export default function Biodiversity() {
                     pattern="dots"
                     height="100%"
                     width="100%"
+                    imageSrc="/images/illustrations/botanical-1.jpg"
                   />
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>
@@ -93,6 +94,7 @@ export default function Biodiversity() {
                     pattern="waves"
                     height="100%"
                     width="100%"
+                    imageSrc="/images/illustrations/zoological-2.jpg"
                   />
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>

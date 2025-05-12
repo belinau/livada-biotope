@@ -54,12 +54,37 @@ exports.handler = async (event, context) => {
       }
     };
 
-    // Fetch data from iNaturalist API
+    // Fetch data from iNaturalist API with retry logic
     console.log(`Fetching iNaturalist data from: ${apiUrl}`);
-    const response = await fetch(apiUrl, fetchOptions);
+    let response;
+    let retries = 3;
     
-    if (!response.ok) {
-      throw new Error(`iNaturalist API error: ${response.status} ${response.statusText}`);
+    while (retries > 0) {
+      try {
+        response = await fetch(apiUrl, fetchOptions);
+        if (response.ok) break;
+        
+        console.log(`iNaturalist API error: ${response.status}. Retrying... (${retries} attempts left)`);
+        retries--;
+        // Wait 1 second before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.log(`Fetch error: ${error.message}. Retrying... (${retries} attempts left)`);
+        retries--;
+        if (retries === 0) throw error;
+        // Wait 1 second before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+    
+    if (!response || !response.ok) {
+      // If API fails, return empty results instead of throwing an error
+      // This prevents the UI from breaking
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ results: [] })
+      };
     }
 
     const data = await response.json();

@@ -145,6 +145,7 @@ export default function Instructables() {
                         pattern={item.pattern as PatternType}
                         height="100%"
                         width="100%"
+                        imageSrc={`/images/illustrations/${index % 2 === 0 ? 'botanical' : 'zoological'}-${(index % 2) + 1}.jpg`}
                       />
                     </Box>
                     <CardContent>
