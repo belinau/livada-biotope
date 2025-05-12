@@ -37,10 +37,12 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         
         // Use the serverless function to fetch translations if on client
         if (typeof window !== 'undefined') {
-          const response = await fetch(`/.netlify/functions/translations?locale=${language}`);
+          // Don't specify locale to get all translations
+          const response = await fetch(`/.netlify/functions/translations`);
           
           if (response.ok) {
             const data = await response.json();
+            console.log('Fetched translations:', data);
             setTranslations(data);
           }
         }
@@ -54,7 +56,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     };
     
     fetchTranslations();
-  }, [language]);
+  }, []);
 
   // Set language and save to localStorage
   const setLanguage = useCallback((newLanguage: Language) => {

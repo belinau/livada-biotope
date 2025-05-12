@@ -148,13 +148,20 @@ exports.handler = async (event, context) => {
           syncTranslationFiles(translationsData);
         }
 
-        // Get translations for the specified locale
-        const localeTranslations = translationsData[locale] || {};
-        
-        // Filter by key if specified
-        let result = localeTranslations;
-        if (key) {
-          result = localeTranslations[key] || null;
+        // Check if locale is specified
+        let result;
+        if (!params.locale) {
+          // Return all translations when no locale specified
+          result = translationsData;
+        } else {
+          // Get translations for the specified locale
+          const localeTranslations = translationsData[locale] || {};
+          
+          // Filter by key if specified
+          result = localeTranslations;
+          if (key) {
+            result = localeTranslations[key] || null;
+          }
         }
         
         // Cache the result
