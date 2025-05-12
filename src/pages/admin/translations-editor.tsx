@@ -93,10 +93,18 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
   const handleLogin = () => {
     // Simple password check - in a real app, use a more secure method
     if (password === 'livada2025') {
+      console.log('Authentication successful');
       setIsAuthenticated(true);
+      setError(null); // Clear any errors
       localStorage.setItem('translations_auth', 'true');
+      
+      // Force a reload of translations after authentication
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } else {
-      setError('Incorrect password');
+      console.log('Authentication failed: incorrect password');
+      setError('Incorrect password. Please try again.');
     }
   };
 
@@ -110,7 +118,11 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
   useEffect(() => {
     const auth = localStorage.getItem('translations_auth');
     if (auth === 'true') {
+      console.log('User is already authenticated via localStorage');
       setIsAuthenticated(true);
+    } else {
+      console.log('User is not authenticated');
+      setIsAuthenticated(false);
     }
   }, []);
 
