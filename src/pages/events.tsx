@@ -107,14 +107,16 @@ function Events() {
   // Set isClient to true when component mounts on client
   useEffect(() => {
     setIsClient(true);
+    // Fetch events immediately when component mounts on client
+    fetchEvents();
   }, []);
 
-  // Fetch events when the component mounts or language changes
+  // Fetch events when language changes
   useEffect(() => {
     if (isClient) {
       fetchEvents();
     }
-  }, [isClient, fetchEvents]);
+  }, [language, fetchEvents]);
 
 
 
