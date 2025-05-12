@@ -319,7 +319,7 @@ export const SensorVisualization: React.FC = () => {
               {chartError ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100%', bgcolor: 'grey.100', borderRadius: 1, p: 2 }}>
                   <Typography variant="subtitle1" color="error" gutterBottom>Chart rendering error</Typography>
-                  <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>There was an error rendering the chart. We're still working on it!</Typography>
+                  <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>There was an error rendering the chart. We&apos;re still working on it!</Typography>
                   <Button variant="outlined" size="small" onClick={() => fetchData()}>Try Again</Button>
                 </Box>
               ) : (
