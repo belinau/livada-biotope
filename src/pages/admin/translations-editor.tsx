@@ -60,25 +60,73 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
       try {
         setLoading(true);
         setError(null);
+        console.log('Fetching translations...');
         
-        // Use the Netlify serverless function to fetch translations
-        const response = await fetch('/.netlify/functions/translations/translations');
-        
-        if (!response.ok) {
-          throw new Error(`Error fetching translations: ${response.status}`);
+        // Try to fetch from the Netlify function first
+        try {
+          // Use the Netlify serverless function to fetch translations
+          const response = await fetch('/.netlify/functions/translations/translations', {
+            method: 'GET',
+            headers: {
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache'
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            console.log('Successfully fetched translations from Netlify function');
+            
+            // Convert the data to an array of Translation objects
+            const translationsArray = Object.entries(data).map(([key, value]: [string, any]) => ({
+              key,
+              en: value.en || '',
+              sl: value.sl || ''
+            }));
+            
+            setTranslations(translationsArray);
+            setLoading(false);
+            return;
+          } else {
+            console.warn(`Netlify function returned status: ${response.status}`);
+          }
+        } catch (netlifyError) {
+          console.warn('Error fetching from Netlify function:', netlifyError);
         }
         
-        const data = await response.json();
-        
-        // Convert the data to an array of Translation objects
-        const translationsArray = Object.entries(data).map(([key, value]: [string, any]) => ({
-          key,
-          en: value.en || '',
-          sl: value.sl || ''
-        }));
-        
-        setTranslations(translationsArray);
-        setLoading(false);
+        // Fallback: Try to fetch directly from the JSON file
+        try {
+          console.log('Trying direct access to translations.json...');
+          const directResponse = await fetch('/netlify/functions/translations/translations.json', {
+            method: 'GET',
+            headers: {
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache'
+            }
+          });
+          
+          if (directResponse.ok) {
+            const data = await directResponse.json();
+            console.log('Successfully fetched translations from direct JSON file');
+            
+            // Convert the data to an array of Translation objects
+            const translationsArray = Object.entries(data).map(([key, value]: [string, any]) => ({
+              key,
+              en: value.en || '',
+              sl: value.sl || ''
+            }));
+            
+            setTranslations(translationsArray);
+            setLoading(false);
+            return;
+          } else {
+            console.warn(`Direct JSON access returned status: ${directResponse.status}`);
+            throw new Error(`Failed to fetch translations: ${directResponse.status}`);
+          }
+        } catch (directError) {
+          console.error('Error with direct JSON access:', directError);
+          throw directError;
+        }
       } catch (error) {
         console.error('Error fetching translations:', error);
         setError('Failed to load translations');
@@ -156,24 +204,38 @@ const TranslationsEditor: React.FC & PageWithLayout = () => {
       setTranslations(updatedTranslations);
       
       // Call the Netlify function to save the translations
+      console.log('Preparing to save translations...');
       const dataToSave = updatedTranslations.map(t => ({
         key: t.key,
         en: t.en,
         sl: t.sl
       }));
       
-      const response = await fetch('/.netlify/functions/translations/translations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ translations: dataToSave }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Error saving translations: ${response.status}`);
+      console.log('Sending save request to Netlify function...');
+      try {
+        const response = await fetch('/.netlify/functions/translations/translations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ translations: dataToSave }),
+        });
+        
+        console.log('Save response status:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Error response from save function:', errorText);
+          throw new Error(`Error saving translations: ${response.status} - ${errorText}`);
+        }
+        
+        const responseData = await response.json();
+        console.log('Save successful:', responseData);
+        setMessage({ type: 'success', text: 'Translation updated successfully' });
+      } catch (saveError) {
+        console.error('Error during save operation:', saveError);
+        throw saveError;
       }
-      setMessage({ type: 'success', text: 'Translation updated successfully' });
       
       // Clear editing state
       setEditingKey(null);
