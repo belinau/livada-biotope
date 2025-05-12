@@ -65,27 +65,33 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
   // Generate a unique pattern based on the species
   const getPatternStyle = () => {
     // Convert opacity values to decimal
+    const color10 = hexToRgba(patternColor, 0.1); // 10% opacity
     const color20 = hexToRgba(patternColor, 0.2); // 20% opacity
     const color30 = hexToRgba(patternColor, 0.3); // 30% opacity
+    const color40 = hexToRgba(patternColor, 0.4); // 40% opacity
     
     switch (pattern) {
       case 'dots':
         return {
-          backgroundImage: `radial-gradient(${patternColor} 3px, transparent 3px)`,
-          backgroundSize: '30px 30px',
+          backgroundImage: `radial-gradient(${patternColor} 3px, transparent 3px), radial-gradient(${color30} 2px, transparent 2px)`,
+          backgroundSize: '30px 30px, 20px 20px',
+          backgroundPosition: '0 0, 15px 15px',
         };
       case 'lines':
         return {
-          backgroundImage: `repeating-linear-gradient(45deg, ${color20}, ${color20} 1px, transparent 1px, transparent 10px)`,
+          backgroundImage: `repeating-linear-gradient(45deg, ${color20}, ${color20} 1px, transparent 1px, transparent 10px), repeating-linear-gradient(135deg, ${color10}, ${color10} 1px, transparent 1px, transparent 15px)`,
         };
       case 'waves':
         return {
-          backgroundImage: `repeating-radial-gradient(${color30}, ${color30} 10px, transparent 10px, transparent 20px)`,
+          backgroundImage: `repeating-radial-gradient(${color30}, ${color30} 10px, transparent 10px, transparent 20px), repeating-radial-gradient(${color20}, ${color20} 5px, transparent 5px, transparent 25px)`,
+          backgroundSize: '50px 50px, 60px 60px',
+          backgroundPosition: '0 0, 25px 25px',
         };
       case 'leaves':
         return {
-          backgroundImage: `linear-gradient(45deg, ${color20} 25%, transparent 25%, transparent 75%, ${color20} 75%, ${color20})`,
-          backgroundSize: '30px 30px',
+          backgroundImage: `linear-gradient(45deg, ${color20} 25%, transparent 25%, transparent 75%, ${color20} 75%, ${color20}), linear-gradient(135deg, ${color30} 25%, transparent 25%, transparent 75%, ${color30} 75%, ${color30})`,
+          backgroundSize: '30px 30px, 40px 40px',
+          backgroundPosition: '0 0, 15px 15px',
         };
       default:
         return {};
@@ -104,24 +110,8 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
         justifyContent: 'center',
         alignItems: 'center',
         overflow: 'hidden',
-        // Apply pattern styles first
+        // Apply pattern styles only - no images
         ...getPatternStyle(),
-        // Then conditionally apply image styles if image is available and loaded
-        ...(imageSrc && !imageError ? {
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage: `url(${imageSrc})`,
-            backgroundSize: objectFit,
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            zIndex: 1
-          }
-        } : {}),
       }}
     >
       {/* Only show species name and latin name if they are provided */}
