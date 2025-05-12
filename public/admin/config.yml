@@ -3,10 +3,25 @@ backend:
   repo: belinau/livada-biotope
   branch: main
   base_url: https://api.netlify.com
+  auth_endpoint: authbackend:
+    name: github
+    repo: belinau/livada-biotope
+    branch: main
+    base_url: https://api.netlify.com
+    auth_endpoint: authbackend:
+  name: github
+  repo: belinau/livada-biotope
+  branch: main
+  base_url: https://api.netlify.com
   auth_endpoint: auth
 
 media_folder: public/images/uploads
 public_folder: /images/uploads
+
+local_backend: true
+
+# Editorial workflow: adds an interface for drafting, reviewing, and approving posts
+publish_mode: editorial_workflow
 
 collections:
   - name: "blog"
@@ -32,6 +47,15 @@ collections:
       - { label: "Featured Image", name: "thumbnail", widget: "image", required: false }
       - { label: "Summary", name: "summary", widget: "text" }
       - { label: "Body", name: "body", widget: "markdown" }
+      - label: "Project Details"
+        name: "details"
+        widget: "object"
+        collapsed: true
+        fields:
+          - { label: "Start Date", name: "startDate", widget: "date", required: false }
+          - { label: "End Date", name: "endDate", widget: "date", required: false }
+          - { label: "Status", name: "status", widget: "select", options: ["In Progress", "Completed", "Planned"], required: false }
+          - { label: "Partners", name: "partners", widget: "list", required: false }
   
   - name: "events"
     label: "Events"
@@ -44,3 +68,41 @@ collections:
       - { label: "Location", name: "location", widget: "string" }
       - { label: "Featured Image", name: "thumbnail", widget: "image", required: false }
       - { label: "Description", name: "body", widget: "markdown" }
+      - { label: "Registration Link", name: "registrationLink", widget: "string", required: false }
+      - { label: "Organizers", name: "organizers", widget: "list", required: false }
+
+  - name: "galleries"
+    label: "Photo Galleries"
+    folder: "src/content/galleries"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Date", name: "date", widget: "datetime" }
+      - label: "Gallery"
+        name: "gallery"
+        widget: "list"
+        fields:
+          - { label: "Image", name: "image", widget: "image" }
+          - { label: "Caption", name: "caption", widget: "string", required: false }
+          - { label: "Alt Text", name: "alt", widget: "string", required: false }
+
+  - name: "pages"
+    label: "Pages"
+    files:
+      - label: "About Page"
+        name: "about"
+        file: "src/content/pages/about.md"
+        fields:
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "Intro", name: "intro", widget: "text" }
+          - { label: "Body", name: "body", widget: "markdown" }
+          - label: "Team Members"
+            name: "team"
+            widget: "list"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Position", name: "position", widget: "string" }
+              - { label: "Photo", name: "photo", widget: "image", required: false }
+              - { label: "Bio", name: "bio", widget: "text", required: false }

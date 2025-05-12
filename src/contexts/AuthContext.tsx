@@ -35,8 +35,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Determine if we're in the browser
   const isBrowser = typeof window !== 'undefined';
   
+  // Use the custom domain for redirects
+  const customDomain = 'https://livada.bio';
+  
   // Get the current URL for proper redirect handling
-  const currentUrl = isBrowser ? window.location.origin : '';
+  const currentUrl = customDomain;
   
   return (
     <Auth0Provider
