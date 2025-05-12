@@ -1,24 +1,23 @@
 ---
 title: Welcome to Livada Biotope
 date: 2025-05-12T00:10:51.155Z
-summary: Welcome to our eco-feminist initiative developing land-based practices and promoting sustainable living.
 thumbnail: /images/uploads/livada-welcome.jpg
+summary: Welcome to our eco-feminist initiative developing land-based practices
+  and promoting sustainable living.
 tags:
   - welcome
   - introduction
 ---
+# Welcome to The Livada Biotope
 
-
-# Welcome to Livada Biotope
-
-We are an eco-feminist initiative developing land-based practices and promoting sustainable living. Our mission is to develop sustainable land practices and educate about environmental awareness.
+We are an ecofeminist initiative developing land-based practices and promoting sustainable living and other ways of being. Our mission is to develop sustainable land practices and educate about environmental awareness.
 
 ## Our Values
 
-- **Sustainability**: We believe in practices that can be maintained over time without depleting environmental resources or causing ecological damage.
-- **Community**: We value the power of community and collective action in creating positive change.
-- **Education**: We are committed to sharing knowledge and raising awareness about environmental and social issues.
-- **Ecofeminism**: We recognize the connection between the exploitation of environment and the oppression of women, foreigners and others and work to address it in all manifestations.
+* **Sustainability**: We believe in practices that can be maintained over time without depleting environmental resources or causing ecological damage.
+* **Community**: We value the power of community and collective action in creating positive change.
+* **Education**: We are committed to sharing knowledge and raising awareness about environmental and social issues.
+* **Ecofeminism**: We recognize the connection between the exploitation of environment and the oppression of women, foreigners and others and work to address it in all manifestations.
 
 ## Get Involved
 
