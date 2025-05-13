@@ -14,19 +14,13 @@ export default function Events() {
   const { language } = useLanguage();
   const { t } = useTranslations();
   const [tabValue, setTabValue] = useState(0);
-  const [isClient, setIsClient] = useState(false);
   
   // Handle tab change
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
   
-  // Set isClient to true when component mounts (for SSR compatibility)
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-  
-  // Google Calendar ID
+  // Google Calendar ID - make sure this is correct
   const calendarId = 'c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7@group.calendar.google.com';
   
   // Calendar embed URLs for different views
@@ -75,39 +69,38 @@ export default function Events() {
             </Tabs>
           </Box>
           
-          {/* Calendar embed */}
-          {isClient && (
-            <Box sx={{ 
-              height: '600px', 
-              width: '100%', 
-              overflow: 'hidden',
-              borderRadius: 2,
-              boxShadow: 2,
-              mb: 4
-            }}>
-              <iframe 
-                src={tabValue === 0 ? calendarUrls.agenda : calendarUrls.month}
-                style={{ 
-                  border: 0,
-                  width: '100%',
-                  height: '100%'
-                }}
-                frameBorder="0"
-                scrolling="no"
-                title={language === 'en' ? 'Livada Biotope Events Calendar' : 'Koledar dogodkov Biotop Livada'}
-                allowFullScreen
-              />
-            </Box>
-          )}
+          {/* Calendar embed - removed isClient conditional to ensure it always renders */}
+          <Box sx={{ 
+            height: '600px', 
+            width: '100%', 
+            overflow: 'hidden',
+            borderRadius: 2,
+            boxShadow: 2,
+            mb: 4
+          }}>
+            <iframe 
+              src={tabValue === 0 ? calendarUrls.agenda : calendarUrls.month}
+              style={{ 
+                border: 0,
+                width: '100%',
+                height: '100%'
+              }}
+              frameBorder="0"
+              scrolling="no"
+              title={language === 'en' ? 'Livada Biotope Events Calendar' : 'Koledar dogodkov Biotop Livada'}
+              allowFullScreen
+            />
+          </Box>
           
-          <Box sx={{ mt: 6, p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 1 }}>
-            <Typography variant="h5" component="h3" gutterBottom sx={{ color: 'primary.main' }}>
+          {/* Call to action */}
+          <Box sx={{ mt: 6, textAlign: 'center' }}>
+            <Typography variant="h5" component="h3" gutterBottom>
               {language === 'en' ? 'Want to host an event?' : 'Želite organizirati dogodek?'}
             </Typography>
             <Typography paragraph>
               {language === 'en' 
                 ? "If you're interested in hosting a workshop, lecture, or community event at The Livada Biotope, please get in touch with us. We welcome proposals that align with our mission of promoting biodiversity, ecological awareness, and community engagement." 
-                : "Če vas zanima organizacija delavnice, predavanja ali skupnostnega dogodka v Biotopu Livada, nas prosimo kontaktirajte. Veseli smo predlogov, ki so v skladu z našim poslanstvom spodbujanja biotske raznovrstnosti, ekološke ozaveščenosti in vključevanja skupnosti."}
+                : "Če vas zanima organizacija delavnice, predavanja ali skupnostnega dogodka v Biotopu Livada, se obrnite na nas. Dobrodošli so predlogi, ki so v skladu z našim poslanstvom spodbujanja biotske raznovrstnosti, ekološke ozaveščenosti in vključevanja skupnosti."}
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
               {language === 'en' ? 'Contact: ' : 'Kontakt: '} 

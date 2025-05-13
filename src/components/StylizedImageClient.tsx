@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import Image from 'next/image';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface StylizedImageProps {
@@ -33,21 +34,6 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   
-  // Check if the image exists and can be loaded
-  useEffect(() => {
-    if (!imageSrc) return;
-    
-    const img = new Image();
-    img.onload = () => setImageLoaded(true);
-    img.onerror = () => setImageError(true);
-    img.src = imageSrc;
-    
-    return () => {
-      img.onload = null;
-      img.onerror = null;
-    };
-  }, [imageSrc]);
-  
   // Helper function to convert hex to rgba
   const hexToRgba = (hex: string, opacity: number) => {
     // Remove the hash if it exists
@@ -61,8 +47,6 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
     // Return rgba format
     return `rgba(${r}, ${g}, ${b}, ${opacity})`;
   };
-  
-  // Simpler implementation without SVG complexity
   
   // Generate pattern styles using CSS - more reliable than SVG
   const getPatternStyle = () => {
@@ -109,6 +93,19 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
     }
   };
 
+  // Make sure imageSrc is an absolute URL
+  const ensureAbsoluteUrl = (src: string | undefined) => {
+    if (!src) return '';
+    if (src.startsWith('http')) return src;
+    if (src.startsWith('/')) {
+      return `https://livada-biotope.netlify.app${src}`;
+    }
+    return `https://livada-biotope.netlify.app/${src}`;
+  };
+
+  const safeImageSrc = imageSrc ? ensureAbsoluteUrl(imageSrc) : '';
+  const altText = typeof speciesName === 'string' ? speciesName : (language === 'en' ? speciesName.en : speciesName.sl);
+
   return (
     <Box
       sx={{
@@ -124,26 +121,30 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
         ...getPatternStyle(),
       }}
     >
-      {/* Image if provided and loaded */}
-      {imageSrc && !imageError && imageLoaded && (
-        <img 
-          src={imageSrc} 
-          alt={typeof speciesName === 'string' ? speciesName : (language === 'en' ? speciesName.en : speciesName.sl)}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit,
-            zIndex: 1
-          }}
-        />
+      {/* Image if provided */}
+      {safeImageSrc && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 1
+        }}>
+          <Image 
+            src={safeImageSrc}
+            alt={altText}
+            fill
+            style={{ objectFit: objectFit as any }}
+            unoptimized={true}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
+          />
+        </div>
       )}
       
-      {/* We're using CSS patterns instead of SVG for better reliability */}
       {/* Only show species name and latin name if they are provided */}
-      {(typeof speciesName === 'string' ? speciesName : (language === 'en' ? speciesName.en : speciesName.sl)) && (
+      {altText && (
         <Box
           sx={{
             backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -163,9 +164,7 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
             color: patternColor,
             marginBottom: '0.25rem'
           }}>
-            {typeof speciesName === 'string' 
-              ? speciesName 
-              : (language === 'en' ? speciesName.en : speciesName.sl)}
+            {altText}
           </div>
           {latinName && (
             <div style={{ 
