@@ -99,31 +99,41 @@ exports.handler = async (event, context) => {
         if (event.type !== 'VEVENT') continue;
         
         // Process the event
+        const eventType = determineEventType(event.summary, event.description || '');
+        
+        // Skip events without start or end dates
+        if (!event.start || !event.end) continue;
+        
+        // Create a processed event object
         const processedEvent = {
-          id: event.uid || key,
-          title: event.summary || 'Untitled Event',
+          id: key,
+          title: event.summary,
           description: event.description || '',
-          start: event.start,
-          end: event.end || new Date(event.start.getTime() + 3600000), // Default 1 hour
-          location: event.location || 'Livada Biotope',
-          type: determineEventType(event.summary || '', event.description || ''),
-          url: event.url || ''
+          start: event.start.toISOString(),
+          end: event.end.toISOString(),
+          location: event.location || '',
+          type: translations[locale][eventType] || eventType
         };
         
         processedEvents.push(processedEvent);
       }
       
       // Sort events by start date
-      processedEvents.sort((a, b) => a.start.getTime() - b.start.getTime());
+      processedEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
       
-      // Cache the processed events
-      cache.set(cacheKey, processedEvents);
+      // Create the response object with the expected format
+      const responseData = {
+        events: processedEvents
+      };
       
-      // Return the processed events
+      // Cache the response
+      cache.set(cacheKey, responseData);
+      
+      // Return the response
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify(processedEvents)
+        body: JSON.stringify(responseData)
       };
       
     } catch (calendarError) {

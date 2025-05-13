@@ -74,6 +74,7 @@ export default function Home() {
             pattern="dots"
             height="100%"
             width="100%"
+            hideLatinName={true}
           />
         </Box>
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>

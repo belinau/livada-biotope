@@ -243,13 +243,21 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
     const data = await response.json();
     
     // Ensure we have events data
-    if (!data || !data.events || !Array.isArray(data.events)) {
+    if (!data || (!data.events && !Array.isArray(data))) {
       console.error('Invalid data format from calendar API');
       return [];
     }
     
+    // Handle both formats: {events: [...]} or directly an array
+    const eventsArray = Array.isArray(data) ? data : data.events;
+    
+    if (!eventsArray || !Array.isArray(eventsArray)) {
+      console.error('Events data is not an array');
+      return [];
+    }
+    
     // Parse the events
-    const events = data.events.map((event: any) => ({
+    const events = eventsArray.map((event: any) => ({
       id: event.id || `event-${Math.random().toString(36).substr(2, 9)}`,
       title: event.title || event.summary || 'Untitled Event',
       description: event.description || '',

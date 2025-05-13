@@ -13,6 +13,7 @@ interface StylizedImageProps {
   height?: string | number;
   width?: string | number;
   pattern?: 'dots' | 'lines' | 'waves' | 'leaves';
+  hideLatinName?: boolean;
 }
 
 const StylizedImageClient: React.FC<StylizedImageProps> = ({
@@ -22,7 +23,8 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
   patternColor = '#2e7d32',
   height = '100%',
   width = '100%',
-  pattern = 'dots'
+  pattern = 'dots',
+  hideLatinName = false
 }) => {
   const { language } = useLanguage();
   
@@ -122,7 +124,7 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
           }}>
             {altText}
           </div>
-          {latinName && (
+          {latinName && !hideLatinName && (
             <div style={{ 
               fontStyle: 'italic',
               color: '#666'
