@@ -1,11 +1,11 @@
 import React from 'react';
 import { GetStaticProps } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { getAllPosts } from '@/lib/markdown';
 import SharedLayout from '@/components/layout/SharedLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
+import StylizedImage from '@/components/StylizedImage';
 import { 
   Box, 
   Container, 
@@ -71,15 +71,17 @@ export default function BlogPage({ posts }: BlogPageProps) {
               <CardActionArea component={Link} href={`/blog/${post.slug}`}>
                 {post.frontmatter.thumbnail ? (
                   <Box sx={{ height: 220, position: 'relative', overflow: 'hidden' }}>
-                    <Image 
-                      src={post.frontmatter.thumbnail} 
-                      alt={post.frontmatter.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      style={{ 
-                        objectFit: 'cover',
-                        transition: 'transform 0.5s ease'
+                    <StylizedImage 
+                      speciesName={{
+                        en: post.frontmatter.title,
+                        sl: post.frontmatter.title
                       }}
+                      backgroundColor="#f8f5e6"
+                      patternColor="#2e7d32"
+                      pattern="dots"
+                      height="100%"
+                      width="100%"
+                      hideLatinName={true}
                     />
                   </Box>
                 ) : (

@@ -47,22 +47,6 @@ collections:
           - { label: "Status", name: "status", widget: "select", options: ["In Progress", "Completed", "Planned"], required: false }
           - { label: "Partners", name: "partners", widget: "list", required: false }
   
-  - name: "events"
-    label: "Events"
-    folder: "src/content/events"
-    create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Event Date", name: "eventDate", widget: "datetime" }
-      - { label: "End Date", name: "endDate", widget: "datetime", required: false }
-      - { label: "Location", name: "location", widget: "string" }
-      - { label: "Featured Image", name: "thumbnail", widget: "image", required: false }
-      - { label: "Summary", name: "summary", widget: "text" }
-      - { label: "Body", name: "body", widget: "markdown" }
-      - { label: "Registration Link", name: "registrationLink", widget: "string", required: false }
-      - { label: "Tags", name: "tags", widget: "list", required: false }
-  
   - name: "gallery"
     label: "Gallery"
     folder: "src/content/gallery"
@@ -79,6 +63,17 @@ collections:
           - { label: "Image", name: "image", widget: "image" }
           - { label: "Caption", name: "caption", widget: "string", required: false }
           - { label: "Alt Text", name: "alt", widget: "string", required: false }
+  
+  - name: "resources"
+    label: "Resources"
+    folder: "src/content/resources"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Featured Image", name: "thumbnail", widget: "image", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
   
   - name: "resources"
     label: "Resources"

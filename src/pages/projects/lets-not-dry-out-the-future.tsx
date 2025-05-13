@@ -403,11 +403,15 @@ export default function LetsNotDryOutTheFuture() {
         {/* Section: Join Us */}
         <Box sx={{ mb: 8, mt: 12 }}>
           <Typography variant="h4" sx={{ mb: 4, textAlign: 'center', color: 'primary.dark', fontWeight: 600 }}>
-            Join Our Mission for Climate Resilience
+            {language === 'en' 
+              ? "Join Our Mission for Climate Resilience"
+              : "Pridružite se naši misiji za podnebno odpornost"}
           </Typography>
           
           <Typography paragraph sx={{ mb: 5, textAlign: 'center', maxWidth: '800px', mx: 'auto' }}>
-            We welcome volunteers, donations, and community engagement to help us expand our work on climate resilience and biodiversity conservation. Your contribution makes a difference in creating sustainable urban environments.
+            {language === 'en'
+              ? "We welcome volunteers, donations, and community engagement to help us expand our work on climate resilience and biodiversity conservation. Your contribution makes a difference in creating sustainable urban environments."
+              : "Vabimo prostovoljce, donacije in sodelovanje skupnosti, da nam pomagate razširiti naše delo na področju podnebne odpornosti in ohranjanja biotske raznovrstnosti. Vaš prispevek naredi razliko pri ustvarjanju trajnostnih urbanih okolij."}
           </Typography>
           
           <Grid container spacing={4} sx={{ mb: 6 }}>
@@ -424,8 +428,14 @@ export default function LetsNotDryOutTheFuture() {
                 }}
               >
                 <CardContent sx={{ p: 4, flexGrow: 1 }}>
-                  <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>Volunteer</Typography>
-                  <Typography sx={{ mb: 3, color: 'text.secondary' }}>Join our team of volunteers to help with planting, monitoring, and maintaining the Biotope Livada site.</Typography>
+                  <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
+                    {language === 'en' ? "Volunteer" : "Prostovoljstvo"}
+                  </Typography>
+                  <Typography sx={{ mb: 3, color: 'text.secondary' }}>
+                    {language === 'en'
+                      ? "Join our team of volunteers to help with planting, monitoring, and maintaining the Biotope Livada site."
+                      : "Pridružite se naši ekipi prostovoljcev in pomagajte pri sajenju, spremljanju in vzdrževanju Biotopa Livada."}
+                  </Typography>
                   <Button 
                     variant="outlined" 
                     color="primary" 
@@ -436,7 +446,7 @@ export default function LetsNotDryOutTheFuture() {
                       px: 3
                     }}
                   >
-                    Get Involved
+                    {language === 'en' ? "Get Involved" : "Sodelujte"}
                   </Button>
                 </CardContent>
               </Card>
@@ -455,8 +465,14 @@ export default function LetsNotDryOutTheFuture() {
                 }}
               >
                 <CardContent sx={{ p: 4, flexGrow: 1 }}>
-                  <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>Donate</Typography>
-                  <Typography sx={{ mb: 3, color: 'text.secondary' }}>Support our work through donations that help us purchase equipment, plants, and educational materials.</Typography>
+                  <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
+                    {language === 'en' ? "Donate" : "Donacija"}
+                  </Typography>
+                  <Typography sx={{ mb: 3, color: 'text.secondary' }}>
+                    {language === 'en'
+                      ? "Support our work through donations that help us purchase equipment, plants, and educational materials."
+                      : "Podprejte naše delo z donacijami, ki nam pomagajo kupiti opremo, rastline in izobraževalne materiale."}
+                  </Typography>
                   <Button 
                     variant="outlined" 
                     color="primary" 
@@ -467,7 +483,7 @@ export default function LetsNotDryOutTheFuture() {
                       px: 3
                     }}
                   >
-                    Support Us
+                    {language === 'en' ? "Support Us" : "Podprejte nas"}
                   </Button>
                 </CardContent>
               </Card>
@@ -486,8 +502,14 @@ export default function LetsNotDryOutTheFuture() {
                 }}
               >
                 <CardContent sx={{ p: 4, flexGrow: 1 }}>
-                  <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>Spread the Word</Typography>
-                  <Typography sx={{ mb: 3, color: 'text.secondary' }}>Share our project with your community, on social media, and help us raise awareness about climate resilience.</Typography>
+                  <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
+                    {language === 'en' ? "Spread the Word" : "Širite besedo"}
+                  </Typography>
+                  <Typography sx={{ mb: 3, color: 'text.secondary' }}>
+                    {language === 'en'
+                      ? "Share our project with your community, on social media, and help us raise awareness about climate resilience."
+                      : "Delite naš projekt s svojo skupnostjo, na družbenih omrežjih in nam pomagajte pri ozaveščanju o podnebni odpornosti."}
+                  </Typography>
                   <Button 
                     variant="outlined" 
                     color="primary" 
@@ -498,7 +520,7 @@ export default function LetsNotDryOutTheFuture() {
                       px: 3
                     }}
                   >
-                    Share Project
+                    {language === 'en' ? "Share Project" : "Delite projekt"}
                   </Button>
                 </CardContent>
               </Card>

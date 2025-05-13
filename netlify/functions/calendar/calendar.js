@@ -25,6 +25,76 @@ const translations = {
   }
 };
 
+// Common event-related terms translations for Slovenian
+const commonTerms = {
+  // Event types
+  'workshop': 'delavnica',
+  'lecture': 'predavanje',
+  'community': 'skupnost',
+  'meeting': 'srečanje',
+  
+  // Locations
+  'Livada Biotope': 'Biotop Livada',
+  'Community Garden': 'Skupnostni vrt',
+  'Botanical Garden': 'Botanični vrt',
+  'Urban Garden': 'Mestni vrt',
+  'City Park': 'Mestni park',
+  'Nature Reserve': 'Naravni rezervat',
+  'Forest': 'Gozd',
+  'Meadow': 'Travnik',
+  'Online': 'Spletno',
+  'Biotop Livada': 'Biotop Livada',
+  'LivadaLAB': 'LivadaLAB',
+  
+  // Common words in event titles
+  'Permacultural': 'Permakulturna',
+  'workshop': 'delavnica',
+  'Workshop': 'Delavnica',
+  'Planting': 'Sajenje',
+  'Gardening': 'Vrtnarjenje',
+  'Composting': 'Kompostiranje',
+  'Seed': 'Seme',
+  'Seeds': 'Semena',
+  'Harvest': 'Pobiranje pridelka',
+  'Community': 'Skupnost',
+  'Meeting': 'Srečanje',
+  'Discussion': 'Razprava',
+  'Talk': 'Pogovor',
+  'Lecture': 'Predavanje',
+  'Presentation': 'Predstavitev'
+};
+
+// Function to translate event title to Slovenian
+function translateEventTitle(title) {
+  let translatedTitle = title;
+  
+  // Check for common terms and replace them
+  Object.keys(commonTerms).forEach(term => {
+    const regex = new RegExp(`\\b${term}\\b`, 'gi');
+    translatedTitle = translatedTitle.replace(regex, commonTerms[term]);
+  });
+  
+  // Handle specific patterns like "Workshop #2" -> "Delavnica #2"
+  translatedTitle = translatedTitle.replace(/Workshop #(\d+)/gi, 'Delavnica #$1');
+  
+  return translatedTitle;
+}
+
+// Function to translate event description to Slovenian
+function translateEventDescription(description) {
+  if (!description) return '';
+  
+  let translatedDescription = description;
+  
+  // Check for common terms and replace them
+  Object.keys(commonTerms).forEach(term => {
+    const regex = new RegExp(`\\b${term}\\b`, 'gi');
+    translatedDescription = translatedDescription.replace(regex, commonTerms[term]);
+  });
+  
+  return translatedDescription;
+}
+
 // Function to determine event type based on summary and description
 function determineEventType(summary, description) {
   const text = (summary + ' ' + description).toLowerCase();
@@ -107,8 +177,8 @@ exports.handler = async (event, context) => {
         // Create a processed event object
         const processedEvent = {
           id: key,
-          title: event.summary,
-          description: event.description || '',
+          title: locale === 'sl' ? translateEventTitle(event.summary) : event.summary,
+          description: locale === 'sl' ? translateEventDescription(event.description || '') : event.description || '',
           start: event.start.toISOString(),
           end: event.end.toISOString(),
           location: event.location || '',
