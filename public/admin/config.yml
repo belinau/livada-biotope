@@ -86,8 +86,8 @@ collections:
       - { label: "English Body", name: "body_en", widget: "markdown" }
       - { label: "Slovenian Body", name: "body_sl", widget: "markdown" }
 
-  - name: "resources"
-    label: "Resources"
+  - name: "resource_pages"
+    label: "Resource Pages"
     files:
       - label: "Ecofeminism Resources"
         name: "ecofeminism_resources"
