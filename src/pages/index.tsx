@@ -74,7 +74,7 @@ export default function Home() {
             pattern="waves"
             height="100%"
             width="100%"
-            imageSrc="/images/fritillaria.jpg"
+            imageSrc="https://livada-biotope.netlify.app/images/fritillaria.jpg"
           />
         </Box>
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
@@ -194,7 +194,7 @@ export default function Home() {
                     pattern="dots"
                     height="100%"
                     width="100%"
-                    imageSrc="/images/more-than-human.jpg"
+                    imageSrc="https://livada-biotope.netlify.app/images/more-than-human.jpg"
                   />
                 </Box>
               </Paper>
@@ -245,7 +245,7 @@ export default function Home() {
                     pattern="waves"
                     height="100%"
                     width="100%"
-                    imageSrc="/images/illustrations/botanical-1.jpg"
+                    imageSrc="https://livada-biotope.netlify.app/images/illustrations/botanical-1.jpg"
                   />
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>
@@ -281,7 +281,7 @@ export default function Home() {
                     pattern="waves"
                     height="100%"
                     width="100%"
-                    imageSrc="/images/illustrations/zoological-1.jpg"
+                    imageSrc="https://livada-biotope.netlify.app/images/illustrations/zoological-1.jpg"
                   />
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>
@@ -317,7 +317,7 @@ export default function Home() {
                     pattern="lines"
                     height="100%"
                     width="100%"
-                    imageSrc="/images/biodiversity-monitoring.jpg"
+                    imageSrc="https://livada-biotope.netlify.app/images/biodiversity-monitoring.jpg"
                   />
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>
