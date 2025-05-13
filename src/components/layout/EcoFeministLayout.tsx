@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useLanguage } from '../../contexts/LanguageContext';
 import useTranslations from '../../hooks/useTranslations';
+import Image from 'next/image';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import { 
   Typography, 
@@ -136,7 +137,7 @@ const EcoFeministLayout: React.FC<EcoFeministLayoutProps> = ({
             <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Link href="/" style={{ display: 'flex', alignItems: 'center' }}>
-                  <img src="/images/livada-bio-logo-new.svg" alt="livada.bio" width="150" height="40" />
+                  <Image src="/images/livada-bio-logo-new.svg" alt="livada.bio" width={150} height={40} />
                 </Link>
                 <Box sx={{ display: { xs: 'none', md: 'flex' }, ml: 4 }}>
                   {menuItems.map((item) => (

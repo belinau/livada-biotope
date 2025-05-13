@@ -2,6 +2,7 @@ import React, { ReactNode, useState, useEffect } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 import { useLanguage } from '../../contexts/LanguageContext';
+import useTranslations from '../../hooks/useTranslations';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import { Box, Container, Toolbar, IconButton, Typography, Drawer, List, ListItem, ListItemText, ListItemButton, Divider, Grid } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -12,7 +13,7 @@ interface LayoutProps {
 
 // Mobile Menu Component with animation
 const MobileMenu = () => {
-  const { t } = useLanguage();
+  const { t } = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
 
   // Close menu when ESC key is pressed
@@ -115,7 +116,7 @@ const StyledMenuItem = styled(ListItemButton)(({ theme }) => ({
 }));
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { t } = useLanguage();
+  const { t } = useTranslations();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [

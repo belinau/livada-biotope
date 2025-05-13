@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import useTranslations from '../../hooks/useTranslations';
 import Head from 'next/head';
 import Link from 'next/link';
+import Image from 'next/image';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import { 
   Box, 
@@ -133,7 +134,7 @@ export default function BlogLayout({ children, title, description }: BlogLayoutP
             <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Link href="/" style={{ display: 'flex', alignItems: 'center' }}>
-                  <img src="/images/livada-bio-logo-new.svg" alt="livada.bio" width="150" height="40" />
+                  <Image src="/images/livada-bio-logo-new.svg" alt="livada.bio" width={150} height={40} />
                 </Link>
                 <Box sx={{ display: { xs: 'none', md: 'flex' }, ml: 4 }}>
                   {menuItems.map((item) => (

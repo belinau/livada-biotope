@@ -1,6 +1,6 @@
 import React from 'react';
+import { Box, Paper, Typography } from '@mui/material';
 import Image from 'next/image';
-import { Box, Typography, Paper } from '@mui/material';
 
 interface TestImageProps {
   src: string;
@@ -24,14 +24,11 @@ const TestImage: React.FC<TestImageProps> = ({
         Source: {src}
       </Typography>
       <Box sx={{ position: 'relative', width, height, overflow: 'hidden', borderRadius: 1 }}>
-        <img 
+        <Image 
           src={src} 
           alt={alt}
-          style={{ 
-            width: '100%', 
-            height: '100%', 
-            objectFit: 'cover'
-          }}
+          layout="fill"
+          objectFit="cover"
         />
       </Box>
     </Paper>
