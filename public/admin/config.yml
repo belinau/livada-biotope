@@ -204,56 +204,13 @@ collections:
   - name: "translations"
     label: "Translations"
     files:
-      - label: "Site Translations"
-        name: "site_translations"
-        file: "src/content/translations/site.json"
+      - label: "Common Translations"
+        name: "common_translations"
+        file: "src/content/translations/common.md"
         fields:
-          - label: "Navigation"
-            name: "navigation"
-            widget: "object"
-            fields:
-              - label: "Home"
-                name: "home"
-                widget: "object"
-                fields:
-                  - { label: "English", name: "en", widget: "string" }
-                  - { label: "Slovenian", name: "sl", widget: "string" }
-              - label: "Blog"
-                name: "blog"
-                widget: "object"
-                fields:
-                  - { label: "English", name: "en", widget: "string" }
-                  - { label: "Slovenian", name: "sl", widget: "string" }
-              - label: "Projects"
-                name: "projects"
-                widget: "object"
-                fields:
-                  - { label: "English", name: "en", widget: "string" }
-                  - { label: "Slovenian", name: "sl", widget: "string" }
-              - label: "Events"
-                name: "events"
-                widget: "object"
-                fields:
-                  - { label: "English", name: "en", widget: "string" }
-                  - { label: "Slovenian", name: "sl", widget: "string" }
-              - label: "Resources"
-                name: "resources"
-                widget: "object"
-                fields:
-                  - { label: "English", name: "en", widget: "string" }
-                  - { label: "Slovenian", name: "sl", widget: "string" }
-              - label: "About"
-                name: "about"
-                widget: "object"
-                fields:
-                  - { label: "English", name: "en", widget: "string" }
-                  - { label: "Slovenian", name: "sl", widget: "string" }
-              - label: "Contact"
-                name: "contact"
-                widget: "object"
-                fields:
-                  - { label: "English", name: "en", widget: "string" }
-                  - { label: "Slovenian", name: "sl", widget: "string" }
+          - { label: "Translation Key", name: "key", widget: "string" }
+          - { label: "English Text", name: "en", widget: "string" }
+          - { label: "Slovenian Text", name: "sl", widget: "string" }
 
   - name: "pages"
     label: "Pages"
