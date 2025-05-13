@@ -9,6 +9,35 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import Button from '@mui/material/Button';
+import { styled } from '@mui/material/styles';
+import { green } from '@mui/material/colors';
+
+// Custom styled Tabs
+const StyledTabs = styled(Tabs)(({ theme }) => ({
+  borderBottom: '1px solid',
+  borderColor: 'divider',
+  '& .MuiTabs-indicator': {
+    backgroundColor: green[600],
+    height: 3,
+  },
+}));
+
+// Custom styled Tab
+const StyledTab = styled(Tab)(({ theme }) => ({
+  textTransform: 'none',
+  fontWeight: 500,
+  fontSize: '1rem',
+  color: theme.palette.text.primary,
+  '&.Mui-selected': {
+    color: green[600],
+    fontWeight: 600,
+  },
+  '&:hover': {
+    color: green[800],
+    opacity: 1,
+  },
+}));
 
 export default function Events() {
   const { language } = useLanguage();
@@ -23,10 +52,10 @@ export default function Events() {
   // Google Calendar ID - make sure this is correct
   const calendarId = 'c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7@group.calendar.google.com';
   
-  // Calendar embed URLs for different views
+  // Calendar embed URLs for different views with improved styling
   const calendarUrls = {
-    agenda: `https://calendar.google.com/calendar/embed?height=600&wkst=2&bgcolor=%23ffffff&ctz=Europe%2FLjubljana&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=AGENDA&src=${encodeURIComponent(calendarId)}`,
-    month: `https://calendar.google.com/calendar/embed?height=600&wkst=2&bgcolor=%23ffffff&ctz=Europe%2FLjubljana&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=MONTH&src=${encodeURIComponent(calendarId)}`
+    agenda: `https://calendar.google.com/calendar/embed?height=600&wkst=2&bgcolor=%23ffffff&ctz=Europe%2FLjubljana&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=AGENDA&src=${encodeURIComponent(calendarId)}&color=%232E7D32`,
+    month: `https://calendar.google.com/calendar/embed?height=600&wkst=2&bgcolor=%23ffffff&ctz=Europe%2FLjubljana&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=MONTH&src=${encodeURIComponent(calendarId)}&color=%232E7D32`
   };
   
   return (
@@ -50,7 +79,18 @@ export default function Events() {
             {language === 'en' ? 'Events' : 'Dogodki'}
           </Typography>
           
-          <Paper elevation={0} sx={{ p: 4, mb: 6, bgcolor: 'background.paper', borderRadius: 2 }}>
+          <Paper 
+            elevation={0} 
+            sx={{ 
+              p: 4, 
+              mb: 6, 
+              bgcolor: 'background.paper', 
+              borderRadius: 2,
+              border: '1px solid',
+              borderColor: 'divider',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)'
+            }}
+          >
             <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 'medium', color: 'text.primary' }}>
               {language === 'en' ? 'Join Our Community' : 'Pridružite se naši skupnosti'}
             </Typography>
@@ -62,22 +102,33 @@ export default function Events() {
           </Paper>
           
           {/* Calendar view selector tabs */}
-          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-            <Tabs value={tabValue} onChange={handleTabChange} aria-label="calendar view tabs">
-              <Tab label={language === 'en' ? 'Upcoming Events' : 'Prihajajoči dogodki'} />
-              <Tab label={language === 'en' ? 'Monthly Calendar' : 'Mesečni koledar'} />
-            </Tabs>
+          <Box sx={{ mb: 3 }}>
+            <StyledTabs 
+              value={tabValue} 
+              onChange={handleTabChange} 
+              aria-label="calendar view tabs"
+              centered
+            >
+              <StyledTab label={language === 'en' ? 'Upcoming Events' : 'Prihajajoči dogodki'} />
+              <StyledTab label={language === 'en' ? 'Monthly Calendar' : 'Mesečni koledar'} />
+            </StyledTabs>
           </Box>
           
-          {/* Calendar embed - removed isClient conditional to ensure it always renders */}
-          <Box sx={{ 
-            height: '600px', 
-            width: '100%', 
-            overflow: 'hidden',
-            borderRadius: 2,
-            boxShadow: 2,
-            mb: 4
-          }}>
+          {/* Calendar embed with improved styling */}
+          <Paper
+            elevation={0}
+            sx={{
+              height: '600px',
+              width: '100%',
+              overflow: 'hidden',
+              borderRadius: 2,
+              border: '1px solid',
+              borderColor: 'divider',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+              mb: 4,
+              p: 0
+            }}
+          >
             <iframe 
               src={tabValue === 0 ? calendarUrls.agenda : calendarUrls.month}
               style={{ 
@@ -90,11 +141,23 @@ export default function Events() {
               title={language === 'en' ? 'Livada Biotope Events Calendar' : 'Koledar dogodkov Biotop Livada'}
               allowFullScreen
             />
-          </Box>
+          </Paper>
           
           {/* Call to action */}
-          <Box sx={{ mt: 6, textAlign: 'center' }}>
-            <Typography variant="h5" component="h3" gutterBottom>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 4,
+              mt: 6,
+              textAlign: 'center',
+              borderRadius: 2,
+              border: '1px solid',
+              borderColor: 'divider',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+              bgcolor: green[50]
+            }}
+          >
+            <Typography variant="h5" component="h3" gutterBottom sx={{ color: green[800] }}>
               {language === 'en' ? 'Want to host an event?' : 'Želite organizirati dogodek?'}
             </Typography>
             <Typography paragraph>
@@ -102,11 +165,15 @@ export default function Events() {
                 ? "If you're interested in hosting a workshop, lecture, or community event at The Livada Biotope, please get in touch with us. We welcome proposals that align with our mission of promoting biodiversity, ecological awareness, and community engagement." 
                 : "Če vas zanima organizacija delavnice, predavanja ali skupnostnega dogodka v Biotopu Livada, se obrnite na nas. Dobrodošli so predlogi, ki so v skladu z našim poslanstvom spodbujanja biotske raznovrstnosti, ekološke ozaveščenosti in vključevanja skupnosti."}
             </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-              {language === 'en' ? 'Contact: ' : 'Kontakt: '} 
-              <a href="mailto:info@livada.bio" style={{ color: 'primary.main' }}>info@livada.bio</a>
-            </Typography>
-          </Box>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              href="/contact" 
+              sx={{ mt: 2, px: 4, py: 1 }}
+            >
+              {language === 'en' ? 'Contact Us' : 'Kontaktirajte nas'}
+            </Button>
+          </Paper>
         </Box>
       </Container>
     </>
