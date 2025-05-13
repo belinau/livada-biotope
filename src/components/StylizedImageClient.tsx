@@ -14,6 +14,7 @@ interface StylizedImageProps {
   width?: string | number;
   pattern?: 'dots' | 'lines' | 'waves' | 'leaves';
   hideLatinName?: boolean;
+  hideAllText?: boolean;
 }
 
 const StylizedImageClient: React.FC<StylizedImageProps> = ({
@@ -24,7 +25,8 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
   height = '100%',
   width = '100%',
   pattern = 'dots',
-  hideLatinName = false
+  hideLatinName = false,
+  hideAllText = false
 }) => {
   const { language } = useLanguage();
   
@@ -103,8 +105,8 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
         ...getPatternStyle(),
       }}
     >
-      {/* Only show species name and latin name if they are provided */}
-      {altText && (
+      {/* Only show species name and latin name if they are provided and hideAllText is false */}
+      {altText && !hideAllText && (
         <Box
           sx={{
             backgroundColor: 'rgba(255, 255, 255, 0.8)',

@@ -16,7 +16,8 @@ interface StylizedImageProps {
   pattern?: 'dots' | 'lines' | 'waves' | 'leaves';
   imageSrc?: string; // Optional image source URL
   objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down'; // Optional object-fit property
-  hideLatinName?: boolean; // New prop to hide the Latin name
+  hideLatinName?: boolean; // Prop to hide the Latin name
+  hideAllText?: boolean; // New prop to hide all text (species name and Latin name)
 }
 
 // Create a placeholder component for server-side rendering
