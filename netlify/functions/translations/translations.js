@@ -133,16 +133,40 @@ exports.handler = async (event, context) => {
         // Read and parse the translations file
         let translationsData = {};
         
-        if (fs.existsSync(TRANSLATIONS_PATH)) {
+        // First try to read from the public directory (where CMS saves translations)
+        if (fs.existsSync(PUBLIC_TRANSLATIONS_PATH)) {
+          console.log(`Reading translations from public directory: ${PUBLIC_TRANSLATIONS_PATH}`);
+          const fileContent = fs.readFileSync(PUBLIC_TRANSLATIONS_PATH, 'utf8');
+          try {
+            translationsData = JSON.parse(fileContent);
+            // Sync the translations to the function directory
+            fs.writeFileSync(TRANSLATIONS_PATH, fileContent);
+          } catch (parseError) {
+            console.error(`Error parsing translations from public directory: ${parseError.message}`);
+          }
+        }
+        
+        // If public translations failed or don't exist, try the function directory
+        if (Object.keys(translationsData).length === 0 && fs.existsSync(TRANSLATIONS_PATH)) {
+          console.log(`Reading translations from function directory: ${TRANSLATIONS_PATH}`);
           const fileContent = fs.readFileSync(TRANSLATIONS_PATH, 'utf8');
-          translationsData = JSON.parse(fileContent);
-        } else {
-          console.warn(`Translations file not found at ${TRANSLATIONS_PATH}. Creating empty translations file.`);
+          try {
+            translationsData = JSON.parse(fileContent);
+          } catch (parseError) {
+            console.error(`Error parsing translations from function directory: ${parseError.message}`);
+          }
+        }
+        
+        // If no translations found, create empty structure
+        if (Object.keys(translationsData).length === 0) {
+          console.warn('No translations found. Creating empty translations file.');
           
           // Create an empty translations file
           translationsData = {
-            en: {},
-            sl: {}
+            "Navbar.home": {
+              "en": "Home",
+              "sl": "Domov"
+            }
           };
           
           syncTranslationFiles(translationsData);
