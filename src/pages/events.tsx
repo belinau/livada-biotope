@@ -4,6 +4,7 @@ import Head from 'next/head';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
 import SharedLayout from '@/components/layout/SharedLayout';
+import TranslationLoader from '../components/TranslationLoader';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -118,10 +119,14 @@ function Events() {
     }
   }, [language, fetchEvents]);
 
+  // Force reload translations if they're not loaded
+  useEffect(() => {
+    if (!t('events.pageTitle') || t('events.pageTitle').includes('events.pageTitle')) {
+      // Reload translations
+      window.location.reload();
+    }
+  }, [t]);
 
-
-
-  
   // Toggle past events visibility
   const togglePastEvents = () => {
     setPastEventsVisible(!pastEventsVisible);
@@ -146,6 +151,9 @@ function Events() {
 
   return (
     <>
+      {/* Ensure translations are loaded */}
+      <TranslationLoader testKey="events.pageTitle" />
+      
       <Head>
         <title>{language === 'en' ? 'Events | The Livada Biotope' : 'Dogodki | Biotop Livada'}</title>
         <meta 

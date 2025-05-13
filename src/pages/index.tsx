@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 import StylizedImage from '../components/StylizedImage';
 import { useLanguage } from '../contexts/LanguageContext';
 import useTranslations from '../hooks/useTranslations';
+import TranslationLoader from '../components/TranslationLoader';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -28,6 +29,9 @@ export default function Home() {
   
   return (
     <>
+      {/* Ensure translations are loaded */}
+      <TranslationLoader testKey="home.intro.title" />
+      
       <Head>
         <title>{t('home.title', 'The Livada Biotope')} | {t('home.subtitle', 'Urban Biodiversity & Drought Resilience')}</title>
         <meta 

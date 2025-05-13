@@ -1,6 +1,8 @@
 import React from 'react';
 import Head from 'next/head';
 import { useLanguage } from '../contexts/LanguageContext';
+import useTranslations from '../hooks/useTranslations';
+import TranslationLoader from '../components/TranslationLoader';
 import StylizedImage from '../components/StylizedImage';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -17,6 +19,7 @@ import Stack from '@mui/material/Stack';
 
 export default function Instructables() {
   const { language } = useLanguage();
+  const { t } = useTranslations();
   
   // Define the pattern type to match StylizedImage component
   type PatternType = 'dots' | 'waves' | 'lines' | 'leaves';
@@ -99,6 +102,9 @@ export default function Instructables() {
   
   return (
     <>
+      {/* Ensure translations are loaded */}
+      <TranslationLoader testKey="Navbar.instructables" />
+      
       <Head>
         <title>{language === 'en' ? 'Instructables | The Livada Biotope' : 'Instructables | Biotop Livada'}</title>
         <meta 

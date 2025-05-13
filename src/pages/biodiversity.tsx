@@ -1,6 +1,8 @@
 import React from 'react';
 import Head from 'next/head';
 import { useLanguage } from '../contexts/LanguageContext';
+import useTranslations from '../hooks/useTranslations';
+import TranslationLoader from '../components/TranslationLoader';
 import StylizedImage from '../components/StylizedImage';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -15,9 +17,13 @@ import INaturalistFeed from '../components/biodiversity/INaturalistFeed';
 
 export default function Biodiversity() {
   const { language } = useLanguage();
+  const { t } = useTranslations();
   
   return (
     <>
+      {/* Ensure translations are loaded */}
+      <TranslationLoader testKey="Navbar.biodiversity" />
+      
       <Head>
         <title>{language === 'en' ? 'Biodiversity | The Livada Biotope' : 'Biotska raznovrstnost | Biotop Livada'}</title>
         <meta 

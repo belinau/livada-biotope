@@ -8,6 +8,7 @@ import { getBotanicalIllustrations, getZoologicalIllustrations } from '@/lib/ill
 import { biodiversityItems } from '@/lib/biodiversityData';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
+import TranslationLoader from '@/components/TranslationLoader';
 import Link from 'next/link';
 import { 
   Typography, 
@@ -35,16 +36,11 @@ export default function LetsNotDryOutTheFuture() {
   const botanicalIllustrations = getBotanicalIllustrations();
   const zoologicalIllustrations = getZoologicalIllustrations();
 
-  // Force reload translations if they're not loaded
-React.useEffect(() => {
-  if (!t('project.drought.intro') || t('project.drought.intro').includes('project.drought.intro')) {
-    // Reload translations
-    window.location.reload();
-  }
-}, [t]);
-
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
+        {/* Ensure translations are loaded */}
+        <TranslationLoader testKey="project.drought.intro" />
+        
         <Box sx={{ textAlign: 'center', mb: 6 }}>
           <Typography variant="h2" component="h1" sx={{ 
             color: 'primary.main', 

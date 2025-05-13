@@ -2,6 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 import { useLanguage } from '../contexts/LanguageContext';
+import useTranslations from '../hooks/useTranslations';
+import TranslationLoader from '../components/TranslationLoader';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -23,6 +25,7 @@ const StyledLink = ({ href, children }: { href: string; children: React.ReactNod
 
 export default function Projects() {
   const { language } = useLanguage();
+  const { t } = useTranslations();
   
   const projects = [
     {
@@ -45,6 +48,9 @@ export default function Projects() {
 
   return (
     <>
+      {/* Ensure translations are loaded */}
+      <TranslationLoader testKey="projects.title" />
+      
       <Head>
         <title>Livada Biotope | {language === 'en' ? 'Our Projects' : 'Naši projekti'}</title>
         <meta 
@@ -151,7 +157,7 @@ export default function Projects() {
           
           <Box sx={{ textAlign: 'center', mt: 4 }}>
             <Typography variant="body2" color="text.secondary">
-              © Livada Biotope {new Date().getFullYear()}
+              Livada Biotope {new Date().getFullYear()}
             </Typography>
           </Box>
         </Container>

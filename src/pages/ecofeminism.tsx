@@ -1,6 +1,8 @@
 import React from 'react';
 import Head from 'next/head';
 import { useLanguage } from '../contexts/LanguageContext';
+import useTranslations from '../hooks/useTranslations';
+import TranslationLoader from '../components/TranslationLoader';
 import StylizedImage from '../components/StylizedImage';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -20,6 +22,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 export default function Ecofeminism() {
   const { language } = useLanguage();
+  const { t } = useTranslations();
   
   // Define the pattern type to match StylizedImage component
   type PatternType = 'dots' | 'waves' | 'lines' | 'leaves';
@@ -27,28 +30,22 @@ export default function Ecofeminism() {
   // Resources data
   const resources = [
     {
-      title: language === 'en' ? 'Decolonial Composting' : 'Dekolonialno kompostiranje',
-      description: language === 'en' 
-        ? "Decolonial composting recognizes that our relationship with soil, waste, and regeneration is deeply political. It invites us to question dominant Western approaches to environmental management and instead embrace diverse knowledge systems and practices." 
-        : "Dekolonialno kompostiranje prepoznava, da je naš odnos do tal, odpadkov in regeneracije globoko političen. Vabi nas, da podvomimo o prevladujočih zahodnih pristopih k upravljanju okolja in namesto tega sprejmemo raznolike sisteme znanja in prakse.",
+      title: t('ecofeminism.resources.decolonial-composting.title'),
+      description: t('ecofeminism.resources.decolonial-composting.description'),
       speciesName: { en: "Earthworm", sl: "Deževnik" },
       latinName: "Lumbricus terrestris",
       pattern: "dots" as PatternType
     },
     {
-      title: language === 'en' ? 'Interspecies Solidarity' : 'Medvrstna solidarnost',
-      description: language === 'en' 
-        ? "Moving beyond anthropocentrism, interspecies solidarity recognizes the agency, sentience, and rights of non-human beings. It challenges us to see other species not as resources to be managed but as communities with whom we share mutual dependencies and responsibilities." 
-        : "Medvrstna solidarnost, ki presega antropocentrizem, priznava avtonomijo, zavedanje in pravice nečloveških bitij. Spodbuja nas, da drugih vrst ne vidimo kot vire, ki jih je treba upravljati, temveč kot skupnosti, s katerimi si delimo medsebojne odvisnosti in odgovornosti.",
+      title: t('ecofeminism.resources.interspecies-solidarity.title'),
+      description: t('ecofeminism.resources.interspecies-solidarity.description'),
       speciesName: { en: "Honey Bee", sl: "Medonosna čebela" },
       latinName: "Apis mellifera",
       pattern: "waves" as PatternType
     },
     {
-      title: language === 'en' ? 'Care Politics' : 'Politika skrbi',
-      description: language === 'en' 
-        ? "Centering care in our political imagination helps us move beyond extractive relationships. Care politics recognizes the essential work of maintaining, continuing, and repairing our world – work that has historically been feminized, devalued, and often made invisible." 
-        : "Osredotočanje skrbi v naši politični domišljiji nam pomaga preseči ekstraktivne odnose. Politika skrbi prepoznava bistveno delo vzdrževanja, nadaljevanja in popravljanja našega sveta – delo, ki je bilo zgodovinsko feminizirano, razvrednoteno in pogosto nevidno.",
+      title: t('ecofeminism.resources.care-politics.title'),
+      description: t('ecofeminism.resources.care-politics.description'),
       speciesName: { en: "Medicinal Sage", sl: "Žajbelj" },
       latinName: "Salvia officinalis",
       pattern: "leaves" as PatternType
@@ -58,25 +55,19 @@ export default function Ecofeminism() {
   // Reading recommendations
   const readings = [
     {
-      title: "Staying with the Trouble",
+      title: t('ecofeminism.readings.staying-with-the-trouble.title'),
       author: "Donna Haraway",
-      description: language === 'en' 
-        ? "Making kin in the Chthulucene - explores multispecies flourishing on a damaged planet." 
-        : "Ustvarjanje sorodstva v Htulucenu - raziskuje razcvet več vrst na poškodovanem planetu."
+      description: t('ecofeminism.readings.staying-with-the-trouble.description')
     },
     {
-      title: language === 'en' ? "Braiding Sweetgrass" : "Pletenje sladke trave",
+      title: t('ecofeminism.readings.braiding-sweetgrass.title'),
       author: "Robin Wall Kimmerer",
-      description: language === 'en' 
-        ? "Indigenous wisdom, scientific knowledge, and the teachings of plants." 
-        : "Domorodno znanje, znanstvena spoznanja in učenja rastlin."
+      description: t('ecofeminism.readings.braiding-sweetgrass.description')
     },
     {
-      title: language === 'en' ? "The Mushroom at the End of the World" : "Goba na koncu sveta",
+      title: t('ecofeminism.readings.the-mushroom-at-the-end-of-the-world.title'),
       author: "Anna Lowenhaupt Tsing",
-      description: language === 'en' 
-        ? "On the possibility of life in capitalist ruins." 
-        : "O možnosti življenja v kapitalističnih ruševinah."
+      description: t('ecofeminism.readings.the-mushroom-at-the-end-of-the-world.description')
     }
   ];
   
@@ -84,64 +75,50 @@ export default function Ecofeminism() {
   const media = [
     {
       name: "Donna Haraway",
-      title: language === 'en' ? "Staying with the Trouble: Making Kin in the Chthulucene" : "Ostati s težavo: Ustvarjanje sorodstva v Htulucenu",
-      description: language === 'en' 
-        ? "Donna Haraway discusses multispecies flourishing on a damaged planet and proposes new ways of living and dying together on Earth during environmentally challenging times." 
-        : "Donna Haraway razpravlja o razcvetu več vrst na poškodovanem planetu in predlaga nove načine skupnega življenja in umiranja na Zemlji v okoljsko zahtevnih časih.",
+      title: t('ecofeminism.media.staying-with-the-trouble.title'),
+      description: t('ecofeminism.media.staying-with-the-trouble.description'),
       type: "video",
       url: "https://www.youtube.com/watch?v=GrYA7sMQaBQ"
     },
     {
       name: "Bayo Akomolafe",
-      title: language === 'en' ? "Post-Activism and Decolonial Fugitivity" : "Post-aktivizem in dekolonialna bežnost",
-      description: language === 'en' 
-        ? "Bayo Akomolafe challenges conventional approaches to climate change and social justice, suggesting that 'the times are urgent, let us slow down.'" 
-        : "Bayo Akomolafe izziva konvencionalne pristope k podnebnim spremembam in socialni pravičnosti ter predlaga, da 'so časi nujni, zato se upočasnimo.'",
+      title: t('ecofeminism.media.post-activism-and-decolonial-fugitivity.title'),
+      description: t('ecofeminism.media.post-activism-and-decolonial-fugitivity.description'),
       type: "video",
       url: "https://www.youtube.com/watch?v=pRFVJ5OoH_A"
     },
     {
       name: "Bojana Kunst",
-      title: language === 'en' ? "The Life of Art: Transversal Lines of Care" : "Življenje umetnosti: prečne črte skrbi",
-      description: language === 'en' 
-        ? "Bojana Kunst explores the ethics of care in artistic practices and how art can create transversal connections that challenge institutional boundaries and foster new forms of solidarity." 
-        : "Bojana Kunst raziskuje etiko skrbi v umetniških praksah in kako lahko umetnost ustvari prečne povezave, ki izzivajo institucionalne meje in spodbujajo nove oblike solidarnosti.",
+      title: t('ecofeminism.media.the-life-of-art.title'),
+      description: t('ecofeminism.media.the-life-of-art.description'),
       type: "video",
       url: "https://intima.org/kunst/zivljenje/index.html"
     },
     {
       name: "Sophie Strand",
-      title: language === 'en' ? "The Ecology of Story" : "Ekologija zgodbe",
-      description: language === 'en' 
-        ? "Sophie Strand weaves together mythology, ecology, and embodied storytelling to create a mycelial approach to narrative that honors multispecies relationships and the more-than-human world." 
-        : "Sophie Strand prepleta mitologijo, ekologijo in utelešeno pripovedovanje zgodb, da bi ustvarila micelijski pristop k pripovedi, ki spoštuje medvrstne odnose in več-kot-človeški svet.",
+      title: t('ecofeminism.media.the-ecology-of-story.title'),
+      description: t('ecofeminism.media.the-ecology-of-story.description'),
       type: "video",
       url: "https://www.youtube.com/watch?v=VtJ5EUxycCw"
     },
     {
       name: "Merlin Sheldrake",
-      title: language === 'en' ? "Entangled Life: How Fungi Make Our Worlds" : "Prepleteno življenje: Kako glive ustvarjajo naše svetove",
-      description: language === 'en' 
-        ? "Merlin Sheldrake explores the fascinating and often overlooked world of fungi, revealing how these remarkable organisms challenge our understanding of individuality and connection." 
-        : "Merlin Sheldrake raziskuje fascinanten in pogosto spregledan svet gliv ter razkriva, kako ti izjemni organizmi izzivajo naše razumevanje individualnosti in povezanosti.",
+      title: t('ecofeminism.media.entangled-life.title'),
+      description: t('ecofeminism.media.entangled-life.description'),
       type: "podcast",
       url: "https://www.youtube.com/watch?v=LLrTPrp-fW8"
     },
     {
       name: "Aníbal Quijano",
-      title: language === 'en' ? "Coloniality of Power and Eurocentrism" : "Kolonialnost moči in eurocentrizem",
-      description: language === 'en' 
-        ? "Aníbal Quijano introduces his groundbreaking concept of the 'coloniality of power' which explains how colonial hierarchies of race, labor, and knowledge persist in our supposedly postcolonial world." 
-        : "Aníbal Quijano predstavlja svoj prelomni koncept 'kolonialnosti moči', ki pojasnjuje, kako kolonialne hierarhije rase, dela in znanja vztrajajo v našem domnevno postkolonialnem svetu.",
+      title: t('ecofeminism.media.coloniality-of-power-and-eurocentrism.title'),
+      description: t('ecofeminism.media.coloniality-of-power-and-eurocentrism.description'),
       type: "video",
       url: "https://www.youtube.com/watch?v=CBdOA9MNuWs"
     },
     {
       name: "Walter D. Mignolo",
-      title: language === 'en' ? "Decolonial Thinking and Doing" : "Dekolonialno mišljenje in delovanje",
-      description: language === 'en' 
-        ? "Walter D. Mignolo discusses decolonial thinking as a path toward epistemic disobedience and delinking from Western epistemology to create pluriversal knowledge systems." 
-        : "Walter D. Mignolo razpravlja o dekolonialnem mišljenju kot poti k epistemski neposlušnosti in odcepitvi od zahodne epistemologije za ustvarjanje pluriverzalnih sistemov znanja.",
+      title: t('ecofeminism.media.decolonial-thinking-and-doing.title'),
+      description: t('ecofeminism.media.decolonial-thinking-and-doing.description'),
       type: "video",
       url: "https://www.youtube.com/watch?v=mI9F73wlMQE"
     }
@@ -149,40 +126,37 @@ export default function Ecofeminism() {
   
   return (
     <>
+      {/* Ensure translations are loaded */}
+      <TranslationLoader testKey="Navbar.ecofeminism" />
+      
       <Head>
-        <title>{language === 'en' ? 'Ecofeminist Resources | The Livada Biotope' : 'Ekofeminističi viri | Biotop Livada'}</title>
+        <title>{t('ecofeminism.title')}</title>
         <meta 
           name="description" 
-          content={language === 'en' 
-            ? "Explore ecofeminist perspectives and resources at The Livada Biotope, including decolonial composting, interspecies kinship, and more-than-human approaches." 
-            : "Raziščite ekofeminističe perspektive in vire v Biotopu Livada, vključno z dekolonialnim kompostiranjem, medvrstno sorodnostjo in več-kot-človeškim pristopom."}
+          content={t('ecofeminism.description')}
         />
       </Head>
       
       <Container maxWidth="lg">
         <Box sx={{ my: 4 }}>
           <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main', mb: 3 }}>
-            {language === 'en' ? 'Ecofeminist Resources' : 'Ekofeministični viri'}
+            {t('ecofeminism.title')}
           </Typography>
           
           <Paper elevation={0} sx={{ p: 4, mb: 6, bgcolor: 'background.paper', borderRadius: 2 }}>
             <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 'medium', color: 'text.primary' }}>
-              {language === 'en' ? 'What is Ecofeminism?' : 'Kaj je ekofeminizem?'}
+              {t('ecofeminism.what-is-ecofeminism.title')}
             </Typography>
             <Typography paragraph>
-              {language === 'en' 
-                ? "Ecofeminism connects the oppression of women and marginalized communities with the exploitation of the environment. It recognizes that environmental destruction, colonialism, racism, and patriarchy are interconnected systems of domination that must be challenged together." 
-                : "Ekofeminizem povezuje zatiranje žensk in marginaliziranih skupnosti z izkoriščanjem okolja. Prepoznava, da so uničevanje okolja, kolonializem, rasizem in patriarhat medsebojno povezani sistemi prevlade, ki jih je treba izzvati skupaj."}
+              {t('ecofeminism.what-is-ecofeminism.description')}
             </Typography>
             <Typography paragraph>
-              {language === 'en' 
-                ? "At The Livada Biotope, we approach our work through an ecofeminist lens, centering care, reciprocity, and multispecies justice in all that we do. We believe that building a more sustainable future requires addressing social and environmental issues together, not as separate concerns." 
-                : "V Biotopu Livada pristopamo k našemu delu skozi ekofeministični pogled, v središču pa so skrb, vzajemnost in pravičnost za več vrst pri vsem, kar počnemo. Verjamemo, da izgradnja bolj trajnostne prihodnosti zahteva reševanje družbenih in okoljskih vprašanj skupaj, ne kot ločene zadeve."}
+              {t('ecofeminism.what-is-ecofeminism.description-2')}
             </Typography>
           </Paper>
           
           <Typography variant="h4" component="h2" gutterBottom sx={{ mt: 6, mb: 3, fontWeight: 'bold', color: 'primary.main' }}>
-            {language === 'en' ? 'Key Concepts' : 'Ključni koncepti'}
+            {t('ecofeminism.key-concepts.title')}
           </Typography>
           
           <Grid container spacing={4} sx={{ mb: 6 }}>
@@ -214,7 +188,7 @@ export default function Ecofeminism() {
           </Grid>
           
           <Typography variant="h4" component="h2" gutterBottom sx={{ mt: 6, mb: 3, fontWeight: 'bold', color: 'primary.main' }}>
-            {language === 'en' ? 'Reading Recommendations' : 'Priporočila za branje'}
+            {t('ecofeminism.reading-recommendations.title')}
           </Typography>
           
           <Paper elevation={1} sx={{ p: 4, mb: 6, bgcolor: 'background.paper', borderRadius: 2 }}>
@@ -243,7 +217,7 @@ export default function Ecofeminism() {
           </Paper>
           
           <Typography variant="h4" component="h2" gutterBottom sx={{ mt: 6, mb: 3, fontWeight: 'bold', color: 'primary.main' }}>
-            {language === 'en' ? 'Videos & Podcasts' : 'Videi in podkasti'}
+            {t('ecofeminism.videos-and-podcasts.title')}
           </Typography>
           
           <Grid container spacing={3} sx={{ mb: 6 }}>
@@ -262,8 +236,8 @@ export default function Ecofeminism() {
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {item.type === 'video' 
-                        ? (language === 'en' ? 'Video' : 'Video') 
-                        : (language === 'en' ? 'Podcast' : 'Podkast')}
+                        ? t('ecofeminism.videos-and-podcasts.video') 
+                        : t('ecofeminism.videos-and-podcasts.podcast')}
                     </Typography>
                   </CardContent>
                   <CardActions>
@@ -275,7 +249,7 @@ export default function Ecofeminism() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {language === 'en' ? 'Watch/Listen' : 'Oglej si/Poslušaj'}
+                      {t('ecofeminism.videos-and-podcasts.watch-listen')}
                     </Button>
                   </CardActions>
                 </Card>
@@ -284,19 +258,15 @@ export default function Ecofeminism() {
           </Grid>
           
           <Typography variant="h4" component="h2" gutterBottom sx={{ mt: 6, mb: 3, fontWeight: 'bold', color: 'primary.main' }}>
-            {language === 'en' ? 'Get Involved' : 'Vključi se'}
+            {t('ecofeminism.get-involved.title')}
           </Typography>
           
           <Paper elevation={1} sx={{ p: 4, mb: 6, bgcolor: 'background.paper', borderRadius: 2 }}>
             <Typography paragraph>
-              {language === 'en' 
-                ? "Interested in exploring these concepts further? Join our workshops, reading groups, and community conversations at The Livada Biotope." 
-                : "Vas zanima nadaljnje raziskovanje teh konceptov? Pridružite se našim delavnicam, bralnim skupinam in pogovorom skupnosti v Biotopu Livada."}
+              {t('ecofeminism.get-involved.description')}
             </Typography>
             <Typography>
-              {language === 'en' 
-                ? "Contact us to learn more about upcoming events and how you can participate." 
-                : "Kontaktirajte nas, da izveste več o prihajajočih dogodkih in o tem, kako lahko sodelujete."}
+              {t('ecofeminism.get-involved.contact-us')}
               {" "}
               <Link href="mailto:info@biotop-livada.si" underline="hover">
                 info@biotop-livada.si
