@@ -47,10 +47,12 @@ export default function LetsNotDryOutTheFuture() {
             mb: 2,
             fontWeight: 700 
           }}>
-            {t('projects.letsNotDryOut')}
+            {language === 'en' ? "Let's Not Dry Out The Future" : "Ne izsušimo prihodnosti"}
           </Typography>
           <Typography variant="h5" sx={{ color: 'text.secondary' }}>
-            {t('projects.letsNotDryOut.description')}
+            {language === 'en' 
+              ? "A project focused on monitoring soil moisture to prevent drought and promote sustainable water usage."
+              : "Projekt, osredotočen na spremljanje vlažnosti tal za preprečevanje suše in spodbujanje trajnostne rabe vode."}
           </Typography>
         </Box>
         
@@ -72,8 +74,16 @@ export default function LetsNotDryOutTheFuture() {
             {language === 'en' ? "Climate Change" : "Podnebne spremembe"}
           </Typography>
           {/* Climate Change Tab Content */}
-          <Typography paragraph sx={{ mb: 3 }}>{t('project.drought.intro')}</Typography>
-          <Typography paragraph sx={{ mb: 4 }}>{t('project.drought.economic')}</Typography>
+          <Typography paragraph sx={{ mb: 3 }}>
+            {language === 'en' 
+              ? "Drought is a growing concern globally as climate change alters precipitation patterns and increases temperatures. This project aims to monitor soil moisture levels and develop strategies for drought resilience."
+              : "Suša je vse večja skrb po vsem svetu, saj podnebne spremembe spreminjajo vzorce padavin in zvišujejo temperature. Ta projekt je namenjen spremljanju ravni vlažnosti tal in razvoju strategij za odpornost proti suši."}
+          </Typography>
+          <Typography paragraph sx={{ mb: 4 }}>
+            {language === 'en'
+              ? "The economic impact of drought can be severe, affecting agriculture, water supplies, and ecosystem health. By monitoring soil moisture, we can better prepare for and mitigate these impacts."
+              : "Gospodarski vpliv suše je lahko hud in vpliva na kmetijstvo, oskrbo z vodo in zdravje ekosistemov. S spremljanjem vlažnosti tal se lahko bolje pripravimo na te vplive in jih ublažimo."}
+          </Typography>
 
           <Paper 
             elevation={0} 
@@ -87,9 +97,21 @@ export default function LetsNotDryOutTheFuture() {
             }}
           >
             <Typography variant="h5" sx={{ mb: 2, color: 'primary.dark', fontWeight: 600 }}>Slovenia</Typography>
-            <Typography paragraph sx={{ mb: 2 }}>{t('project.drought.slovenia')}</Typography>
-            <Typography paragraph sx={{ mb: 2 }}>{t('project.drought.geographical')}</Typography>
-            <Typography paragraph>{t('project.drought.response')}</Typography>
+            <Typography paragraph sx={{ mb: 2 }}>
+              {language === 'en'
+                ? "Slovenia has experienced increasing drought frequency in recent years, with significant impacts on agriculture and water resources."
+                : "Slovenija je v zadnjih letih doživela vse pogostejše suše, ki so pomembno vplivale na kmetijstvo in vodne vire."}
+            </Typography>
+            <Typography paragraph sx={{ mb: 2 }}>
+              {language === 'en'
+                ? "The geographical diversity of Slovenia means that drought impacts vary across regions, requiring localized monitoring and response strategies."
+                : "Geografska raznolikost Slovenije pomeni, da se vplivi suše razlikujejo po regijah, kar zahteva lokalizirano spremljanje in strategije odzivanja."}
+            </Typography>
+            <Typography paragraph>
+              {language === 'en'
+                ? "Our project at Livada Biotope is developing a community-based approach to drought monitoring and response, focusing on sustainable water management practices."
+                : "Naš projekt v Biotopu Livada razvija pristop k spremljanju suše in odzivanju nanjo, ki temelji na skupnosti, s poudarkom na trajnostnih praksah upravljanja z vodo."}
+            </Typography>
           </Paper>
 
           <Paper 
@@ -104,13 +126,25 @@ export default function LetsNotDryOutTheFuture() {
             }}
           >
             <Typography variant="h5" sx={{ mb: 2, color: 'primary.dark', fontWeight: 600 }}>Ljubljana</Typography>
-            <Typography paragraph sx={{ mb: 2 }}>{t('project.drought.ljubljana')}</Typography>
-            <Typography paragraph sx={{ mb: 2 }}>{t('project.drought.efforts')}</Typography>
-            <Typography paragraph>{t('project.drought.challenge')}</Typography>
+            <Typography paragraph sx={{ mb: 2 }}>
+              {language === 'en'
+                ? "Ljubljana, the capital city of Slovenia, is also experiencing the impacts of drought, with a focus on urban adaptation and sustainable water management."
+                : "Ljubljana, glavno mesto Slovenije, tudi doživlja vplive suše, s poudarkom na urbanem prilagajanju in trajnostnem upravljanju z vodo."}
+            </Typography>
+            <Typography paragraph sx={{ mb: 2 }}>
+              {language === 'en'
+                ? "The city is implementing measures to reduce water consumption and promote sustainable practices, such as rainwater harvesting and efficient irrigation systems."
+                : "Mesto uveljavlja ukrepe za zmanjšanje porabe vode in spodbujanje trajnostnih praks, kot so zbiranje deževnice in učinkoviti sistemi namakanja."}
+            </Typography>
+            <Typography paragraph>
+              {language === 'en'
+                ? "Our project is working with the city to develop a comprehensive approach to drought management, including monitoring, education, and community engagement."
+                : "Naš projekt sodeluje z mestom pri razvoju celostnega pristopa k upravljanju suše, vključno s spremljanjem, izobraževanjem in vključevanjem skupnosti."}
+            </Typography>
           </Paper>
 
           <Typography variant="h5" sx={{ mt: 5, mb: 3, color: 'primary.dark', fontWeight: 600 }}>
-            {t('project.drought.consequences.title')}
+            {language === 'en' ? "Consequences of Drought" : "Posledice suše"}
           </Typography>
           
           <List sx={{ mb: 4 }}>
@@ -119,27 +153,33 @@ export default function LetsNotDryOutTheFuture() {
               elevation={1} 
               sx={{ mb: 2, p: 2, borderRadius: 1 }}
             >
-              <Typography>{t('project.drought.consequences.cracks')}</Typography>
+              <Typography>
+                {language === 'en' ? "Soil Cracks and Erosion" : "Razpoke in erozija tal"}
+              </Typography>
             </ListItem>
             <ListItem 
               component={Paper} 
               elevation={1} 
               sx={{ mb: 2, p: 2, borderRadius: 1 }}
             >
-              <Typography>{t('project.drought.consequences.drying')}</Typography>
+              <Typography>
+                {language === 'en' ? "Drying of Water Sources" : "Izsušitev vodnih virov"}
+              </Typography>
             </ListItem>
             <ListItem 
               component={Paper} 
               elevation={1} 
               sx={{ p: 2, borderRadius: 1 }}
             >
-              <Typography>{t('project.drought.consequences.dusting')}</Typography>
+              <Typography>
+                {language === 'en' ? "Dust Storms and Air Pollution" : "Pihanje prahu in onesnaževanje zraka"}
+              </Typography>
             </ListItem>
           </List>
 
           <Box sx={{ my: 6 }}>
             <Typography variant="h5" sx={{ mb: 3, color: 'primary.dark', fontWeight: 600 }}>
-              {t('project.drought.plants.title', language === 'en' ? 'Selected Plant Species' : 'Izbrane rastlinske vrste')}
+              {language === 'en' ? "Selected Plant Species" : "Izbrane rastlinske vrste"}
             </Typography>
             
             <Grid container spacing={3}>
@@ -216,22 +256,42 @@ export default function LetsNotDryOutTheFuture() {
                   fontWeight: 600
                 }}
               >
-                {t('project.drought.theme.title')}
+                {language === 'en' ? "Drought Theme" : "Tema suše"}
               </Typography>
               
               <Box>
                 <Typography variant="h5" sx={{ mb: 2, color: 'primary.dark', fontWeight: 600 }}>
-                  {t('project.drought.theme.problem')}
+                  {language === 'en' ? "Problem Statement" : "Izjava o problemu"}
                 </Typography>
-                <Typography paragraph sx={{ mb: 3 }}>{t('project.drought.theme.description')}</Typography>
+                <Typography paragraph sx={{ mb: 3 }}>
+                  {language === 'en' 
+                    ? "Drought is a complex issue that affects not only the environment but also human societies and economies. It is essential to address this issue through a comprehensive approach that involves monitoring, education, and community engagement."
+                    : "Suša je kompleksen problem, ki vpliva ne le na okolje, ampak tudi na človeške družbe in gospodarstvo. Pomembno je, da se temu problemu lotimo s celostnim pristopom, ki vključuje spremljanje, izobraževanje in vključevanje skupnosti."}
+                </Typography>
                 
-                <Typography paragraph sx={{ mb: 3 }}>{t('project.drought.theme.turf')}</Typography>
+                <Typography paragraph sx={{ mb: 3 }}>
+                  {language === 'en' 
+                    ? "The turf industry is a significant contributor to water consumption, and it is essential to develop sustainable practices that reduce water usage and promote drought resilience."
+                    : "Industrija travnikov je pomemben deležnik porabe vode, zato je pomembno razviti trajnostne prakse, ki zmanjšajo porabo vode in spodbujajo odpornost proti suši."}
+                </Typography>
                 
-                <Typography paragraph sx={{ mb: 3 }}>{t('project.drought.theme.research')}</Typography>
+                <Typography paragraph sx={{ mb: 3 }}>
+                  {language === 'en' 
+                    ? "Research and development of new technologies and strategies are crucial for addressing the issue of drought. It is essential to invest in research and development to find innovative solutions that promote sustainable water management practices."
+                    : "Raziskave in razvoj novih tehnologij in strategij so ključni za reševanje problema suše. Pomembno je, da se vložimo v raziskave in razvoj, da se najdejo inovativna rešitva, ki spodbujajo trajnostne prakse upravljanja z vodo."}
+                </Typography>
                 
-                <Typography paragraph sx={{ mb: 3 }}>{t('project.drought.theme.coverplants')}</Typography>
+                <Typography paragraph sx={{ mb: 3 }}>
+                  {language === 'en' 
+                    ? "Cover plants are an essential component of sustainable water management practices. They help to reduce soil erosion, promote soil health, and increase biodiversity."
+                    : "Pokrovne rastline so pomemben del trajnostnih praks upravljanja z vodo. Pomagajo zmanjšati erozijo tal, spodbujajo zdravje tal in povečajo biotsko raznovrstnost."}
+                </Typography>
                 
-                <Typography paragraph>{t('project.drought.theme.soil')}</Typography>
+                <Typography paragraph>
+                  {language === 'en' 
+                    ? "Soil health is critical for sustainable water management practices. It is essential to promote soil health through the use of cover plants, organic amendments, and conservation tillage."
+                    : "Zdravje tal je kritično za trajnostne prakse upravljanja z vodo. Pomembno je spodbujati zdravje tal z uporabo pokrovnih rastlin, organskih dodatkov in konzervativnega oranja."}
+                </Typography>
               </Box>
             </Box>
           </Paper>

@@ -300,15 +300,24 @@ const INaturalistFeed: React.FC = () => {
                     fill
                     sizes="(max-width: 768px) 100vw, 300px"
                     style={{ objectFit: 'cover' }}
-                    onError={() => {
-                      console.log(`Image failed to load: ${observation.imageUrl}`);
+                    unoptimized={true}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (target.src === observation.imageUrl && observation.largeUrl) {
+                        target.src = observation.largeUrl;
+                      } else if (target.src === observation.largeUrl && observation.mediumUrl) {
+                        target.src = observation.mediumUrl;
+                      } else if (target.src === observation.mediumUrl && observation.originalUrl) {
+                        target.src = observation.originalUrl;
+                      } else {
+                        target.src = 'https://via.placeholder.com/800x600?text=No+Image';
+                      }
                     }}
                   />
                 </div>
               </Box>
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography variant="h6" component="h3" gutterBottom>
-                  {/* Display localized name if available */}
                   {observation.formattedName || observation.species_guess}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', mb: 1 }}>

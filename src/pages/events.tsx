@@ -1,154 +1,40 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
-import SharedLayout from '@/components/layout/SharedLayout';
 import TranslationLoader from '../components/TranslationLoader';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
-import CircularProgress from '@mui/material/CircularProgress';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 
-// Define styled links to avoid TypeScript errors with '&:hover'
-const StyledLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
-  <Link href={href} style={{ color: 'inherit', textDecoration: 'none' }}>
-    {children}
-  </Link>
-);
-
-// Define the event interface
-interface CalendarEvent {
-  id: string;
-  title: string;
-  description: string;
-  start: string | Date;
-  end: string | Date;
-  location: string;
-  type: 'workshop' | 'lecture' | 'community' | 'other';
-  url?: string;
-}
-
-function Events() {
+export default function Events() {
   const { language } = useLanguage();
   const { t } = useTranslations();
-  const [upcomingEvents, setUpcomingEvents] = useState<CalendarEvent[]>([]);
-  const [pastEvents, setPastEvents] = useState<CalendarEvent[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [pastEventsVisible, setPastEventsVisible] = useState<boolean>(false);
-  const [isClient, setIsClient] = useState<boolean>(false);
-
-  // Function to fetch events from the serverless function
-  const fetchEvents = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Set locale based on language
-      const locale = language === 'sl' ? 'sl' : 'en';
-
-      // Use Netlify serverless function to fetch calendar events
-      const functionUrl = `/.netlify/functions/calendar?locale=${locale}`;
-
-      const response = await fetch(functionUrl);
-
-      if (!response.ok) {
-        throw new Error(`Error fetching from serverless function: ${response.status}`);
-      }
-
-      const events: CalendarEvent[] = await response.json();
-      
-      // Process events and separate into upcoming and past
-      if (!events || events.length === 0) {
-        setError(t('events.error.noEvents', 'No events found'));
-        setLoading(false);
-        return;
-      }
-
-      // Convert string dates to Date objects
-      const processedEvents = events.map(event => ({
-        ...event,
-        start: new Date(event.start),
-        end: new Date(event.end)
-      }));
-
-      // Get upcoming events (next 3 months)
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const upcoming = processedEvents
-        .filter(event => event.start >= today)
-        .sort((a, b) => a.start.getTime() - b.start.getTime())
-        .slice(0, 3);
-
-      setUpcomingEvents(upcoming);
-
-      // Get past events (last 3 months)
-      const past = processedEvents
-        .filter(event => event.start < today)
-        .sort((a, b) => b.start.getTime() - a.start.getTime()) // Most recent first
-        .slice(0, 3);
-        
-      setPastEvents(past);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching events:', error);
-      setError(t('events.error.fetchFailed', 'Failed to load events. Please try again later.'));
-      setLoading(false);
-    }
-  }, [language, t]);
-
-  // Set isClient to true when component mounts on client
-  useEffect(() => {
-    setIsClient(true);
-    // Fetch events immediately when component mounts on client
-    fetchEvents();
-  }, []);
-
-  // Fetch events when language changes
-  useEffect(() => {
-    if (isClient) {
-      fetchEvents();
-    }
-  }, [language, fetchEvents]);
-
-  // Force reload translations if they're not loaded
-  useEffect(() => {
-    if (!t('events.pageTitle') || t('events.pageTitle').includes('events.pageTitle')) {
-      // Reload translations
-      window.location.reload();
-    }
-  }, [t]);
-
-  // Toggle past events visibility
-  const togglePastEvents = () => {
-    setPastEventsVisible(!pastEventsVisible);
-  };
-
-  // Format date for display
-  const formatEventDate = (dateInput: string | Date): string => {
-    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
-    return date.toLocaleDateString(language === 'sl' ? 'sl-SI' : 'en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+  const [tabValue, setTabValue] = useState(0);
+  const [isClient, setIsClient] = useState(false);
+  
+  // Handle tab change
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
   };
   
-  // Format time for display
-  const formatEventTime = (startInput: string | Date, endInput: string | Date): string => {
-    const start = typeof startInput === 'string' ? new Date(startInput) : startInput;
-    const end = typeof endInput === 'string' ? new Date(endInput) : endInput;
-    return `${start.toLocaleTimeString(language === 'sl' ? 'sl-SI' : 'en-US', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString(language === 'sl' ? 'sl-SI' : 'en-US', { hour: '2-digit', minute: '2-digit' })}`;
+  // Set isClient to true when component mounts (for SSR compatibility)
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // Google Calendar ID
+  const calendarId = 'c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7@group.calendar.google.com';
+  
+  // Calendar embed URLs for different views
+  const calendarUrls = {
+    agenda: `https://calendar.google.com/calendar/embed?height=600&wkst=2&bgcolor=%23ffffff&ctz=Europe%2FLjubljana&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=AGENDA&src=${encodeURIComponent(calendarId)}`,
+    month: `https://calendar.google.com/calendar/embed?height=600&wkst=2&bgcolor=%23ffffff&ctz=Europe%2FLjubljana&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=MONTH&src=${encodeURIComponent(calendarId)}`
   };
-
+  
   return (
     <>
       {/* Use the simplified TranslationLoader */}
@@ -158,141 +44,78 @@ function Events() {
         <title>{language === 'en' ? 'Events | The Livada Biotope' : 'Dogodki | Biotop Livada'}</title>
         <meta 
           name="description" 
-          content={t('events.description', 'Discover upcoming events at Livada Biotope, from workshops to volunteer opportunities and educational activities.')}
+          content={language === 'en' 
+            ? "Join us for workshops, lectures, and community events at The Livada Biotope in Ljubljana, Slovenia." 
+            : "Pridružite se nam na delavnicah, predavanjih in skupnostnih dogodkih v Biotopu Livada v Ljubljani."}
         />
       </Head>
       
-      <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="body2" color="text.secondary" component="nav">
-            <StyledLink href="/">
-              {t('nav.home', 'Home')}
-            </StyledLink>
-            {' / '}
-            <Typography component="span" color="primary.main" fontWeight="medium" display="inline">
-              {t('nav.events', 'Events')}
-            </Typography>
+      <Container maxWidth="lg">
+        <Box sx={{ my: 4 }}>
+          <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main', mb: 3 }}>
+            {language === 'en' ? 'Events' : 'Dogodki'}
           </Typography>
-        </Box>
-        
-        <Paper elevation={2} sx={{ mb: 6, overflow: 'hidden' }}>
-          <Box sx={{ p: { xs: 3, md: 4 } }}>
-            <Typography variant="h3" component="h1" gutterBottom sx={{ color: 'primary.main' }}>
-              {t('events.pageTitle', 'Events')}
-            </Typography>
-            
-            <Typography variant="body1" paragraph>
-              {t('events.description', 'Discover upcoming events at Livada Biotope, from workshops to volunteer opportunities and educational activities.')}
-            </Typography>
-          </Box>
-        </Paper>
           
-        {/* Upcoming Events Section */}
-        <Typography variant="h4" component="h2" gutterBottom sx={{ mt: 6, mb: 4, color: 'primary.main' }}>
-          {t('events.upcomingEvents', 'Upcoming Events')}
-        </Typography>
-        
-        {upcomingEvents.length > 0 ? (
-          <Grid container spacing={3}>
-            {upcomingEvents.map(event => (
-              <Grid item xs={12} md={4} key={event.id}>
-                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography variant="h5" component="h3" gutterBottom>
-                      {event.title}
-                    </Typography>
-                    <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                      {formatEventDate(event.start)}
-                    </Typography>
-                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                      {formatEventTime(event.start, event.end)}
-                    </Typography>
-                    <Typography variant="body2" paragraph>
-                      {event.description}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      <strong>{t('events.location', 'Location:')} </strong> {event.location}
-                    </Typography>
-                  </CardContent>
-                  {event.url && (
-                    <CardActions>
-                      <Button size="small" color="primary" href={event.url} target="_blank">
-                        {t('common.learnMore', 'Learn More')}
-                      </Button>
-                    </CardActions>
-                  )}
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        ) : (
-          <Paper sx={{ p: 4, textAlign: 'center', bgcolor: 'background.paper' }}>
-            <Typography variant="body1" color="text.secondary">
-              {t('events.noUpcomingEvents', 'No upcoming events at the moment. Check back soon!')}
+          <Paper elevation={0} sx={{ p: 4, mb: 6, bgcolor: 'background.paper', borderRadius: 2 }}>
+            <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 'medium', color: 'text.primary' }}>
+              {language === 'en' ? 'Join Our Community' : 'Pridružite se naši skupnosti'}
+            </Typography>
+            <Typography paragraph>
+              {language === 'en' 
+                ? "At The Livada Biotope, we host a variety of events throughout the year, from hands-on workshops and educational lectures to community gatherings and volunteer days. Check our calendar below to see what's coming up and join us!" 
+                : "V Biotopu Livada gostimo različne dogodke skozi vse leto, od praktičnih delavnic in izobraževalnih predavanj do skupnostnih srečanj in prostovoljskih dni. Preverite naš koledar spodaj in se nam pridružite!"}
             </Typography>
           </Paper>
-        )}
-        
-        {/* Past Events Section */}
-        {pastEvents.length > 0 && pastEventsVisible && (
-          <Box sx={{ mt: 8 }}>
-            <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 4, color: 'primary.main' }}>
-              {t('events.pastEvents', 'Past Events')}
+          
+          {/* Calendar view selector tabs */}
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+            <Tabs value={tabValue} onChange={handleTabChange} aria-label="calendar view tabs">
+              <Tab label={language === 'en' ? 'Upcoming Events' : 'Prihajajoči dogodki'} />
+              <Tab label={language === 'en' ? 'Monthly Calendar' : 'Mesečni koledar'} />
+            </Tabs>
+          </Box>
+          
+          {/* Calendar embed */}
+          {isClient && (
+            <Box sx={{ 
+              height: '600px', 
+              width: '100%', 
+              overflow: 'hidden',
+              borderRadius: 2,
+              boxShadow: 2,
+              mb: 4
+            }}>
+              <iframe 
+                src={tabValue === 0 ? calendarUrls.agenda : calendarUrls.month}
+                style={{ 
+                  border: 0,
+                  width: '100%',
+                  height: '100%'
+                }}
+                frameBorder="0"
+                scrolling="no"
+                title={language === 'en' ? 'Livada Biotope Events Calendar' : 'Koledar dogodkov Biotop Livada'}
+                allowFullScreen
+              />
+            </Box>
+          )}
+          
+          <Box sx={{ mt: 6, p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 1 }}>
+            <Typography variant="h5" component="h3" gutterBottom sx={{ color: 'primary.main' }}>
+              {language === 'en' ? 'Want to host an event?' : 'Želite organizirati dogodek?'}
             </Typography>
-            
-            <Grid container spacing={3}>
-              {pastEvents.map(event => (
-                <Grid item xs={12} md={4} key={event.id}>
-                  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <CardContent sx={{ flexGrow: 1 }}>
-                      <Typography variant="h5" component="h3" gutterBottom>
-                        {event.title}
-                      </Typography>
-                      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                        {formatEventDate(event.start)}
-                      </Typography>
-                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                        {formatEventTime(event.start, event.end)}
-                      </Typography>
-                      <Typography variant="body2" paragraph>
-                        {event.description}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        <strong>{language === 'en' ? 'Location:' : 'Lokacija:'}</strong> {event.location}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+            <Typography paragraph>
+              {language === 'en' 
+                ? "If you're interested in hosting a workshop, lecture, or community event at The Livada Biotope, please get in touch with us. We welcome proposals that align with our mission of promoting biodiversity, ecological awareness, and community engagement." 
+                : "Če vas zanima organizacija delavnice, predavanja ali skupnostnega dogodka v Biotopu Livada, nas prosimo kontaktirajte. Veseli smo predlogov, ki so v skladu z našim poslanstvom spodbujanja biotske raznovrstnosti, ekološke ozaveščenosti in vključevanja skupnosti."}
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+              {language === 'en' ? 'Contact: ' : 'Kontakt: '} 
+              <a href="mailto:info@livada.bio" style={{ color: 'primary.main' }}>info@livada.bio</a>
+            </Typography>
           </Box>
-        )}
-        
-        {/* Toggle Past Events Button */}
-        {pastEvents.length > 0 && (
-          <Box sx={{ mt: 6, textAlign: 'center' }}>
-            <Button 
-              variant="outlined" 
-              color="primary" 
-              onClick={togglePastEvents}
-            >
-              {pastEventsVisible
-                ? (language === 'en' ? 'Hide Past Events' : 'Skrij pretekle dogodke')
-                : (language === 'en' ? 'View Past Events' : 'Ogled preteklih dogodkov')
-              }
-            </Button>
-          </Box>
-        )}
+        </Box>
       </Container>
     </>
   );
 }
-
-// Define a custom layout for this page
-Events.getLayout = (page: React.ReactNode) => {
-  return <SharedLayout>{page}</SharedLayout>;
-};
-
-// No longer need getStaticProps as we're fetching data client-side
-
-export default Events;
