@@ -167,10 +167,30 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const content_en = await serialize(englishContent);
   const content_sl = await serialize(slovenianContent);
   
+  // Ensure all date objects are converted to strings for serialization
+  const serializedProject = {
+    ...project,
+    frontmatter: {
+      ...project.frontmatter,
+      details: {
+        ...project.frontmatter.details,
+      }
+    }
+  };
+  
+  // Convert date objects to strings
+  if (serializedProject.frontmatter.details?.startDate instanceof Date) {
+    serializedProject.frontmatter.details.startDate = serializedProject.frontmatter.details.startDate.toISOString();
+  }
+  
+  if (serializedProject.frontmatter.details?.endDate instanceof Date) {
+    serializedProject.frontmatter.details.endDate = serializedProject.frontmatter.details.endDate.toISOString();
+  }
+  
   return {
     props: {
       project: {
-        ...project,
+        ...serializedProject,
         content_en,
         content_sl,
       },
