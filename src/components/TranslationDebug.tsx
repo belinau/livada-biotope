@@ -39,7 +39,7 @@ const TranslationDebug: React.FC = () => {
   const fetchRawTranslations = async () => {
     try {
       setIsRawLoading(true);
-      const fetchUrl = `/.netlify/functions/translations?locale=${language}`;
+      const fetchUrl = `/api/translations?locale=${language}`;
       console.log(`Fetching raw translations from: ${fetchUrl}`);
       
       const response = await fetch(fetchUrl);
