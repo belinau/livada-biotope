@@ -1,6 +1,6 @@
 ---
 title: The Livada Biotope
-heroImage: /images/uploads/placeholder.jpg
+heroImage: https://static.inaturalist.org/projects/237012-cover-f60708197974aea3f892762003aa816b.jpg?1743078141
 heroText: Fostering biodiversity and climate resilience in Ljubljana
 ---
 # Welcome to The Livada Biotope
