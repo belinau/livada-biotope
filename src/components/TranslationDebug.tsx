@@ -8,6 +8,8 @@ const TranslationDebug: React.FC = () => {
   const { t, isLoading, error, lastUpdated } = useTranslations();
   const [rawTranslations, setRawTranslations] = useState<any>(null);
   const [isRawLoading, setIsRawLoading] = useState(false);
+  const [languageToggleError, setLanguageToggleError] = useState(null);
+  const [fetchRawTranslationsError, setFetchRawTranslationsError] = useState(null);
 
   // Common translation keys to test
   const testKeys = [
@@ -22,26 +24,40 @@ const TranslationDebug: React.FC = () => {
     'Navbar.blog'
   ];
 
+  // Toggle language
+  const toggleLanguage = () => {
+    try {
+      console.log(`Toggling language from ${language} to ${language === 'en' ? 'sl' : 'en'}`);
+      setLanguage(language === 'en' ? 'sl' : 'en');
+    } catch (err) {
+      console.error('Error toggling language:', err);
+      setLanguageToggleError(err);
+    }
+  };
+
   // Fetch raw translations directly from the Netlify function
   const fetchRawTranslations = async () => {
     try {
       setIsRawLoading(true);
-      const response = await fetch(`/.netlify/functions/translations?locale=${language}`);
+      const fetchUrl = `/.netlify/functions/translations?locale=${language}`;
+      console.log(`Fetching raw translations from: ${fetchUrl}`);
+      
+      const response = await fetch(fetchUrl);
+      console.log(`Response status: ${response.status} ${response.statusText}`);
+      
       if (!response.ok) {
-        throw new Error(`Failed to fetch raw translations: ${response.status}`);
+        throw new Error(`Failed to fetch raw translations: ${response.status} ${response.statusText}`);
       }
+      
       const data = await response.json();
+      console.log(`Received raw translations with ${Object.keys(data).length} keys`);
       setRawTranslations(data);
     } catch (err) {
       console.error('Error fetching raw translations:', err);
+      setFetchRawTranslationsError(err);
     } finally {
       setIsRawLoading(false);
     }
-  };
-
-  // Toggle language
-  const toggleLanguage = () => {
-    setLanguage(language === 'en' ? 'sl' : 'en');
   };
 
   return (
@@ -63,6 +79,11 @@ const TranslationDebug: React.FC = () => {
           >
             Toggle Language
           </Button>
+          {languageToggleError && (
+            <Typography variant="body2" color="error.main">
+              Error toggling language: {languageToggleError.message}
+            </Typography>
+          )}
           <Button 
             variant="outlined" 
             onClick={fetchRawTranslations} 
@@ -71,6 +92,11 @@ const TranslationDebug: React.FC = () => {
           >
             Fetch Raw Translations
           </Button>
+          {fetchRawTranslationsError && (
+            <Typography variant="body2" color="error.main">
+              Error fetching raw translations: {fetchRawTranslationsError.message}
+            </Typography>
+          )}
         </Box>
 
         <Divider sx={{ my: 2 }} />

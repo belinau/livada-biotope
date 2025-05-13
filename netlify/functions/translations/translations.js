@@ -7,9 +7,14 @@ const NodeCache = require('node-cache');
 const cache = new NodeCache({ stdTTL: 300 });
 
 // Path to the translations JSON file in the Git repository
-const TRANSLATIONS_PATH = path.join(process.env.PWD, 'netlify/functions/translations/translations.json');
+const TRANSLATIONS_PATH = path.join(process.env.PWD || __dirname, 'netlify/functions/translations/translations.json');
 // Path to the public translations JSON file for Netlify CMS
-const PUBLIC_TRANSLATIONS_PATH = path.join(process.env.PWD, 'public/translations.json');
+const PUBLIC_TRANSLATIONS_PATH = path.join(process.env.PWD || __dirname, 'public/translations.json');
+
+// Log the paths for debugging
+console.log('Translations paths:');
+console.log('TRANSLATIONS_PATH:', TRANSLATIONS_PATH);
+console.log('PUBLIC_TRANSLATIONS_PATH:', PUBLIC_TRANSLATIONS_PATH);
 
 // Function to sync translation files
 const syncTranslationFiles = (data) => {
@@ -46,27 +51,43 @@ exports.handler = async (event, context) => {
   // Handle GET request - fetch translations
   if (event.httpMethod === 'GET') {
     try {
+      // Log the request details
+      console.log('GET request received for translations');
+      console.log('Query parameters:', event.queryStringParameters);
+      
       // Check if we have the translations in cache
       const cacheKey = 'translations';
       let translations = cache.get(cacheKey);
       
       if (!translations) {
+        console.log('Cache miss - reading translations from file');
         // If not in cache, read from file
         try {
           // Try to read from the public path first (Netlify CMS managed)
-          translations = JSON.parse(fs.readFileSync(PUBLIC_TRANSLATIONS_PATH, 'utf8'));
-          console.log('Successfully read translations from public path');
+          console.log('Attempting to read from PUBLIC_TRANSLATIONS_PATH:', PUBLIC_TRANSLATIONS_PATH);
+          if (fs.existsSync(PUBLIC_TRANSLATIONS_PATH)) {
+            translations = JSON.parse(fs.readFileSync(PUBLIC_TRANSLATIONS_PATH, 'utf8'));
+            console.log('Successfully read translations from public path');
+          } else {
+            throw new Error('Public translations file does not exist');
+          }
         } catch (publicReadError) {
           console.warn('Error reading from public translations, falling back to function translations:', publicReadError);
           
           try {
             // Fallback to the function's local copy
-            translations = JSON.parse(fs.readFileSync(TRANSLATIONS_PATH, 'utf8'));
-            console.log('Successfully read translations from function path');
+            console.log('Attempting to read from TRANSLATIONS_PATH:', TRANSLATIONS_PATH);
+            if (fs.existsSync(TRANSLATIONS_PATH)) {
+              translations = JSON.parse(fs.readFileSync(TRANSLATIONS_PATH, 'utf8'));
+              console.log('Successfully read translations from function path');
+            } else {
+              throw new Error('Function translations file does not exist');
+            }
           } catch (fallbackReadError) {
             console.error('Error reading translations from fallback location:', fallbackReadError);
             
             // Last resort: use a hardcoded minimal translations object
+            console.log('Using hardcoded minimal translations as last resort');
             translations = {
               "Navbar.home": {
                 "en": "Home",
@@ -77,12 +98,13 @@ exports.handler = async (event, context) => {
                 "sl": "Domov"
               }
             };
-            console.log('Using hardcoded minimal translations as last resort');
           }
         }
         
         // Store in cache for future requests
         cache.set(cacheKey, translations);
+      } else {
+        console.log('Cache hit - using cached translations');
       }
       
       // Get locale from query string
