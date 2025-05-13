@@ -86,7 +86,7 @@ const SharedLayout: React.FC<SharedLayoutProps> = ({
   description = 'Urban biotope for climate resilience and biodiversity in Ljubljana, Slovenia'
 }) => {
   const { language } = useLanguage();
-  const { t, loading } = useTranslations();
+  const { t } = useTranslations();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = [
