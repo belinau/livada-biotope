@@ -151,8 +151,8 @@ function Events() {
 
   return (
     <>
-      {/* Ensure translations are loaded */}
-      <TranslationLoader testKey="events.pageTitle" />
+      {/* Use the simplified TranslationLoader */}
+      <TranslationLoader />
       
       <Head>
         <title>{language === 'en' ? 'Events | The Livada Biotope' : 'Dogodki | Biotop Livada'}</title>

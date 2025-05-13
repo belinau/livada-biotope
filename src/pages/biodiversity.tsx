@@ -21,8 +21,8 @@ export default function Biodiversity() {
   
   return (
     <>
-      {/* Ensure translations are loaded */}
-      <TranslationLoader testKey="Navbar.biodiversity" />
+      {/* Use the simplified TranslationLoader */}
+      <TranslationLoader />
       
       <Head>
         <title>{language === 'en' ? 'Biodiversity | The Livada Biotope' : 'Biotska raznovrstnost | Biotop Livada'}</title>

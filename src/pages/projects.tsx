@@ -48,8 +48,8 @@ export default function Projects() {
 
   return (
     <>
-      {/* Ensure translations are loaded */}
-      <TranslationLoader testKey="projects.title" />
+      {/* Use the simplified TranslationLoader */}
+      <TranslationLoader />
       
       <Head>
         <title>Livada Biotope | {language === 'en' ? 'Our Projects' : 'Naši projekti'}</title>

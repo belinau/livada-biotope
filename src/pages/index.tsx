@@ -29,8 +29,8 @@ export default function Home() {
   
   return (
     <>
-      {/* Ensure translations are loaded */}
-      <TranslationLoader testKey="home.intro.title" />
+      {/* Use the simplified TranslationLoader */}
+      <TranslationLoader />
       
       <Head>
         <title>{t('home.title', 'The Livada Biotope')} | {t('home.subtitle', 'Urban Biodiversity & Drought Resilience')}</title>

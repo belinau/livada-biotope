@@ -102,8 +102,8 @@ export default function Instructables() {
   
   return (
     <>
-      {/* Ensure translations are loaded */}
-      <TranslationLoader testKey="Navbar.instructables" />
+      {/* Use the simplified TranslationLoader */}
+      <TranslationLoader />
       
       <Head>
         <title>{language === 'en' ? 'Instructables | The Livada Biotope' : 'Instructables | Biotop Livada'}</title>

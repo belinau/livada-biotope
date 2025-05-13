@@ -38,8 +38,8 @@ export default function LetsNotDryOutTheFuture() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
-        {/* Ensure translations are loaded */}
-        <TranslationLoader testKey="project.drought.intro" />
+        {/* Use the simplified TranslationLoader */}
+        <TranslationLoader />
         
         <Box sx={{ textAlign: 'center', mb: 6 }}>
           <Typography variant="h2" component="h1" sx={{ 
