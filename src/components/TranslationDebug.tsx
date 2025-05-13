@@ -264,7 +264,7 @@ const TranslationDebug: React.FC = () => {
           </Box>
         ) : (
           <Typography variant="body2" color="text.secondary">
-            Click "Fetch Raw Translations" or "Direct Fetch Test" to load raw translation data
+            Click &#34;Fetch Raw Translations&#34; or &#34;Direct Fetch Test&#34; to load raw translation data
           </Typography>
         )}
       </Paper>

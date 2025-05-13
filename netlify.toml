@@ -50,9 +50,9 @@
   to = "/functions/translations"
   status = 200
 
-# Direct access to Netlify functions for translations
+# Direct access to Netlify functions for translations - using proxy path instead
 [[redirects]]
-  from = "/.netlify/functions/translations"
+  from = "/proxy/translations"
   to = "/functions/translations"
   status = 200
 
