@@ -317,15 +317,12 @@ export default function LetsNotDryOutTheFuture() {
               />
             </Box>
             
-            <Typography variant="h4" sx={{ mb: 3, color: 'text.primary', fontWeight: 600 }}>
-              {language === 'en' ? "Technology & Goals" : "Tehnologija in cilji"}
-            </Typography>
             <Box sx={{ width: '100%', mb: 6 }} />
             
             <Grid container spacing={6}>
               <Grid item xs={12} lg={12}>
                 <Typography variant="h4" sx={{ mb: 3, color: 'text.primary', fontWeight: 600 }}>
-                  Technology & Goals
+                  {language === 'en' ? "Technology & Goals" : "Tehnologija in cilji"}
                 </Typography>
                 <Paper elevation={2} sx={{ borderRadius: 2, overflow: 'hidden' }}>
                   <Box sx={{ p: 3 }}>

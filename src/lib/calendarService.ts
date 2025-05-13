@@ -39,7 +39,7 @@ export interface CalendarEvent {
 }
 
 // Use our API proxy to avoid CORS issues
-const CALENDAR_URL = '/api/calendar';
+const CALENDAR_URL = '/.netlify/functions/calendar';
 
 /**
  * Determines the event type based on the event summary/description

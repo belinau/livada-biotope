@@ -134,8 +134,6 @@ collections:
       - label: "Site Translations"
         name: "site_translations"
         file: "public/translations.json"
-        editor:
-          preview: false
         fields:
           - label: "Translations"
             name: "body"

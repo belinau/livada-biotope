@@ -57,7 +57,7 @@ export default function Home() {
             left: 0,
             width: '100%',
             height: '100%',
-            backgroundColor: 'rgba(0,0,0,0.4)',
+            backgroundColor: 'rgba(0,0,0,0.3)',
             zIndex: 1
           }
         }}
@@ -71,10 +71,9 @@ export default function Home() {
             latinName="Fritillaria meleagris"
             backgroundColor="#f8f5e6"
             patternColor="#2e7d32"
-            pattern="waves"
+            pattern="dots"
             height="100%"
             width="100%"
-            imageSrc="https://livada-biotope.netlify.apphttps://livada-biotope.netlify.app/images/fritillaria.jpg"
           />
         </Box>
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
