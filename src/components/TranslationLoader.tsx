@@ -1,21 +1,21 @@
+// src/components/TranslationLoader.tsx
 import React, { useEffect } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
 
-interface TranslationLoaderProps {
-  testKey: string;
-}
-
 /**
- * A reusable component that ensures translations are properly loaded
+ * A reusable component that ensures basic navigation translations are properly loaded
  * If translations aren't loaded, it triggers a page reload
+ * 
+ * This component only checks for Navbar.home to avoid reloading for missing content translations
  */
-export const TranslationLoader: React.FC<TranslationLoaderProps> = ({ testKey }) => {
+export const TranslationLoader: React.FC = () => {
   const { t } = useTranslations();
   
   useEffect(() => {
-    // Check if translations are loaded properly
-    if (!t(testKey) || t(testKey).includes(testKey)) {
-      console.log(`Translations not loaded properly, reloading page. Test key: ${testKey}`);
+    // Only check the Navbar.home key which should always exist
+    const navKey = 'Navbar.home';
+    if (!t(navKey) || t(navKey).includes(navKey)) {
+      console.log(`Basic navigation translations not loaded properly, reloading page.`);
       // Add a small delay to prevent immediate reload loops
       const timer = setTimeout(() => {
         window.location.reload();
@@ -23,7 +23,7 @@ export const TranslationLoader: React.FC<TranslationLoaderProps> = ({ testKey })
       
       return () => clearTimeout(timer);
     }
-  }, [t, testKey]);
+  }, [t]);
   
   return null; // This component doesn't render anything
 };
