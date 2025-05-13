@@ -97,10 +97,11 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
   const ensureAbsoluteUrl = (src: string | undefined) => {
     if (!src) return '';
     if (src.startsWith('http')) return src;
+    // Use relative URLs instead of hardcoded domain
     if (src.startsWith('/')) {
-      return `https://livada-biotope.netlify.app${src}`;
+      return src;
     }
-    return `https://livada-biotope.netlify.app/${src}`;
+    return `/${src}`;
   };
 
   const safeImageSrc = imageSrc ? ensureAbsoluteUrl(imageSrc) : '';

@@ -155,10 +155,8 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Construct the API URL - use place_id instead of project_id as it's more reliable
-    // Livada is in Ljubljana, Slovenia - using place_id for Ljubljana
-    const placeId = 97394; // Ljubljana, Slovenia place_id
-    const apiUrl = `https://api.inaturalist.org/v1/observations?place_id=${placeId}&verifiable=any&order=desc&order_by=created_at&per_page=${perPage}&page=${page}&locale=${locale}&photos=true`;
+    // Construct the API URL - use project_id instead of place_id for more specific results
+    const apiUrl = `https://api.inaturalist.org/v1/observations?project_id=${projectId}&verifiable=any&order=desc&order_by=created_at&per_page=${perPage}&page=${page}&locale=${locale}&photos=true`;
 
     // Add user agent to avoid being blocked
     const fetchOptions = {

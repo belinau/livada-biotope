@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
-import { Box, Typography, Paper, Button, CircularProgress, Divider, Chip } from '@mui/material';
+import { Box, Typography, Paper, Button, CircularProgress, Divider, Chip, Alert } from '@mui/material';
 
 const TranslationDebug: React.FC = () => {
   const { language, setLanguage } = useLanguage();
@@ -10,6 +10,8 @@ const TranslationDebug: React.FC = () => {
   const [isRawLoading, setIsRawLoading] = useState(false);
   const [languageToggleError, setLanguageToggleError] = useState<any>(null);
   const [fetchRawTranslationsError, setFetchRawTranslationsError] = useState<any>(null);
+  const [networkStatus, setNetworkStatus] = useState<string>('');
+  const [responseDetails, setResponseDetails] = useState<string>('');
 
   // Common translation keys to test
   const testKeys = [
@@ -39,21 +41,104 @@ const TranslationDebug: React.FC = () => {
   const fetchRawTranslations = async () => {
     try {
       setIsRawLoading(true);
+      setNetworkStatus('Starting fetch request...');
+      setResponseDetails('');
+      setFetchRawTranslationsError(null);
+      
       const fetchUrl = `/api/translations?locale=${language}`;
       console.log(`Fetching raw translations from: ${fetchUrl}`);
+      setNetworkStatus(`Fetching from: ${fetchUrl}`);
       
       const response = await fetch(fetchUrl);
       console.log(`Response status: ${response.status} ${response.statusText}`);
+      setNetworkStatus(`Response received: ${response.status} ${response.statusText}`);
+      
+      // Log all response headers for debugging
+      const headers: string[] = [];
+      response.headers.forEach((value, key) => {
+        headers.push(`${key}: ${value}`);
+      });
+      console.log('Response headers:', headers);
+      setResponseDetails(`Headers: ${headers.join(', ')}`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch raw translations: ${response.status} ${response.statusText}`);
       }
       
-      const data = await response.json();
-      console.log(`Received raw translations with ${Object.keys(data).length} keys`);
-      setRawTranslations(data);
+      const text = await response.text();
+      console.log(`Raw response text:`, text);
+      
+      try {
+        const data = JSON.parse(text);
+        console.log(`Received raw translations with ${Object.keys(data).length} keys`);
+        setNetworkStatus(`Success! Loaded ${Object.keys(data).length} translation keys`);
+        setRawTranslations(data);
+      } catch (parseError) {
+        console.error('Error parsing JSON response:', parseError);
+        setNetworkStatus(`Error parsing JSON response`);
+        throw new Error(`Invalid JSON response: ${text.substring(0, 100)}...`);
+      }
     } catch (err) {
       console.error('Error fetching raw translations:', err);
+      setNetworkStatus(`Error: ${err instanceof Error ? err.message : String(err)}`);
+      setFetchRawTranslationsError(err);
+    } finally {
+      setIsRawLoading(false);
+    }
+  };
+
+  // Direct test with fetch API to bypass any potential issues with the hook
+  const directFetchTest = async () => {
+    try {
+      setIsRawLoading(true);
+      setNetworkStatus('Starting direct fetch test...');
+      
+      // Try both API paths to see which one works
+      const paths = [
+        `/api/translations?locale=${language}`,
+        `/.netlify/functions/translations?locale=${language}`
+      ];
+      
+      let successfulResponse = null;
+      
+      for (const path of paths) {
+        try {
+          setNetworkStatus(`Testing path: ${path}`);
+          console.log(`Testing direct fetch from: ${path}`);
+          
+          const response = await fetch(path);
+          console.log(`Direct fetch response (${path}):`, response.status, response.statusText);
+          
+          if (response.ok) {
+            const text = await response.text();
+            try {
+              const data = JSON.parse(text);
+              console.log(`Direct fetch success from ${path} with ${Object.keys(data).length} keys`);
+              setNetworkStatus(`Success with ${path}! Loaded ${Object.keys(data).length} keys`);
+              successfulResponse = data;
+              break;
+            } catch (e) {
+              console.error(`Invalid JSON from ${path}:`, text);
+              setNetworkStatus(`Invalid JSON from ${path}`);
+            }
+          } else {
+            console.error(`Failed fetch from ${path}:`, response.status, response.statusText);
+            setNetworkStatus(`Failed fetch from ${path}: ${response.status}`);
+          }
+        } catch (pathError) {
+          console.error(`Error with path ${path}:`, pathError);
+          setNetworkStatus(`Error with path ${path}: ${pathError instanceof Error ? pathError.message : String(pathError)}`);
+        }
+      }
+      
+      if (successfulResponse) {
+        setRawTranslations(successfulResponse);
+      } else {
+        setNetworkStatus('All fetch attempts failed');
+        throw new Error('All fetch attempts failed');
+      }
+    } catch (err) {
+      console.error('Error in direct fetch test:', err);
       setFetchRawTranslationsError(err);
     } finally {
       setIsRawLoading(false);
@@ -89,8 +174,18 @@ const TranslationDebug: React.FC = () => {
             onClick={fetchRawTranslations} 
             size="small"
             disabled={isRawLoading}
+            sx={{ mr: 1 }}
           >
             Fetch Raw Translations
+          </Button>
+          <Button 
+            variant="contained" 
+            onClick={directFetchTest} 
+            size="small"
+            disabled={isRawLoading}
+            color="secondary"
+          >
+            Direct Fetch Test
           </Button>
           {fetchRawTranslationsError && (
             <Typography variant="body2" color="error.main">
@@ -98,6 +193,18 @@ const TranslationDebug: React.FC = () => {
             </Typography>
           )}
         </Box>
+        
+        {networkStatus && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            {networkStatus}
+          </Alert>
+        )}
+        
+        {responseDetails && (
+          <Alert severity="info" sx={{ mb: 2, wordBreak: 'break-all' }}>
+            {responseDetails}
+          </Alert>
+        )}
 
         <Divider sx={{ my: 2 }} />
         
@@ -157,7 +264,7 @@ const TranslationDebug: React.FC = () => {
           </Box>
         ) : (
           <Typography variant="body2" color="text.secondary">
-            Click &quot;Fetch Raw Translations&quot; to view the raw data
+            Click "Fetch Raw Translations" or "Direct Fetch Test" to load raw translation data
           </Typography>
         )}
       </Paper>
