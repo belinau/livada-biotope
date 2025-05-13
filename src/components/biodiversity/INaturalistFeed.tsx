@@ -265,17 +265,11 @@ const INaturalistFeed: React.FC = () => {
           {language === 'sl' ? 'Poskusite osvežiti stran kasneje.' : 'Please try refreshing the page later.'}
         </Typography>
       </Alert>
-          target="_blank"
-          rel="noopener noreferrer"
-          variant="contained"
-          color="primary"
-          sx={{ mt: 2 }}
-        >
-          iNaturalist
-        </Button>
-      </Box>
     );
   }
+  
+  // Show warning if there was an error but we have observations to show
+  const showWarning = error && observations.length > 0;
   
   return (
     <Box sx={{ my: 4 }}>

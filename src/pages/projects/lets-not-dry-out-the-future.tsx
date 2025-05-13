@@ -54,7 +54,7 @@ export default function LetsNotDryOutTheFuture() {
 
         {/* Section: Sensor Data */}
         <Box sx={{ mb: 8 }}>
-          {/* Sensor Content */
+          {/* Sensor Content */}
           <Typography variant="h4" sx={{ mb: 4, textAlign: 'center', color: 'primary.dark', fontWeight: 600 }}>
             {language === 'en' ? "Soil Moisture Monitoring" : "Spremljanje vlažnosti tal"}
           </Typography>
@@ -231,10 +231,10 @@ export default function LetsNotDryOutTheFuture() {
               </Box>
             </Box>
           </Paper>
-        </TabPanel>
+        </Box>
 
-        {/* Sensors Tab */}
-        <TabPanel value={activeTab} index={0}>
+        {/* Sensors Section */}
+        <Box sx={{ mb: 6 }}>
           <Box sx={{ mb: 6, position: 'relative', overflow: 'hidden' }}>
             <Box sx={{ 
               position: 'absolute', 
