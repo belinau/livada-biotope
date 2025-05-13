@@ -1,62 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Head from 'next/head';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
 import TranslationLoader from '../components/TranslationLoader';
+import { EnhancedEventCalendar } from '@/components/features/EnhancedEventCalendar';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
-import { styled } from '@mui/material/styles';
 import { green } from '@mui/material/colors';
-
-// Custom styled Tabs
-const StyledTabs = styled(Tabs)(({ theme }) => ({
-  borderBottom: '1px solid',
-  borderColor: 'divider',
-  '& .MuiTabs-indicator': {
-    backgroundColor: green[600],
-    height: 3,
-  },
-}));
-
-// Custom styled Tab
-const StyledTab = styled(Tab)(({ theme }) => ({
-  textTransform: 'none',
-  fontWeight: 500,
-  fontSize: '1rem',
-  color: theme.palette.text.primary,
-  '&.Mui-selected': {
-    color: green[600],
-    fontWeight: 600,
-  },
-  '&:hover': {
-    color: green[800],
-    opacity: 1,
-  },
-}));
 
 export default function Events() {
   const { language } = useLanguage();
   const { t } = useTranslations();
-  const [tabValue, setTabValue] = useState(0);
-  
-  // Handle tab change
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
-  
-  // Google Calendar ID - make sure this is correct
-  const calendarId = 'c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7@group.calendar.google.com';
-  
-  // Calendar embed URLs for different views with improved styling
-  const calendarUrls = {
-    agenda: `https://calendar.google.com/calendar/embed?height=600&wkst=2&bgcolor=%23ffffff&ctz=Europe%2FLjubljana&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=AGENDA&src=${encodeURIComponent(calendarId)}&color=%232E7D32`,
-    month: `https://calendar.google.com/calendar/embed?height=600&wkst=2&bgcolor=%23ffffff&ctz=Europe%2FLjubljana&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=MONTH&src=${encodeURIComponent(calendarId)}&color=%232E7D32`
-  };
   
   return (
     <>
@@ -101,47 +58,8 @@ export default function Events() {
             </Typography>
           </Paper>
           
-          {/* Calendar view selector tabs */}
-          <Box sx={{ mb: 3 }}>
-            <StyledTabs 
-              value={tabValue} 
-              onChange={handleTabChange} 
-              aria-label="calendar view tabs"
-              centered
-            >
-              <StyledTab label={language === 'en' ? 'Upcoming Events' : 'Prihajajoči dogodki'} />
-              <StyledTab label={language === 'en' ? 'Monthly Calendar' : 'Mesečni koledar'} />
-            </StyledTabs>
-          </Box>
-          
-          {/* Calendar embed with improved styling */}
-          <Paper
-            elevation={0}
-            sx={{
-              height: '600px',
-              width: '100%',
-              overflow: 'hidden',
-              borderRadius: 2,
-              border: '1px solid',
-              borderColor: 'divider',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-              mb: 4,
-              p: 0
-            }}
-          >
-            <iframe 
-              src={tabValue === 0 ? calendarUrls.agenda : calendarUrls.month}
-              style={{ 
-                border: 0,
-                width: '100%',
-                height: '100%'
-              }}
-              frameBorder="0"
-              scrolling="no"
-              title={language === 'en' ? 'Livada Biotope Events Calendar' : 'Koledar dogodkov Biotop Livada'}
-              allowFullScreen
-            />
-          </Paper>
+          {/* Enhanced Event Calendar Component */}
+          <EnhancedEventCalendar />
           
           {/* Call to action */}
           <Paper
