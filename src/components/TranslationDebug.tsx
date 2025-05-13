@@ -103,7 +103,7 @@ const TranslationDebug: React.FC = () => {
           <Box component="ul" sx={{ pl: 2 }}>
             {testKeys.map(key => (
               <Typography component="li" key={key} variant="body2">
-                <strong>{key}:</strong> {t(key, `[Missing: ${key}]`)}
+                <strong>{key}:</strong> {t(key, `[Missing: ${key.replace(/"/g, '\\"')}]`)}
               </Typography>
             ))}
           </Box>
@@ -131,7 +131,7 @@ const TranslationDebug: React.FC = () => {
           </Box>
         ) : (
           <Typography variant="body2" color="text.secondary">
-            Click "Fetch Raw Translations" to view the raw data
+            Click &quot;Fetch Raw Translations&quot; to view the raw data
           </Typography>
         )}
       </Paper>
