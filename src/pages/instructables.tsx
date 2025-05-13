@@ -19,7 +19,7 @@ import {
   Build as ToolsIcon,
   School as DifficultyIcon 
 } from '@mui/icons-material';
-import { StylizedImage } from '../components/StylizedImage';
+import StylizedImage from '../components/StylizedImage';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
