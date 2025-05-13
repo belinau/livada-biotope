@@ -3,6 +3,7 @@ import SharedLayout from '@/components/layout/SharedLayout';
 import { SensorVisualization } from '@/components/features/SensorVisualization';
 import BiodiversityShowcase from '@/components/features/BiodiversityShowcase';
 import StylizedImage from '@/components/StylizedImage';
+import Image from 'next/image';
 import { getBotanicalIllustrations, getZoologicalIllustrations } from '@/lib/illustrationsData';
 import { biodiversityItems } from '@/lib/biodiversityData';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -309,7 +310,7 @@ export default function LetsNotDryOutTheFuture() {
               height: 256, 
               transform: 'rotate(45deg)' 
             }}>
-              <img 
+              <Image 
                 src="/images/illustrations/botanical-1.jpg" 
                 alt="Decorative botanical illustration" 
                 style={{ width: '100%', height: '100%', objectFit: 'contain' }}
@@ -393,7 +394,7 @@ export default function LetsNotDryOutTheFuture() {
               height: 256, 
               transform: 'rotate(-45deg)' 
             }}>
-              <img 
+              <Image 
                 src="/images/illustrations/botanical-2.jpg" 
                 alt="Decorative botanical illustration" 
                 style={{ width: '100%', height: '100%', objectFit: 'contain' }}

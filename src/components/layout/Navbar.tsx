@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import useTranslations from '../../hooks/useTranslations';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -32,7 +33,7 @@ export const Navbar = () => {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/" className="no-underline">
-                <img src="/images/livada-bio-logo-new.svg" alt="livada.bio" width="150" height="40" />
+                <Image src="/images/livada-bio-logo-new.svg" alt="livada.bio" width={150} height={40} />
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">

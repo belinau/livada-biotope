@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Head from 'next/head';
 import { useLanguage } from '../../contexts/LanguageContext';
 import useTranslations from '../../hooks/useTranslations';
@@ -142,7 +143,7 @@ const SharedLayout: React.FC<SharedLayoutProps> = ({
             <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Link href="/" style={{ display: 'flex', alignItems: 'center' }}>
-                  <img src="/images/livada-bio-logo-new.svg" alt="livada.bio" width="150" height="40" />
+                  <Image src="/images/livada-bio-logo-new.svg" alt="livada.bio" width={150} height={40} />
                 </Link>
                 <Box sx={{ display: { xs: 'none', md: 'flex' }, ml: 4 }}>
                   {menuItems.map((item) => (
@@ -188,7 +189,7 @@ const SharedLayout: React.FC<SharedLayoutProps> = ({
           sx={{ '& .MuiDrawer-paper': { width: '80%', maxWidth: '300px' } }}
         >
           <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <img src="/images/livada-bio-logo-new.svg" alt="livada.bio" width="120" height="32" />
+            <Image src="/images/livada-bio-logo-new.svg" alt="livada.bio" width={120} height={32} />
             <IconButton onClick={() => setMobileMenuOpen(false)}>
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
