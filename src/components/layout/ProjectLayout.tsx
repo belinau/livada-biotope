@@ -1,7 +1,8 @@
 import React, { ReactNode, useState } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import useTranslations from '../../hooks/useTranslations';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import { Typography, Box, Container, AppBar, Toolbar, Button, Grid, Paper, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -24,7 +25,8 @@ const ProjectLayout: React.FC<ProjectLayoutProps> = ({
   title = 'Livada Biotope', 
   description = 'Urban biotope for climate resilience and biodiversity in Ljubljana, Slovenia'
 }) => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
+  const { t } = useTranslations();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuItems = [
     { href: '/', title: t('Navbar.home') },
