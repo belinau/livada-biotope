@@ -2,8 +2,6 @@
 const fs = require('fs');
 const path = require('path');
 const NodeCache = require('node-cache');
-const jwt = require('jsonwebtoken');
-const jwksClient = require('jwks-rsa');
 
 // Create a cache with a default TTL of 5 minutes (300 seconds)
 const cache = new NodeCache({ stdTTL: 300 });
@@ -26,275 +24,129 @@ const syncTranslationFiles = (data) => {
   }
 };
 
-// GitHub OAuth configuration
-const GITHUB_TOKEN_SECRET = process.env.GITHUB_TOKEN_SECRET || 'livada-biotope-github-secret';
-
-// Verify GitHub token
-const verifyGitHubToken = async (token) => {
-  try {
-    // Verify the token with GitHub API
-    const response = await fetch('https://api.github.com/user', {
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/json'
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status}`);
-    }
-    
-    const userData = await response.json();
-    return userData;
-  } catch (error) {
-    console.error('Error verifying GitHub token:', error);
-    throw error;
-  }
-};
-
-// Simplified token verification for public endpoints
-// This is used for non-admin endpoints that don't require authentication
-const verifyToken = (token) => {
-  // For public endpoints, we don't need to verify the token
-  // Just return a resolved promise
-  return Promise.resolve({ sub: 'public-user' });
-};
-
+// Handler for the Netlify function
 exports.handler = async (event, context) => {
-  try {
-    // Set CORS headers
-    const headers = {
-      'Access-Control-Allow-Origin': '*', // Replace with your domain in production
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Content-Type': 'application/json'
-    };
+  // Set CORS headers for all responses
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Content-Type': 'application/json'
+  };
 
-    // Handle OPTIONS request (preflight)
-    if (event.httpMethod === 'OPTIONS') {
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ message: 'CORS preflight request successful' })
-      };
-    }
-
-    // Only verify authentication for write operations (POST/PUT)
-    let isAuthenticated = false;
-    
-    if (event.httpMethod === 'POST' || event.httpMethod === 'PUT') {
-      const authHeader = event.headers.authorization || '';
-      
-      if (!authHeader.startsWith('Bearer ')) {
-        return {
-          statusCode: 401,
-          headers,
-          body: JSON.stringify({ error: 'Unauthorized - No token provided' })
-        };
-      }
-      
-      const token = authHeader.substring(7);
-      
-      try {
-        await verifyToken(token);
-        isAuthenticated = true;
-      } catch (authError) {
-        console.error('Token verification failed:', authError);
-        return {
-          statusCode: 401,
-          headers,
-          body: JSON.stringify({ error: 'Unauthorized - Invalid token', details: authError.message })
-        };
-      }
-    }
-
-    // Parse query parameters
-    const params = event.queryStringParameters || {};
-    const locale = params.locale || 'en';
-    const key = params.key || null;
-    
-    // Create a cache key
-    const cacheKey = `translations_${locale}_${key || 'all'}`;
-
-    // Check if we have a cached response
-    const cachedData = cache.get(cacheKey);
-    if (cachedData) {
-      console.log(`Serving cached translations for locale: ${locale}, key: ${key || 'all'}`);
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify(cachedData)
-      };
-    }
-
-    // For GET requests - read translations and return them
-    if (event.httpMethod === 'GET') {
-      try {
-        // Read and parse the translations file
-        let translationsData = {};
-        
-        // First try to read from the public directory (where CMS saves translations)
-        if (fs.existsSync(PUBLIC_TRANSLATIONS_PATH)) {
-          console.log(`Reading translations from public directory: ${PUBLIC_TRANSLATIONS_PATH}`);
-          const fileContent = fs.readFileSync(PUBLIC_TRANSLATIONS_PATH, 'utf8');
-          try {
-            translationsData = JSON.parse(fileContent);
-            // Sync the translations to the function directory
-            fs.writeFileSync(TRANSLATIONS_PATH, fileContent);
-          } catch (parseError) {
-            console.error(`Error parsing translations from public directory: ${parseError.message}`);
-          }
-        }
-        
-        // If public translations failed or don't exist, try the function directory
-        if (Object.keys(translationsData).length === 0 && fs.existsSync(TRANSLATIONS_PATH)) {
-          console.log(`Reading translations from function directory: ${TRANSLATIONS_PATH}`);
-          const fileContent = fs.readFileSync(TRANSLATIONS_PATH, 'utf8');
-          try {
-            translationsData = JSON.parse(fileContent);
-          } catch (parseError) {
-            console.error(`Error parsing translations from function directory: ${parseError.message}`);
-          }
-        }
-        
-        // If no translations found, create empty structure
-        if (Object.keys(translationsData).length === 0) {
-          console.warn('No translations found. Creating empty translations file.');
-          
-          // Create an empty translations file
-          translationsData = {
-            "Navbar.home": {
-              "en": "Home",
-              "sl": "Domov"
-            }
-          };
-          
-          syncTranslationFiles(translationsData);
-        }
-
-        // Check if locale is specified
-        let result;
-        if (!params.locale) {
-          // Return all translations when no locale specified
-          result = translationsData;
-        } else {
-          // Get translations for the specified locale
-          const localeTranslations = translationsData[locale] || {};
-          
-          // Filter by key if specified
-          result = localeTranslations;
-          if (key) {
-            result = localeTranslations[key] || null;
-          }
-        }
-        
-        // Cache the result
-        cache.set(cacheKey, result);
-        
-        // Return the result
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify(result)
-        };
-      } catch (error) {
-        console.error('Error reading translations:', error);
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({ error: 'Error reading translations', details: error.message })
-        };
-      }
-    }
-
-    // Handle POST requests to update translations (only if authenticated)
-    if (event.httpMethod === 'POST') {
-      if (!isAuthenticated) {
-        return {
-          statusCode: 401,
-          headers,
-          body: JSON.stringify({ error: 'Unauthorized - Authentication required for updating translations' })
-        };
-      }
-      
-      try {
-        // Parse the request body
-        const requestBody = JSON.parse(event.body);
-        const { locale: updateLocale, key: updateKey, value } = requestBody;
-        
-        if (!updateLocale || !updateKey || value === undefined) {
-          return {
-            statusCode: 400,
-            headers,
-            body: JSON.stringify({ error: 'Bad request - Missing required fields (locale, key, value)' })
-          };
-        }
-        
-        // Read and parse the translations file
-        let translationsData = {};
-        
-        if (fs.existsSync(TRANSLATIONS_PATH)) {
-          const fileContent = fs.readFileSync(TRANSLATIONS_PATH, 'utf8');
-          translationsData = JSON.parse(fileContent);
-        } else {
-          translationsData = {
-            en: {},
-            sl: {}
-          };
-        }
-        
-        // Create the locale object if it doesn't exist
-        if (!translationsData[updateLocale]) {
-          translationsData[updateLocale] = {};
-        }
-        
-        // Update the translation
-        translationsData[updateLocale][updateKey] = value;
-        
-        // Write the updated translations back to both files
-        syncTranslationFiles(translationsData);
-        
-        // Invalidate cache for the updated locale
-        const cacheKeyPattern = `translations_${updateLocale}_`;
-        const keys = cache.keys();
-        for (const key of keys) {
-          if (key.startsWith(cacheKeyPattern)) {
-            cache.del(key);
-          }
-        }
-        
-        // Return success
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({ success: true, message: 'Translation updated successfully' })
-        };
-      } catch (error) {
-        console.error('Error updating translations:', error);
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({ error: 'Error updating translations', details: error.message })
-        };
-      }
-    }
-    
-    // Return 405 Method Not Allowed for any other method
+  // Handle preflight OPTIONS request
+  if (event.httpMethod === 'OPTIONS') {
     return {
-      statusCode: 405,
+      statusCode: 204,
       headers,
-      body: JSON.stringify({ error: 'Method not allowed' })
-    };
-    
-  } catch (error) {
-    console.error('Serverless function error:', error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ error: 'Internal server error', details: error.message })
+      body: ''
     };
   }
+
+  // Handle GET request - fetch translations
+  if (event.httpMethod === 'GET') {
+    try {
+      // Check if we have the translations in cache
+      const cacheKey = 'translations';
+      let translations = cache.get(cacheKey);
+      
+      if (!translations) {
+        // If not in cache, read from file
+        try {
+          // Try to read from the public path first (Netlify CMS managed)
+          translations = JSON.parse(fs.readFileSync(PUBLIC_TRANSLATIONS_PATH, 'utf8'));
+        } catch (publicReadError) {
+          console.warn('Error reading from public translations, falling back to function translations:', publicReadError);
+          
+          try {
+            // Fallback to the function's local copy
+            translations = JSON.parse(fs.readFileSync(TRANSLATIONS_PATH, 'utf8'));
+          } catch (fallbackReadError) {
+            console.error('Error reading translations from fallback location:', fallbackReadError);
+            translations = {}; // Empty object as last resort
+          }
+        }
+        
+        // Store in cache for future requests
+        cache.set(cacheKey, translations);
+      }
+      
+      // Get locale from query string
+      const { locale } = event.queryStringParameters || {};
+      
+      // If locale is specified, filter translations for that locale
+      if (locale && (locale === 'en' || locale === 'sl')) {
+        const localeTranslations = {};
+        
+        // Filter translations for the requested locale
+        Object.keys(translations).forEach(key => {
+          if (translations[key] && typeof translations[key] === 'object' && translations[key][locale]) {
+            localeTranslations[key] = translations[key][locale];
+          }
+        });
+        
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify(localeTranslations)
+        };
+      }
+      
+      // Return all translations if no locale specified
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(translations)
+      };
+    } catch (error) {
+      console.error('Error handling GET request:', error);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'Failed to fetch translations' })
+      };
+    }
+  }
+  
+  // Handle POST request - update translations (for Netlify CMS)
+  if (event.httpMethod === 'POST') {
+    try {
+      // Parse the request body
+      const data = JSON.parse(event.body);
+      
+      // Sync the translations between files
+      const success = syncTranslationFiles(data);
+      
+      if (success) {
+        // Update the cache
+        cache.set('translations', data);
+        
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ message: 'Translations updated successfully' })
+        };
+      } else {
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ error: 'Failed to update translations' })
+        };
+      }
+    } catch (error) {
+      console.error('Error handling POST request:', error);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'Failed to update translations' })
+      };
+    }
+  }
+  
+  // Handle unsupported methods
+  return {
+    statusCode: 405,
+    headers,
+    body: JSON.stringify({ error: 'Method not allowed' })
+  };
 };
