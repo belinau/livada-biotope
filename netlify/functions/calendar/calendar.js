@@ -25,73 +25,6 @@ const translations = {
   }
 };
 
-// Function to generate mock events for testing
-function generateMockEvents(locale) {
-  const now = new Date();
-  const eventTypes = ["workshop", "lecture", "community", "other"];
-  const events = [];
-  
-  // Generate 5 upcoming events
-  for (let i = 0; i < 5; i++) {
-    const eventDate = new Date(now);
-    eventDate.setDate(now.getDate() + (i * 3) + 1);
-    
-    const startTime = new Date(eventDate);
-    startTime.setHours(10 + i, 0, 0);
-    
-    const endTime = new Date(startTime);
-    endTime.setHours(endTime.getHours() + 2);
-    
-    const eventType = eventTypes[i % eventTypes.length];
-    
-    events.push({
-      id: `mock-event-${i + 1}`,
-      title: locale === "sl" 
-        ? `${translations.sl[eventType]} ${i + 1}: Biotop Livada` 
-        : `${translations.en[eventType]} ${i + 1}: Livada Biotope`,
-      description: locale === "sl"
-        ? `To je testni dogodek za Biotop Livada. Pridružite se nam za zanimivo aktivnost!`
-        : `This is a test event for Livada Biotope. Join us for an exciting activity!`,
-      start: startTime,
-      end: endTime,
-      location: "Livada Biotope, Ljubljana, Slovenia",
-      type: eventType,
-      url: "https://livada.bio/events"
-    });
-  }
-  
-  // Generate 3 past events
-  for (let i = 0; i < 3; i++) {
-    const eventDate = new Date(now);
-    eventDate.setDate(now.getDate() - (i * 5) - 1);
-    
-    const startTime = new Date(eventDate);
-    startTime.setHours(14 + i, 0, 0);
-    
-    const endTime = new Date(startTime);
-    endTime.setHours(endTime.getHours() + 1, 30);
-    
-    const eventType = eventTypes[(i + 2) % eventTypes.length];
-    
-    events.push({
-      id: `mock-past-event-${i + 1}`,
-      title: locale === "sl" 
-        ? `Pretekli ${translations.sl[eventType]} ${i + 1}` 
-        : `Past ${translations.en[eventType]} ${i + 1}`,
-      description: locale === "sl"
-        ? `To je pretekli testni dogodek za Biotop Livada. Hvala vsem udeležencem!`
-        : `This is a past test event for Livada Biotope. Thanks to all participants!`,
-      start: startTime,
-      end: endTime,
-      location: "Livada Biotope, Ljubljana, Slovenia",
-      type: eventType,
-      url: "https://livada.bio/events"
-    });
-  }
-  
-  return events;
-}
-
 // Function to determine event type based on summary and description
 function determineEventType(summary, description) {
   const text = (summary + ' ' + description).toLowerCase();
@@ -196,28 +129,21 @@ exports.handler = async (event, context) => {
     } catch (calendarError) {
       console.error("Error fetching calendar data:", calendarError);
       
-      // Generate mock events as a fallback
-      console.log("Falling back to mock events");
-      const mockEvents = generateMockEvents(locale);
-      
-      // Cache the mock events
-      cache.set(cacheKey, mockEvents);
-      
-      // Return the mock events
+      // Return an error response
       return {
-        statusCode: 200,
+        statusCode: 500,
         headers,
-        body: JSON.stringify(mockEvents)
+        body: JSON.stringify({ 
+          error: "Failed to fetch calendar data",
+          message: calendarError.message
+        })
       };
     }
     
   } catch (error) {
     console.error("Serverless function error:", error);
     
-    // Generate mock events as a fallback for any error
-    const locale = (event.queryStringParameters || {}).locale || "en";
-    const mockEvents = generateMockEvents(locale);
-    
+    // Return an error response
     return {
       statusCode: 500,
       headers: {
@@ -226,8 +152,7 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({ 
         error: "Server error",
-        message: error.message,
-        events: mockEvents // Still return mock events as fallback
+        message: error.message
       })
     };
   }

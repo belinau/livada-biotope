@@ -79,6 +79,54 @@ collections:
           - { label: "Image", name: "image", widget: "image" }
           - { label: "Caption", name: "caption", widget: "string", required: false }
           - { label: "Alt Text", name: "alt", widget: "string", required: false }
+  
+  - name: "resources"
+    label: "Resources"
+    folder: "src/content/resources"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title (English)", name: "title", widget: "string" }
+      - { label: "Title (Slovenian)", name: "titleSl", widget: "string" }
+      - { label: "Description (English)", name: "description", widget: "text" }
+      - { label: "Description (Slovenian)", name: "descriptionSl", widget: "text" }
+      - { label: "Introduction (English)", name: "introEn", widget: "text" }
+      - { label: "Introduction (Slovenian)", name: "introSl", widget: "text" }
+      - { label: "Second Introduction (English)", name: "introSecondEn", widget: "text" }
+      - { label: "Second Introduction (Slovenian)", name: "introSecondSl", widget: "text" }
+      - label: "Key Concepts"
+        name: "resources"
+        widget: "list"
+        fields:
+          - { label: "Title (English)", name: "titleEn", widget: "string" }
+          - { label: "Title (Slovenian)", name: "titleSl", widget: "string" }
+          - { label: "Description (English)", name: "descriptionEn", widget: "text" }
+          - { label: "Description (Slovenian)", name: "descriptionSl", widget: "text" }
+          - { label: "Species Name (English)", name: "speciesNameEn", widget: "string" }
+          - { label: "Species Name (Slovenian)", name: "speciesNameSl", widget: "string" }
+          - { label: "Latin Name", name: "latinName", widget: "string" }
+          - { label: "Pattern", name: "pattern", widget: "select", options: ["dots", "lines", "waves", "leaves"] }
+      - label: "Reading Recommendations"
+        name: "readings"
+        widget: "list"
+        fields:
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "Title (Slovenian)", name: "titleSl", widget: "string" }
+          - { label: "Author", name: "author", widget: "string" }
+          - { label: "Description (English)", name: "descriptionEn", widget: "text" }
+          - { label: "Description (Slovenian)", name: "descriptionSl", widget: "text" }
+          - { label: "URL", name: "url", widget: "string" }
+      - label: "Videos and Podcasts"
+        name: "media"
+        widget: "list"
+        fields:
+          - { label: "Creator Name", name: "name", widget: "string" }
+          - { label: "Title (English)", name: "titleEn", widget: "string" }
+          - { label: "Title (Slovenian)", name: "titleSl", widget: "string" }
+          - { label: "Description (English)", name: "descriptionEn", widget: "text" }
+          - { label: "Description (Slovenian)", name: "descriptionSl", widget: "text" }
+          - { label: "Type", name: "type", widget: "select", options: ["video", "podcast"] }
+          - { label: "URL", name: "url", widget: "string" }
 
   - name: "translations"
     label: "Translations"
@@ -86,11 +134,14 @@ collections:
       - label: "Site Translations"
         name: "site_translations"
         file: "public/translations.json"
+        editor:
+          preview: false
         fields:
-          - label: "Edit Translations"
-            name: "translations_editor"
+          - label: "Translations"
+            name: "body"
             widget: "code"
             default_language: "json"
+            allow_language_selection: false
             output_code_only: true
 
   - name: "pages"
