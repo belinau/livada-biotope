@@ -1,7 +1,6 @@
 import React from 'react';
 import SharedLayout from '@/components/layout/SharedLayout';
 import { SensorVisualization } from '@/components/features/SensorVisualization';
-import VintageGallery from '@/components/features/VintageGallery';
 import BiodiversityShowcase from '@/components/features/BiodiversityShowcase';
 import StylizedImage from '@/components/StylizedImage';
 import { getBotanicalIllustrations, getZoologicalIllustrations } from '@/lib/illustrationsData';

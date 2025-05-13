@@ -2,6 +2,7 @@ import React, { ReactNode, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useLanguage } from '../../contexts/LanguageContext';
+import useTranslations from '../../hooks/useTranslations';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import { 
   Typography, 
@@ -78,7 +79,8 @@ const EcoFeministLayout: React.FC<EcoFeministLayoutProps> = ({
   title = 'Ecofeminism - Livada Biotope',
   description = 'Exploring the intersection of ecology and feminism in Ljubljana, Slovenia',
 }) => {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
+  const { t } = useTranslations();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuItems = [
     { href: '/', title: t('Navbar.home') },

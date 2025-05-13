@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLanguage } from '../../contexts/LanguageContext';
+import useTranslations from '../../hooks/useTranslations';
 import Head from 'next/head';
 import Link from 'next/link';
 import LanguageSwitcher from '../common/LanguageSwitcher';
@@ -75,7 +75,7 @@ const theme = createTheme({
 });
 
 export default function BlogLayout({ children, title, description }: BlogLayoutProps) {
-  const { language, t } = useLanguage();
+  const { t } = useTranslations();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuItems = [
     { href: '/', title: t('Navbar.home') },
@@ -83,7 +83,7 @@ export default function BlogLayout({ children, title, description }: BlogLayoutP
     { href: '/biodiversity', title: t('Navbar.biodiversity') },
     { href: '/instructables', title: t('Navbar.instructables') },
     { href: '/ecofeminism', title: t('Navbar.ecofeminism') },
-    { href: '/events', title: language === 'en' ? 'Events' : 'Dogodki' },
+    { href: '/events', title: t('Navbar.events') },
     { href: '/about', title: t('Navbar.about') },
     { href: '/contact', title: t('Navbar.contact') },
     { href: '/blog', title: t('Navbar.blog') }
@@ -191,17 +191,15 @@ export default function BlogLayout({ children, title, description }: BlogLayoutP
             <Grid container spacing={4}>
               <Grid item xs={12} md={4}>
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-                  {language === 'en' ? 'About Us' : 'O nas'}
+                  {t('Footer.about')}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-                  {language === 'en' 
-                    ? 'Urban biotope for climate resilience and biodiversity in Ljubljana, Slovenia.' 
-                    : 'Urbani biotop za podnebno odpornost in biotsko raznovrstnost v Ljubljani, Slovenija.'}
+                  {t('Footer.aboutDescription')}
                 </Typography>
               </Grid>
               <Grid item xs={12} md={4}>
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-                  {language === 'en' ? 'Contact' : 'Kontakt'}
+                  {t('Footer.contact')}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
                   info@livada.bio
@@ -212,7 +210,7 @@ export default function BlogLayout({ children, title, description }: BlogLayoutP
               </Grid>
               <Grid item xs={12} md={4}>
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-                  {language === 'en' ? 'Social' : 'Družbena omrežja'}
+                  {t('Footer.social')}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <a 
@@ -236,7 +234,7 @@ export default function BlogLayout({ children, title, description }: BlogLayoutP
             </Grid>
             <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
               <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
-                {new Date().getFullYear()} Livada Biotope. {language === 'en' ? 'All rights reserved.' : 'Vse pravice pridržane.'}
+                {new Date().getFullYear()} Livada Biotope. {t('Footer.copyright')}
               </Typography>
             </Box>
           </Container>
