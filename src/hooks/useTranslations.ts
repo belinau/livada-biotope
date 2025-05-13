@@ -23,7 +23,7 @@ const useTranslations = () => {
         setError(null);
         
         // Log the current language and fetch URL for debugging
-        const fetchUrl = `/.netlify/functions/translations?locale=${language}`;
+        const fetchUrl = `/api/translations?locale=${language}`;
         console.log(`Fetching translations for language: ${language} from: ${fetchUrl}`);
         
         // Fetch translations from the Netlify function
