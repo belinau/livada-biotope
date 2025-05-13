@@ -221,50 +221,58 @@ function parseICalDate(dateStr: string, fullLine?: string): Date {
  * Fetches calendar events from the Google Calendar with caching
  */
 export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
-  // Return empty array if running on server
-  if (!isClient) {
-    return [];
-  }
-  
-  const currentLanguage = getCurrentLanguage();
-  const now = Date.now();
+  const language = getCurrentLanguage();
   
   // Check if we have a valid cache
   if (eventsCache && 
-      eventsCache.language === currentLanguage && 
-      now - eventsCache.timestamp < CACHE_EXPIRY_MS) {
-    // Use cached events if they're still valid
+      (Date.now() - eventsCache.timestamp < CACHE_EXPIRY_MS) && 
+      eventsCache.language === language) {
     return eventsCache.events;
   }
   
   try {
-    // Use the API endpoint to avoid CORS issues
-    const apiUrl = `/api/calendar?_=${now}`;
-    const response = await fetch(apiUrl);
+    // Fetch from our API endpoint
+    const response = await fetch(CALENDAR_URL);
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch calendar: ${response.status} ${response.statusText}`);
+      console.error(`Calendar API responded with status: ${response.status}`);
+      // Return empty array instead of throwing
+      return [];
     }
     
-    const icsData = await response.text();
-    const events = parseICalData(icsData);
+    const data = await response.json();
     
-    // If language is Slovenian, translate event content
-    let processedEvents = events;
-    if (currentLanguage === 'sl') {
-      processedEvents = translateEvents(events);
+    // Ensure we have events data
+    if (!data || !data.events || !Array.isArray(data.events)) {
+      console.error('Invalid data format from calendar API');
+      return [];
     }
     
-    // Cache the processed events
+    // Parse the events
+    const events = data.events.map((event: any) => ({
+      id: event.id || `event-${Math.random().toString(36).substr(2, 9)}`,
+      title: event.title || event.summary || 'Untitled Event',
+      description: event.description || '',
+      start: new Date(event.start),
+      end: new Date(event.end),
+      location: event.location || '',
+      type: event.type || determineEventType(event.title || event.summary || '', event.description || '')
+    }));
+    
+    // Translate events if needed
+    const translatedEvents = language === 'sl' ? translateEvents(events) : events;
+    
+    // Update the cache
     eventsCache = {
-      events: processedEvents,
-      timestamp: now,
-      language: currentLanguage
+      events: translatedEvents,
+      timestamp: Date.now(),
+      language
     };
     
-    return processedEvents;
+    return translatedEvents;
   } catch (error) {
     console.error('Error fetching calendar events:', error);
+    // Return empty array instead of throwing
     return [];
   }
 }

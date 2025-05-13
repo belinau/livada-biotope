@@ -136,11 +136,18 @@ collections:
         file: "public/translations.json"
         fields:
           - label: "Translations"
-            name: "body"
-            widget: "code"
-            default_language: "json"
-            allow_language_selection: false
-            output_code_only: true
+            name: "translations"
+            widget: "object"
+            collapsed: false
+            fields:
+              - label: "English"
+                name: "en"
+                widget: "object"
+                collapsed: false
+              - label: "Slovenian"
+                name: "sl"
+                widget: "object"
+                collapsed: false
 
   - name: "pages"
     label: "Pages"
