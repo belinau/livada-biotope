@@ -35,6 +35,14 @@ export default function LetsNotDryOutTheFuture() {
   const botanicalIllustrations = getBotanicalIllustrations();
   const zoologicalIllustrations = getZoologicalIllustrations();
 
+  // Force reload translations if they're not loaded
+React.useEffect(() => {
+  if (!t('project.drought.intro') || t('project.drought.intro').includes('project.drought.intro')) {
+    // Reload translations
+    window.location.reload();
+  }
+}, [t]);
+
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
         <Box sx={{ textAlign: 'center', mb: 6 }}>
@@ -254,11 +262,9 @@ export default function LetsNotDryOutTheFuture() {
             </Box>
             
             <Typography variant="h4" sx={{ mb: 3, color: 'text.primary', fontWeight: 600 }}>
-              Sensor Data
+              {language === 'en' ? "Technology & Goals" : "Tehnologija in cilji"}
             </Typography>
-            <Box sx={{ width: '100%', mb: 6 }}>
-              <SensorVisualization />
-            </Box>
+            <Box sx={{ width: '100%', mb: 6 }} />
             
             <Grid container spacing={6}>
               <Grid item xs={12} lg={12}>
