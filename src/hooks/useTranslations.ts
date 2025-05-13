@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Type for the translations object
 type TranslationsMap = Record<string, string>;
@@ -11,8 +11,9 @@ type TranslationsMap = Record<string, string>;
 const useTranslations = () => {
   const { language } = useLanguage();
   const [translations, setTranslations] = useState<TranslationsMap>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   // Fetch translations from the Netlify function
   useEffect(() => {
@@ -21,15 +22,27 @@ const useTranslations = () => {
         setIsLoading(true);
         setError(null);
         
+        // Log the current language and fetch URL for debugging
+        const fetchUrl = `/.netlify/functions/translations?locale=${language}`;
+        console.log(`Fetching translations for language: ${language} from: ${fetchUrl}`);
+        
         // Fetch translations from the Netlify function
-        const response = await fetch(`/.netlify/functions/translations?locale=${language}`);
+        const response = await fetch(fetchUrl);
         
         if (!response.ok) {
-          throw new Error(`Failed to fetch translations: ${response.status}`);
+          throw new Error(`Failed to fetch translations: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
+        console.log(`Received translations data with ${Object.keys(data).length} keys`);
+        
+        // Check if we got empty data
+        if (Object.keys(data).length === 0) {
+          console.warn('Received empty translations data');
+        }
+        
         setTranslations(data);
+        setLastUpdated(new Date());
       } catch (err) {
         console.error('Error fetching translations:', err);
         setError(err instanceof Error ? err : new Error(String(err)));
@@ -44,21 +57,24 @@ const useTranslations = () => {
   // Translation function
   const t = useCallback(
     (key: string, defaultValue?: string): string => {
-      // If translations are still loading, return the key or default value
       if (isLoading) {
         return defaultValue || key;
       }
 
-      // Check if the translation exists
       const translation = translations[key];
+      
+      // Log missing translations for debugging
+      if (!translation && process.env.NODE_ENV !== 'production') {
+        console.warn(`Missing translation for key: "${key}" in language: ${language}`);
+      }
       
       // Return the translation, default value, or key
       return translation || defaultValue || key;
     },
-    [translations, isLoading]
+    [translations, isLoading, language]
   );
 
-  return { t, isLoading, error };
+  return { t, isLoading, error, lastUpdated };
 };
 
 export default useTranslations;

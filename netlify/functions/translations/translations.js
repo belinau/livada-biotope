@@ -7,11 +7,11 @@ const NodeCache = require('node-cache');
 const cache = new NodeCache({ stdTTL: 300 });
 
 // Path to the translations JSON file in the Git repository
-const TRANSLATIONS_PATH = path.join(__dirname, 'translations.json');
+const TRANSLATIONS_PATH = path.join(process.env.PWD, 'netlify/functions/translations/translations.json');
 // Path to the public translations JSON file for Netlify CMS
-const PUBLIC_TRANSLATIONS_PATH = path.join(__dirname, '../../../public/translations.json');
+const PUBLIC_TRANSLATIONS_PATH = path.join(process.env.PWD, 'public/translations.json');
 
-// Function to sync translations between files
+// Function to sync translation files
 const syncTranslationFiles = (data) => {
   try {
     // Write to both locations
@@ -55,15 +55,29 @@ exports.handler = async (event, context) => {
         try {
           // Try to read from the public path first (Netlify CMS managed)
           translations = JSON.parse(fs.readFileSync(PUBLIC_TRANSLATIONS_PATH, 'utf8'));
+          console.log('Successfully read translations from public path');
         } catch (publicReadError) {
           console.warn('Error reading from public translations, falling back to function translations:', publicReadError);
           
           try {
             // Fallback to the function's local copy
             translations = JSON.parse(fs.readFileSync(TRANSLATIONS_PATH, 'utf8'));
+            console.log('Successfully read translations from function path');
           } catch (fallbackReadError) {
             console.error('Error reading translations from fallback location:', fallbackReadError);
-            translations = {}; // Empty object as last resort
+            
+            // Last resort: use a hardcoded minimal translations object
+            translations = {
+              "Navbar.home": {
+                "en": "Home",
+                "sl": "Domov"
+              },
+              "nav.home": {
+                "en": "Home",
+                "sl": "Domov"
+              }
+            };
+            console.log('Using hardcoded minimal translations as last resort');
           }
         }
         

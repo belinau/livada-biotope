@@ -81,16 +81,92 @@ collections:
   - name: "translations"
     label: "Translations"
     files:
-      - label: "Site Translations"
+      - label: "Navigation Translations"
+        name: "nav_translations"
+        file: "public/translations.json"
+        fields:
+          - label: "Navigation Items"
+            name: "navigation"
+            widget: "object"
+            fields:
+              - label: "Home"
+                name: "nav.home"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - label: "Projects"
+                name: "nav.projects"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - label: "Biodiversity"
+                name: "Navbar.biodiversity"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - label: "Instructables"
+                name: "Navbar.instructables"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - label: "Ecofeminism"
+                name: "Navbar.ecofeminism"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - label: "Events"
+                name: "nav.events"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - label: "Contact"
+                name: "nav.contact"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - label: "Blog"
+                name: "Navbar.blog"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+                  
+      - label: "Home Page Translations"
+        name: "home_translations"
+        file: "public/translations.json"
+        fields:
+          - label: "Home Page Content"
+            name: "home"
+            widget: "object"
+            fields:
+              - label: "Introduction Paragraph 1"
+                name: "home.intro.p1"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "text" }
+                  - { label: "Slovenian", name: "sl", widget: "text" }
+              - label: "Introduction Paragraph 2"
+                name: "home.intro.p2"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "text" }
+                  - { label: "Slovenian", name: "sl", widget: "text" }
+                  
+      - label: "Advanced Translation Editor"
         name: "site_translations"
         file: "public/translations.json"
         fields:
-          - label: "All Translations"
+          - label: "All Translations (Advanced)"
             name: "body"
             widget: "code"
             default_language: "json"
-            output_code_only: true
-            hint: "Edit the translations JSON directly. Be careful to maintain valid JSON format."
 
   - name: "pages"
     label: "Pages"
