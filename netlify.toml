@@ -33,18 +33,6 @@
 [functions]
   external_node_modules = ["node-fetch", "jsonwebtoken", "jwks-rsa", "node-cache", "node-ical", "react-markdown", "remark", "remark-html"]
 
-# Direct access to Netlify functions
-[[redirects]]
-  from = "/.netlify/functions/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
-# Specific redirect for translations function
-[[redirects]]
-  from = "/api/translations"
-  to = "/.netlify/functions/translations"
-  status = 200
-
 # Handle Next.js routes and Auth0 callbacks
 [[redirects]]
   from = "/_next/*"
@@ -53,7 +41,13 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  to = "/functions/:splat"
+  status = 200
+
+# Specific redirect for translations function
+[[redirects]]
+  from = "/api/translations"
+  to = "/functions/translations"
   status = 200
 
 # Handle static assets and images

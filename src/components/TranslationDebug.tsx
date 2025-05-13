@@ -8,8 +8,8 @@ const TranslationDebug: React.FC = () => {
   const { t, isLoading, error, lastUpdated } = useTranslations();
   const [rawTranslations, setRawTranslations] = useState<any>(null);
   const [isRawLoading, setIsRawLoading] = useState(false);
-  const [languageToggleError, setLanguageToggleError] = useState(null);
-  const [fetchRawTranslationsError, setFetchRawTranslationsError] = useState(null);
+  const [languageToggleError, setLanguageToggleError] = useState<any>(null);
+  const [fetchRawTranslationsError, setFetchRawTranslationsError] = useState<any>(null);
 
   // Common translation keys to test
   const testKeys = [
@@ -81,7 +81,7 @@ const TranslationDebug: React.FC = () => {
           </Button>
           {languageToggleError && (
             <Typography variant="body2" color="error.main">
-              Error toggling language: {languageToggleError.message}
+              Error toggling language: {languageToggleError instanceof Error ? languageToggleError.message : String(languageToggleError)}
             </Typography>
           )}
           <Button 
@@ -94,7 +94,7 @@ const TranslationDebug: React.FC = () => {
           </Button>
           {fetchRawTranslationsError && (
             <Typography variant="body2" color="error.main">
-              Error fetching raw translations: {fetchRawTranslationsError.message}
+              Error fetching raw translations: {fetchRawTranslationsError instanceof Error ? fetchRawTranslationsError.message : String(fetchRawTranslationsError)}
             </Typography>
           )}
         </Box>
