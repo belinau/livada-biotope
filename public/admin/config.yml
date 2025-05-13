@@ -1,80 +1,93 @@
 backend:
-  name: github
-  repo: belinau/livada-biotope
+  name: git-gateway
   branch: main
-  base_url: https://api.netlify.com
-  auth_endpoint: auth
+  commit_messages:
+    create: 'Create {{collection}} "{{slug}}"'
+    update: 'Update {{collection}} "{{slug}}"'
+    delete: 'Delete {{collection}} "{{slug}}"'
+    uploadMedia: 'Upload "{{path}}"'
+    deleteMedia: 'Delete "{{path}}"'
+    openAuthoring: '{{message}}'
 
-media_folder: public/images/uploads
-public_folder: /images/uploads
-
-local_backend: true
-
-# Editorial workflow: adds an interface for drafting, reviewing, and approving posts
+# Editorial workflow allows content to be saved as draft, in review, or published
 publish_mode: editorial_workflow
 
+# Translation workflow settings
+i18n:
+  # Required and can be one of multiple_folders, multiple_files or single_file
+  structure: multiple_folders
+  # Required - same as the base url variable in your gatsby-config.js
+  locales: [en, sl]
+  # Required - the default locale
+  default_locale: en
+
 collections:
-  - name: "blog"
+  - name: "posts"
     label: "Blog Posts"
-    folder: "src/content/blog"
+    folder: "src/content/posts"
     create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    slug: "{{slug}}"
+    i18n: true
     fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Publish Date", name: "date", widget: "datetime" }
-      - { label: "Featured Image", name: "thumbnail", widget: "image", required: false }
-      - { label: "Summary", name: "summary", widget: "text" }
-      - { label: "Body", name: "body", widget: "markdown" }
-      - { label: "Tags", name: "tags", widget: "list", required: false }
-  
+      - { label: "Title", name: "title", widget: "string", i18n: true }
+      - { label: "Publish Date", name: "date", widget: "datetime", i18n: duplicate }
+      - { label: "Summary", name: "summary", widget: "text", i18n: true }
+      - { label: "Featured Image", name: "thumbnail", widget: "image", required: false, i18n: duplicate }
+      - { label: "Tags", name: "tags", widget: "list", required: false, i18n: duplicate }
+      - { label: "Body", name: "body", widget: "markdown", i18n: true }
+
   - name: "projects"
     label: "Projects"
     folder: "src/content/projects"
     create: true
     slug: "{{slug}}"
+    i18n: true
     fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Featured Image", name: "thumbnail", widget: "image", required: false }
-      - { label: "Summary", name: "summary", widget: "text" }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Title", name: "title", widget: "string", i18n: true }
+      - { label: "Featured Image", name: "thumbnail", widget: "image", required: false, i18n: duplicate }
+      - { label: "Summary", name: "summary", widget: "text", i18n: true }
       - label: "Project Details"
         name: "details"
         widget: "object"
-        collapsed: true
+        i18n: duplicate
         fields:
-          - { label: "Start Date", name: "startDate", widget: "date", required: false }
+          - { label: "Start Date", name: "startDate", widget: "date" }
           - { label: "End Date", name: "endDate", widget: "date", required: false }
           - { label: "Status", name: "status", widget: "select", options: ["In Progress", "Completed", "Planned"], required: false }
           - { label: "Partners", name: "partners", widget: "list", required: false }
-  
+      - { label: "Body", name: "body", widget: "markdown", i18n: true }
+
   - name: "gallery"
     label: "Gallery"
     folder: "src/content/gallery"
     create: true
     slug: "{{slug}}"
+    i18n: true
     fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Date", name: "date", widget: "datetime" }
-      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Title", name: "title", widget: "string", i18n: true }
+      - { label: "Date", name: "date", widget: "datetime", i18n: duplicate }
+      - { label: "Description", name: "description", widget: "text", required: false, i18n: true }
       - label: "Images"
         name: "images"
         widget: "list"
+        i18n: duplicate
         fields:
           - { label: "Image", name: "image", widget: "image" }
-          - { label: "Caption", name: "caption", widget: "string", required: false }
-          - { label: "Alt Text", name: "alt", widget: "string", required: false }
-  
+          - { label: "Caption", name: "caption", widget: "string", required: false, i18n: true }
+          - { label: "Alt Text", name: "alt", widget: "string", required: false, i18n: true }
+
   - name: "resources"
     label: "Resources"
     folder: "src/content/resources"
     create: true
     slug: "{{slug}}"
+    i18n: true
     fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Publish Date", name: "date", widget: "datetime" }
-      - { label: "Featured Image", name: "thumbnail", widget: "image", required: false }
-      - { label: "Body", name: "body", widget: "markdown" }
-  
+      - { label: "Title", name: "title", widget: "string", i18n: true }
+      - { label: "Publish Date", name: "date", widget: "datetime", i18n: duplicate }
+      - { label: "Featured Image", name: "thumbnail", widget: "image", required: false, i18n: duplicate }
+      - { label: "Body", name: "body", widget: "markdown", i18n: true }
+
   - name: "resources"
     label: "Resources"
     files:
@@ -82,7 +95,8 @@ collections:
         name: "ecofeminism_resources"
         file: "src/content/resources/ecofeminism.md"
         fields:
-          - { label: "Title", name: "title", widget: "string" }
+          - { label: "English Title", name: "title_en", widget: "string" }
+          - { label: "Slovenian Title", name: "title_sl", widget: "string" }
           - label: "Introduction"
             name: "introduction"
             widget: "object"
@@ -109,7 +123,8 @@ collections:
             name: "readings"
             widget: "list"
             fields:
-              - { label: "Title", name: "title", widget: "string" }
+              - { label: "English Title", name: "title_en", widget: "string" }
+              - { label: "Slovenian Title", name: "title_sl", widget: "string" }
               - { label: "Author", name: "author", widget: "string" }
               - label: "Description"
                 name: "description"
@@ -122,7 +137,8 @@ collections:
             name: "media"
             widget: "list"
             fields:
-              - { label: "Title", name: "title", widget: "string" }
+              - { label: "English Title", name: "title_en", widget: "string" }
+              - { label: "Slovenian Title", name: "title_sl", widget: "string" }
               - { label: "Creator", name: "creator", widget: "string", required: false }
               - label: "Description"
                 name: "description"
@@ -132,12 +148,13 @@ collections:
                   - { label: "Slovenian", name: "sl", widget: "string" }
               - { label: "Link", name: "link", widget: "string" }
               - { label: "Type", name: "type", widget: "select", options: ["video", "podcast", "article"] }
-      
+
       - label: "Instructables"
         name: "instructables"
         file: "src/content/resources/instructables.md"
         fields:
-          - { label: "Title", name: "title", widget: "string" }
+          - { label: "English Title", name: "title_en", widget: "string" }
+          - { label: "Slovenian Title", name: "title_sl", widget: "string" }
           - label: "Description"
             name: "description"
             widget: "object"
@@ -186,7 +203,7 @@ collections:
                   - { label: "Slovenian", name: "sl", widget: "string" }
               - { label: "Latin Name", name: "latinName", widget: "string" }
               - { label: "Pattern", name: "pattern", widget: "select", options: ["dots", "waves", "lines", "leaves"] }
-  
+
   - name: "translations"
     label: "Translations"
     files:
@@ -200,7 +217,7 @@ collections:
             default_language: "json"
             allow_language_selection: false
             output_code_only: true
-  
+
   - name: "pages"
     label: "Pages"
     files:
@@ -208,25 +225,32 @@ collections:
         name: "home"
         file: "src/content/pages/home.md"
         fields:
-          - { label: "Title", name: "title", widget: "string" }
+          - { label: "English Title", name: "title_en", widget: "string" }
+          - { label: "Slovenian Title", name: "title_sl", widget: "string" }
           - { label: "Hero Image", name: "heroImage", widget: "image", required: false }
-          - { label: "Hero Text", name: "heroText", widget: "string", required: false }
-          - { label: "Body", name: "body", widget: "markdown" }
-      
+          - { label: "English Hero Text", name: "heroText_en", widget: "string", required: false }
+          - { label: "Slovenian Hero Text", name: "heroText_sl", widget: "string", required: false }
+          - { label: "English Body", name: "body_en", widget: "markdown" }
+          - { label: "Slovenian Body", name: "body_sl", widget: "markdown" }
+
       - label: "About Page"
         name: "about"
         file: "src/content/pages/about.md"
         fields:
-          - { label: "Title", name: "title", widget: "string" }
+          - { label: "English Title", name: "title_en", widget: "string" }
+          - { label: "Slovenian Title", name: "title_sl", widget: "string" }
           - { label: "Featured Image", name: "thumbnail", widget: "image", required: false }
-          - { label: "Body", name: "body", widget: "markdown" }
-      
+          - { label: "English Body", name: "body_en", widget: "markdown" }
+          - { label: "Slovenian Body", name: "body_sl", widget: "markdown" }
+
       - label: "Contact Page"
         name: "contact"
         file: "src/content/pages/contact.md"
         fields:
-          - { label: "Title", name: "title", widget: "string" }
-          - { label: "Body", name: "body", widget: "markdown" }
+          - { label: "English Title", name: "title_en", widget: "string" }
+          - { label: "Slovenian Title", name: "title_sl", widget: "string" }
+          - { label: "English Body", name: "body_en", widget: "markdown" }
+          - { label: "Slovenian Body", name: "body_sl", widget: "markdown" }
           - label: "Contact Details"
             name: "contactDetails"
             widget: "object"
