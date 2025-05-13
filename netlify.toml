@@ -97,3 +97,24 @@
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "GET, POST, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+# Add CORS headers for Next.js resources
+[[headers]]
+  for = "/_next/*"
+    [headers.values]
+    Access-Control-Allow-Origin = "https://livada.bio"
+    Access-Control-Allow-Methods = "GET, OPTIONS"
+
+# Add CORS headers for static assets
+[[headers]]
+  for = "/static/*"
+    [headers.values]
+    Access-Control-Allow-Origin = "https://livada.bio"
+    Access-Control-Allow-Methods = "GET, OPTIONS"
+
+# Add CORS headers for all other resources
+[[headers]]
+  for = "/*"
+    [headers.values]
+    Access-Control-Allow-Origin = "https://livada.bio"
+    Access-Control-Allow-Methods = "GET, OPTIONS"
