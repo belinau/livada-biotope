@@ -82,52 +82,116 @@ collections:
   
   - name: "resources"
     label: "Resources"
-    folder: "src/content/resources"
-    create: true
-    slug: "{{slug}}"
-    fields:
-      - { label: "Title (English)", name: "title", widget: "string" }
-      - { label: "Title (Slovenian)", name: "titleSl", widget: "string" }
-      - { label: "Description (English)", name: "description", widget: "text" }
-      - { label: "Description (Slovenian)", name: "descriptionSl", widget: "text" }
-      - { label: "Introduction (English)", name: "introEn", widget: "text" }
-      - { label: "Introduction (Slovenian)", name: "introSl", widget: "text" }
-      - { label: "Second Introduction (English)", name: "introSecondEn", widget: "text" }
-      - { label: "Second Introduction (Slovenian)", name: "introSecondSl", widget: "text" }
-      - label: "Key Concepts"
-        name: "resources"
-        widget: "list"
-        fields:
-          - { label: "Title (English)", name: "titleEn", widget: "string" }
-          - { label: "Title (Slovenian)", name: "titleSl", widget: "string" }
-          - { label: "Description (English)", name: "descriptionEn", widget: "text" }
-          - { label: "Description (Slovenian)", name: "descriptionSl", widget: "text" }
-          - { label: "Species Name (English)", name: "speciesNameEn", widget: "string" }
-          - { label: "Species Name (Slovenian)", name: "speciesNameSl", widget: "string" }
-          - { label: "Latin Name", name: "latinName", widget: "string" }
-          - { label: "Pattern", name: "pattern", widget: "select", options: ["dots", "lines", "waves", "leaves"] }
-      - label: "Reading Recommendations"
-        name: "readings"
-        widget: "list"
+    files:
+      - label: "Ecofeminism Resources"
+        name: "ecofeminism_resources"
+        file: "src/content/resources/ecofeminism.md"
         fields:
           - { label: "Title", name: "title", widget: "string" }
-          - { label: "Title (Slovenian)", name: "titleSl", widget: "string" }
-          - { label: "Author", name: "author", widget: "string" }
-          - { label: "Description (English)", name: "descriptionEn", widget: "text" }
-          - { label: "Description (Slovenian)", name: "descriptionSl", widget: "text" }
-          - { label: "URL", name: "url", widget: "string" }
-      - label: "Videos and Podcasts"
-        name: "media"
-        widget: "list"
+          - label: "Introduction"
+            name: "introduction"
+            widget: "object"
+            fields:
+              - { label: "English", name: "en", widget: "markdown" }
+              - { label: "Slovenian", name: "sl", widget: "markdown" }
+          - label: "Key Concepts"
+            name: "keyConcepts"
+            widget: "list"
+            fields:
+              - label: "Title"
+                name: "title"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - label: "Description"
+                name: "description"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "markdown" }
+                  - { label: "Slovenian", name: "sl", widget: "markdown" }
+          - label: "Reading Recommendations"
+            name: "readings"
+            widget: "list"
+            fields:
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Author", name: "author", widget: "string" }
+              - label: "Description"
+                name: "description"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - { label: "Link", name: "link", widget: "string", required: false }
+          - label: "Media"
+            name: "media"
+            widget: "list"
+            fields:
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Creator", name: "creator", widget: "string", required: false }
+              - label: "Description"
+                name: "description"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - { label: "Link", name: "link", widget: "string" }
+              - { label: "Type", name: "type", widget: "select", options: ["video", "podcast", "article"] }
+      
+      - label: "Instructables"
+        name: "instructables"
+        file: "src/content/resources/instructables.md"
         fields:
-          - { label: "Creator Name", name: "name", widget: "string" }
-          - { label: "Title (English)", name: "titleEn", widget: "string" }
-          - { label: "Title (Slovenian)", name: "titleSl", widget: "string" }
-          - { label: "Description (English)", name: "descriptionEn", widget: "text" }
-          - { label: "Description (Slovenian)", name: "descriptionSl", widget: "text" }
-          - { label: "Type", name: "type", widget: "select", options: ["video", "podcast"] }
-          - { label: "URL", name: "url", widget: "string" }
-
+          - { label: "Title", name: "title", widget: "string" }
+          - label: "Description"
+            name: "description"
+            widget: "object"
+            fields:
+              - { label: "English", name: "en", widget: "text" }
+              - { label: "Slovenian", name: "sl", widget: "text" }
+          - label: "Instructable Items"
+            name: "items"
+            widget: "list"
+            fields:
+              - label: "Title"
+                name: "title"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - label: "Description"
+                name: "description"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "text" }
+                  - { label: "Slovenian", name: "sl", widget: "text" }
+              - label: "Difficulty"
+                name: "difficulty"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - label: "Time"
+                name: "time"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - label: "Materials"
+                name: "materials"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - label: "Species Name"
+                name: "speciesName"
+                widget: "object"
+                fields:
+                  - { label: "English", name: "en", widget: "string" }
+                  - { label: "Slovenian", name: "sl", widget: "string" }
+              - { label: "Latin Name", name: "latinName", widget: "string" }
+              - { label: "Pattern", name: "pattern", widget: "select", options: ["dots", "waves", "lines", "leaves"] }
+  
   - name: "translations"
     label: "Translations"
     files:
