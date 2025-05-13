@@ -1,0 +1,11 @@
+{
+    "name": "sensor-backup",
+    "version": "1.0.0",
+    "description": "Backup system for sensor data from Sideband API",
+    "main": "index.js",
+    "dependencies": {
+        "axios": "^1.9.0",
+        "date-fns": "^2.29.3",
+        "fs-extra": "^10.1.0"
+    }
+}
