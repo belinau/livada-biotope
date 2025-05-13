@@ -92,6 +92,20 @@ function generateMockEvents(locale) {
   return events;
 }
 
+// Function to determine event type based on summary and description
+function determineEventType(summary, description) {
+  const text = (summary + ' ' + description).toLowerCase();
+  if (text.includes('workshop') || text.includes('delavnica')) {
+    return "workshop";
+  } else if (text.includes('lecture') || text.includes('predavanje')) {
+    return "lecture";
+  } else if (text.includes('community') || text.includes('skupnost')) {
+    return "community";
+  } else {
+    return "other";
+  }
+}
+
 exports.handler = async (event, context) => {
   try {
     // Set CORS headers
@@ -128,18 +142,74 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Generate mock events
-    const mockEvents = generateMockEvents(locale);
-    
-    // Cache the mock events
-    cache.set(cacheKey, mockEvents);
-    
-    // Return the mock events
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify(mockEvents)
-    };
+    // Fetch events from Google Calendar
+    try {
+      console.log(`Fetching calendar data from: ${CALENDAR_URL}`);
+      
+      // Fetch the iCal data
+      const response = await fetch(CALENDAR_URL);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch calendar data: ${response.status}`);
+      }
+      
+      const icalData = await response.text();
+      
+      // Parse the iCal data using node-ical
+      const events = await ical.parseICS(icalData);
+      
+      // Process the events into our format
+      const processedEvents = [];
+      
+      for (const [key, event] of Object.entries(events)) {
+        // Skip non-event entries (like timezones)
+        if (event.type !== 'VEVENT') continue;
+        
+        // Process the event
+        const processedEvent = {
+          id: event.uid || key,
+          title: event.summary || 'Untitled Event',
+          description: event.description || '',
+          start: event.start,
+          end: event.end || new Date(event.start.getTime() + 3600000), // Default 1 hour
+          location: event.location || 'Livada Biotope',
+          type: determineEventType(event.summary || '', event.description || ''),
+          url: event.url || ''
+        };
+        
+        processedEvents.push(processedEvent);
+      }
+      
+      // Sort events by start date
+      processedEvents.sort((a, b) => a.start.getTime() - b.start.getTime());
+      
+      // Cache the processed events
+      cache.set(cacheKey, processedEvents);
+      
+      // Return the processed events
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(processedEvents)
+      };
+      
+    } catch (calendarError) {
+      console.error("Error fetching calendar data:", calendarError);
+      
+      // Generate mock events as a fallback
+      console.log("Falling back to mock events");
+      const mockEvents = generateMockEvents(locale);
+      
+      // Cache the mock events
+      cache.set(cacheKey, mockEvents);
+      
+      // Return the mock events
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(mockEvents)
+      };
+    }
     
   } catch (error) {
     console.error("Serverless function error:", error);
@@ -149,12 +219,16 @@ exports.handler = async (event, context) => {
     const mockEvents = generateMockEvents(locale);
     
     return {
-      statusCode: 200,
+      statusCode: 500,
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(mockEvents)
+      body: JSON.stringify({ 
+        error: "Server error",
+        message: error.message,
+        events: mockEvents // Still return mock events as fallback
+      })
     };
   }
 };
