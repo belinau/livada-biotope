@@ -50,6 +50,12 @@
   to = "/functions/translations"
   status = 200
 
+# Direct access to Netlify functions for translations
+[[redirects]]
+  from = "/.netlify/functions/translations"
+  to = "/functions/translations"
+  status = 200
+
 # Handle static assets and images
 [[redirects]]
   from = "/images/*"
