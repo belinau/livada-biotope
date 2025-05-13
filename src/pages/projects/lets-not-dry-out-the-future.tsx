@@ -410,8 +410,8 @@ export default function LetsNotDryOutTheFuture() {
           
           <Typography paragraph sx={{ mb: 5, textAlign: 'center', maxWidth: '800px', mx: 'auto' }}>
             {language === 'en'
-              ? "We welcome volunteers, donations, and community engagement to help us expand our work on climate resilience and biodiversity conservation. Your contribution makes a difference in creating sustainable urban environments."
-              : "Vabimo prostovoljce, donacije in sodelovanje skupnosti, da nam pomagate razširiti naše delo na področju podnebne odpornosti in ohranjanja biotske raznovrstnosti. Vaš prispevek naredi razliko pri ustvarjanju trajnostnih urbanih okolij."}
+              ? "We welcome volunteers and community engagement to help us expand our work on climate resilience and biodiversity conservation. Your contribution makes a difference in creating sustainable urban environments."
+              : "Dobrodošli ste vsi, prostovolj in člani skupnosti, da bomo skupaj dosegli še več na področju podnebne odpornosti in ohranjanja biotske raznovrstnosti. Vaš prispevek naredi razliko pri ustvarjanju trajnostnih urbanih okolij."}
           </Typography>
           
           <Grid container spacing={4} sx={{ mb: 6 }}>
