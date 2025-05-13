@@ -217,6 +217,22 @@ export const EventCalendar: React.FC = () => {
                 : language === 'en' ? 'Select a date to view events' : 'Izberite datum za ogled dogodkov'}
             </Typography>
             
+            {/* Machine translation notice - only show in Slovenian */}
+            {language === 'sl' && selectedEvents.length > 0 && (
+              <Box sx={{ 
+                mb: 2, 
+                p: 1, 
+                bgcolor: 'info.light', 
+                borderRadius: 1,
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <Typography variant="caption" sx={{ color: 'info.dark', fontStyle: 'italic' }}>
+                  Opomba: Opisi dogodkov so strojno prevedeni iz angleščine.
+                </Typography>
+              </Box>
+            )}
+            
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {selectedEvents.length > 0 ? (
                 selectedEvents.map(event => {

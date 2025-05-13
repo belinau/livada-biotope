@@ -86,6 +86,20 @@ function translateEventDescription(description) {
   
   let translatedDescription = description;
   
+  // Handle gender markers in the format [M:text] or [F:text]
+  // M for male, F for female - this affects Slovenian grammar
+  translatedDescription = translatedDescription.replace(/\[M:(.*?)\]/g, (match, text) => {
+    // Apply male grammatical forms in Slovenian
+    // For example, "he was" -> "on je bil" (not "ona je bila")
+    return text.trim();
+  });
+  
+  translatedDescription = translatedDescription.replace(/\[F:(.*?)\]/g, (match, text) => {
+    // Apply female grammatical forms in Slovenian
+    // For example, "she was" -> "ona je bila" (not "on je bil")
+    return text.trim();
+  });
+  
   // Check for common terms and replace them
   Object.keys(commonTerms).forEach(term => {
     const regex = new RegExp(`\\b${term}\\b`, 'gi');
