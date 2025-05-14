@@ -68,11 +68,11 @@ export interface ReticulumConfig {
   maxRetries: number;
 }
 
-// Default configuration
+// Default configuration with environment variables
 export const defaultReticulumConfig: ReticulumConfig = {
-  sidebandHost: 'localhost',
-  sidebandPort: 4242, // Default Sideband collector port
-  sidebandHash: 'a3641ddf337fcb827bdc092a4d9fd9de', // Samsung Galaxy and Macbook collector hash
+  sidebandHost: typeof window !== 'undefined' ? (process.env.NEXT_PUBLIC_SIDEBAND_HOST || 'localhost') : 'localhost',
+  sidebandPort: typeof window !== 'undefined' ? parseInt(process.env.NEXT_PUBLIC_SIDEBAND_PORT || '4242') : 4242,
+  sidebandHash: typeof window !== 'undefined' ? (process.env.NEXT_PUBLIC_SIDEBAND_HASH || 'a3641ddf337fcb827bdc092a4d9fd9de') : 'a3641ddf337fcb827bdc092a4d9fd9de',
   pollInterval: 10000, // Poll every 10 seconds
   retryInterval: 5000, // Retry connection every 5 seconds
   maxRetries: 5
@@ -85,9 +85,12 @@ export class ReticulumClient {
   private connectionAttempts: number = 0;
   private pollTimer: NodeJS.Timeout | null = null;
   private listeners: ((data: SensorData[]) => void)[] = [];
+  private lastErrorMessage: string | null = null;
+  private baseUrl: string;
   
   private constructor(config: ReticulumConfig = defaultReticulumConfig) {
     this.config = config;
+    this.baseUrl = `http://${this.config.sidebandHost}:${this.config.sidebandPort}`;
   }
 
   public static getInstance(config?: ReticulumConfig): ReticulumClient {
@@ -95,6 +98,23 @@ export class ReticulumClient {
       ReticulumClient.instance = new ReticulumClient(config);
     }
     return ReticulumClient.instance;
+  }
+
+  /**
+   * Get the last error message
+   */
+  public getLastError(): string | null {
+    return this.lastErrorMessage;
+  }
+
+  /**
+   * Check if client is connected
+   */
+  public getConnectionStatus(): { connected: boolean; error: string | null } {
+    return {
+      connected: this.isConnected,
+      error: this.lastErrorMessage
+    };
   }
 
   /**
@@ -120,25 +140,38 @@ export class ReticulumClient {
       if (connected) {
         this.isConnected = true;
         this.connectionAttempts = 0;
+        this.lastErrorMessage = null;
         console.log('Successfully connected to Reticulum network via Sideband');
         this.startPolling();
         return true;
       } else {
         this.connectionAttempts++;
         if (this.connectionAttempts >= this.config.maxRetries) {
-          console.error(`Failed to connect after ${this.config.maxRetries} attempts`);
-          throw new Error('Max connection retries exceeded');
+          const errorMsg = `Failed to connect after ${this.config.maxRetries} attempts`;
+          this.lastErrorMessage = errorMsg;
+          console.error(errorMsg);
+          throw new Error(errorMsg);
         }
         
-        console.log(`Connection attempt failed. Retrying in ${this.config.retryInterval / 1000} seconds...`);
+        const retryMsg = `Connection attempt failed. Retrying in ${this.config.retryInterval / 1000} seconds...`;
+        console.log(retryMsg);
+        
+        // Implement exponential backoff
+        const backoffTime = this.config.retryInterval * Math.pow(1.5, this.connectionAttempts - 1);
+        
         return new Promise((resolve, reject) => {
           setTimeout(() => {
             this.connect().then(resolve).catch(reject);
-          }, this.config.retryInterval);
+          }, backoffTime);
         });
       }
     } catch (error) {
-      console.error('Error connecting to Reticulum network:', error);
+      const errorMsg = error instanceof Error ? 
+        (error.message.includes('fetch') || error.message.includes('network')) ? 'Connection error' : error.message : 
+        'Unknown error connecting to Reticulum network';
+      
+      this.lastErrorMessage = errorMsg;
+      console.error(errorMsg);
       throw error;
     }
   }
@@ -186,41 +219,156 @@ export class ReticulumClient {
    */
   public async fetchSensorData(): Promise<SensorData[]> {
     if (!this.isConnected) {
-      throw new Error('Not connected to Reticulum network');
+      await this.connect();
     }
 
     try {
-      // In a real implementation, this would make an HTTP or WebSocket request
-      // to the Sideband collector to fetch the latest sensor data using the hash address
       console.log('Fetching sensor data from Sideband collector');
       
+      // Construct the appropriate endpoint URL for the Sideband collector
+      let url = `${this.baseUrl}/api/data`;
+      
       if (this.config.sidebandHash) {
-        console.log(`Using Sideband collector hash: ${this.config.sidebandHash}`);
-        // In a real implementation, we would use the hash address to fetch data from the specific collector
-        // For example: fetch(`http://${this.config.sidebandHost}:${this.config.sidebandPort}/collectors/${this.config.sidebandHash}/data`)
+        url = `${this.baseUrl}/collectors/${this.config.sidebandHash}/data`;
       }
       
-      // For now, we'll simulate fetching data
-      const data = await this.simulateFetchFromSideband();
-      return data;
+      // Set a timeout for the fetch operation
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const rawData = await response.json();
+      
+      // Process the raw data into the SensorData format
+      return this.transformSensorData(rawData);
     } catch (error) {
-      console.error('Error fetching sensor data:', error);
+      const errorMsg = error instanceof Error ? 
+        (error.name === 'AbortError' ? 'Request timeout' : error.message) : 
+        'Unknown error fetching sensor data';
+      
+      this.lastErrorMessage = errorMsg;
+      console.error('Error fetching sensor data:', errorMsg);
+      
+      // If there was a connection error, mark as disconnected
+      if (error instanceof Error && 
+         (error.message.includes('fetch') || error.message.includes('network'))) {
+        this.isConnected = false;
+      }
+      
       throw error;
     }
   }
 
   /**
-   * Start polling for sensor data at the configured interval
+   * Transform raw data from Sideband into SensorData format
+   */
+  private transformSensorData(rawData: any): SensorData[] {
+    try {
+      // This transformation will depend on the exact format that Sideband provides
+      // Using SamsungGalaxyTelemetry as an example
+      
+      if (Array.isArray(rawData)) {
+        // Handle array of readings
+        return rawData.map(item => this.parseReadingToSensorData(item));
+      } else if (rawData && typeof rawData === 'object') {
+        // Handle single reading
+        return [this.parseReadingToSensorData(rawData)];
+      }
+      
+      throw new Error('Unexpected data format from Sideband');
+    } catch (error) {
+      console.error('Error transforming sensor data:', error);
+      throw new Error('Failed to transform sensor data');
+    }
+  }
+
+  /**
+   * Parse a single reading from Sideband format to SensorData format
+   */
+  private parseReadingToSensorData(reading: any): SensorData {
+    // Adapt this based on the actual format from Sideband
+    // This example assumes SamsungGalaxyTelemetry format
+    
+    if ('time' in reading && 'information' in reading) {
+      // Assume it's in SamsungGalaxyTelemetry format
+      const telemetry = reading as SamsungGalaxyTelemetry;
+      
+      // Extract moisture from information.contents
+      // Format might be different in actual implementation
+      const moisture = this.extractMoistureFromContents(telemetry.information.contents);
+      
+      return {
+        timestamp: new Date(telemetry.time.utc * 1000).toISOString(),
+        sensorId: 1, // Default to sensorId 1 if not specified
+        moisture: moisture
+      };
+    } else if ('timestamp' in reading && 'moisture' in reading) {
+      // Already in correct format
+      return reading as SensorData;
+    }
+    
+    // Default fallback if format doesn't match expected
+    return {
+      timestamp: new Date().toISOString(),
+      sensorId: 1,
+      moisture: 50 // Default value
+    };
+  }
+
+  /**
+   * Extract moisture value from information contents
+   * This is a placeholder - adapt based on actual data format
+   */
+  private extractMoistureFromContents(contents: string): number {
+    try {
+      // Example: contents might be JSON string with moisture value
+      const data = JSON.parse(contents);
+      if (data && typeof data.moisture === 'number') {
+        return data.moisture;
+      }
+      
+      // Alternative: contents might contain moisture value directly
+      const match = contents.match(/moisture[:\s]+([0-9.]+)/i);
+      if (match && match[1]) {
+        return parseFloat(match[1]);
+      }
+      
+      return 50; // Default value
+    } catch (e) {
+      console.warn('Could not parse moisture from contents:', contents);
+      return 50; // Default value
+    }
+  }
+
+  /**
+   * Start polling for sensor data
    */
   private startPolling(): void {
     if (this.pollTimer) {
       clearInterval(this.pollTimer);
     }
-
+    
     this.pollTimer = setInterval(async () => {
       try {
         const data = await this.fetchSensorData();
-        this.notifyListeners(data);
+        
+        // Notify all listeners
+        for (const listener of this.listeners) {
+          listener(data);
+        }
       } catch (error) {
         console.error('Error during polling:', error);
       }
@@ -228,149 +376,32 @@ export class ReticulumClient {
   }
 
   /**
-   * Notify all listeners with new sensor data
-   * @param data The sensor data to send to listeners
-   */
-  private notifyListeners(data: SensorData[]): void {
-    this.listeners.forEach(listener => {
-      try {
-        listener(data);
-      } catch (error) {
-        console.error('Error in listener:', error);
-      }
-    });
-  }
-
-  /**
-   * Simulate a connection attempt to the Sideband collector
-   * In a real implementation, this would make an HTTP or WebSocket request
+   * Attempt connection to the Sideband collector
+   * @returns Promise that resolves with success or failure
    */
   private async attemptConnection(): Promise<boolean> {
-    // In development or production, always return true to ensure functionality
-    // This prevents connection issues from blocking the UI
-    return true;
-  }
-
-  /**
-   * Fetch data from the Sideband collector
-   * This parses the actual telemetry data from Samsung Galaxy and MacBook
-   */
-  private async simulateFetchFromSideband(): Promise<SensorData[]> {
-    return new Promise((resolve) => {
-      // In a real implementation, this would fetch data from the Sideband collector
-      // For now, we'll use the sample data provided
-      setTimeout(() => {
-        const now = new Date();
-        const data: SensorData[] = [];
-
-        // Sample Samsung Galaxy telemetry data
-        const samsungTelemetry: SamsungGalaxyTelemetry = {
-          time: { utc: 1746925165 },
-          location: {
-            latitude: 46.075219,
-            longitude: 14.480671,
-            altitude: 363.2,
-            speed: 0.0,
-            bearing: 0.0,
-            accuracy: 16.59,
-            last_update: 1746925130
-          },
-          information: { contents: 'biotope mobile' },
-          angular_velocity: { x: 0.022678, y: 0.040392, z: -0.16638 },
-          acceleration: { x: 0.82343, y: 3.50369, z: 8.160422 },
-          proximity: false,
-          battery: { charge_percent: 69.0, charging: false, temperature: null },
-          pressure: null,
-          temperature: null,
-          humidity: null,
-          magnetic_field: { x: -25.931252, y: -11.19375, z: -34.331253 },
-          ambient_light: { lux: 9.0 },
-          gravity: { x: 1.803832, y: 4.275546, z: 8.639229 }
-        };
-
-        // Process Samsung Galaxy data
-        // Sensor 1: Soil Moisture Sensor (derived from acceleration data)
-        const accelerationMagnitude = Math.sqrt(
-          Math.pow(samsungTelemetry.acceleration.x, 2) +
-          Math.pow(samsungTelemetry.acceleration.y, 2) +
-          Math.pow(samsungTelemetry.acceleration.z, 2)
-        );
-        // Map acceleration magnitude to soil moisture (8-10 is normal range when device is stationary)
-        const soilMoisture = Math.max(10, Math.min(90, 
-          50 + (accelerationMagnitude - 9) * 5 // Map to moisture range
-        ));
-        
-        // Sensor 2: Light Intensity from ambient light sensor
-        // Map lux value (0-1000 typical range) to percentage
-        const lightIntensity = Math.max(0, Math.min(100,
-          samsungTelemetry.ambient_light.lux * 5 // Map to percentage
-        ));
-        
-        // Generate MacBook sensor data (still simulated)
-        // Sensor 3: Temperature Sensor (MacBook)
-        const temperature = this.generateSensorValue({
-          baseValue: 22,
-          variation: 2,
-          timeEffect: now.getHours() >= 10 && now.getHours() <= 16 ? 5 : -2,
-          min: 15,
-          max: 35
-        });
-        
-        // Sensor 4: Humidity Sensor (MacBook)
-        const humidity = this.generateSensorValue({
-          baseValue: 60,
-          variation: 8,
-          timeEffect: now.getHours() >= 8 && now.getHours() <= 18 ? -10 : 5,
-          min: 30,
-          max: 90
-        });
-        
-        // Add all sensor data
-        data.push(
-          {
-            timestamp: new Date(samsungTelemetry.time.utc * 1000).toISOString(),
-            sensorId: 1,
-            moisture: soilMoisture
-          },
-          {
-            timestamp: new Date(samsungTelemetry.time.utc * 1000).toISOString(),
-            sensorId: 2,
-            moisture: lightIntensity
-          },
-          {
-            timestamp: now.toISOString(),
-            sensorId: 3,
-            moisture: temperature
-          },
-          {
-            timestamp: now.toISOString(),
-            sensorId: 4,
-            moisture: humidity
-          }
-        );
-
-        resolve(data);
-      }, 200);
-    });
-  }
-  
-  /**
-   * Helper function to generate realistic sensor values
-   */
-  private generateSensorValue(params: {
-    baseValue: number,
-    variation: number,
-    timeEffect: number,
-    min: number,
-    max: number
-  }): number {
-    const { baseValue, variation, timeEffect, min, max } = params;
-    
-    // Add random variation to base value
-    const randomVariation = (Math.random() - 0.5) * 2 * variation;
-    
-    // Calculate final value with constraints
-    return Math.max(min, Math.min(max, baseValue + randomVariation + timeEffect));
+    try {
+      // Try to make a simple request to check if Sideband is available
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+      
+      const url = `${this.baseUrl}/api/status`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      return response.ok;
+    } catch (error) {
+      console.error('Connection attempt failed:', error);
+      return false;
+    }
   }
 }
 

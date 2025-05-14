@@ -2,8 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TimeScale } from 'chart.js';
 import 'chartjs-adapter-date-fns';
-import { Box, Typography, Paper, CircularProgress, Button, Alert, Grid } from '@mui/material';
+import { Box, Typography, Paper, CircularProgress, Button, Alert, Grid, Chip } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import WifiIcon from '@mui/icons-material/Wifi';
+import WifiOffIcon from '@mui/icons-material/WifiOff';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { sensorConfigs } from '@/lib/sensorConfig';
 import { SensorService, DataSource } from '@/lib/sensorService';
 import { ReticulumDataSourceSelector } from './ReticulumDataSourceSelector';
@@ -35,9 +38,15 @@ export const SensorVisualization: React.FC = () => {
     'sensors.sensorsActive': 'sensors active',
     'sensors.lastUpdate': 'Last update',
     'sensors.online': 'Online',
+    'sensors.offline': 'Offline',
+    'sensors.unknown': 'Unknown',
     'sensors.location': 'Location',
     'sensors.altitude': 'Altitude',
-    'sensors.battery': 'Battery'
+    'sensors.battery': 'Battery',
+    'sensors.refreshData': 'Refresh Data',
+    'sensors.testConnection': 'Test Connection',
+    'sensors.mockData': 'Using Demo Data',
+    'sensors.liveData': 'Using Live Data'
   };
   
   const t = (key: string) => defaultTranslations[key as keyof typeof defaultTranslations] || key;
@@ -47,8 +56,9 @@ export const SensorVisualization: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [chartError, setChartError] = useState<boolean>(false);
   const [dataSource, setDataSource] = useState<DataSource>(DataSource.MOCK);
-  const [sidebandHash, setSidebandHash] = useState<string>('a3641ddf337fcb827bdc092a4d9fd9de');
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'unknown'>('unknown');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [connectionTesting, setConnectionTesting] = useState<boolean>(false);
   
   // Function to generate fallback data if API calls fail
   const generateFallbackData = () => {
@@ -90,6 +100,28 @@ export const SensorVisualization: React.FC = () => {
     return data.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   };
   
+  // Test Sideband connection
+  const testConnection = async () => {
+    setConnectionTesting(true);
+    try {
+      const response = await fetch('/api/sideband/test-connection');
+      const result = await response.json();
+      
+      if (result.success) {
+        setConnectionStatus('connected');
+        setError(null);
+      } else {
+        setConnectionStatus('disconnected');
+        setError(result.message || 'Failed to connect to Sideband');
+      }
+    } catch (err) {
+      setConnectionStatus('disconnected');
+      setError('Connection test failed. Server may be unavailable.');
+    } finally {
+      setConnectionTesting(false);
+    }
+  };
+  
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -113,6 +145,20 @@ export const SensorVisualization: React.FC = () => {
         if (data && data.length > 0) {
           setSensorData(data);
           setLastUpdated(new Date());
+          
+          // Update connection status based on data source
+          const service = SensorService.getInstance();
+          if (service.getDataSource() === DataSource.RETICULUM) {
+            const status = service.getConnectionStatus();
+            setConnectionStatus(status.isConnecting ? 'unknown' : (status.error ? 'disconnected' : 'connected'));
+            if (status.error) {
+              setError(`Warning: ${status.error}. Using cached or demo data.`);
+            } else {
+              setError(null);
+            }
+          } else {
+            setConnectionStatus('unknown'); // Not applicable for mock data
+          }
         } else {
           throw new Error('No data available');
         }
@@ -126,10 +172,39 @@ export const SensorVisualization: React.FC = () => {
       const fallbackData = generateFallbackData();
       setSensorData(fallbackData);
       setLastUpdated(new Date());
+      // Update connection status to disconnected
+      setConnectionStatus('disconnected');
     } finally {
       setLoading(false);
     }
   }, []);
+  
+  const handleDataSourceChange = async (source: DataSource) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Set the data source in the service
+      await SensorService.getInstance().setDataSource(source);
+      setDataSource(source);
+      
+      // Fetch fresh data with the new source
+      await fetchData();
+      
+      // Update connection status
+      if (source === DataSource.RETICULUM) {
+        const status = SensorService.getInstance().getConnectionStatus();
+        setConnectionStatus(status.isConnecting ? 'unknown' : (status.error ? 'disconnected' : 'connected'));
+      } else {
+        setConnectionStatus('unknown'); // Not relevant for mock data
+      }
+    } catch (err) {
+      console.error('Error changing data source:', err);
+      setError(`Failed to switch data source: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   // Fetch data on initial load
   useEffect(() => {
@@ -200,44 +275,12 @@ export const SensorVisualization: React.FC = () => {
     plugins: {
       legend: {
         position: 'top' as const,
-        labels: {
-          // Reduce font size on mobile
-          font: {
-            size: isMobile ? 10 : 12
-          },
-          boxWidth: isMobile ? 10 : 40
-        }
-      },
-      title: {
-        display: true,
-        text: t('sensors.title'),
-        font: {
-          size: isMobile ? 14 : 16
-        }
+        display: !isMobile
       },
       tooltip: {
         callbacks: {
           label: function(context: any) {
-            const sensorId = context.datasetIndex + 1;
-            const sensor = sensorConfigs.find(s => s.id === sensorId);
-            let label = context.dataset.label || '';
-            let value = context.parsed.y;
-            
-            // For mobile, shorten the label
-            if (isMobile && label.length > 15) {
-              label = label.substring(0, 15) + '...';
-            }
-            
-            if (sensor) {
-              if (sensor.name.includes('Temperature')) {
-                return `${label}: ${value.toFixed(1)}°C`;
-              } else if (sensor.name.includes('Humidity') || sensor.name.includes('Moisture')) {
-                return `${label}: ${value.toFixed(1)}%`;
-              } else if (sensor.name.includes('Light')) {
-                return `${label}: ${value.toFixed(1)}% intensity`;
-              }
-            }
-            return `${label}: ${value}`;
+            return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}%`;
           }
         }
       }
@@ -247,152 +290,139 @@ export const SensorVisualization: React.FC = () => {
         type: 'time' as const,
         time: {
           unit: 'hour' as const,
-          // Display fewer ticks on mobile
-          stepSize: isMobile ? 2 : 1
+          displayFormats: {
+            hour: 'MMM d, H:mm'
+          }
         },
         title: {
-          display: !isMobile, // Hide title on mobile
+          display: true,
           text: 'Time'
-        },
-        ticks: {
-          maxRotation: isMobile ? 45 : 0,
-          font: {
-            size: isMobile ? 8 : 12
-          },
-          // Show fewer ticks on mobile
-          maxTicksLimit: isMobile ? 5 : 10
         }
       },
       y: {
         title: {
-          display: !isMobile, // Hide title on mobile
-          text: 'Sensor Values'
+          display: true,
+          text: 'Moisture Level (%)'
         },
         min: 0,
-        max: 100,
-        ticks: {
-          stepSize: isMobile ? 25 : 20,
-          font: {
-            size: isMobile ? 8 : 12
-          }
-        }
-      },
-    },
+        max: 100
+      }
+    }
   };
 
   return (
-    <Box sx={{ mb: 4 }}>
-      <ReticulumDataSourceSelector />
-      
-      <Paper elevation={2} sx={{ p: 3, borderRadius: 2, mt: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 'medium', color: 'text.primary' }}>Soil Moisture Sensors</Typography>
-          {lastUpdated && (
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Last updated: {lastUpdated.toLocaleTimeString()}
-            </Typography>
-          )}
-        </Box>
+    <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h5" component="h3" sx={{ fontWeight: 500 }}>
+          {t('sensors.connectedDevices')}
+          <Chip 
+            label={sensorConfigs.length + ' ' + t('sensors.sensorsActive')} 
+            size="small" 
+            color="primary" 
+            sx={{ ml: 1 }} 
+          />
+        </Typography>
         
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {/* Connection Status Indicator */}
+          <Chip
+            icon={
+              connectionStatus === 'connected' ? <WifiIcon /> : 
+              connectionStatus === 'disconnected' ? <WifiOffIcon /> : 
+              <HelpOutlineIcon />
+            }
+            label={
+              connectionStatus === 'connected' ? t('sensors.online') : 
+              connectionStatus === 'disconnected' ? t('sensors.offline') : 
+              t('sensors.unknown')
+            }
+            color={
+              connectionStatus === 'connected' ? 'success' : 
+              connectionStatus === 'disconnected' ? 'error' : 
+              'default'
+            }
+            sx={{ mr: 1 }}
+          />
+          
+          {/* Data Source Indicator */}
+          <Chip
+            label={dataSource === DataSource.MOCK ? t('sensors.mockData') : t('sensors.liveData')}
+            color={dataSource === DataSource.MOCK ? 'default' : 'primary'}
+            size="small"
+            sx={{ mr: 1 }}
+          />
+          
+          {/* Test Connection Button */}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={testConnection}
+            disabled={connectionTesting || loading}
+            sx={{ mr: 1 }}
+          >
+            {connectionTesting ? <CircularProgress size={20} /> : t('sensors.testConnection')}
+          </Button>
+          
+          {/* Refresh Button */}
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={() => fetchData()}
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <RefreshIcon />}
+          >
+            {t('sensors.refreshData')}
+          </Button>
+        </Box>
+      </Box>
+      
+      {error && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      
+      {/* Data Source Selector */}
+      <ReticulumDataSourceSelector
+        dataSource={dataSource}
+        onDataSourceChange={handleDataSourceChange}
+        sx={{ mb: 2 }}
+      />
+      
+      {/* Last Updated */}
+      {lastUpdated && (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {t('sensors.lastUpdate')}: {lastUpdated.toLocaleString()}
+        </Typography>
+      )}
+      
+      {/* Chart Container */}
+      <Box sx={{ height: 400, position: 'relative' }}>
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
-            <CircularProgress color="primary" />
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center',
+            height: '100%'
+          }}>
+            <CircularProgress />
           </Box>
-        ) : error ? (
-          <Box sx={{ textAlign: 'center', py: 4 }}>
-            <Alert severity="error" sx={{ mb: 2 }}>Error loading sensor data</Alert>
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<RefreshIcon />}
-              onClick={() => fetchData()}
-            >
-              Retry
-            </Button>
+        ) : chartError ? (
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center',
+            height: '100%'
+          }}>
+            <Typography color="error">
+              Error displaying chart. Please try again.
+            </Typography>
           </Box>
         ) : (
-          <>
-            <Typography variant="body1" sx={{ color: 'text.secondary', mb: 3 }}>
-              {t('sensors.description') || 'Real-time soil moisture data from our sensor network at Livada Biotope.'}
-            </Typography>
-            <Box sx={{ height: isMobile ? 320 : 260, mb: 2 }}>
-              {chartError ? (
-                <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100%', bgcolor: 'grey.100', borderRadius: 1, p: 2 }}>
-                  <Typography variant="subtitle1" color="error" gutterBottom>Chart rendering error</Typography>
-                  <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>There was an error rendering the chart. We&apos;re still working on it!</Typography>
-                  <Button variant="outlined" size="small" onClick={() => fetchData()}>Try Again</Button>
-                </Box>
-              ) : (
-                <Line data={getChartData()} options={options} />
-              )}
-            </Box>
-            <Box sx={{ mt: 4, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>{t('sensors.connectedDevices') || 'Connected Devices'}</Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>4 {t('sensors.sensorsActive') || 'sensors active'} • {t('sensors.lastUpdate') || 'Last update'}: {new Date().toLocaleTimeString()}</Typography>
-              </Box>
-              
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Paper elevation={1} sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="subtitle2">Samsung Galaxy</Typography>
-                      <Box sx={{ px: 1, py: 0.5, bgcolor: 'success.light', color: 'success.dark', borderRadius: 10, fontSize: '0.75rem' }}>
-                        {t('sensors.online') || 'Online'}
-                      </Box>
-                    </Box>
-                    <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 2 }}>
-                      {t('sensors.location') || 'Location'}: 46.075219, 14.480671 ({t('sensors.altitude') || 'Altitude'}: 363.2m) • {t('sensors.battery') || 'Battery'}: 69%
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      {sensorConfigs
-                        .filter(config => config.deviceType === 'Samsung Galaxy')
-                        .map(config => (
-                          <Paper key={config.id} variant="outlined" sx={{ p: 1.5, borderRadius: 1 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              <Box sx={{ width: 12, height: 12, borderRadius: '50%', mr: 1, bgcolor: config.color }} />
-                              <Typography variant="body2" sx={{ fontWeight: 'medium' }}>{config.name}</Typography>
-                            </Box>
-                            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5, ml: 3 }}>{config.description}</Typography>
-                            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5, ml: 3 }}>{t('sensors.location') || 'Location'}: {config.location}</Typography>
-                          </Paper>
-                        ))}
-                    </Box>
-                  </Paper>
-                </Grid>
-                
-                <Grid item xs={12}>
-                  <Paper elevation={1} sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="subtitle2">MacBook Pro</Typography>
-                      <Box sx={{ px: 1, py: 0.5, bgcolor: 'success.light', color: 'success.dark', borderRadius: 10, fontSize: '0.75rem' }}>
-                        {t('sensors.online') || 'Online'}
-                      </Box>
-                    </Box>
-                    <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 2 }}>
-                      {t('sensors.location') || 'Location'}: 46.075219, 14.480671 ({t('sensors.altitude') || 'Altitude'}: 363.2m) • {t('sensors.battery') || 'Battery'}: 87%
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      {sensorConfigs
-                        .filter(config => config.deviceType === 'MacBook Pro')
-                        .map(config => (
-                          <Paper key={config.id} variant="outlined" sx={{ p: 1.5, borderRadius: 1 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              <Box sx={{ width: 12, height: 12, borderRadius: '50%', mr: 1, bgcolor: config.color }} />
-                              <Typography variant="body2" sx={{ fontWeight: 'medium' }}>{config.name}</Typography>
-                            </Box>
-                            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5, ml: 3 }}>{config.description}</Typography>
-                            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5, ml: 3 }}>{t('sensors.location') || 'Location'}: {config.location}</Typography>
-                          </Paper>
-                        ))}
-                    </Box>
-                  </Paper>
-                </Grid>
-              </Grid>
-            </Box>
-          </>
+          <Line options={options} data={getChartData()} />
         )}
-      </Paper>
-    </Box>
+      </Box>
+    </Paper>
   );
 };
