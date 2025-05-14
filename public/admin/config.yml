@@ -29,62 +29,56 @@ collections:
       - { label: "Tags", name: "tags", widget: "list", required: false }
       - { label: "English Content", name: "body_en", widget: "markdown" }
       - { label: "Slovenian Content", name: "body_sl", widget: "markdown" }
-
- # Updated project collection in config.yml
-- name: "projects"
-  label: "Projects"
-  folder: "src/content/projects"
-  create: true
-  slug: "{{slug}}"
-  fields:
-    - { label: "English Title", name: "title_en", widget: "string" }
-    - { label: "Slovenian Title", name: "title_sl", widget: "string" }
-    - { label: "English Summary", name: "summary_en", widget: "text" }
-    - { label: "Slovenian Summary", name: "summary_sl", widget: "text" }
-    - { label: "Featured Image", name: "thumbnail", widget: "image" }
-    - label: "Project Details"
-      name: "details"
-      widget: "object"
-      fields:
-        - { label: "Start Date", name: "startDate", widget: "date" }
-        - { label: "End Date", name: "endDate", widget: "date", required: false }
-        - { label: "Status", name: "status", widget: "select", options: ["Active", "Completed", "Planned"], default: "Active" }
-        - { label: "Partners", name: "partners", widget: "list", required: false }
-    - { label: "English Content", name: "body", widget: "markdown" }
-    - { label: "Slovenian Content", name: "body_sl", widget: "markdown" }
-
- - name: "galleries"
-  label: "Galleries"
-  folder: "src/content/galleries"
-  create: true
-  slug: "{{slug}}"
-  fields:
-    - { label: "Title (English)", name: "title_en", widget: "string" }
-    - { label: "Title (Slovenian)", name: "title_sl", widget: "string" }
-    - { label: "Description (English)", name: "description_en", widget: "text" }
-    - { label: "Description (Slovenian)", name: "description_sl", widget: "text" }
-    - { label: "Date", name: "date", widget: "datetime" }
-    - label: "Gallery"
-      name: "gallery"
-      widget: "list"
-      fields:
-        - { label: "Image", name: "image", widget: "image" }
-        - { label: "Caption", name: "caption", widget: "string" }
-        - { label: "Alt Text", name: "alt", widget: "string" }
-
-  - name: "resource_library"
-    label: "Resource Library"
-    folder: "src/content/resources"
+  
+  - name: "projects"
+    label: "Projects"
+    folder: "src/content/projects"
     create: true
     slug: "{{slug}}"
     fields:
       - { label: "English Title", name: "title_en", widget: "string" }
       - { label: "Slovenian Title", name: "title_sl", widget: "string" }
-      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Date", name: "date", widget: "datetime" }
+      - { label: "English Summary", name: "summary_en", widget: "text" }
+      - { label: "Slovenian Summary", name: "summary_sl", widget: "text" }
       - { label: "Featured Image", name: "thumbnail", widget: "image", required: false }
-      - { label: "English Body", name: "body_en", widget: "markdown" }
-      - { label: "Slovenian Body", name: "body_sl", widget: "markdown" }
-
+      - { label: "Status", name: "status", widget: "select", options: ["Active", "Completed", "Planned"], default: "Active" }
+      - { label: "Partners", name: "partners", widget: "list", required: false }
+      - { label: "English Content", name: "body", widget: "markdown" }
+      - { label: "Slovenian Content", name: "body_sl", widget: "markdown" }
+  
+  - name: "galleries"
+    label: "Galleries"
+    folder: "src/content/galleries"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title (English)", name: "title_en", widget: "string" }
+      - { label: "Title (Slovenian)", name: "title_sl", widget: "string" }
+      - { label: "Description (English)", name: "description_en", widget: "text" }
+      - { label: "Description (Slovenian)", name: "description_sl", widget: "text" }
+      - { label: "Date", name: "date", widget: "datetime" }
+      - label: "Gallery"
+        name: "gallery"
+        widget: "list"
+        fields:
+          - { label: "Image", name: "image", widget: "image" }
+          - { label: "Caption", name: "caption", widget: "string" }
+          - { label: "Alt Text", name: "alt", widget: "string" }
+  
+  - name: "resource_library"
+    label: "Resource Library"
+    folder: "src/content/resources/library"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Author", name: "author", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Link", name: "link", widget: "string", required: false }
+      - { label: "Type", name: "type", widget: "select", options: ["Book", "Article", "Video", "Podcast", "Website", "Other"] }
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+  
   - name: "resource_pages"
     label: "Resource Guides"
     files:
@@ -94,166 +88,151 @@ collections:
         fields:
           - { label: "English Title", name: "title_en", widget: "string" }
           - { label: "Slovenian Title", name: "title_sl", widget: "string" }
-          - label: "Introduction"
-            name: "introduction"
-            widget: "object"
-            fields:
-              - label: "English"
-                name: "en"
-                widget: "text"
-              - label: "Slovenian"
-                name: "sl"
-                widget: "text"
-          - label: "What is Ecofeminism"
-            name: "whatIsEcofeminism"
-            widget: "object"
-            fields:
-              - label: "English"
-                name: "en"
-                widget: "markdown"
-              - label: "Slovenian"
-                name: "sl"
-                widget: "markdown"
+          - { label: "English Introduction", name: "intro_en", widget: "markdown" }
+          - { label: "Slovenian Introduction", name: "intro_sl", widget: "markdown" }
           - label: "Key Concepts"
-            name: "keyConcepts"
-            widget: "object"
-            fields:
-              - label: "English"
-                name: "en"
-                widget: "markdown"
-              - label: "Slovenian"
-                name: "sl"
-                widget: "markdown"
-          - label: "Recommended Readings"
-            name: "readings"
+            name: "key_concepts"
             widget: "list"
             fields:
               - { label: "English Title", name: "title_en", widget: "string" }
               - { label: "Slovenian Title", name: "title_sl", widget: "string" }
+              - { label: "English Description", name: "description_en", widget: "markdown" }
+              - { label: "Slovenian Description", name: "description_sl", widget: "markdown" }
+          - label: "Books"
+            name: "books"
+            widget: "list"
+            fields:
+              - { label: "Title", name: "title", widget: "string" }
               - { label: "Author", name: "author", widget: "string" }
-              - label: "Description"
-                name: "description"
-                widget: "object"
-                fields:
-                  - { label: "English", name: "en", widget: "text" }
-                  - { label: "Slovenian", name: "sl", widget: "text" }
+              - { label: "English Description", name: "description_en", widget: "text" }
+              - { label: "Slovenian Description", name: "description_sl", widget: "text" }
               - { label: "Link", name: "link", widget: "string", required: false }
-          - label: "Media Resources"
+              - { label: "Cover Image", name: "cover", widget: "image", required: false }
+          - label: "Articles"
+            name: "articles"
+            widget: "list"
+            fields:
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Author", name: "author", widget: "string" }
+              - { label: "English Description", name: "description_en", widget: "text" }
+              - { label: "Slovenian Description", name: "description_sl", widget: "text" }
+              - { label: "Link", name: "link", widget: "string", required: false }
+          - label: "Videos & Podcasts"
             name: "media"
             widget: "list"
             fields:
-              - { label: "English Title", name: "title_en", widget: "string" }
-              - { label: "Slovenian Title", name: "title_sl", widget: "string" }
-              - { label: "Creator", name: "creator", widget: "string", required: false }
-              - label: "Description"
-                name: "description"
-                widget: "object"
-                fields:
-                  - { label: "English", name: "en", widget: "text" }
-                  - { label: "Slovenian", name: "sl", widget: "text" }
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Creator", name: "creator", widget: "string" }
+              - { label: "English Description", name: "description_en", widget: "text" }
+              - { label: "Slovenian Description", name: "description_sl", widget: "text" }
               - { label: "Link", name: "link", widget: "string", required: false }
-              - { label: "Type", name: "type", widget: "select", options: ["Video", "Podcast", "Article", "Other"], required: false }
+              - { label: "Type", name: "type", widget: "select", options: ["Video", "Podcast"] }
+      
       - label: "Instructables"
         name: "instructables"
         file: "src/content/resources/instructables.md"
         fields:
           - { label: "English Title", name: "title_en", widget: "string" }
           - { label: "Slovenian Title", name: "title_sl", widget: "string" }
-          - label: "Introduction"
-            name: "introduction"
-            widget: "object"
-            fields:
-              - label: "English"
-                name: "en"
-                widget: "text"
-              - label: "Slovenian"
-                name: "sl"
-                widget: "text"
-          - label: "Instructables"
-            name: "instructables"
+          - { label: "English Introduction", name: "intro_en", widget: "markdown" }
+          - { label: "Slovenian Introduction", name: "intro_sl", widget: "markdown" }
+          - label: "Guides"
+            name: "guides"
             widget: "list"
             fields:
               - { label: "English Title", name: "title_en", widget: "string" }
               - { label: "Slovenian Title", name: "title_sl", widget: "string" }
-              - label: "Description"
-                name: "description"
-                widget: "object"
-                fields:
-                  - { label: "English", name: "en", widget: "markdown" }
-                  - { label: "Slovenian", name: "sl", widget: "markdown" }
-              - label: "Materials"
-                name: "materials"
-                widget: "list"
-                required: false
-                fields:
-                  - { label: "English Name", name: "name_en", widget: "string" }
-                  - { label: "Slovenian Name", name: "name_sl", widget: "string" }
-                  - { label: "Quantity", name: "quantity", widget: "string", required: false }
+              - { label: "English Description", name: "description_en", widget: "markdown" }
+              - { label: "Slovenian Description", name: "description_sl", widget: "markdown" }
+              - { label: "Difficulty", name: "difficulty", widget: "select", options: ["Beginner", "Intermediate", "Advanced"] }
+              - { label: "Time", name: "time", widget: "string" }
+              - { label: "Featured Image", name: "image", widget: "image", required: false }
               - label: "Steps"
                 name: "steps"
                 widget: "list"
                 fields:
-                  - { label: "English Instruction", name: "instruction_en", widget: "markdown" }
-                  - { label: "Slovenian Instruction", name: "instruction_sl", widget: "markdown" }
+                  - { label: "English Step", name: "step_en", widget: "markdown" }
+                  - { label: "Slovenian Step", name: "step_sl", widget: "markdown" }
                   - { label: "Image", name: "image", widget: "image", required: false }
-              - { label: "Difficulty", name: "difficulty", widget: "select", options: ["Easy", "Medium", "Hard"], required: false }
-              - { label: "Time Required (minutes)", name: "timeRequired", widget: "number", required: false }
-              - { label: "Tags", name: "tags", widget: "list", required: false }
-
-- name: "translations"
-  label: "Translations"
-  files:
-    - label: "Common Translations"
-      name: "common_translations"
-      file: "src/content/translations/common.md"
-      fields:
-        - label: "Translations"
-          name: "translations"
-          widget: "list"
-          fields:
-            - { label: "Key", name: "key", widget: "string" }
-            - { label: "English", name: "en", widget: "string" }
-            - { label: "Slovenian", name: "sl", widget: "string" }
-
+  
+  - name: "translations"
+    label: "Translations"
+    files:
+      - label: "Common Translations"
+        name: "common_translations"
+        file: "src/content/translations/common.md"
+        fields:
+          - label: "Translations"
+            name: "translations"
+            widget: "list"
+            fields:
+              - { label: "Key", name: "key", widget: "string" }
+              - { label: "English", name: "en", widget: "string" }
+              - { label: "Slovenian", name: "sl", widget: "string" }
+  
   - name: "pages"
     label: "Pages"
     files:
-      - label: "Home Page"
+      - label: "Home"
         name: "home"
         file: "src/content/pages/home.md"
         fields:
-          - label: "Hero Section"
-            name: "hero"
-            widget: "object"
-            fields:
-              - { label: "English Title", name: "title_en", widget: "string" }
-              - { label: "Slovenian Title", name: "title_sl", widget: "string" }
-              - { label: "English Subtitle", name: "subtitle_en", widget: "string" }
-              - { label: "Slovenian Subtitle", name: "subtitle_sl", widget: "string" }
-              - { label: "Background Image", name: "image", widget: "image" }
-          - label: "About Section"
-            name: "about"
-            widget: "object"
-            fields:
-              - { label: "English Title", name: "title_en", widget: "string" }
-              - { label: "Slovenian Title", name: "title_sl", widget: "string" }
-              - { label: "English Content", name: "content_en", widget: "markdown" }
-              - { label: "Slovenian Content", name: "content_sl", widget: "markdown" }
-              - { label: "Image", name: "image", widget: "image", required: false }
+          - { label: "English Title", name: "title_en", widget: "string" }
+          - { label: "Slovenian Title", name: "title_sl", widget: "string" }
+          - { label: "English Hero Text", name: "hero_text_en", widget: "text" }
+          - { label: "Slovenian Hero Text", name: "hero_text_sl", widget: "text" }
+          - { label: "Hero Image", name: "hero_image", widget: "image" }
+          - { label: "English Introduction", name: "intro_en", widget: "markdown" }
+          - { label: "Slovenian Introduction", name: "intro_sl", widget: "markdown" }
           - label: "Featured Projects"
-            name: "featuredProjects"
+            name: "featured_projects"
+            widget: "list"
+            required: false
+            fields:
+              - { label: "Project", name: "project", widget: "relation", collection: "projects", search_fields: ["title_en", "title_sl"], value_field: "slug", display_fields: ["title_en"] }
+          - label: "Featured Events"
+            name: "featured_events"
+            widget: "list"
+            required: false
+            fields:
+              - { label: "English Title", name: "title_en", widget: "string" }
+              - { label: "Slovenian Title", name: "title_sl", widget: "string" }
+              - { label: "Date", name: "date", widget: "datetime" }
+              - { label: "English Description", name: "description_en", widget: "text" }
+              - { label: "Slovenian Description", name: "description_sl", widget: "text" }
+              - { label: "Link", name: "link", widget: "string", required: false }
+      
+      - label: "About"
+        name: "about"
+        file: "src/content/pages/about.md"
+        fields:
+          - { label: "English Title", name: "title_en", widget: "string" }
+          - { label: "Slovenian Title", name: "title_sl", widget: "string" }
+          - { label: "English Content", name: "body_en", widget: "markdown" }
+          - { label: "Slovenian Content", name: "body_sl", widget: "markdown" }
+          - label: "Team Members"
+            name: "team"
             widget: "list"
             fields:
-              - { label: "Project Slug", name: "slug", widget: "string" }
-          - label: "Call to Action"
-            name: "cta"
-            widget: "object"
-            fields:
-              - { label: "English Title", name: "title_en", widget: "string" }
-              - { label: "Slovenian Title", name: "title_sl", widget: "string" }
-              - { label: "English Content", name: "content_en", widget: "markdown" }
-              - { label: "Slovenian Content", name: "content_sl", widget: "markdown" }
-              - { label: "English Button Text", name: "buttonText_en", widget: "string" }
-              - { label: "Slovenian Button Text", name: "buttonText_sl", widget: "string" }
-              - { label: "Button Link", name: "buttonLink", widget: "string" }
-              - { label: "Background Image", name: "image", widget: "image", required: false }
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "English Role", name: "role_en", widget: "string" }
+              - { label: "Slovenian Role", name: "role_sl", widget: "string" }
+              - { label: "English Bio", name: "bio_en", widget: "text" }
+              - { label: "Slovenian Bio", name: "bio_sl", widget: "text" }
+              - { label: "Photo", name: "photo", widget: "image", required: false }
+      
+      - label: "Contact"
+        name: "contact"
+        file: "src/content/pages/contact.md"
+        fields:
+          - { label: "English Title", name: "title_en", widget: "string" }
+          - { label: "Slovenian Title", name: "title_sl", widget: "string" }
+          - { label: "English Content", name: "body_en", widget: "markdown" }
+          - { label: "Slovenian Content", name: "body_sl", widget: "markdown" }
+          - { label: "Email", name: "email", widget: "string" }
+          - { label: "Address", name: "address", widget: "text" }
+          - { label: "Social Media", name: "social", widget: "object", fields: [
+              { label: "Instagram", name: "instagram", widget: "string", required: false },
+              { label: "Facebook", name: "facebook", widget: "string", required: false },
+              { label: "Twitter", name: "twitter", widget: "string", required: false }
+            ] }
