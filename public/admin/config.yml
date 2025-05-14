@@ -30,48 +30,47 @@ collections:
       - { label: "English Content", name: "body_en", widget: "markdown" }
       - { label: "Slovenian Content", name: "body_sl", widget: "markdown" }
 
-  - name: "projects"
-    label: "Projects"
-    folder: "src/content/projects"
-    create: true
-    slug: "{{slug}}"
-    fields:
-      - { label: "English Title", name: "title_en", widget: "string" }
-      - { label: "Slovenian Title", name: "title_sl", widget: "string" }
-      - { label: "Featured Image", name: "thumbnail", widget: "image", required: false }
-      - { label: "English Summary", name: "summary_en", widget: "text" }
-      - { label: "Slovenian Summary", name: "summary_sl", widget: "text" }
-      - label: "Project Details"
-        name: "details"
-        widget: "object"
-        fields:
-          - { label: "Start Date", name: "startDate", widget: "date" }
-          - { label: "End Date", name: "endDate", widget: "date", required: false }
-          - { label: "Status", name: "status", widget: "select", options: ["In Progress", "Completed", "Planned"], required: false }
-          - { label: "Partners", name: "partners", widget: "list", required: false }
-      - { label: "English Content", name: "body_en", widget: "markdown" }
-      - { label: "Slovenian Content", name: "body_sl", widget: "markdown" }
+ # Updated project collection in config.yml
+- name: "projects"
+  label: "Projects"
+  folder: "src/content/projects"
+  create: true
+  slug: "{{slug}}"
+  fields:
+    - { label: "English Title", name: "title_en", widget: "string" }
+    - { label: "Slovenian Title", name: "title_sl", widget: "string" }
+    - { label: "English Summary", name: "summary_en", widget: "text" }
+    - { label: "Slovenian Summary", name: "summary_sl", widget: "text" }
+    - { label: "Featured Image", name: "thumbnail", widget: "image" }
+    - label: "Project Details"
+      name: "details"
+      widget: "object"
+      fields:
+        - { label: "Start Date", name: "startDate", widget: "date" }
+        - { label: "End Date", name: "endDate", widget: "date", required: false }
+        - { label: "Status", name: "status", widget: "select", options: ["Active", "Completed", "Planned"], default: "Active" }
+        - { label: "Partners", name: "partners", widget: "list", required: false }
+    - { label: "English Content", name: "body", widget: "markdown" }
+    - { label: "Slovenian Content", name: "body_sl", widget: "markdown" }
 
-  - name: "gallery"
-    label: "Gallery"
-    folder: "src/content/gallery"
-    create: true
-    slug: "{{slug}}"
-    fields:
-      - { label: "English Title", name: "title_en", widget: "string" }
-      - { label: "Slovenian Title", name: "title_sl", widget: "string" }
-      - { label: "Date", name: "date", widget: "datetime" }
-      - { label: "English Description", name: "description_en", widget: "text", required: false }
-      - { label: "Slovenian Description", name: "description_sl", widget: "text", required: false }
-      - label: "Images"
-        name: "images"
-        widget: "list"
-        fields:
-          - { label: "Image", name: "image", widget: "image" }
-          - { label: "English Caption", name: "caption_en", widget: "string", required: false }
-          - { label: "Slovenian Caption", name: "caption_sl", widget: "string", required: false }
-          - { label: "English Alt Text", name: "alt_en", widget: "string", required: false }
-          - { label: "Slovenian Alt Text", name: "alt_sl", widget: "string", required: false }
+ - name: "galleries"
+  label: "Galleries"
+  folder: "src/content/galleries"
+  create: true
+  slug: "{{slug}}"
+  fields:
+    - { label: "Title (English)", name: "title_en", widget: "string" }
+    - { label: "Title (Slovenian)", name: "title_sl", widget: "string" }
+    - { label: "Description (English)", name: "description_en", widget: "text" }
+    - { label: "Description (Slovenian)", name: "description_sl", widget: "text" }
+    - { label: "Date", name: "date", widget: "datetime" }
+    - label: "Gallery"
+      name: "gallery"
+      widget: "list"
+      fields:
+        - { label: "Image", name: "image", widget: "image" }
+        - { label: "Caption", name: "caption", widget: "string" }
+        - { label: "Alt Text", name: "alt", widget: "string" }
 
   - name: "resource_library"
     label: "Resource Library"
@@ -201,16 +200,20 @@ collections:
               - { label: "Time Required (minutes)", name: "timeRequired", widget: "number", required: false }
               - { label: "Tags", name: "tags", widget: "list", required: false }
 
-  - name: "translations"
-    label: "Translations"
-    files:
-      - label: "Common Translations"
-        name: "common_translations"
-        file: "src/content/translations/common.md"
-        fields:
-          - { label: "Translation Key", name: "key", widget: "string" }
-          - { label: "English Text", name: "en", widget: "string" }
-          - { label: "Slovenian Text", name: "sl", widget: "string" }
+- name: "translations"
+  label: "Translations"
+  files:
+    - label: "Common Translations"
+      name: "common_translations"
+      file: "src/content/translations/common.md"
+      fields:
+        - label: "Translations"
+          name: "translations"
+          widget: "list"
+          fields:
+            - { label: "Key", name: "key", widget: "string" }
+            - { label: "English", name: "en", widget: "string" }
+            - { label: "Slovenian", name: "sl", widget: "string" }
 
   - name: "pages"
     label: "Pages"

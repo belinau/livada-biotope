@@ -1,0 +1,78 @@
+backend:
+  name: test-repo
+media_folder: public/images/uploads
+public_folder: /images/uploads
+local_backend: true
+publish_mode: editorial_workflow
+
+collections:
+  - name: "posts"
+    label: "Blog Posts"
+    folder: "src/content/posts"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "English Title", name: "title_en", widget: "string" }
+      - { label: "Slovenian Title", name: "title_sl", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "English Summary", name: "summary_en", widget: "text" }
+      - { label: "Slovenian Summary", name: "summary_sl", widget: "text" }
+      - { label: "Featured Image", name: "thumbnail", widget: "image", required: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "English Content", name: "body_en", widget: "markdown" }
+      - { label: "Slovenian Content", name: "body_sl", widget: "markdown" }
+
+  - name: "projects"
+    label: "Projects"
+    folder: "src/content/projects"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "English Title", name: "title_en", widget: "string" }
+      - { label: "Slovenian Title", name: "title_sl", widget: "string" }
+      - { label: "English Summary", name: "summary_en", widget: "text" }
+      - { label: "Slovenian Summary", name: "summary_sl", widget: "text" }
+      - { label: "Featured Image", name: "thumbnail", widget: "image" }
+      - label: "Project Details"
+        name: "details"
+        widget: "object"
+        fields:
+          - { label: "Start Date", name: "startDate", widget: "date" }
+          - { label: "End Date", name: "endDate", widget: "date", required: false }
+          - { label: "Status", name: "status", widget: "select", options: ["Active", "Completed", "Planned"], default: "Active" }
+          - { label: "Partners", name: "partners", widget: "list", required: false }
+      - { label: "English Content", name: "body", widget: "markdown" }
+      - { label: "Slovenian Content", name: "body_sl", widget: "markdown" }
+
+  - name: "galleries"
+    label: "Galleries"
+    folder: "src/content/galleries"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "English Title", name: "title_en", widget: "string" }
+      - { label: "Slovenian Title", name: "title_sl", widget: "string" }
+      - { label: "Description (English)", name: "description_en", widget: "text" }
+      - { label: "Description (Slovenian)", name: "description_sl", widget: "text" }
+      - label: "Images"
+        name: "images"
+        widget: "list"
+        fields:
+          - { label: "Image", name: "image", widget: "image" }
+          - { label: "Caption (English)", name: "caption_en", widget: "string" }
+          - { label: "Caption (Slovenian)", name: "caption_sl", widget: "string" }
+
+  - name: "translations"
+    label: "Translations"
+    files:
+      - label: "Common Translations"
+        name: "common_translations"
+        file: "src/content/translations/common.md"
+        fields:
+          - label: "Translations"
+            name: "translations"
+            widget: "list"
+            fields:
+              - { label: "Key", name: "key", widget: "string" }
+              - { label: "English", name: "en", widget: "string" }
+              - { label: "Slovenian", name: "sl", widget: "string" }

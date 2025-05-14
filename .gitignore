@@ -49,3 +49,4 @@ yarn-error.log*
 # Deployment files
 *.zip
 livada-biotope-static.zip
+sensor-data-backup/
