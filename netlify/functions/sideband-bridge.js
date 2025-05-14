@@ -1,6 +1,19 @@
-// Sideband bridge implemented as a Netlify serverless function
-exports.handler = async (event, context) => {
-  // Set up CORS headers
+const fetch = require('node-fetch');
+
+// Mock data for testing
+const mockSensorData = [
+  { id: 'sensor1', type: 'moisture', value: 35.7, timestamp: new Date().toISOString() },
+  { id: 'sensor2', type: 'temperature', value: 22.4, timestamp: new Date().toISOString() },
+  { id: 'sensor3', type: 'humidity', value: 68.2, timestamp: new Date().toISOString() }
+];
+
+// Handle requests based on path and method
+exports.handler = async function(event, context) {
+  console.log("Sideband bridge function invoked");
+  console.log("Path:", event.path);
+  console.log("HTTP method:", event.httpMethod);
+  
+  // Set CORS headers to allow requests from any origin
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
@@ -8,126 +21,116 @@ exports.handler = async (event, context) => {
     "Content-Type": "application/json"
   };
   
-  // Handle OPTIONS request for CORS preflight
-  if (event.httpMethod === 'OPTIONS') {
+  // Handle preflight OPTIONS request
+  if (event.httpMethod === "OPTIONS") {
     return {
-      statusCode: 200,
+      statusCode: 204,
       headers,
-      body: ''
+      body: ""
     };
   }
+
+  // Extract endpoint from path - handle both /api/sideband/* pattern and direct function invocation
+  let endpoint = "";
   
-  console.log("Sideband bridge function called with path:", event.path, "and method:", event.httpMethod);
-  
-  // Extract the endpoint from various possible path formats
-  let endpoint = '';
-  
-  // Handle different path patterns:
-  // 1. /api/sideband/status
-  // 2. /.netlify/functions/sideband-bridge/status
-  // 3. /api/sideband/test-connection
-  // 4. ...etc
-  
-  if (event.path.includes('/test-connection')) {
-    endpoint = 'status'; // Map test-connection to status endpoint
-  } else if (event.path.includes('/status')) {
-    endpoint = 'status';
-  } else if (event.path.includes('/data')) {
-    endpoint = 'data';
-  } else if (event.path.includes('/debug')) {
-    endpoint = 'debug';
-  } else {
-    // Default to data if no specific endpoint
-    endpoint = 'data';
+  if (event.path.includes('/api/sideband/')) {
+    // Path pattern: /api/sideband/endpoint
+    endpoint = event.path.split('/api/sideband/')[1];
+  } else if (event.path.includes('/.netlify/functions/sideband-bridge/')) {
+    // Path pattern: /.netlify/functions/sideband-bridge/endpoint
+    endpoint = event.path.split('/.netlify/functions/sideband-bridge/')[1];
+  } else if (event.path.includes('/.netlify/functions/sideband-bridge')) {
+    // Path pattern: /.netlify/functions/sideband-bridge with query params
+    const params = new URLSearchParams(event.queryStringParameters || {});
+    endpoint = params.get('endpoint') || 'status'; // Default to status if no endpoint specified
+  } else if (event.path.includes('/api/')) {
+    // Legacy path pattern: /api/endpoint
+    endpoint = event.path.split('/api/')[1];
   }
   
-  console.log("Mapped to endpoint:", endpoint);
+  // Also check if the endpoint is in the query parameters (useful for POST requests)
+  if (!endpoint && event.queryStringParameters && event.queryStringParameters.endpoint) {
+    endpoint = event.queryStringParameters.endpoint;
+  }
+
+  console.log("Extracted endpoint:", endpoint);
   
+  // Handle requests based on endpoint
   try {
-    // Handle different API endpoints
-    if (endpoint === 'data') {
-      // Return sensor data
-      const now = new Date();
-      const data = [
-        {
-          timestamp: now.toISOString(),
-          sensorId: 1,
-          moisture: 45 + (Math.sin(now.getHours() / 24 * Math.PI * 2) * 10) + (Math.random() * 5)
-        },
-        {
-          timestamp: now.toISOString(),
-          sensorId: 2,
-          moisture: 30 + (Math.cos(now.getHours() / 24 * Math.PI * 2) * 15) + (Math.random() * 5)
-        }
-      ];
-      
-      console.log("Returning sensor data");
+    // Handle test connection request
+    if (endpoint === 'test-connection' || endpoint === 'status') {
+      console.log("Handling status endpoint");
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify(data)
-      };
-    } 
-    else if (endpoint === 'status') {
-      // Return status information
-      const status = {
-        status: "online",
-        timestamp: new Date().toISOString(),
-        environment: process.env.CONTEXT || 'netlify',
-        sideband_hash: process.env.NEXT_PUBLIC_SIDEBAND_HASH || 'not set'
-      };
-      
-      console.log("Returning status:", status);
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify(status)
-      };
-    }
-    else if (endpoint === 'debug') {
-      // Return debug information
-      const debugInfo = {
-        system: {
-          nodejs_version: process.version,
-          timestamp: new Date().toISOString(),
-          environment: process.env.NODE_ENV,
-          deployment: process.env.CONTEXT
-        },
-        request: {
-          method: event.httpMethod,
-          originalPath: event.path,
-          mappedEndpoint: endpoint,
-          headers: event.headers,
-          queryStringParameters: event.queryStringParameters
-        }
-      };
-      
-      console.log("Returning debug info");
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify(debugInfo)
+        body: JSON.stringify({
+          status: "online",
+          version: "1.0.0",
+          timestamp: new Date().toISOString()
+        })
       };
     }
     
-    // If no recognized endpoint is found
-    console.log("Endpoint not found:", endpoint);
+    // Handle data request
+    if (endpoint === 'data') {
+      console.log("Handling data endpoint");
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(mockSensorData)
+      };
+    }
+    
+    // Handle debug request
+    if (endpoint === 'debug') {
+      console.log("Handling debug endpoint");
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          request: {
+            path: event.path,
+            httpMethod: event.httpMethod,
+            headers: event.headers,
+            queryStringParameters: event.queryStringParameters || {}
+          },
+          environment: {
+            SIDEBAND_HOST: process.env.NEXT_PUBLIC_SIDEBAND_HOST || 'Not configured',
+            SIDEBAND_PORT: process.env.NEXT_PUBLIC_SIDEBAND_PORT || 'Not configured',
+            SIDEBAND_HASH: process.env.NEXT_PUBLIC_SIDEBAND_HASH || 'Not configured',
+            NODE_ENV: process.env.NODE_ENV || 'development'
+          }
+        })
+      };
+    }
+    
+    // Handle reticulum link request - this would establish a link in a real implementation
+    if (endpoint === 'link' || endpoint === 'connect') {
+      console.log("Handling link/connect endpoint");
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          status: "connected",
+          link_id: "mock-link-" + Date.now(),
+          timestamp: new Date().toISOString()
+        })
+      };
+    }
+    
+    // Return 404 for unknown endpoints
+    console.log("Unknown endpoint:", endpoint);
     return {
       statusCode: 404,
       headers,
-      body: JSON.stringify({ 
-        error: "Not found",
-        message: "Available endpoints: /data, /status, /test-connection, /debug",
-        requestedPath: event.path
-      })
+      body: JSON.stringify({ error: "Unknown endpoint", requestedEndpoint: endpoint })
     };
   } catch (error) {
-    // Log error and return error response
-    console.error('Error in sideband-bridge function:', error);
+    console.error("Error in sideband-bridge function:", error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: "Server error", message: error.message })
+      body: JSON.stringify({ error: "Internal server error", message: error.message })
     };
   }
 };
