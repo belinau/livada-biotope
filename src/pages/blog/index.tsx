@@ -176,7 +176,7 @@ BlogPage.getLayout = (page: React.ReactElement) => {
 };
 
 export const getStaticProps: GetStaticProps = async () => {
-  const posts = getAllPosts('blog');
+  const posts = getAllPosts('posts');
   
   // Ensure all post data is serializable
   const serializedPosts = posts.map(post => {

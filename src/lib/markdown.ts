@@ -33,7 +33,7 @@ export function getMarkdownContent(filePath: string) {
 }
 
 // Get all posts from a specific content type (blog, projects, events)
-export function getAllPosts(contentType: string = 'blog') {
+export function getAllPosts(contentType: string = 'posts') {
   const files = getFiles(`src/content/${contentType}`);
   const posts = files.filter(filename => filename.endsWith('.md')).map(filename => {
     const filePath = path.join(process.cwd(), 'src', 'content', contentType, filename);
@@ -65,7 +65,7 @@ export function getAllPosts(contentType: string = 'blog') {
 }
 
 // Get a specific post by slug
-export function getPostBySlug(slug: string, contentType: string = 'blog') {
+export function getPostBySlug(slug: string, contentType: string = 'posts') {
   const filePath = path.join(process.cwd(), 'src', 'content', contentType, `${slug}.md`);
   
   try {

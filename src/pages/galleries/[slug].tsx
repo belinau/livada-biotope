@@ -14,8 +14,10 @@ import CollectionsIcon from '@mui/icons-material/Collections';
 
 interface GalleryPageProps {
   gallery: {
-    title: string;
-    description: string;
+    title_en: string;
+    title_sl: string;
+    description_en: string;
+    description_sl: string;
     date: string;
     gallery: GalleryImage[];
   };
@@ -34,6 +36,10 @@ export default function GalleryPage({ gallery }: GalleryPageProps) {
       </Container>
     );
   }
+
+  // Get the appropriate content based on the current language
+  const title = language === 'en' ? gallery.title_en : gallery.title_sl;
+  const description = language === 'en' ? gallery.description_en : gallery.description_sl;
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
@@ -57,7 +63,7 @@ export default function GalleryPage({ gallery }: GalleryPageProps) {
           </MuiLink>
         </Link>
         <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
-          {gallery.title}
+          {title}
         </Typography>
       </Breadcrumbs>
 
@@ -67,7 +73,7 @@ export default function GalleryPage({ gallery }: GalleryPageProps) {
           mb: 2,
           fontWeight: 700 
         }}>
-          {gallery.title}
+          {title}
         </Typography>
         
         <Typography variant="body1" sx={{ mb: 1, color: 'text.secondary' }}>
@@ -80,7 +86,7 @@ export default function GalleryPage({ gallery }: GalleryPageProps) {
       </Box>
 
       <PhotoGallery 
-        description={gallery.description}
+        description={description}
         images={gallery.gallery}
       />
     </Container>
@@ -132,8 +138,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       gallery: {
-        title: data.title || '',
-        description: data.description || '',
+        title_en: data.title_en || '',
+        title_sl: data.title_sl || '',
+        description_en: data.description_en || '',
+        description_sl: data.description_sl || '',
         date: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
         gallery: Array.isArray(data.gallery) ? data.gallery : [],
       },
