@@ -50,6 +50,22 @@
   to = "/functions/translations"
   status = 200
 
+# Sideband bridge API endpoints
+[[redirects]]
+  from = "/api/data"
+  to = "/.netlify/functions/sideband-bridge/data"
+  status = 200
+
+[[redirects]]
+  from = "/api/status"
+  to = "/.netlify/functions/sideband-bridge/status"
+  status = 200
+  
+[[redirects]]
+  from = "/api/debug"
+  to = "/.netlify/functions/sideband-bridge/debug"
+  status = 200
+
 # Direct access to Netlify functions for translations - using proxy path instead
 [[redirects]]
   from = "/proxy/translations"
