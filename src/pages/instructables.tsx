@@ -28,42 +28,27 @@ import matter from 'gray-matter';
 type PatternType = 'dots' | 'waves' | 'lines' | 'leaves';
 
 // Define types for our instructables data
-type InstructableItem = {
-  title: {
-    en: string;
-    sl: string;
-  };
-  description: {
-    en: string;
-    sl: string;
-  };
-  difficulty: {
-    en: string;
-    sl: string;
-  };
-  time: {
-    en: string;
-    sl: string;
-  };
-  materials: {
-    en: string;
-    sl: string;
-  };
-  speciesName: {
-    en: string;
-    sl: string;
-  };
-  latinName: string;
-  pattern: PatternType;
+type Guide = {
+  title_en: string;
+  title_sl: string;
+  description_en: string;
+  description_sl: string;
+  difficulty: string;
+  time: string;
+  image?: string;
+  steps: Array<{
+    step_en: string;
+    step_sl: string;
+    image?: string;
+  }>;
 };
 
 type InstructablesData = {
-  title: string;
-  description: {
-    en: string;
-    sl: string;
-  };
-  items: InstructableItem[];
+  title_en: string;
+  title_sl: string;
+  intro_en: string;
+  intro_sl: string;
+  guides: Guide[];
 };
 
 // Get static props for the page
@@ -83,15 +68,19 @@ export default function Instructables({ instructablesData }: { instructablesData
   const { language } = useLanguage();
   const { t } = useTranslations();
   
+  // Helper function to get the appropriate language content
+  const getLangContent = (en: string, sl: string) => language === 'en' ? en : sl;
+  
   return (
     <>
       <Head>
-        <title>{language === 'en' ? 'Instructables | The Livada Biotope' : 'Instructables | Biotop Livada'}</title>
+        <title>{getLangContent('Instructables | The Livada Biotope', 'Priročniki | Biotop Livada')}</title>
         <meta
           name="description"
-          content={language === 'en' 
-            ? "Explore hands-on instructables from The Livada Biotope for youth and young adults, including decolonial composting, rainwater harvesting, and more." 
-            : "Raziščite praktične instructables Biotopa Livada za mladino in mlade odrasle, vključno z dekolonialnim kompostiranjem, zbiranjem deževnice in več."}
+          content={getLangContent(
+            "Explore hands-on instructables from The Livada Biotope for youth and young adults, including decolonial composting, rainwater harvesting, and more.", 
+            "Raziščite praktične priročnike Biotopa Livada za mladino in mlade odrasle, vključno z dekolonialnim kompostiranjem, zbiranjem deževnice in več."
+          )}
         />
       </Head>
 
@@ -100,17 +89,17 @@ export default function Instructables({ instructablesData }: { instructablesData
       <Box sx={{ py: 8 }}>
         <Container maxWidth="lg">
           <Typography variant="h2" component="h1" align="center" gutterBottom>
-            {language === 'en' ? 'Instructables' : 'Instructables'}
+            {getLangContent(instructablesData.title_en, instructablesData.title_sl)}
           </Typography>
           
           <Box sx={{ mb: 6 }}>
             <Typography variant="h5" component="div" align="center" gutterBottom>
-              {instructablesData.description[language]}
+              {getLangContent(instructablesData.intro_en, instructablesData.intro_sl)}
             </Typography>
           </Box>
           
           <Grid container spacing={4}>
-            {instructablesData.items.map((item, index) => (
+            {instructablesData.guides.map((guide, index) => (
               <Grid item xs={12} md={6} key={index}>
                 <Card 
                   elevation={3}
@@ -127,35 +116,29 @@ export default function Instructables({ instructablesData }: { instructablesData
                 >
                   <Box sx={{ height: 200, position: 'relative' }}>
                     <StylizedImage 
-                      pattern={item.pattern}
-                      speciesName={item.speciesName[language]}
-                      latinName={item.latinName}
+                      pattern={['dots', 'waves', 'lines', 'leaves'][index % 4] as PatternType}
+                      speciesName={getLangContent(guide.title_en, guide.title_sl)}
+                      latinName=""
                     />
                   </Box>
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Typography gutterBottom variant="h5" component="div">
-                      {item.title[language]}
+                      {getLangContent(guide.title_en, guide.title_sl)}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" paragraph>
-                      {item.description[language]}
+                      {getLangContent(guide.description_en, guide.description_sl)}
                     </Typography>
                     
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
                       <Chip 
                         icon={<DifficultyIcon />} 
-                        label={item.difficulty[language]} 
+                        label={guide.difficulty} 
                         variant="outlined" 
                         size="small" 
                       />
                       <Chip 
                         icon={<TimeIcon />} 
-                        label={item.time[language]} 
-                        variant="outlined" 
-                        size="small" 
-                      />
-                      <Chip 
-                        icon={<ToolsIcon />} 
-                        label={item.materials[language]} 
+                        label={guide.time} 
                         variant="outlined" 
                         size="small" 
                       />
@@ -163,7 +146,7 @@ export default function Instructables({ instructablesData }: { instructablesData
                   </CardContent>
                   <CardActions>
                     <Button size="small" color="primary">
-                      {language === 'en' ? 'Learn More' : 'Več'}
+                      {getLangContent('Learn More', 'Več')}
                     </Button>
                   </CardActions>
                 </Card>
