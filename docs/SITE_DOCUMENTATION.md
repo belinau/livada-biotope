@@ -21,7 +21,8 @@ The Livada Biotope website is built with:
 The site supports both English and Slovenian languages. Content is managed through the translations system, which allows for easy updates to text across the site.
 
 - **Language Switcher**: Located in the navigation bar
-- **Translation Files**: Managed through the admin panel
+- **Translation Files**: Managed through the admin panel in a list format
+- **API Endpoint**: Custom endpoint at `/api/translations` for serving translations
 
 ### 2. Enhanced Event Calendar
 
@@ -46,6 +47,7 @@ A custom component that displays decorative pattern backgrounds:
 Showcases the various projects at Livada Biotope:
 
 - **Project Pages**: Individual pages for each project
+- **CMS Management**: All projects except "Let's Not Dry Out The Future" are editable via the CMS
 - **Interactive Elements**: Sensor data visualization where applicable
 - **Biodiversity Showcase**: Displays flora and fauna at the biotope
 
@@ -64,6 +66,15 @@ Integration with environmental sensors through the Sideband plugin:
 - **Data Visualization**: Displays sensor readings in charts and graphs
 - **Real-time Updates**: Shows current environmental conditions
 - **Historical Data**: Allows viewing of past readings
+- **Data Backup**: Automatic backup system for sensor data in JSON format
+
+### 7. Gallery Management
+
+A system for creating and managing image galleries:
+
+- **Multiple Galleries**: Support for multiple distinct galleries
+- **Bilingual Support**: Titles and descriptions in both English and Slovenian
+- **CMS Integration**: Full gallery management through the admin interface
 
 ## Content Management
 
@@ -76,126 +87,102 @@ The Netlify CMS admin panel is accessible at `/admin` and allows authorized user
 3. **Update Translations**: Edit site text in both languages
 4. **Manage Resources**: Update ecofeminism resources
 5. **Upload Media**: Add images to the media library
+6. **Create Galleries**: Create and manage image galleries
 
 ### File Structure
 
 The site's content is organized as follows:
 
-```
+mkdir -p /Users/belmacpro/CascadeProjects/livada-biotope/public/docs
+cat > /Users/belmacpro/CascadeProjects/livada-biotope/public/docs/index.html << 'EOL'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livada Biotope - Site Documentation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 { color: #2e7d32; }
+        h1 { border-bottom: 2px solid #2e7d32; padding-bottom: 10px; }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .note {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-left: 5px solid #2e7d32;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Livada Biotope Site Structure</h1>
+    
+    <div class="note">
+        <p><strong>Last Updated:</strong> May 14, 2025</p>
+    </div>
+
+    <h2>Content Organization</h2>
+    <p>The site content is organized as follows:</p>
+    <pre>
 src/
 ├── content/
-│   ├── blog/           # Blog posts as markdown files
-│   ├── events/         # Event information
-│   ├── galleries/      # Image galleries
-│   ├── pages/          # Main page content (Home, About, Contact)
-│   ├── projects/       # Project descriptions
-│   └── resources/      # Resource pages (Ecofeminism)
-├── components/         # React components
-├── contexts/           # React contexts (Language, etc.)
-├── hooks/              # Custom React hooks
-├── lib/                # Utility functions
-├── pages/              # Next.js pages
-└── styles/             # Global styles
-```
+│   ├── posts/           # Blog posts as markdown files
+│   ├── events/          # Event information
+│   ├── galleries/       # Image galleries
+│   ├── pages/           # Main page content
+│   ├── projects/        # Project descriptions
+│   ├── resources/       # Resource pages (Ecofeminism)
+│   └── translations/    # Translation files
+├── pages/               # Next.js pages
+│   ├── api/             # API routes
+│   ├── blog/            # Blog pages
+│   ├── projects/        # Project pages
+│   └── galleries/       # Gallery pages
+    </pre>
 
-### Image Management
+    <h2>Recent Updates (May 2025)</h2>
+    <ul>
+        <li><strong>Blog Posts:</strong> Consolidated in src/content/posts/</li>
+        <li><strong>Projects:</strong> All projects except "Let's Not Dry Out The Future" are now editable via CMS</li>
+        <li><strong>Galleries:</strong> New structure with improved multilingual support</li>
+        <li><strong>Translations:</strong> Updated to list format with new API endpoint</li>
+        <li><strong>Sensor Data:</strong> Added backup functionality</li>
+    </ul>
 
-Images are stored in:
+    <h2>CMS Usage</h2>
+    <p>The admin panel at <a href="/admin">/admin</a> allows editing:</p>
+    <ul>
+        <li>Blog posts</li>
+        <li>Projects (except "Let's Not Dry Out The Future")</li>
+        <li>Galleries</li>
+        <li>Translations</li>
+        <li>Resources</li>
+    </ul>
 
-```
-public/
-├── images/
-│   ├── uploads/        # User-uploaded images via CMS
-│   ├── illustrations/  # Botanical and zoological illustrations
-│   └── icons/          # Site icons
-```
+    <h2>For Developers</h2>
+    <p>Local development setup:</p>
+    <ol>
+        <li>Clone the repository</li>
+        <li>Run <code>npm install</code></li>
+        <li>Start the dev server: <code>npm run dev</code></li>
+        <li>For CMS access: <code>http://localhost:3000/admin/#/config.dev.yml</code></li>
+        <li>Run proxy server: <code>npx netlify-cms-proxy-server</code></li>
+    </ol>
 
-## Netlify Functions
-
-The site uses serverless functions for dynamic features:
-
-1. **Calendar Function**: Fetches events from Google Calendar
-   - Path: `/netlify/functions/calendar/calendar.js`
-   - Endpoint: `/.netlify/functions/calendar`
-
-2. **Contact Form Handler**: Processes contact form submissions
-   - Path: `/netlify/functions/contact/contact.js`
-   - Endpoint: `/.netlify/functions/contact`
-
-## Updating Content
-
-### Pages
-
-Main pages (Home, About, Contact) can be edited through the admin panel:
-
-1. Navigate to `/admin`
-2. Log in with your credentials
-3. Select "Pages" from the sidebar
-4. Choose the page you want to edit
-5. Make your changes and click "Publish"
-
-### Translations
-
-Site text can be edited through the admin panel:
-
-1. Navigate to `/admin`
-2. Log in with your credentials
-3. Select "Translations" from the sidebar
-4. Edit the JSON file directly
-5. Click "Publish" to save changes
-
-### Blog Posts
-
-See the [BLOG_GUIDE.md](./BLOG_GUIDE.md) for detailed instructions on creating and managing blog posts.
-
-## Development
-
-### Local Development
-
-To run the site locally:
-
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Start the development server: `npm run dev`
-4. Access the site at `http://localhost:3000`
-5. Access the admin panel at `http://localhost:3000/admin`
-
-### Building for Production
-
-To build the site for production:
-
-1. Run `npm run build`
-2. Test the production build: `npm run start`
-
-### Deployment
-
-The site is automatically deployed to Netlify when changes are pushed to the main branch.
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Calendar Not Showing Events**:
-   - Check that the Google Calendar URL is correct in `/netlify/functions/calendar/calendar.js`
-   - Verify that the calendar has public sharing enabled
-   - Check browser console for API errors
-
-2. **Admin Panel Issues**:
-   - Clear browser cache and cookies
-   - Verify that you have the correct permissions
-   - Check for syntax errors in configuration files
-
-3. **Translation Issues**:
-   - Ensure all translation keys are present in both languages
-   - Check for syntax errors in the JSON file
-
-## Support and Contact
-
-For technical support or questions about the website:
-
-- Email: tech@livada.bio
-- GitHub Issues: https://github.com/livada-bio/livada-biotope/issues
-
-## License
-
-The Livada Biotope website is licensed under the MIT License. See LICENSE.md for details.
+    <footer style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center;">
+        <p>Livada Biotope Project © 2025</p>
+    </footer>
+</body>
+</html>
