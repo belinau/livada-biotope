@@ -71,6 +71,7 @@ collections:
     folder: "src/content/resources"
     create: true
     slug: "{{slug}}"
+    exclude: ["instructables.md", "ecofeminism.md"]
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Author", name: "author", widget: "string" }
