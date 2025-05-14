@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TimeScale } from 'chart.js';
 import 'chartjs-adapter-date-fns';
-import { Box, Typography, Paper, CircularProgress, Button, Alert, Grid, Chip } from '@mui/material';
+import { Box, Typography, Paper, CircularProgress, Button, Alert, Grid, Chip, Snackbar } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import WifiIcon from '@mui/icons-material/Wifi';
 import WifiOffIcon from '@mui/icons-material/WifiOff';
@@ -11,6 +11,7 @@ import { sensorConfigs } from '@/lib/sensorConfig';
 import { SensorService, DataSource } from '@/lib/sensorService';
 import { ReticulumDataSourceSelector } from './ReticulumDataSourceSelector';
 import { useLanguage } from '../../contexts/LanguageContext';
+
 
 ChartJS.register(
   CategoryScale,
@@ -52,13 +53,14 @@ export const SensorVisualization: React.FC = () => {
   const t = (key: string) => defaultTranslations[key as keyof typeof defaultTranslations] || key;
   
   const [sensorData, setSensorData] = useState<SensorData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [chartError, setChartError] = useState<boolean>(false);
+  const [chartError, setChartError] = useState(false);
   const [dataSource, setDataSource] = useState<DataSource>(DataSource.MOCK);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'unknown'>('unknown');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [connectionTesting, setConnectionTesting] = useState<boolean>(false);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' | 'warning' }>({ open: false, message: '', severity: 'info' });
   
   // Function to generate fallback data if API calls fail
   const generateFallbackData = () => {
@@ -110,13 +112,19 @@ export const SensorVisualization: React.FC = () => {
       if (result.success) {
         setConnectionStatus('connected');
         setError(null);
+        // Show success snackbar
+        setSnackbar({ open: true, message: 'Connection successful! Connected to Sideband bridge service', severity: 'success' });
       } else {
         setConnectionStatus('disconnected');
         setError(result.message || 'Failed to connect to Sideband');
+        // Show error snackbar
+        setSnackbar({ open: true, message: `Connection failed! ${result.message || 'Unable to connect to Sideband bridge'}`, severity: 'error' });
       }
     } catch (err) {
       setConnectionStatus('disconnected');
       setError('Connection test failed. Server may be unavailable.');
+      // Show error snackbar
+      setSnackbar({ open: true, message: 'Connection error! Error testing connection to Sideband bridge', severity: 'error' });
     } finally {
       setConnectionTesting(false);
     }
@@ -217,6 +225,11 @@ export const SensorVisualization: React.FC = () => {
     
     return () => clearInterval(interval);
   }, [fetchData]);
+
+  // Function to close the snackbar
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   const getChartData = () => {
     try {
@@ -423,6 +436,20 @@ export const SensorVisualization: React.FC = () => {
           <Line options={options} data={getChartData()} />
         )}
       </Box>
+      {/* Snackbar for notifications */}
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={6000} 
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 };
+
+// This component is already exported with 'export const' above
+// No default export needed

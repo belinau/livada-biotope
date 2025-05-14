@@ -2,8 +2,6 @@ import React from 'react';
 import SharedLayout from '@/components/layout/SharedLayout';
 import { SensorVisualization } from '@/components/features/SensorVisualization';
 import BiodiversityShowcase from '@/components/features/BiodiversityShowcase';
-import StylizedImage from '@/components/StylizedImage';
-import Image from 'next/image';
 import { getBotanicalIllustrations, getZoologicalIllustrations } from '@/lib/illustrationsData';
 import { biodiversityItems } from '@/lib/biodiversityData';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -186,18 +184,7 @@ export default function LetsNotDryOutTheFuture() {
               <Grid item xs={12} md={6}>
                 <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ height: 240 }}>
-                    <StylizedImage
-                      speciesName={{
-                        en: "Drought-Resistant Sage",
-                        sl: "Sušo odporen žajbelj"
-                      }}
-                      latinName="Salvia officinalis"
-                      backgroundColor="#f8f5e6"
-                      patternColor="#2e7d32"
-                      pattern="leaves"
-                      height="100%"
-                      width="100%"
-                    />
+                    {/* Removed botanical illustration */}
                   </Box>
                   <CardContent>
                     <Typography gutterBottom variant="h6" component="h3">
@@ -215,18 +202,7 @@ export default function LetsNotDryOutTheFuture() {
               <Grid item xs={12} md={6}>
                 <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ height: 240 }}>
-                    <StylizedImage
-                      speciesName={{
-                        en: "Sedum",
-                        sl: "Homulica"
-                      }}
-                      latinName="Sedum acre"
-                      backgroundColor="#f8f5e6"
-                      patternColor="#2e7d32"
-                      pattern="dots"
-                      height="100%"
-                      width="100%"
-                    />
+                    {/* Removed botanical illustration */}
                   </Box>
                   <CardContent>
                     <Typography gutterBottom variant="h6" component="h3">
@@ -300,22 +276,6 @@ export default function LetsNotDryOutTheFuture() {
         {/* Sensors Section */}
         <Box sx={{ mb: 6 }}>
           <Box sx={{ mb: 6, position: 'relative', overflow: 'hidden' }}>
-            <Box sx={{ 
-              position: 'absolute', 
-              zIndex: -1, 
-              opacity: 0.05, 
-              right: 0, 
-              top: 0, 
-              width: 256, 
-              height: 256, 
-              transform: 'rotate(45deg)' 
-            }}>
-              <Image 
-                src="/images/illustrations/botanical-1.jpg" 
-                alt="Decorative botanical illustration" 
-                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              />
-            </Box>
             
             <Box sx={{ width: '100%', mb: 6 }} />
             
@@ -381,22 +341,6 @@ export default function LetsNotDryOutTheFuture() {
               />
             </Box>
             
-            <Box sx={{ 
-              position: 'absolute', 
-              zIndex: -1, 
-              opacity: 0.05, 
-              left: 0, 
-              bottom: 0, 
-              width: 256, 
-              height: 256, 
-              transform: 'rotate(-45deg)' 
-            }}>
-              <Image 
-                src="/images/illustrations/botanical-2.jpg" 
-                alt="Decorative botanical illustration" 
-                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              />
-            </Box>
           </Box>
         </Box>
 

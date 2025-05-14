@@ -3,6 +3,8 @@ title_en: The Livada Biotope
 title_sl: Biotop Livada
 hero_text_en: Fostering biodiversity and climate resilience in Ljubljana
 hero_text_sl: Spodbujanje biotske raznovrstnosti in odpornosti na podnebne spremembe v Ljubljani
+subtitle_en: A playground of encounters
+subtitle_sl: Igrišče srečanj
 hero_image: /images/uploads/placeholder.jpg
 intro_en: |
   # Welcome to The Livada Biotope

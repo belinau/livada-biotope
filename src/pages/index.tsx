@@ -15,6 +15,10 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Divider from '@mui/material/Divider';
+import { GetStaticProps } from 'next';
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
 
 // Define styled links to avoid TypeScript errors with '&:hover'
 const StyledLink = ({ href, children, style }: { href: string; children: React.ReactNode; style?: React.CSSProperties }) => (
@@ -23,17 +27,37 @@ const StyledLink = ({ href, children, style }: { href: string; children: React.R
   </Link>
 );
 
-export default function Home() {
+interface HomePageProps {
+  homeData: {
+    title_en: string;
+    title_sl: string;
+    hero_text_en: string;
+    hero_text_sl: string;
+    subtitle_en: string;
+    subtitle_sl: string;
+    hero_image: string;
+    intro_en: string;
+    intro_sl: string;
+    featured_projects: any[];
+    featured_events: any[];
+  }
+}
+
+export default function Home({ homeData }: HomePageProps) {
   const { language } = useLanguage();
   const { t } = useTranslations();
   
+  const getLangContent = (enContent: string, slContent: string) => {
+    return language === 'en' ? enContent : slContent;
+  };
+
   return (
     <>
       {/* Use the simplified TranslationLoader */}
       <TranslationLoader />
       
       <Head>
-        <title>{t('home.title', 'The Livada Biotope')} | {t('home.subtitle', 'Urban Biodiversity & Drought Resilience')}</title>
+        <title>{getLangContent(homeData.title_en, homeData.title_sl)} | {getLangContent(homeData.subtitle_en, homeData.subtitle_sl)}</title>
         <meta 
           name="description" 
           content={t('home.description', 'The Livada Biotope is a community-driven ecological project dedicated to preserving biodiversity and building drought resilience in Ljubljana, Slovenia.')}
@@ -89,7 +113,7 @@ export default function Home() {
                 mb: 2,
               }}
             >
-              {language === 'en' ? 'The Livada Biotope' : 'Biotop Livada'}
+              {getLangContent(homeData.title_en, homeData.title_sl)}
             </Typography>
             <Typography
               variant="h4"
@@ -101,7 +125,7 @@ export default function Home() {
                 opacity: 0.9,
               }}
             >
-              {language === 'en' ? 'A playground of encounters' : 'Igrišče srečanj'}
+              {getLangContent(homeData.subtitle_en, homeData.subtitle_sl)}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center' }}>
               <Button
@@ -356,3 +380,15 @@ export default function Home() {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+  const homeFilePath = path.join(process.cwd(), 'src/content/pages/home.md');
+  const homeContent = fs.readFileSync(homeFilePath, 'utf8');
+  const { data } = matter(homeContent);
+
+  return {
+    props: {
+      homeData: data,
+    },
+  };
+};
