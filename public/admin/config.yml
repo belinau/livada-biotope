@@ -242,9 +242,8 @@ collections:
           - { label: "Email", name: "email", widget: "string" }
           - { label: "Address", name: "address", widget: "text" }
           - { label: "Map Location Name", name: "map_location", widget: "string", required: false, default: "Livada Biotope, Ljubljana" }
-          - { label: "Map Coordinates", name: "map_coordinates", widget: "string", required: false, default: "46.0432,14.5021" }
+          - { label: "Map Coordinates", name: "map_coordinates", widget: "string", required: false, default: "46.0301,14.5089" }
           - { label: "Social Media", name: "social", widget: "object", fields: [
-              { label: "Instagram", name: "instagram", widget: "string", required: false },
-              { label: "Facebook", name: "facebook", widget: "string", required: false },
-              { label: "Twitter", name: "twitter", widget: "string", required: false }
+              { label: "Bluesky", name: "bluesky", widget: "string", required: false },
+              { label: "iNaturalist", name: "inaturalist", widget: "string", required: false }
             ] }
