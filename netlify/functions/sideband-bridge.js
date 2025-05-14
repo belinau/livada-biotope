@@ -17,22 +17,35 @@ exports.handler = async (event, context) => {
     };
   }
   
-  console.log("Sideband bridge function called with path:", event.path);
+  console.log("Sideband bridge function called with path:", event.path, "and method:", event.httpMethod);
   
-  // Extract path and parameters - handle various path formats
-  const path = event.path
-    .replace('/.netlify/functions/sideband-bridge', '')
-    .replace('/api/sideband', '')
-    .replace('/api', '');
-    
-  const segments = path.split('/').filter(Boolean);
-  const endpoint = segments[0] || '';
+  // Extract the endpoint from various possible path formats
+  let endpoint = '';
   
-  console.log("Extracted endpoint:", endpoint);
+  // Handle different path patterns:
+  // 1. /api/sideband/status
+  // 2. /.netlify/functions/sideband-bridge/status
+  // 3. /api/sideband/test-connection
+  // 4. ...etc
+  
+  if (event.path.includes('/test-connection')) {
+    endpoint = 'status'; // Map test-connection to status endpoint
+  } else if (event.path.includes('/status')) {
+    endpoint = 'status';
+  } else if (event.path.includes('/data')) {
+    endpoint = 'data';
+  } else if (event.path.includes('/debug')) {
+    endpoint = 'debug';
+  } else {
+    // Default to data if no specific endpoint
+    endpoint = 'data';
+  }
+  
+  console.log("Mapped to endpoint:", endpoint);
   
   try {
     // Handle different API endpoints
-    if (endpoint === 'data' || endpoint === '') {
+    if (endpoint === 'data') {
       // Return sensor data
       const now = new Date();
       const data = [
@@ -55,7 +68,7 @@ exports.handler = async (event, context) => {
         body: JSON.stringify(data)
       };
     } 
-    else if (endpoint === 'status' || endpoint === 'test-connection') {
+    else if (endpoint === 'status') {
       // Return status information
       const status = {
         status: "online",
@@ -82,7 +95,8 @@ exports.handler = async (event, context) => {
         },
         request: {
           method: event.httpMethod,
-          path: event.path,
+          originalPath: event.path,
+          mappedEndpoint: endpoint,
           headers: event.headers,
           queryStringParameters: event.queryStringParameters
         }
@@ -103,10 +117,10 @@ exports.handler = async (event, context) => {
       headers,
       body: JSON.stringify({ 
         error: "Not found",
-        message: "Available endpoints: /data, /status, /test-connection, /debug"
+        message: "Available endpoints: /data, /status, /test-connection, /debug",
+        requestedPath: event.path
       })
     };
-    
   } catch (error) {
     // Log error and return error response
     console.error('Error in sideband-bridge function:', error);
