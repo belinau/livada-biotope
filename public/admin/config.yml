@@ -68,7 +68,7 @@ collections:
   
   - name: "resource_library"
     label: "Resource Library"
-    folder: "src/content/resources/library"
+    folder: "src/content/resources"
     create: true
     slug: "{{slug}}"
     fields:
