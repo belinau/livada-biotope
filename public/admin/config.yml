@@ -137,7 +137,7 @@ collections:
               - { label: "Type", name: "type", widget: "select", options: ["Video", "Podcast"] }
       
       - label: "Instructables"
-        name: "instructables_guide"
+        name: "instructables_resources"
         file: "src/content/resources/instructables.md"
         fields:
           - { label: "English Title", name: "title_en", widget: "string" }
@@ -189,6 +189,8 @@ collections:
           - { label: "Slovenian Title", name: "title_sl", widget: "string" }
           - { label: "English Hero Text", name: "hero_text_en", widget: "text" }
           - { label: "Slovenian Hero Text", name: "hero_text_sl", widget: "text" }
+          - { label: "English Subtitle", name: "subtitle_en", widget: "string" }
+          - { label: "Slovenian Subtitle", name: "subtitle_sl", widget: "string" }
           - { label: "Hero Image", name: "hero_image", widget: "image" }
           - { label: "English Introduction", name: "intro_en", widget: "markdown" }
           - { label: "Slovenian Introduction", name: "intro_sl", widget: "markdown" }
@@ -239,6 +241,8 @@ collections:
           - { label: "Slovenian Content", name: "body_sl", widget: "markdown" }
           - { label: "Email", name: "email", widget: "string" }
           - { label: "Address", name: "address", widget: "text" }
+          - { label: "Map Location Name", name: "map_location", widget: "string", required: false, default: "Livada Biotope, Ljubljana" }
+          - { label: "Map Coordinates", name: "map_coordinates", widget: "string", required: false, default: "46.0432,14.5021" }
           - { label: "Social Media", name: "social", widget: "object", fields: [
               { label: "Instagram", name: "instagram", widget: "string", required: false },
               { label: "Facebook", name: "facebook", widget: "string", required: false },
