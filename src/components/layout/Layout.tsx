@@ -123,6 +123,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { href: '/', title: t('Navbar.home') },
     { href: '/biodiversity', title: t('Navbar.biodiversity') },
     { href: '/projects', title: t('Navbar.projects') },
+    { href: '/galleries', title: t('Navbar.galleries') },
     { href: '/instructables', title: t('Navbar.instructables') },
     { href: '/ecofeminism', title: t('Navbar.ecofeminism') },
     { href: '/events', title: t('Navbar.events') },

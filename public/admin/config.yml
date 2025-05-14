@@ -137,7 +137,7 @@ collections:
               - { label: "Type", name: "type", widget: "select", options: ["Video", "Podcast"] }
       
       - label: "Instructables"
-        name: "instructables"
+        name: "instructables_guide"
         file: "src/content/resources/instructables.md"
         fields:
           - { label: "English Title", name: "title_en", widget: "string" }
@@ -211,7 +211,7 @@ collections:
               - { label: "Link", name: "link", widget: "string", required: false }
       
       - label: "About"
-        name: "about"
+        name: "about_page"
         file: "src/content/pages/about.md"
         fields:
           - { label: "English Title", name: "title_en", widget: "string" }
