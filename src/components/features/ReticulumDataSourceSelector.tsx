@@ -3,11 +3,22 @@ import { SensorService, DataSource } from '@/lib/sensorService';
 import ReticulumClient from '@/lib/reticulumClient';
 import { useLanguage } from '../../contexts/LanguageContext';
 import useTranslations from '../../hooks/useTranslations';
+import { SxProps } from '@mui/material';
 
-export const ReticulumDataSourceSelector: React.FC = () => {
+interface ReticulumDataSourceSelectorProps {
+  dataSource: DataSource;
+  onDataSourceChange: (source: DataSource) => Promise<void>;
+  sx?: SxProps;
+}
+
+export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorProps> = ({ 
+  dataSource, 
+  onDataSourceChange,
+  sx 
+}) => {
   const { language } = useLanguage();
   const { t } = useTranslations();
-  const [dataSource, setDataSource] = useState<DataSource>(DataSource.MOCK);
+  const [currentDataSource, setCurrentDataSource] = useState<DataSource>(dataSource);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -18,7 +29,7 @@ export const ReticulumDataSourceSelector: React.FC = () => {
 
   useEffect(() => {
     // Initialize with the current data source
-    setDataSource(sensorService.getDataSource());
+    setCurrentDataSource(dataSource);
     
     // Check connection status
     const status = sensorService.getConnectionStatus();
@@ -31,6 +42,9 @@ export const ReticulumDataSourceSelector: React.FC = () => {
       setIsConnecting(status.isConnecting);
       setConnectionError(status.error);
     }, 1000);
+    
+    // Update local state when prop changes
+    setCurrentDataSource(dataSource);
     
     return () => clearInterval(timer);
   }, [sensorService]);
@@ -62,7 +76,11 @@ export const ReticulumDataSourceSelector: React.FC = () => {
     
     try {
       await sensorService.setDataSource(source);
-      setDataSource(source);
+      setCurrentDataSource(source);
+      // Call the prop callback
+      if (onDataSourceChange) {
+        await onDataSourceChange(source);
+      }
     } catch (error) {
       setConnectionError(error instanceof Error ? error.message : 'Unknown error');
     } finally {
@@ -79,7 +97,7 @@ export const ReticulumDataSourceSelector: React.FC = () => {
         <div>
           <h3 className="text-md font-medium text-gray-700">{t('sensors.dataSource')}</h3>
           <p className="text-sm text-gray-500">
-            {dataSource === DataSource.MOCK 
+            {currentDataSource === DataSource.MOCK 
               ? t('sensors.usingSimulatedData') 
               : t('sensors.connectedToReticulum')}
           </p>
@@ -89,11 +107,11 @@ export const ReticulumDataSourceSelector: React.FC = () => {
           <button
             onClick={() => handleDataSourceChange(DataSource.MOCK)}
             className={`px-3 py-1.5 text-sm font-medium rounded-md ${
-              dataSource === DataSource.MOCK
+              currentDataSource === DataSource.MOCK
                 ? 'bg-gray-200 text-gray-800'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
-            disabled={isConnecting || dataSource === DataSource.MOCK}
+            disabled={isConnecting || currentDataSource === DataSource.MOCK}
           >
             {t('sensors.simulated')}
           </button>
@@ -101,11 +119,11 @@ export const ReticulumDataSourceSelector: React.FC = () => {
           <button
             onClick={() => handleDataSourceChange(DataSource.RETICULUM)}
             className={`px-3 py-1.5 text-sm font-medium rounded-md ${
-              dataSource === DataSource.RETICULUM
+              currentDataSource === DataSource.RETICULUM
                 ? 'bg-green-600 text-white'
                 : 'bg-green-100 text-green-700 hover:bg-green-200'
             }`}
-            disabled={isConnecting || dataSource === DataSource.RETICULUM}
+            disabled={isConnecting || currentDataSource === DataSource.RETICULUM}
           >
             {isConnecting ? (
               <span className="flex items-center">
