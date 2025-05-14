@@ -50,42 +50,32 @@
   to = "/functions/translations"
   status = 200
 
-# Sideband API redirects - direct to the serverless function
+# Redirect all Sideband API endpoints to the serverless function
+# Remove the conflicting redirects and use a single rule with splat
 [[redirects]]
-  from = "/api/sideband/test-connection"
+  from = "/api/sideband/*"
   to = "/.netlify/functions/sideband-bridge"
   status = 200
+  force = true
 
-[[redirects]]
-  from = "/api/sideband/status"
-  to = "/.netlify/functions/sideband-bridge"
-  status = 200
-
-[[redirects]]
-  from = "/api/sideband/data"
-  to = "/.netlify/functions/sideband-bridge"
-  status = 200
-
-[[redirects]]
-  from = "/api/sideband/debug"
-  to = "/.netlify/functions/sideband-bridge"
-  status = 200
-
-# Sideband bridge API endpoints
+# Old API endpoints for backward compatibility
 [[redirects]]
   from = "/api/data"
-  to = "/.netlify/functions/sideband-bridge/data"
+  to = "/.netlify/functions/sideband-bridge"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/api/status"
-  to = "/.netlify/functions/sideband-bridge/status"
+  to = "/.netlify/functions/sideband-bridge"
   status = 200
+  force = true
   
 [[redirects]]
   from = "/api/debug"
-  to = "/.netlify/functions/sideband-bridge/debug"
+  to = "/.netlify/functions/sideband-bridge"
   status = 200
+  force = true
 
 # Direct access to Netlify functions for translations - using proxy path instead
 [[redirects]]
