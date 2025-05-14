@@ -40,6 +40,8 @@ intro_sl: |
   - Sodelujemo z raziskovalci in okoljskimi organizacijami
 
   Pridružite se nam pri prizadevanjih za izboljšanje urbane biotske raznovrstnosti in izgradnji odpornosti na podnebne spremembe v naši skupnosti!
-featured_projects: []
-featured_events: []
+featured_projects:
+  # Add projects here when needed
+featured_events:
+  # Add events here when needed
 ---
