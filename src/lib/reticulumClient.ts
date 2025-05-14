@@ -90,7 +90,23 @@ export class ReticulumClient {
   
   private constructor(config: ReticulumConfig = defaultReticulumConfig) {
     this.config = config;
-    this.baseUrl = `http://${this.config.sidebandHost}:${this.config.sidebandPort}`;
+    
+    // Determine the correct protocol based on the environment
+    const isProduction = typeof window !== 'undefined' && window.location.protocol === 'https:';
+    const protocol = isProduction ? 'https' : 'http';
+    
+    // Handle different environments:
+    // 1. Production (api:443): Use relative URLs to work with Netlify functions
+    // 2. Local development: Use full URLs with protocol
+    if (this.config.sidebandHost === 'api' && this.config.sidebandPort === 443) {
+      // For production, we'll use relative paths that will be handled by Netlify redirects
+      this.baseUrl = '';
+      console.log(`Initializing ReticulumClient in production mode with serverless functions`);
+    } else {
+      // For local development, use direct connection to the debug bridge
+      this.baseUrl = `${protocol}://${this.config.sidebandHost}:${this.config.sidebandPort}`;
+      console.log(`Initializing ReticulumClient in development mode with baseUrl: ${this.baseUrl}`);
+    }
   }
 
   public static getInstance(config?: ReticulumConfig): ReticulumClient {
@@ -226,11 +242,22 @@ export class ReticulumClient {
       console.log('Fetching sensor data from Sideband collector');
       
       // Construct the appropriate endpoint URL for the Sideband collector
-      let url = `${this.baseUrl}/api/data`;
+      let url;
       
-      if (this.config.sidebandHash) {
-        url = `${this.baseUrl}/collectors/${this.config.sidebandHash}/data`;
+      // For production with api:443 host, use the serverless function endpoint
+      if (this.config.sidebandHost === 'api' && this.config.sidebandPort === 443) {
+        url = `/api/sideband/data`;
+      } else {
+        // For development with local server, use direct API endpoint
+        url = `${this.baseUrl}/api/data`;
+        
+        // If we have a sidebandHash, use the collectors endpoint
+        if (this.config.sidebandHash) {
+          url = `${this.baseUrl}/collectors/${this.config.sidebandHash}/data`;
+        }
       }
+      
+      console.log(`Fetching data from: ${url}`);
       
       // Set a timeout for the fetch operation
       const controller = new AbortController();
@@ -385,7 +412,19 @@ export class ReticulumClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
       
-      const url = `${this.baseUrl}/api/status`;
+      // Use the appropriate API endpoint based on environment
+      let url;
+      
+      // For production (serverless function approach)
+      if (this.config.sidebandHost === 'api' && this.config.sidebandPort === 443) {
+        // Use the path that's configured in Netlify redirects
+        url = `/api/sideband/status`;
+      } else {
+        // For development with local Python bridge
+        url = `${this.baseUrl}/api/status`;
+      }
+      
+      console.log(`Attempting connection to Sideband at: ${url}`);
       
       const response = await fetch(url, {
         method: 'GET',
@@ -397,7 +436,20 @@ export class ReticulumClient {
       
       clearTimeout(timeoutId);
       
-      return response.ok;
+      if (response.ok) {
+        // Parse response to get more detailed status
+        try {
+          const data = await response.json();
+          console.log('Connection test successful, status:', data);
+          return true;
+        } catch (e) {
+          console.warn('Could not parse connection response:', e);
+          return response.ok; // Still return success based on HTTP status
+        }
+      } else {
+        console.error(`Connection test failed with status: ${response.status}`);
+        return false;
+      }
     } catch (error) {
       console.error('Connection attempt failed:', error);
       return false;
