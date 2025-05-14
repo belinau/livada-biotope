@@ -127,7 +127,7 @@ export const getStaticProps: GetStaticProps = async () => {
     });
 
   // Sort galleries by date (newest first)
-  galleries.sort((a, b) => {
+  galleries.sort((a: any, b: any) => {
     if (a.date && b.date) {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     }
