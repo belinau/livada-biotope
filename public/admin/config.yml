@@ -4,6 +4,13 @@ backend:
   branch: main
   base_url: https://api.netlify.com
   auth_endpoint: auth
+  commit_messages:
+    create: "Create {{collection}} \"{{slug}}\""
+    update: "Update {{collection}} \"{{slug}}\""
+    delete: "Delete {{collection}} \"{{slug}}\""
+    uploadMedia: "Upload \"{{path}}\""
+    deleteMedia: "Delete \"{{path}}\""
+    openAuthoring: "{{message}}"
 
 media_folder: public/images/uploads
 public_folder: /images/uploads
@@ -175,7 +182,7 @@ collections:
     label: "Pages"
     files:
       - label: "Home"
-        name: "home"
+        name: "home_page"
         file: "src/content/pages/home.md"
         fields:
           - { label: "English Title", name: "title_en", widget: "string" }
