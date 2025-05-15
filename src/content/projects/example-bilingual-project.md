@@ -1,17 +1,25 @@
 ---
-title_en: "Urban Biodiversity Initiative"
-title_sl: "Pobuda za mestno biotsko raznovrstnost"
-thumbnail: "/images/projects/urban-biodiversity.jpg"
-summary_en: "A community-driven project to increase biodiversity in urban environments through native plant installations and habitat creation."
-summary_sl: "Projekt, ki ga vodi skupnost, za povečanje biotske raznovrstnosti v mestnih okoljih z namestitvijo avtohtonih rastlin in ustvarjanjem habitatov."
+title_en: Urban Biodiversity Community Initiative
+title_sl: Skupnostna pobuda za urbano biotsko raznovrstnost
+thumbnail: ""
+summary_en: A community-driven initiative to increase biodiversity in urban
+  environments through native plant growing spots and pollinators' and other
+  animal habitat creation.
+summary_sl: Skupnostna pobuda za povečanje biotske raznovrstnosti v urbanih
+  okoljih z rastišči avtohtonih rastlin in ustvarjanjem habitatov za opraševalce
+  in druge živali.
 details:
   startDate: 2025-01-15
   endDate: 2025-12-31
-  status: "In Progress"
+  status: In Progress
   partners:
-    - "City of Ljubljana"
-    - "Botanical Garden Ljubljana"
-    - "University of Ljubljana"
+    - Grassroot initiative
+body_en: A community-driven initiative to increase biodiversity in urban
+  environments through native plant growing spots and pollinators' and other
+  animal habitat creation.
+body_sl: Skupnostna pobuda za povečanje biotske raznovrstnosti v urbanih okoljih
+  z umeščanjem rastišč avtohtonih rastlin in ustvarjanjem habitatov za
+  opraševalce in druge živali.
 ---
 
 <!-- English Content -->
