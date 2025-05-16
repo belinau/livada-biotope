@@ -47,7 +47,7 @@ export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorPr
     setCurrentDataSource(dataSource);
     
     return () => clearInterval(timer);
-  }, [sensorService]);
+  }, [sensorService, dataSource]);
 
   const configureSidebandHash = () => {
     if (!sidebandHash.trim()) {

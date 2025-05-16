@@ -6,11 +6,11 @@ import SharedLayout from '@/components/layout/SharedLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
 import StylizedImage from '@/components/StylizedImage';
+import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 import { 
   Box, 
   Container, 
   Typography, 
-  Grid, 
   Card, 
   CardContent, 
   CardMedia, 
@@ -57,7 +57,7 @@ export default function BlogPage({ posts }: BlogPageProps) {
       
       <Grid container spacing={4}>
         {posts.map((post) => (
-          <Grid item xs={12} md={6} lg={4} key={post.slug}>
+          <Grid item xs={12} md={6} lg={4} key={post.slug} component="div">
             <Card sx={{ 
               height: '100%', 
               display: 'flex', 

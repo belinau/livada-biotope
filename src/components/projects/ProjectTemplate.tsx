@@ -2,7 +2,10 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import { Box, Container, Typography, Paper, Grid, Button, Divider, Chip, Card, CardContent, CardActions } from '@mui/material';
+
+import { Box, Container, Typography, Paper, Button, Divider, Chip, Card, CardContent, CardActions } from '@mui/material';
+import Grid from '@/components/ui/Grid'; // Using our custom Grid component
+
 import { Project } from '@/types/project';
 import TranslationLoader from '@/components/TranslationLoader';
 import StylizedImage from '@/components/StylizedImage';

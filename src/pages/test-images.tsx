@@ -1,6 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
-import { Container, Typography, Grid, Box } from '@mui/material';
+import { Container, Typography, Box } from '@mui/material';
+import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 import TestImage from '../components/TestImage';
 import StylizedImage from '../components/StylizedImage';
 import SharedLayout from '@/components/layout/SharedLayout';
@@ -34,7 +35,7 @@ export default function TestImagesPage() {
         
         <Grid container spacing={3}>
           {testImages.map((image, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+            <Grid item xs={12} sm={6} md={4} key={index} component="div">
               <TestImage 
                 src={image.src} 
                 alt={image.alt} 
@@ -49,7 +50,7 @@ export default function TestImagesPage() {
         
         <Grid container spacing={3}>
           {testImages.map((image, index) => (
-            <Grid item xs={12} sm={6} md={4} key={`styled-${index}`}>
+            <Grid item xs={12} sm={6} md={4} key={`styled-${index}`} component="div">
               <Box sx={{ height: 200, mb: 2 }}>
                 <StylizedImage 
                   speciesName={{

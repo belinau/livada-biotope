@@ -4,8 +4,9 @@ import Head from 'next/head';
 import { useLanguage } from '../../contexts/LanguageContext';
 import useTranslations from '../../hooks/useTranslations';
 import LanguageSwitcher from '../common/LanguageSwitcher';
-import { Box, Container, Toolbar, IconButton, Typography, Drawer, List, ListItem, ListItemText, ListItemButton, Divider, Grid } from '@mui/material';
+import { Box, Container, Toolbar, IconButton, Typography, Drawer, List, ListItem, ListItemText, ListItemButton, Divider } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import Grid from '@/components/ui/Grid';
 
 interface LayoutProps {
   children: ReactNode;

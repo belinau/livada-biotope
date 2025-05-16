@@ -4,8 +4,9 @@ import Head from 'next/head';
 import { useLanguage } from '../../contexts/LanguageContext';
 import useTranslations from '../../hooks/useTranslations';
 import LanguageSwitcher from '../common/LanguageSwitcher';
-import { Typography, Box, Container, AppBar, Toolbar, Button, Grid, Paper, IconButton } from '@mui/material';
+import { Typography, Box, Container, AppBar, Toolbar, Button, Paper, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import Grid from '@/components/ui/Grid';
 
 // Define styled links to avoid TypeScript errors with '&:hover'
 const StyledLink = ({ href, children, style }: { href: string; children: React.ReactNode; style?: React.CSSProperties }) => (

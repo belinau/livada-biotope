@@ -4,11 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
 import TranslationLoader from '../components/TranslationLoader';
 import { EnhancedEventCalendar } from '@/components/features/EnhancedEventCalendar';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
+import { Box, Container, Typography, Paper, Button, Grid } from '@mui/material';
 import { green } from '@mui/material/colors';
 
 export default function Events() {
