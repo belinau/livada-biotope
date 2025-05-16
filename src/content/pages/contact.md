@@ -25,8 +25,11 @@ address: |
   Ljubljana, Slovenia
   Southern edge of the city, near the Ljubljana Marshes (Ljubljansko barje)
 map_location: Livada Biotope, Ljubljana
-map_coordinates: 46.0301,14.5089
+map_coordinates: '46.0301,14.5089'
 social:
+  facebook: https://facebook.com/livadabiotope
+  instagram: https://instagram.com/livadabiotope
+  twitter: https://twitter.com/livadabiotope
   bluesky: 
   inaturalist: 
 ---
