@@ -259,18 +259,18 @@ export class ReticulumClient {
       // Construct the appropriate endpoint URL for the Sideband collector
       let url;
       
-      // For production, use the serverless function endpoint directly
-      if (this.config.sidebandHost === 'api' && this.config.sidebandPort === 443) {
-        // In production, use the full path to the Netlify function
+      if (isProduction()) {
+        // In production, use the Netlify function endpoint
         url = `/.netlify/functions/sideband-bridge/data`;
+        console.log('Using production endpoint for sensor data');
+      } else if (this.config.sidebandHash) {
+        // For development with hash, use the collectors endpoint
+        url = `${this.baseUrl}/collectors/${this.config.sidebandHash}/data`;
+        console.log('Using development endpoint with hash for sensor data');
       } else {
-        // For development with local server, use direct API endpoint
+        // Fallback to generic development endpoint
         url = `${this.baseUrl}/api/sideband/data`;
-        
-        // If we have a sidebandHash, use the collectors endpoint
-        if (this.config.sidebandHash) {
-          url = `${this.baseUrl}/collectors/${this.config.sidebandHash}/data`;
-        }
+        console.log('Using generic development endpoint for sensor data');
       }
       
       console.log(`Fetching data from: ${url}`);
@@ -428,13 +428,20 @@ export class ReticulumClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
       
-      // Always use the Netlify function endpoint in production
-      const isProd = isProduction();
-      const url = isProd 
-        ? `/.netlify/functions/sideband-bridge/status`
-        : `${this.baseUrl}/api/status`;
-      
-      console.log(`Using ${isProd ? 'production' : 'development'} endpoint:`, url);
+      // Determine the appropriate status endpoint
+      let url;
+      if (isProduction()) {
+        url = `/.netlify/functions/sideband-bridge/status`;
+        console.log('Using production status endpoint');
+      } else if (this.config.sidebandHash) {
+        // For development with hash, use the collectors endpoint
+        url = `${this.baseUrl}/collectors/${this.config.sidebandHash}/status`;
+        console.log('Using development endpoint with hash for status');
+      } else {
+        // Fallback to generic development endpoint
+        url = `${this.baseUrl}/api/sideband/status`;
+        console.log('Using generic development endpoint for status');
+      }
       
       console.log(`Attempting connection to Sideband at: ${url}`);
       
