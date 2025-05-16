@@ -4,7 +4,7 @@
   functions = "netlify/functions"
 
 [build.environment]
-  NODE_VERSION = "18.17.0"
+  NODE_VERSION = "18.18.0"
   NEXT_USE_NETLIFY_EDGE = "true"
   # Disable secrets scanning for Auth0 environment variables
   SECRETS_SCAN_OMIT_KEYS = "AUTH0_DOMAIN,NEXT_PUBLIC_AUTH0_DOMAIN,AUTH0_AUDIENCE,NEXT_PUBLIC_AUTH0_AUDIENCE,AUTH0_CLIENT_ID,NEXT_PUBLIC_AUTH0_CLIENT_ID"
