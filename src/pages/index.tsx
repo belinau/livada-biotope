@@ -44,6 +44,8 @@ interface HomePageProps {
   homeData: {
     title_en: string;
     title_sl: string;
+    summary_en: string;
+    summary_sl: string;
     hero_text_en: string;
     hero_text_sl: string;
     subtitle_en: string;
