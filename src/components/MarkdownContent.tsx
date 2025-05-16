@@ -69,7 +69,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
             />
           ),
           code({ node, className, children, ...props }: { node?: any; className?: string; children: React.ReactNode; inline?: boolean }) {
-            const match = /language-(\w+)/.exec(className || '');
+            const _match = /language-(\w+)/.exec(className || '');
             const isInline = (props as any).inline;
             return !isInline ? (
               <pre>
