@@ -106,25 +106,45 @@ export const SensorVisualization: React.FC = () => {
   const testConnection = async () => {
     setConnectionTesting(true);
     try {
-      const response = await fetch('/api/sideband/test-connection');
+      // Use the correct status endpoint that matches our serverless function
+      const response = await fetch('/api/sideband/status');
+      
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}`);
+      }
+      
       const result = await response.json();
       
-      if (result.success) {
+      // Our serverless function returns { status: "online", ... } not { success: true }
+      if (result.status === "online") {
         setConnectionStatus('connected');
         setError(null);
         // Show success snackbar
-        setSnackbar({ open: true, message: 'Connection successful! Connected to Sideband bridge service', severity: 'success' });
+        setSnackbar({ 
+          open: true, 
+          message: `Connection successful! Connected to Sideband bridge (${result.environment || 'unknown'})`, 
+          severity: 'success' 
+        });
       } else {
         setConnectionStatus('disconnected');
-        setError(result.message || 'Failed to connect to Sideband');
+        setError('Sideband bridge responded but is not online');
         // Show error snackbar
-        setSnackbar({ open: true, message: `Connection failed! ${result.message || 'Unable to connect to Sideband bridge'}`, severity: 'error' });
+        setSnackbar({ 
+          open: true, 
+          message: `Connection issue: Sideband bridge is not online`, 
+          severity: 'error' 
+        });
       }
     } catch (err) {
+      console.error('Connection test error:', err);
       setConnectionStatus('disconnected');
       setError('Connection test failed. Server may be unavailable.');
       // Show error snackbar
-      setSnackbar({ open: true, message: 'Connection error! Error testing connection to Sideband bridge', severity: 'error' });
+      setSnackbar({ 
+        open: true, 
+        message: 'Connection error! Unable to reach Sideband bridge.', 
+        severity: 'error' 
+      });
     } finally {
       setConnectionTesting(false);
     }

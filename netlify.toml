@@ -50,32 +50,43 @@
   to = "/functions/translations"
   status = 200
 
-# Redirect all Sideband API endpoints to the serverless function
-# Remove the conflicting redirects and use a single rule with splat
+# Handle API requests - redirect to Netlify functions
 [[redirects]]
   from = "/api/sideband/*"
-  to = "/.netlify/functions/sideband-bridge"
+  to = "/.netlify/functions/sideband-bridge/:splat"
   status = 200
   force = true
 
-# Old API endpoints for backward compatibility
+# Handle legacy API endpoints with explicit redirects
 [[redirects]]
   from = "/api/data"
-  to = "/.netlify/functions/sideband-bridge"
+  to = "/.netlify/functions/sideband-bridge/data"
   status = 200
   force = true
+  [redirects.headers]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
 
 [[redirects]]
   from = "/api/status"
-  to = "/.netlify/functions/sideband-bridge"
+  to = "/.netlify/functions/sideband-bridge/status"
   status = 200
   force = true
+  [redirects.headers]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
   
 [[redirects]]
   from = "/api/debug"
-  to = "/.netlify/functions/sideband-bridge"
+  to = "/.netlify/functions/sideband-bridge/debug"
   status = 200
   force = true
+  [redirects.headers]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
 
 # Direct access to Netlify functions for translations - using proxy path instead
 [[redirects]]
