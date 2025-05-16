@@ -17,16 +17,12 @@
     "node-ical": "^0.17.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-markdown": "^9.0.1",
-    "react-syntax-highlighter": "^15.5.0",
-    "rehype-raw": "^7.0.0",
-    "remark-gfm": "^4.0.0"
+    "react-markdown": "^8.0.7"
   },
   "devDependencies": {
     "@types/node": "^20.11.30",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "@types/react-syntax-highlighter": "^15.5.11",
     "autoprefixer": "^10.4.17",
     "eslint": "^8.56.0",
     "eslint-config-next": "^14.1.0",
