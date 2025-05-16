@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '../../contexts/LanguageContext';
 import useTranslations from '../../hooks/useTranslations';
-import { fetchWithCache } from '../../lib/cacheUtils';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
