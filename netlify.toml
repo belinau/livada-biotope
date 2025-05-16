@@ -2,10 +2,23 @@
   command = "npm install --legacy-peer-deps && next build"
   publish = ".next"
   functions = "netlify/functions"
+  ignore = "git diff --quiet HEAD^ HEAD -- ."  # Only build if there are actual changes
 
 [build.environment]
+  # Only build specific branches (comma-separated list)
+  # Uncomment one of these approaches:
+  # 1. Build only specific branches:
+  # BRANCH = "main, master, develop"
+  
+  # 2. Or ignore specific branch patterns:
+  # IGNORE = "^dependabot/.*|^renovate/.*|^chore/.*|^docs/.*"
+  
+  # Node.js version
   NODE_VERSION = "18.18.0"
+  
+  # Next.js configuration
   NEXT_USE_NETLIFY_EDGE = "true"
+  
   # Disable secrets scanning for Auth0 environment variables
   SECRETS_SCAN_OMIT_KEYS = "AUTH0_DOMAIN,NEXT_PUBLIC_AUTH0_DOMAIN,AUTH0_AUDIENCE,NEXT_PUBLIC_AUTH0_AUDIENCE,AUTH0_CLIENT_ID,NEXT_PUBLIC_AUTH0_CLIENT_ID"
 
