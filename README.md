@@ -87,7 +87,6 @@ livada-biotope/
 - Next.js
 - React
 - TypeScript
-- Tailwind CSS
 - Chart.js
 - Next-intl
 - React Calendar
