@@ -50,83 +50,20 @@ exports.handler = async function(event, context) {
 
   try {
     // Handle different endpoints
-    switch(endpoint) {
-      case 'status':
-      case 'test-connection':
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({
-            status: "online",
-            version: "1.0.0",
-            timestamp: new Date().toISOString()
-          })
-        };
-        
-      case 'data':
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify(mockSensorData)
-        };
-        
-      case 'debug':
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({
-            request: {
-              path: event.path,
-              httpMethod: event.httpMethod,
-              headers: event.headers,
-              queryStringParameters: event.queryStringParameters || {}
-            },
-            environment: {
-              NODE_ENV: process.env.NODE_ENV || 'development'
-            }
-          })
-        };
-        
-      default:
-        return {
-          statusCode: 404,
-          headers,
-          body: JSON.stringify({ error: "Endpoint not found", endpoint })
-        };
-    }
-  } catch (error) {
-    console.error("Error in sideband-bridge function:", error);
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: "Internal server error", message: error.message })
-    };
-  }
-  if (!endpoint && event.queryStringParameters && event.queryStringParameters.endpoint) {
-    endpoint = event.queryStringParameters.endpoint;
-  }
-
-  console.log("Extracted endpoint:", endpoint);
-  
-  // Handle requests based on endpoint
-  try {
-    // Handle test connection request
-    if (endpoint === 'test-connection' || endpoint === 'status') {
-      console.log("Handling status endpoint");
+    if (endpoint === 'status' || endpoint === 'test-connection') {
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
           status: "online",
           version: "1.0.0",
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          environment: process.env.NODE_ENV || 'development'
         })
       };
     }
     
-    // Handle data request
     if (endpoint === 'data') {
-      console.log("Handling data endpoint");
       return {
         statusCode: 200,
         headers,
@@ -134,9 +71,7 @@ exports.handler = async function(event, context) {
       };
     }
     
-    // Handle debug request
     if (endpoint === 'debug') {
-      console.log("Handling debug endpoint");
       return {
         statusCode: 200,
         headers,
@@ -148,18 +83,17 @@ exports.handler = async function(event, context) {
             queryStringParameters: event.queryStringParameters || {}
           },
           environment: {
+            NODE_ENV: process.env.NODE_ENV || 'development',
             SIDEBAND_HOST: process.env.NEXT_PUBLIC_SIDEBAND_HOST || 'Not configured',
             SIDEBAND_PORT: process.env.NEXT_PUBLIC_SIDEBAND_PORT || 'Not configured',
-            SIDEBAND_HASH: process.env.NEXT_PUBLIC_SIDEBAND_HASH || 'Not configured',
-            NODE_ENV: process.env.NODE_ENV || 'development'
+            SIDEBAND_HASH: process.env.NEXT_PUBLIC_SIDEBAND_HASH || 'Not configured'
           }
         })
       };
     }
     
-    // Handle reticulum link request - this would establish a link in a real implementation
+    // Handle reticulum link request
     if (endpoint === 'link' || endpoint === 'connect') {
-      console.log("Handling link/connect endpoint");
       return {
         statusCode: 200,
         headers,
@@ -172,18 +106,30 @@ exports.handler = async function(event, context) {
     }
     
     // Return 404 for unknown endpoints
-    console.log("Unknown endpoint:", endpoint);
     return {
       statusCode: 404,
       headers,
-      body: JSON.stringify({ error: "Unknown endpoint", requestedEndpoint: endpoint })
+      body: JSON.stringify({ 
+        error: "Endpoint not found", 
+        requestedEndpoint: endpoint,
+        availableEndpoints: [
+          'status',
+          'data',
+          'debug',
+          'connect'
+        ]
+      })
     };
+    
   } catch (error) {
     console.error("Error in sideband-bridge function:", error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: "Internal server error", message: error.message })
+      body: JSON.stringify({ 
+        error: "Internal server error", 
+        message: error.message 
+      })
     };
   }
 };

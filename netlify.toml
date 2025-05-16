@@ -45,6 +45,15 @@
 # Add external packages that might be causing build issues
 [functions]
   external_node_modules = ["node-fetch", "jsonwebtoken", "jwks-rsa", "node-cache", "node-ical", "react-markdown", "remark", "remark-html"]
+  node_bundler = "esbuild"
+  included_files = ["netlify/functions/sideband-bridge.js"]
+
+# Handle Sideband bridge requests
+[[redirects]]
+  from = "/.netlify/functions/sideband-bridge/*"
+  to = "/.netlify/functions/sideband-bridge"
+  status = 200
+  force = true
 
 # Handle Next.js routes and Auth0 callbacks
 [[redirects]]
