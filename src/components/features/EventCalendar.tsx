@@ -180,8 +180,8 @@ export const EventCalendar: React.FC = () => {
           </Typography>
         </Box>
       ) : (
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
+        <Grid container spacing={4} component="div">
+          <Grid item xs={12} md={6} component="div">
             <Box sx={{ 
               '& .react-calendar': { 
                 width: '100%', 
@@ -211,7 +211,7 @@ export const EventCalendar: React.FC = () => {
             </Box>
           </Grid>
           
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6} component="div">
             <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', mb: 2 }}>
               {selectedEvents.length > 0 
                 ? `${language === 'en' ? 'Events on' : 'Dogodki na'} ${date instanceof Date ? date.toLocaleDateString(language === 'sl' ? 'sl-SI' : 'en-US') : ''}` 

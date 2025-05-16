@@ -12,12 +12,12 @@ import {
   AppBar, 
   Toolbar, 
   Button, 
-  Grid, 
   IconButton,
   Paper,
   ThemeProvider,
   createTheme
 } from '@mui/material';
+import Grid from '@/components/ui/Grid';
 
 interface EcoFeministLayoutProps {
   children: ReactNode;

@@ -236,8 +236,8 @@ export const EnhancedEventCalendar: React.FC = () => {
         </Box>
       </Paper>
       
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={7}>
+      <Grid container spacing={4} component="div">
+        <Grid item xs={12} md={7} component="div">
           <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
             <CalendarIcon sx={{ mr: 1 }} />
             {language === 'en' ? 'Event Calendar' : 'Koledar dogodkov'}
@@ -369,7 +369,7 @@ export const EnhancedEventCalendar: React.FC = () => {
           )}
         </Grid>
         
-        <Grid item xs={12} md={5}>
+        <Grid item xs={12} md={5} component="div">
           <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
             <InfoIcon sx={{ mr: 1 }} />
             {language === 'en' ? 'Upcoming Events' : 'Prihajajoči dogodki'}

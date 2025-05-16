@@ -15,9 +15,9 @@ import {
   Toolbar,
   Button,
   IconButton,
-  Grid,
   Paper
 } from '@mui/material';
+import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 
 interface BlogLayoutProps {
   children: React.ReactNode;
@@ -189,8 +189,8 @@ export default function BlogLayout({ children, title, description }: BlogLayoutP
           py: 6
         }}>
           <Container maxWidth="lg">
-            <Grid container spacing={4}>
-              <Grid item xs={12} md={4}>
+            <Grid container spacing={4} component="div">
+              <Grid item xs={12} md={4} component="div">
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
                   {t('Footer.about')}
                 </Typography>
@@ -198,7 +198,7 @@ export default function BlogLayout({ children, title, description }: BlogLayoutP
                   {t('Footer.aboutDescription')}
                 </Typography>
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={4} component="div">
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
                   {t('Footer.contact')}
                 </Typography>
@@ -209,7 +209,7 @@ export default function BlogLayout({ children, title, description }: BlogLayoutP
                   Ljubljana, Slovenia
                 </Typography>
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={4} component="div">
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
                   {t('Footer.social')}
                 </Typography>
