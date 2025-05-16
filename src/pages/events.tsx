@@ -4,8 +4,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
 import TranslationLoader from '../components/TranslationLoader';
 import { EnhancedEventCalendar } from '@/components/features/EnhancedEventCalendar';
-import { Box, Container, Typography, Paper, Button, Grid } from '@mui/material';
+import { Box, Container, Typography, Paper, Button } from '@mui/material';
 import { green } from '@mui/material/colors';
+import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 
 export default function Events() {
   const { language } = useLanguage();

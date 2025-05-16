@@ -18,11 +18,11 @@ import {
   ListItemText, 
   ListItemButton, 
   Divider, 
-  Grid,
   Button,
   ThemeProvider,
   createTheme
 } from '@mui/material';
+import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 
 // Create a theme instance
 const theme = createTheme({
