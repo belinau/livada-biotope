@@ -40,13 +40,13 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
           a: ({ node, href, ...props }) => (
             <MuiLink href={href} target="_blank" rel="noopener noreferrer" color="primary" {...props} />
           ),
-          ul: ({ node, ordered, ...props }) => (
+          ul: ({ node, ...props }) => (
             <Box component="ul" sx={{ pl: 3, mb: 2 }} {...props} />
           ),
-          ol: ({ node, ordered, ...props }) => (
+          ol: ({ node, ...props }) => (
             <Box component="ol" sx={{ pl: 3, mb: 2 }} {...props} />
           ),
-          li: ({ node, ordered, ...props }) => (
+          li: ({ node, ...props }) => (
             <li>
               <Typography component="span" variant="body1">
                 {props.children}
@@ -68,9 +68,10 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
               {...props} 
             />
           ),
-          code({ node, inline, className, children, ...props }) {
+          code({ node, className, children, ...props }: { node?: any; className?: string; children: React.ReactNode; inline?: boolean }) {
             const match = /language-(\w+)/.exec(className || '');
-            return !inline ? (
+            const isInline = (props as any).inline;
+            return !isInline ? (
               <pre>
                 <code className={className} {...props}>
                   {children}
