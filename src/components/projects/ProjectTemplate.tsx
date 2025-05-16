@@ -109,8 +109,8 @@ export default function ProjectTemplate({ project, projects }: ProjectTemplatePr
               <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
                 <StylizedImage
                   speciesName={{
-                    en: typeof project.title === 'string' ? project.title : project.title.en || 'Project',
-                    sl: typeof project.title === 'string' ? project.title : project.title.sl || 'Projekt'
+                    en: project.title_en || 'Project',
+                    sl: project.title_sl || 'Projekt'
                   }}
                   latinName="Project"
                   backgroundColor="#f8f5e6"
@@ -118,7 +118,7 @@ export default function ProjectTemplate({ project, projects }: ProjectTemplatePr
                   pattern="lines"
                   width="100%"
                   height="100%"
-                  style={{ objectFit: 'cover' }}
+                  objectFit="cover"
                   imageSrc={project.thumbnail}
                 />
               </Box>
