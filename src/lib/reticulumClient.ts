@@ -68,16 +68,24 @@ export interface ReticulumConfig {
   maxRetries: number;
 }
 
+// Helper to determine if we're in production
+const isProduction = typeof window !== 'undefined' 
+  ? window.location.hostname === 'livada.bio' 
+  : process.env.NODE_ENV === 'production';
+
 // Default configuration with environment variables
 export const defaultReticulumConfig: ReticulumConfig = {
-  // In production, use relative paths to work with Netlify functions
+  // In production, use api as host to trigger Netlify functions
   // In development, use localhost or the specified host
-  sidebandHost: process.env.NEXT_PUBLIC_SIDEBAND_HOST || 
-    (typeof window !== 'undefined' ? window.location.hostname : 'localhost'),
+  sidebandHost: isProduction 
+    ? 'api'  // This will be used to trigger Netlify redirects
+    : (process.env.NEXT_PUBLIC_SIDEBAND_HOST || 
+      (typeof window !== 'undefined' ? window.location.hostname : 'localhost')),
   
   // Use 443 in production, or the specified port (or 3000 in development)
-  sidebandPort: process.env.NODE_ENV === 'production' ? 443 : 
-    (parseInt(process.env.NEXT_PUBLIC_SIDEBAND_PORT || '3000')),
+  sidebandPort: isProduction 
+    ? 443 
+    : (parseInt(process.env.NEXT_PUBLIC_SIDEBAND_PORT || '3000')),
   
   // Use the provided hash or fallback to the default
   sidebandHash: process.env.NEXT_PUBLIC_SIDEBAND_HASH || 'a3641ddf337fcb827bdc092a4d9fd9de',
@@ -422,19 +430,11 @@ export class ReticulumClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
       
-      // Use the appropriate API endpoint based on environment
-      let url;
-      
-      // For production (serverless function approach)
-      if (this.config.sidebandHost === 'api' && this.config.sidebandPort === 443) {
-        // Use the direct path to the Netlify function
-        url = `/.netlify/functions/sideband-bridge/status`;
-        console.log('Using production endpoint for connection test:', url);
-      } else {
-        // For development with local Python bridge
-        url = `${this.baseUrl}/api/status`;
-        console.log('Using development endpoint for connection test:', url);
-      }
+      // Always use the Netlify function endpoint in production
+      const isProd = this.config.sidebandHost === 'api' && this.config.sidebandPort === 443;
+      const url = isProd 
+        ? `/.netlify/functions/sideband-bridge/status`
+        : `${this.baseUrl}/api/status`;
       
       console.log(`Attempting connection to Sideband at: ${url}`);
       
