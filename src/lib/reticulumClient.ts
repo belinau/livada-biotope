@@ -70,12 +70,21 @@ export interface ReticulumConfig {
 
 // Default configuration with environment variables
 export const defaultReticulumConfig: ReticulumConfig = {
-  sidebandHost: typeof window !== 'undefined' ? (process.env.NEXT_PUBLIC_SIDEBAND_HOST || 'localhost') : 'localhost',
-  sidebandPort: typeof window !== 'undefined' ? parseInt(process.env.NEXT_PUBLIC_SIDEBAND_PORT || '4242') : 4242,
-  sidebandHash: typeof window !== 'undefined' ? (process.env.NEXT_PUBLIC_SIDEBAND_HASH || 'a3641ddf337fcb827bdc092a4d9fd9de') : 'a3641ddf337fcb827bdc092a4d9fd9de',
-  pollInterval: 10000, // Poll every 10 seconds
-  retryInterval: 5000, // Retry connection every 5 seconds
-  maxRetries: 5
+  // In production, use relative paths to work with Netlify functions
+  // In development, use localhost or the specified host
+  sidebandHost: process.env.NEXT_PUBLIC_SIDEBAND_HOST || 
+    (typeof window !== 'undefined' ? window.location.hostname : 'localhost'),
+  
+  // Use 443 in production, or the specified port (or 3000 in development)
+  sidebandPort: process.env.NODE_ENV === 'production' ? 443 : 
+    (parseInt(process.env.NEXT_PUBLIC_SIDEBAND_PORT || '3000')),
+  
+  // Use the provided hash or fallback to the default
+  sidebandHash: process.env.NEXT_PUBLIC_SIDEBAND_HASH || 'a3641ddf337fcb827bdc092a4d9fd9de',
+  
+  pollInterval: 30000, // Poll every 30 seconds (reduced from 10s to reduce load)
+  retryInterval: 10000, // Retry connection every 10 seconds (increased from 5s)
+  maxRetries: 3 // Reduced max retries to fail faster
 };
 
 export class ReticulumClient {

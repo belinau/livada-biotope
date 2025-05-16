@@ -12,6 +12,7 @@ exports.handler = async function(event, context) {
   console.log("Sideband bridge function invoked");
   console.log("Path:", event.path);
   console.log("HTTP method:", event.httpMethod);
+  console.log("Query params:", event.queryStringParameters);
   
   // Set CORS headers to allow requests from any origin
   const headers = {
@@ -30,25 +31,77 @@ exports.handler = async function(event, context) {
     };
   }
 
-  // Extract endpoint from path - handle both /api/sideband/* pattern and direct function invocation
+  // Extract endpoint from path
   let endpoint = "";
   
+  // Handle different path patterns
   if (event.path.includes('/api/sideband/')) {
-    // Path pattern: /api/sideband/endpoint
     endpoint = event.path.split('/api/sideband/')[1];
   } else if (event.path.includes('/.netlify/functions/sideband-bridge/')) {
-    // Path pattern: /.netlify/functions/sideband-bridge/endpoint
     endpoint = event.path.split('/.netlify/functions/sideband-bridge/')[1];
-  } else if (event.path.includes('/.netlify/functions/sideband-bridge')) {
-    // Path pattern: /.netlify/functions/sideband-bridge with query params
-    const params = new URLSearchParams(event.queryStringParameters || {});
-    endpoint = params.get('endpoint') || 'status'; // Default to status if no endpoint specified
+  } else if (event.path === '/.netlify/functions/sideband-bridge') {
+    // Handle root path with query parameters
+    endpoint = event.queryStringParameters?.endpoint || 'status';
   } else if (event.path.includes('/api/')) {
-    // Legacy path pattern: /api/endpoint
     endpoint = event.path.split('/api/')[1];
   }
-  
-  // Also check if the endpoint is in the query parameters (useful for POST requests)
+
+  console.log("Extracted endpoint:", endpoint);
+
+  try {
+    // Handle different endpoints
+    switch(endpoint) {
+      case 'status':
+      case 'test-connection':
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            status: "online",
+            version: "1.0.0",
+            timestamp: new Date().toISOString()
+          })
+        };
+        
+      case 'data':
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify(mockSensorData)
+        };
+        
+      case 'debug':
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            request: {
+              path: event.path,
+              httpMethod: event.httpMethod,
+              headers: event.headers,
+              queryStringParameters: event.queryStringParameters || {}
+            },
+            environment: {
+              NODE_ENV: process.env.NODE_ENV || 'development'
+            }
+          })
+        };
+        
+      default:
+        return {
+          statusCode: 404,
+          headers,
+          body: JSON.stringify({ error: "Endpoint not found", endpoint })
+        };
+    }
+  } catch (error) {
+    console.error("Error in sideband-bridge function:", error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: "Internal server error", message: error.message })
+    };
+  }
   if (!endpoint && event.queryStringParameters && event.queryStringParameters.endpoint) {
     endpoint = event.queryStringParameters.endpoint;
   }

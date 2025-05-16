@@ -19,17 +19,54 @@ npm install
 ```
 
 2. Configure environment variables:
-Create a `.env.local` file in the root directory and add:
-```
-NEXT_PUBLIC_SENSOR_API_URL=your-sensor-api-url
-```
+   - Copy `.env.example` to `.env.local`
+   - Update the values in `.env.local` with your configuration
 
 3. Start the development server:
 ```bash
 npm run dev
+# Or use netlify dev for full Netlify Functions support
+netlify dev
 ```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Sideband Bridge
+
+The Sideband bridge is a Netlify Function that provides an API for sensor data. It's located in `netlify/functions/sideband-bridge.js`.
+
+### Available Endpoints
+
+- `GET /api/sideband/status` - Check if the bridge is online
+- `GET /api/sideband/data` - Get sensor data
+- `GET /api/sideband/debug` - Debug information
+
+### Development
+
+1. Start the Netlify dev server:
+   ```bash
+   netlify dev
+   ```
+
+2. Test the API endpoints:
+   - http://localhost:8888/api/sideband/status
+   - http://localhost:8888/api/sideband/data
+   - http://localhost:8888/api/sideband/debug
+
+### Deployment
+
+The Sideband bridge is automatically deployed with your Netlify site. The production endpoints will be available at:
+- `https://your-site.netlify.app/api/sideband/status`
+- `https://your-site.netlify.app/api/sideband/data`
+- `https://your-site.netlify.app/api/sideband/debug`
+
+### Environment Variables
+
+Set these in your Netlify site settings:
+
+- `NEXT_PUBLIC_SIDEBAND_HOST` - Your Netlify site URL (e.g., your-site.netlify.app)
+- `NEXT_PUBLIC_SIDEBAND_PORT` - 443 for production
+- `NEXT_PUBLIC_SIDEBAND_HASH` - Your Sideband collector hash
 
 ## Project Structure
 
