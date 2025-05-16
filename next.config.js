@@ -46,6 +46,16 @@ const nextConfig = {
   assetPrefix: process.env.NODE_ENV === 'production' ? 'https://livada-bio.netlify.app' : '',
   // Add webpack configuration
   webpack: (config, { isServer }) => {
+    // Handle Material-UI ESM modules
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@mui/material': '@mui/material/legacy',
+      '@mui/styled-engine': '@mui/styled-engine/legacy',
+      '@mui/system': '@mui/system/legacy',
+      '@mui/base': '@mui/base/legacy',
+      '@mui/utils': '@mui/utils/legacy',
+    };
+
     // Fixes npm packages that depend on `fs` module
     if (!isServer) {
       config.resolve.fallback = {
