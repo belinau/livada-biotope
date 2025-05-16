@@ -9,7 +9,7 @@ import StylizedImage from '../components/StylizedImage';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/GridLegacy'; // Using GridLegacy for MUI v7 compatibility
+import Grid from '@/components/ui/Grid'; // Custom Grid component with proper types
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import Paper from '@mui/material/Paper';
@@ -110,7 +110,7 @@ export default function Home({ homeData }: HomePageProps) {
             zIndex: 1
           }
         }}
-      >
+ >
         {/* Hero Image */}
         {homeData.hero_image && (
           <Box sx={{ 
@@ -143,7 +143,7 @@ export default function Home({ homeData }: HomePageProps) {
               mb: 2,
               lineHeight: 1.2
             }}
-          >
+ >
             {getContent(homeData.hero_text_en, homeData.hero_text_sl)}
           </Typography>
           
@@ -156,7 +156,7 @@ export default function Home({ homeData }: HomePageProps) {
               mb: 4,
               fontStyle: 'italic'
             }}
-          >
+ >
             {getContent(homeData.subtitle_en, homeData.subtitle_sl)}
           </Typography>
           
@@ -177,7 +177,7 @@ export default function Home({ homeData }: HomePageProps) {
                 boxShadow: 6,
               }
             }}
-          >
+ >
             {t('common.learnMore')}
           </Button>
         </Container>
@@ -235,7 +235,7 @@ export default function Home({ homeData }: HomePageProps) {
       <Box sx={{ bgcolor: 'background.default', py: { xs: 6, md: 10 } }}>
         <Container maxWidth="lg">
           <Grid container spacing={6} alignItems="center">
-            <Grid item xs={12} md={6} component="div">
+            <Grid xs={12} md={6}>
               <Typography
                 variant="h6"
                 component="p"
@@ -248,7 +248,7 @@ export default function Home({ homeData }: HomePageProps) {
                 variant="h3"
                 component="h2"
                 sx={{ fontWeight: 700, mb: 3 }}
-              >
+ >
                 {t('home.preservingBiodiversity')}
               </Typography>
               <Typography paragraph sx={{ mb: 3 }}>
@@ -264,11 +264,11 @@ export default function Home({ homeData }: HomePageProps) {
                 href="/about"
                 sx={{ mt: 2 }}
                 endIcon={<Box component="span" sx={{ ml: 1 }}>→</Box>}
-              >
+ >
                 {t('nav.about')}
               </Button>
             </Grid>
-            <Grid item xs={12} md={6} component="div">
+            <Grid xs={12} md={6}>
               <Paper 
                 elevation={3} 
                 sx={{
@@ -277,11 +277,11 @@ export default function Home({ homeData }: HomePageProps) {
                   transform: 'rotate(1deg)',
                   '&:hover': {
                     transform: 'rotate(0deg)',
-                    boxShadow: 8,
+                    boxShadow: 8
                   },
                   transition: 'all 0.3s ease'
                 }}
-              >
+ >
                 <Box sx={{ width: '100%', height: { xs: '300px', sm: '400px', md: '500px' } }}>
                   <StylizedImage 
                     speciesName={{
@@ -312,14 +312,14 @@ export default function Home({ homeData }: HomePageProps) {
               component="p"
               color="primary"
               sx={{ fontWeight: 600, mb: 2, textTransform: 'uppercase', letterSpacing: 1 }}
-            >
+ >
               {t('projects.sectionTitle')}
             </Typography>
             <Typography
               variant="h3"
               component="h2"
               sx={{ fontWeight: 700, mb: 3, maxWidth: '800px', mx: 'auto' }}
-            >
+ >
               {t('projects.sectionSubtitle')}
             </Typography>
             <Typography sx={{ maxWidth: '700px', mx: 'auto' }}>
@@ -328,9 +328,9 @@ export default function Home({ homeData }: HomePageProps) {
           </Box>
           
           {/* Project Cards */}
-          <Grid container spacing={4}>
+          <Grid container spacing={4} disableEqualOverflow>
             {/* Project Card 1 */}
-            <Grid item xs={12} sm={6} md={4} component="div">
+            <Grid xs={12} sm={6} md={4}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ height: '200px', mb: 2 }}>
                   <StylizedImage 
@@ -363,7 +363,7 @@ export default function Home({ homeData }: HomePageProps) {
             </Grid>
             
             {/* Project Card 2 */}
-            <Grid item xs={12} sm={6} md={4} component="div">
+            <Grid xs={12} sm={6} md={4}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ height: '220px', position: 'relative' }}>
                   <StylizedImage 
@@ -397,7 +397,7 @@ export default function Home({ homeData }: HomePageProps) {
             </Grid>
             
             {/* Project Card 3 */}
-            <Grid item xs={12} sm={6} md={4} component="div">
+            <Grid xs={12} sm={6} md={4}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ height: '220px', position: 'relative' }}>
                   <StylizedImage 
@@ -438,7 +438,7 @@ export default function Home({ homeData }: HomePageProps) {
               component={Link} 
               href="/projects"
               endIcon={<Box component="span" sx={{ ml: 1 }}>→</Box>}
-            >
+ >
               {t('projects.viewAll')}
             </Button>
           </Box>
