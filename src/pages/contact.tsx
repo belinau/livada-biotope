@@ -6,11 +6,11 @@ import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
 import TranslationLoader from '@/components/TranslationLoader';
+import Grid from '@/components/ui/Grid'; // Import our custom Grid
 import { 
   Box, 
   Container, 
   Typography, 
-  Grid, 
   Paper, 
   Button, 
   TextField, 
@@ -18,12 +18,11 @@ import {
   InputLabel, 
   MenuItem, 
   Select, 
-  Divider, 
+  Divider,
   useTheme,
   useMediaQuery,
-  Link as MuiLink,
-  IconButton,
-  styled
+  styled,
+  alpha
 } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -46,10 +45,8 @@ interface ContactPageProps {
     map_location: string;
     map_coordinates: string;
     social: {
-      facebook?: string;
-      instagram?: string;
-      twitter?: string;
-    };
+    [key: string]: string;
+  };
   };
 }
 
@@ -73,15 +70,31 @@ const StyledLink = ({ href, children }: { href: string; children: React.ReactNod
   </Link>
 );
 
-export default function ContactPage({ content }: ContactPageProps) {
+// Default content in case it's not provided
+const defaultContent = {
+  title_en: 'Contact Us',
+  title_sl: 'Kontaktirajte nas',
+  body_en: 'Error loading content. Please try again later.',
+  body_sl: 'Napaka pri nalaganju vsebine. Poskusite znova kasneje.',
+  email: 'info@livada.bio',
+  address: 'Livada Biotope, Ljubljana, Slovenia',
+  map_location: 'Livada Biotope, Ljubljana',
+  map_coordinates: '46.0301,14.5089',
+  social: {}
+};
+
+export default function ContactPage({ content = defaultContent }: { content?: Partial<ContactPageProps['content']> }) {
   const { language } = useLanguage();
   const { t } = useTranslations();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
+  // Use provided content or fall back to defaults
+  const safeContent = { ...defaultContent, ...content };
+  
   const getContent = (en: string, sl: string) => (language === 'en' ? en : sl);
-  const title = getContent(content.title_en, content.title_sl);
-  const body = getContent(content.body_en, content.body_sl);
+  const title = getContent(safeContent.title_en, safeContent.title_sl);
+  const body = getContent(safeContent.body_en, safeContent.body_sl);
   
   const [formData, setFormData] = React.useState({
     name: '',
@@ -118,6 +131,7 @@ export default function ContactPage({ content }: ContactPageProps) {
   
   // Process markdown content
   const processMarkdown = (text: string) => {
+    if (!text) return '';
     return text
       .split('\n')
       .map((paragraph, i) => {
@@ -285,6 +299,9 @@ export default function ContactPage({ content }: ContactPageProps) {
                   rows={4}
                   required
                   margin="normal"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
                 />
                 
                 <Button 
@@ -313,16 +330,16 @@ export default function ContactPage({ content }: ContactPageProps) {
                 
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                   <EmailIcon color="primary" sx={{ mr: 2 }} />
-                  <MuiLink href={`mailto:${content.email}`} color="inherit">
-                    {content.email}
-                  </MuiLink>
+                  <Link href={`mailto:${safeContent.email}`} color="inherit">
+                    {safeContent.email}
+                  </Link>
                 </Box>
                 
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 3 }}>
                   <LocationOnIcon color="primary" sx={{ mr: 2, mt: 0.5 }} />
                   <Box>
-                    {content.address.split('\n').map((line, i) => (
-                      <Typography key={i} paragraph={i < content.address.split('\n').length - 1}>
+                    {safeContent.address.split('\n').map((line, i) => (
+                      <Typography key={i} paragraph={i < safeContent.address.split('\n').length - 1}>
                         {line}
                       </Typography>
                     ))}
@@ -333,7 +350,7 @@ export default function ContactPage({ content }: ContactPageProps) {
                   variant="outlined"
                   color="primary"
                   startIcon={<LocationOnIcon />}
-                  href={`https://www.google.com/maps?q=${content.map_coordinates}`}
+                  href={`https://www.google.com/maps?q=${safeContent.map_coordinates}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   sx={{ mb: 3 }}
@@ -347,40 +364,7 @@ export default function ContactPage({ content }: ContactPageProps) {
                   {t('contact.info.followUs', 'Follow Us')}
                 </Typography>
                 
-                <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                  {content.social.facebook && (
-                    <IconButton 
-                      href={content.social.facebook} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      color="primary"
-                    >
-                      <FacebookIcon />
-                    </IconButton>
-                  )}
-                  
-                  {content.social.instagram && (
-                    <IconButton 
-                      href={content.social.instagram} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      color="primary"
-                    >
-                      <InstagramIcon />
-                    </IconButton>
-                  )}
-                  
-                  {content.social.twitter && (
-                    <IconButton 
-                      href={content.social.twitter} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      color="primary"
-                    >
-                      <TwitterIcon />
-                    </IconButton>
-                  )}
-                </Box>
+                {/* Social media links removed as per user request */}
               </Box>
             </StyledCard>
           </Grid>
@@ -414,10 +398,58 @@ export default function ContactPage({ content }: ContactPageProps) {
         
         <Box sx={{ textAlign: 'center', mt: 4, mb: 4 }}>
           <Typography variant="body2" color="text.secondary">
-            © {new Date().getFullYear()} {t('contact.copyright', 'Livada Biotope. All rights reserved.')}
+            {new Date().getFullYear()} {t('contact.copyright', 'Livada Biotope. All rights reserved.')}
           </Typography>
         </Box>
       </Container>
     </Box>
   );
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+  try {
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const matter = (await import('gray-matter')).default;
+    
+    const contentPath = path.join(process.cwd(), 'src/content/pages/contact.md');
+    const fileContents = await fs.readFile(contentPath, 'utf8');
+    const { data } = matter(fileContents);
+    
+    // Ensure all required fields have default values
+    const content = {
+      title_en: data.title_en || 'Contact Us',
+      title_sl: data.title_sl || 'Kontaktirajte nas',
+      body_en: data.body_en || '',
+      body_sl: data.body_sl || '',
+      email: data.email || 'info@livada.bio',
+      address: data.address || 'Livada Biotope, Ljubljana, Slovenia',
+      map_location: data.map_location || 'Livada Biotope, Ljubljana',
+      map_coordinates: data.map_coordinates || '46.0301,14.5089',
+      social: data.social || {}
+    };
+    
+    return {
+      props: { content },
+      revalidate: 3600 // Revalidate at most once per hour
+    };
+  } catch (error) {
+    console.error('Error loading contact page content:', error);
+    return {
+      props: {
+        content: {
+          title_en: 'Contact Us',
+          title_sl: 'Kontaktirajte nas',
+          body_en: 'Error loading content. Please try again later.',
+          body_sl: 'Napaka pri nalaganju vsebine. Poskusite znova kasneje.',
+          email: 'info@livada.bio',
+          address: 'Livada Biotope, Ljubljana, Slovenia',
+          map_location: 'Livada Biotope, Ljubljana',
+          map_coordinates: '46.0301,14.5089',
+          social: {}
+        }
+      },
+      revalidate: 60 // Retry after 1 minute on error
+    };
+  }
+};

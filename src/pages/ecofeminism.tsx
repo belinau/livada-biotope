@@ -1,5 +1,6 @@
 import React from 'react';
 import Head from 'next/head';
+import { GetStaticProps } from 'next';
 import { useLanguage } from '../contexts/LanguageContext';
 import useTranslations from '../hooks/useTranslations';
 import TranslationLoader from '../components/TranslationLoader';
@@ -8,8 +9,8 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
+
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Divider from '@mui/material/Divider';
@@ -111,9 +112,9 @@ export default function Ecofeminism({ data }: EcofeminismProps) {
             {language === 'en' ? 'Key Concepts' : 'Ključni koncepti'}
           </Typography>
           
-          <Grid container spacing={4} sx={{ mb: 6 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 4, mb: 6 }}>
             {data.resources.map((resource, index) => (
-              <Grid item xs={12} md={4} key={index}>
+              <Box key={index}>
                 <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ height: 200 }}>
                     <StylizedImage
@@ -136,17 +137,17 @@ export default function Ecofeminism({ data }: EcofeminismProps) {
                     </Typography>
                   </CardContent>
                 </Card>
-              </Grid>
+             </Box>
             ))}
-          </Grid>
+         </Box>
           
           <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 4, fontWeight: 'bold', color: 'primary.main' }}>
             {language === 'en' ? 'Reading Recommendations' : 'Priporočeno branje'}
           </Typography>
           
-          <Grid container spacing={4} sx={{ mb: 6 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 4, mb: 6 }}>
             {data.readings.map((reading, index) => (
-              <Grid item xs={12} md={4} key={index}>
+              <Box key={index} sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Typography variant="h5" component="h3" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.dark' }}>
@@ -173,9 +174,9 @@ export default function Ecofeminism({ data }: EcofeminismProps) {
                     </Button>
                   </CardActions>
                 </Card>
-              </Grid>
+             </Box>
             ))}
-          </Grid>
+         </Box>
           
           <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 4, fontWeight: 'bold', color: 'primary.main' }}>
             {language === 'en' ? 'Videos & Podcasts' : 'Videi in podkasti'}
@@ -228,14 +229,64 @@ export default function Ecofeminism({ data }: EcofeminismProps) {
 }
 
 // This function gets called at build time on server-side
-export async function getStaticProps() {
-  const filePath = path.join(process.cwd(), 'src/content/resources/ecofeminism.md');
-  const fileContents = fs.readFileSync(filePath, 'utf8');
-  const { data } = matter(fileContents);
-  
-  return {
-    props: {
-      data
-    }
-  };
-}
+export const getStaticProps: GetStaticProps = async () => {
+  try {
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const matter = (await import('gray-matter')).default;
+    
+    const filePath = path.join(process.cwd(), 'src/content/resources/ecofeminism.md');
+    const fileContents = await fs.readFile(filePath, 'utf8');
+    const { data } = matter(fileContents);
+    
+    // Ensure all required fields have default values
+    const defaultData: EcofeminismData = {
+      title: 'Ecofeminism',
+      titleSl: 'Ekofeminizem',
+      description: 'Exploring the connections between ecology and feminism',
+      descriptionSl: 'Raziskovanje povezav med ekologijo in feminizmom',
+      introEn: '',
+      introSl: '',
+      introSecondEn: '',
+      introSecondSl: '',
+      resources: [],
+      readings: [],
+      media: []
+    };
+    
+    const ecofeminismData: EcofeminismData = {
+      ...defaultData,
+      ...data,
+      resources: data.resources || [],
+      readings: data.readings || [],
+      media: data.media || []
+    };
+    
+    return {
+      props: {
+        data: ecofeminismData
+      },
+      revalidate: 3600 // Revalidate at most once per hour
+    };
+  } catch (error) {
+    console.error('Error loading ecofeminism page content:', error);
+    return {
+      props: {
+        data: {
+          title: 'Ecofeminism',
+          titleSl: 'Ekofeminizem',
+          description: 'Error loading content. Please try again later.',
+          descriptionSl: 'Napaka pri nalaganju vsebine. Poskusite znova kasneje.',
+          introEn: 'Error loading content. Please try again later.',
+          introSl: 'Napaka pri nalaganju vsebine. Poskusite znova kasneje.',
+          introSecondEn: '',
+          introSecondSl: '',
+          resources: [],
+          readings: [],
+          media: []
+        }
+      },
+      revalidate: 60 // Retry after 1 minute on error
+    };
+  }
+};

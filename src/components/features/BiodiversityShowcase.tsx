@@ -1,14 +1,16 @@
 import React from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Chip from '@mui/material/Chip';
+
+import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 
 interface BiodiversityItem {
   id: string;
@@ -74,9 +76,9 @@ const BiodiversityShowcase: React.FC<BiodiversityShowcaseProps> = ({
         {description[language]}
       </Typography>
       
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
         {items.map((item) => (
-          <Grid item xs={12} sm={6} md={4} key={item.id}>
+          <Box key={item.id}>
             <Card 
               sx={{ 
                 height: '100%', 
@@ -149,9 +151,9 @@ const BiodiversityShowcase: React.FC<BiodiversityShowcaseProps> = ({
                 )}
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
       
       <Box sx={{ mt: 4, textAlign: 'center' }}>
         <Button 

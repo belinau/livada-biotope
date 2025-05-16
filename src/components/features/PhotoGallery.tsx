@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Typography, Grid, Modal, IconButton, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Typography, Modal, IconButton, useTheme, useMediaQuery } from '@mui/material';
+import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';

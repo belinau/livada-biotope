@@ -235,7 +235,7 @@ export default function Home({ homeData }: HomePageProps) {
       <Box sx={{ bgcolor: 'background.default', py: { xs: 6, md: 10 } }}>
         <Container maxWidth="lg">
           <Grid container spacing={6} alignItems="center">
-            <Grid xs={12} md={6}>
+            <Grid item xs={12} md={6}>
               <Typography
                 variant="h6"
                 component="p"
@@ -268,7 +268,7 @@ export default function Home({ homeData }: HomePageProps) {
                 {t('nav.about')}
               </Button>
             </Grid>
-            <Grid xs={12} md={6}>
+            <Grid item xs={12} md={6}>
               <Paper 
                 elevation={3} 
                 sx={{
@@ -330,7 +330,7 @@ export default function Home({ homeData }: HomePageProps) {
           {/* Project Cards */}
           <Grid container spacing={4} disableEqualOverflow>
             {/* Project Card 1 */}
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ height: '200px', mb: 2 }}>
                   <StylizedImage 
@@ -363,7 +363,7 @@ export default function Home({ homeData }: HomePageProps) {
             </Grid>
             
             {/* Project Card 2 */}
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ height: '220px', position: 'relative' }}>
                   <StylizedImage 
@@ -397,7 +397,7 @@ export default function Home({ homeData }: HomePageProps) {
             </Grid>
             
             {/* Project Card 3 */}
-            <Grid xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ height: '220px', position: 'relative' }}>
                   <StylizedImage 

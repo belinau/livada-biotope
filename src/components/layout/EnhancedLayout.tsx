@@ -2,11 +2,14 @@ import React, { ReactNode, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Head from 'next/head';
+
 import { useLanguage } from '../../contexts/LanguageContext';
 import useTranslations from '../../hooks/useTranslations';
 import LanguageSwitcher from '../common/LanguageSwitcher';
-import { Typography, Box, Container, AppBar, Toolbar, Button, Grid, Paper, IconButton } from '@mui/material';
+
+import { Typography, Box, Container, AppBar, Toolbar, Button, Paper, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 
 // Define styled links to avoid TypeScript errors with '&:hover'
 const StyledLink = ({ href, children, style }: { href: string; children: React.ReactNode; style?: React.CSSProperties }) => (
@@ -47,7 +50,6 @@ const EnhancedLayout: React.FC<EnhancedLayoutProps> = ({
         <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
 
       {/* Background pattern */}

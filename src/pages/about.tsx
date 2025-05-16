@@ -9,10 +9,10 @@ import {
   Box, 
   Container, 
   Typography, 
-  Grid, 
   useTheme,
   useMediaQuery
 } from '@mui/material';
+import Grid from '@/components/ui/Grid'; // Updated to use our custom Grid
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
@@ -204,7 +204,7 @@ export default function AboutPage({ content }: AboutPageProps) {
               '/images/uploads/pxl_20250427_174211296.jpg',
               '/images/uploads/pxl_20250427_174242140.jpg'
             ].map((image, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
+              <Grid xs={12} sm={6} md={4} key={index} component="div">
                 <Box sx={{ 
                   position: 'relative',
                   borderRadius: 2,
@@ -236,13 +236,39 @@ export default function AboutPage({ content }: AboutPageProps) {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const aboutFilePath = path.join(process.cwd(), 'src/content/pages/about.md');
-  const aboutContent = fs.readFileSync(aboutFilePath, 'utf8');
-  const { data } = matter(aboutContent);
+  try {
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const matter = (await import('gray-matter')).default;
+    
+    const aboutFilePath = path.join(process.cwd(), 'src/content/pages/about.md');
+    const aboutContent = await fs.readFile(aboutFilePath, 'utf8');
+    const { data } = matter(aboutContent);
 
-  return {
-    props: {
-      content: data,
-    },
-  };
+    // Ensure all required fields have default values
+    const content = {
+      title_en: data.title_en || 'About Us',
+      title_sl: data.title_sl || 'O nas',
+      body_en: data.body_en || '',
+      body_sl: data.body_sl || ''
+    };
+
+    return {
+      props: { content },
+      revalidate: 3600 // Revalidate at most once per hour
+    };
+  } catch (error) {
+    console.error('Error loading about page content:', error);
+    return {
+      props: {
+        content: {
+          title_en: 'About Us',
+          title_sl: 'O nas',
+          body_en: 'Error loading content. Please try again later.',
+          body_sl: 'Napaka pri nalaganju vsebine. Poskusite znova kasneje.'
+        }
+      },
+      revalidate: 60 // Retry after 1 minute on error
+    };
+  }
 };

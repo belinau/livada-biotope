@@ -8,11 +8,11 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
 import TranslationLoader from '@/components/TranslationLoader';
 import Link from 'next/link';
+
 import { 
   Typography, 
   Box, 
   Container, 
-  Grid, 
   Paper, 
   List, 
   ListItem, 
@@ -24,8 +24,10 @@ import {
   Button,
   Tabs,
   Tab,
-  useTheme
+  useTheme,
 } from '@mui/material';
+
+import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 
 export default function LetsNotDryOutTheFuture() {
   const { language } = useLanguage();
@@ -181,7 +183,7 @@ export default function LetsNotDryOutTheFuture() {
             </Typography>
             
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid xs={12} md={6} component="div">
                 <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ height: 240 }}>
                     {/* Removed botanical illustration */}
@@ -199,7 +201,7 @@ export default function LetsNotDryOutTheFuture() {
                 </Card>
               </Grid>
               
-              <Grid item xs={12} md={6}>
+              <Grid xs={12} md={6} component="div">
                 <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ height: 240 }}>
                     {/* Removed botanical illustration */}

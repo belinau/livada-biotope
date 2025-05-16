@@ -2,16 +2,26 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TimeScale } from 'chart.js';
 import 'chartjs-adapter-date-fns';
-import { Box, Typography, Paper, CircularProgress, Button, Alert, Grid, Chip, Snackbar } from '@mui/material';
+
+// MUI Components
+import { Box, Typography, Paper, CircularProgress, Button, Alert, Chip, Snackbar } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import WifiIcon from '@mui/icons-material/Wifi';
 import WifiOffIcon from '@mui/icons-material/WifiOff';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+
+// Custom Components
+import Grid from '@/components/ui/Grid';
+
+// Local Components
+import { ReticulumDataSourceSelector } from './ReticulumDataSourceSelector';
+
+// Services and Configs
 import { sensorConfigs } from '@/lib/sensorConfig';
 import { SensorService, DataSource } from '@/lib/sensorService';
-import { ReticulumDataSourceSelector } from './ReticulumDataSourceSelector';
-import { useLanguage } from '../../contexts/LanguageContext';
 
+// Contexts
+import { useLanguage } from '../../contexts/LanguageContext';
 
 ChartJS.register(
   CategoryScale,

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Box, Typography, Paper, Grid, Chip, CircularProgress } from '@mui/material';
+import { Box, Typography, Paper, Chip, CircularProgress } from '@mui/material';
+import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 import { 
   fetchCalendarEvents, 
   getEventsForDate, 

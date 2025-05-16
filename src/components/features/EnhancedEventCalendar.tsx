@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
+
 import { 
   Box, 
   Typography, 
   Paper, 
-  Grid, 
   Chip, 
   CircularProgress, 
   Card, 
@@ -16,12 +16,19 @@ import {
   Divider,
   Alert
 } from '@mui/material';
+
+import Grid from '@/components/ui/Grid'; 
+
 import { 
   CalendarMonth as CalendarIcon,
   LocationOn as LocationIcon,
+  Info as InfoIcon,
   AccessTime as TimeIcon,
-  Info as InfoIcon
+  Event as EventIcon,
+  CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon
 } from '@mui/icons-material';
+
 import { fetchCalendarEvents, getEventsForDate, dateHasEvents, getUpcomingEvents, CalendarEvent } from '@/lib/calendarService';
 import 'react-calendar/dist/Calendar.css';
 
