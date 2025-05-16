@@ -1,18 +1,38 @@
+# Global build settings
 [build]
-  command = "npm install --legacy-peer-deps && next build"
+  command = "npm run build"
   publish = ".next"
   functions = "netlify/functions"
-  ignore = "git diff --quiet HEAD^ HEAD -- ."  # Only build if there are actual changes
   node_version = "18"
 
-[build.environment]
-  # Only build specific branches (comma-separated list)
-  # Uncomment one of these approaches:
-  # 1. Build only specific branches:
-  # BRANCH = "main, master, develop"
+# Skip builds for paths that don't affect the site
+[build.processing.skip_processing]
+  paths = ["*.md", "*.mdx", "*.log"]
+
+# Skip builds for specific paths
+[build.ignore]
+  # Skip build if only these files changed
+  ignore = "git diff --quiet HEAD^ HEAD -- ."
   
-  # 2. Or ignore specific branch patterns:
-  # IGNORE = "^dependabot/.*|^renovate/.*|^chore/.*|^docs/.*"
+  # Skip build for specific paths
+  paths = [
+    "*.md",
+    "*.mdx",
+    "*.log",
+    "*.gitignore",
+    "*.editorconfig",
+    "*.prettierrc",
+    "*.eslintrc*",
+    "*.babelrc*",
+    "*.prettier*",
+    "*.stylelint*",
+    "*.vscode/*",
+    "netlify.toml"
+  ]
+
+[build.environment]
+  # Only build from main branch
+  BRANCH = "main"
   
   # Node.js version
   NODE_VERSION = "18.18.0"
@@ -22,6 +42,16 @@
   
   # Disable secrets scanning for Auth0 environment variables
   SECRETS_SCAN_OMIT_KEYS = "AUTH0_DOMAIN,NEXT_PUBLIC_AUTH0_DOMAIN,AUTH0_AUDIENCE,NEXT_PUBLIC_AUTH0_AUDIENCE,AUTH0_CLIENT_ID,NEXT_PUBLIC_AUTH0_CLIENT_ID"
+  
+  # Increase Node.js memory limit
+  NODE_OPTIONS = "--max_old_space_size=4096"
+
+# Disable all non-production builds
+[build.environment.deploy-preview]
+  command = "echo 'Skipping deploy preview' && exit 0"
+
+[build.environment.branch-deploy]
+  command = "[[ $BRANCH == 'main' ]] && npm run build || echo 'Skipping non-main branch deploy'"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
@@ -48,30 +78,17 @@
   # Use esbuild for faster builds
   node_bundler = "esbuild"
   
-  # Include all necessary external modules
+  # External modules that should not be bundled
   external_node_modules = [
-    "node-fetch", 
-    "jsonwebtoken", 
-    "jwks-rsa", 
     "node-cache", 
-    "node-ical", 
-    "react-markdown", 
-    "remark", 
-    "remark-html",
-    "ical-generator",
-    "ical.js"
+    "node-fetch", 
+    "node-ical"
   ]
   
   # Include all function files and their dependencies
   included_files = [
-    "netlify/functions/sideband-bridge.js",
-    "netlify/functions/translations/translations.js",
-    "netlify/functions/translations/translations.json",
-    "netlify/functions/calendar/calendar.js",
-    "netlify/functions/inaturalist/inaturalist.js",
-    "netlify/functions/health.js",
-    "package.json",
-    "package-lock.json"
+    "netlify/functions/**/*.js",
+    "netlify/functions/**/*.json"
   ]
   
   # Function configuration options
@@ -99,6 +116,11 @@
     Access-Control-Allow-Headers = "Content-Type, Authorization"
 
 # API endpoints to Netlify Functions
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
 [[redirects]]
   from = "/api/translations"
   to = "/.netlify/functions/translations"
