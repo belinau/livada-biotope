@@ -7,9 +7,15 @@ const NodeCache = require('node-cache');
 const cache = new NodeCache({ stdTTL: 300 });
 
 // Path to the translations JSON file in the Git repository
-const TRANSLATIONS_PATH = path.join(process.env.PWD || __dirname, 'netlify/functions/translations/translations.json');
+const TRANSLATIONS_PATH = path.join(process.cwd(), 'netlify/functions/translations/translations.json');
 // Path to the public translations JSON file for Netlify CMS
-const PUBLIC_TRANSLATIONS_PATH = path.join(process.env.PWD || __dirname, 'public/translations.json');
+const PUBLIC_TRANSLATIONS_PATH = path.join(process.cwd(), 'public/translations.json');
+
+// Ensure the public directory exists
+const publicDir = path.join(process.cwd(), 'public');
+if (!fs.existsSync(publicDir)) {
+  fs.mkdirSync(publicDir, { recursive: true });
+}
 
 // Log the paths for debugging
 console.log('Translations paths:');
