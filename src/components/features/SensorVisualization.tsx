@@ -106,8 +106,8 @@ export const SensorVisualization: React.FC = () => {
   const testConnection = async () => {
     setConnectionTesting(true);
     try {
-      // Use the correct status endpoint that matches our serverless function
-      const response = await fetch('/api/sideband/status');
+      // Use the direct path to the Netlify function for status check
+      const response = await fetch('/.netlify/functions/sideband-bridge/status');
       
       if (!response.ok) {
         throw new Error(`Server returned ${response.status}`);
