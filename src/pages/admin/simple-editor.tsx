@@ -1,19 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ReactElement } from 'react';
+import { useRouter } from 'next/router';
 import { GetStaticProps } from 'next';
-import { getAllPosts } from '@/lib/markdown';
-import SharedLayout from '@/components/layout/SharedLayout';
-import path from 'path';
-import fs from 'fs';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import {
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+  Paper,
+  CircularProgress,
+  Alert
+} from '@mui/material';
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+
+interface LayoutProps {
+  children: ReactElement;
+}
+
+interface PageWithLayout {
+  getLayout?: (page: ReactElement) => ReactElement;
+}
+
+interface PostFrontmatter {
+  title: string;
+  date: string;
+  summary: string;
+  thumbnail?: string;
+  tags?: string[];
+}
 
 interface BlogPost {
   slug: string;
-  frontmatter: {
-    title: string;
-    date: string;
-    summary: string;
-    thumbnail?: string;
-    tags?: string[];
-  };
+  frontmatter: PostFrontmatter;
   content: string;
 }
 
@@ -21,15 +41,19 @@ interface EditorPageProps {
   posts: BlogPost[];
 }
 
-export default function SimpleEditorPage({ posts: initialPosts }: EditorPageProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
-  const [posts, setPosts] = useState(initialPosts);
+const SimpleEditor: React.FC<EditorPageProps> & PageWithLayout = ({ posts: initialPosts }) => {
+  const router = useRouter();
+  const [posts, setPosts] = useState<BlogPost[]>(initialPosts);
   const [currentPost, setCurrentPost] = useState<BlogPost | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [summary, setSummary] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const { t } = useTranslation();
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -39,23 +63,25 @@ export default function SimpleEditorPage({ posts: initialPosts }: EditorPageProp
     }
   }, []);
 
-  const handleLogin = () => {
-    // More secure password with special characters and numbers
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
     const securePassword = 'Livada@Biotope#2025!';
     
-    // Simple password check - in a real app, use a more secure method
     if (password === securePassword) {
       setIsAuthenticated(true);
       localStorage.setItem('livada_auth', 'true');
-      console.log('Authentication successful');
+      setMessage('');
     } else {
-      setMessage('Incorrect password. Please try again.');
-      console.log('Authentication failed: incorrect password');
+      setError('Incorrect password. Please try again.');
     }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setCurrentPost(null);
+    setTitle('');
+    setContent('');
+    setSummary('');
     localStorage.removeItem('livada_auth');
   };
 
@@ -67,12 +93,13 @@ export default function SimpleEditorPage({ posts: initialPosts }: EditorPageProp
   };
 
   const handleCreateNew = () => {
-    const newPost = {
+    const newPost: BlogPost = {
       slug: `new-post-${Date.now()}`,
       frontmatter: {
         title: 'New Post',
         date: new Date().toISOString(),
-        summary: 'Enter a summary here'
+        summary: 'Enter a summary here',
+        tags: []
       },
       content: '# New Post\n\nStart writing your content here.'
     };
@@ -85,7 +112,6 @@ export default function SimpleEditorPage({ posts: initialPosts }: EditorPageProp
   const handleDownload = () => {
     if (!currentPost) return;
 
-    // Create the frontmatter
     const frontmatter = {
       ...currentPost.frontmatter,
       title,
@@ -93,17 +119,14 @@ export default function SimpleEditorPage({ posts: initialPosts }: EditorPageProp
       date: new Date().toISOString()
     };
 
-    // Create the markdown content
     const markdownContent = `---
 title: ${frontmatter.title}
 date: ${frontmatter.date}
 summary: ${frontmatter.summary}
-${frontmatter.thumbnail ? `thumbnail: ${frontmatter.thumbnail}` : ''}
-${frontmatter.tags && frontmatter.tags.length > 0 ? `tags:\n  - ${frontmatter.tags.join('\n  - ')}` : ''}
----
+${frontmatter.thumbnail ? `thumbnail: ${frontmatter.thumbnail}\n` : ''}${frontmatter.tags && frontmatter.tags.length > 0 ? `tags:\n  - ${frontmatter.tags.join('\n  - ')}\n` : ''}---
 
 ${content}`;
-
+    
     // Create a blob and download link
     const blob = new Blob([markdownContent], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
@@ -120,158 +143,160 @@ ${content}`;
 
   if (!isAuthenticated) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold mb-6">Simple Content Editor</h1>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Password</label>
-            <input
+      <Container maxWidth="sm" sx={{ py: 4 }}>
+        <Paper elevation={3} sx={{ p: 4, maxWidth: 500, mx: 'auto' }}>
+          <Typography variant="h4" component="h1" gutterBottom align="center">
+            Admin Login
+          </Typography>
+          <Box component="form" onSubmit={handleLogin} sx={{ mt: 3 }}>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              required
+              variant="outlined"
             />
-          </div>
-          <button
-            onClick={handleLogin}
-            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Login
-          </button>
-          {message && <p className="mt-4 text-red-500">{message}</p>}
-        </div>
-      </div>
+            <Button
+              fullWidth
+              type="submit"
+              variant="contained"
+            >
+              Login
+            </Button>
+            {error && (
+              <Alert severity="error" sx={{ mt: 2 }}>
+                {error}
+              </Alert>
+            )}
+          </Box>
+        </Paper>
+      </Container>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+      </Box>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Simple Content Editor</h1>
-        <button
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h4" component="h1">
+          Simple Content Editor
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<ArrowBackIcon />}
+          onClick={() => router.push('/')}
+        >
+          Back to Site
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
           onClick={handleLogout}
-          className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
         >
           Logout
-        </button>
-      </div>
+        </Button>
+      </Box>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="md:col-span-1 bg-white p-4 rounded-lg shadow-md">
-          <div className="mb-4">
-            <button
-              onClick={handleCreateNew}
-              className="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4"
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleCreateNew}
+        >
+          Create New Post
+        </Button>
+      </Box>
+
+      {currentPost ? (
+        <Box>
+          <Box mb={3}>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              variant="outlined"
+            />
+          </Box>
+          <Box mb={3}>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Summary"
+              type="text"
+              value={summary}
+              onChange={(e) => setSummary(e.target.value)}
+              required
+              variant="outlined"
+            />
+          </Box>
+          <Box mb={3}>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Content"
+              type="text"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              required
+              variant="outlined"
+              multiline
+              rows={10}
+            />
+          </Box>
+          <Box mb={3}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDownload}
             >
-              Create New Post
-            </button>
-          </div>
-          <h2 className="text-xl font-semibold mb-4">Existing Posts</h2>
-          <ul className="divide-y divide-gray-200">
-            {posts.map((post) => (
-              <li key={post.slug} className="py-2">
-                <button
-                  onClick={() => handleSelectPost(post)}
-                  className="text-left w-full hover:text-blue-500"
-                >
-                  {post.frontmatter.title}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="md:col-span-3 bg-white p-4 rounded-lg shadow-md">
-          {currentPost ? (
-            <>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Title</label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Summary</label>
-                <input
-                  type="text"
-                  value={summary}
-                  onChange={(e) => setSummary(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Content (Markdown)</label>
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md h-64 font-mono"
-                />
-              </div>
-              <div className="mb-4">
-                <button
-                  onClick={handleDownload}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  Download Markdown File
-                </button>
-              </div>
-              {message && (
-                <div className="mt-4 p-3 bg-green-100 text-green-800 rounded-md">
-                  {message}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              Select a post from the sidebar or create a new one
-            </div>
+              Download Markdown File
+            </Button>
+          </Box>
+          {message && (
+            <Alert severity="success" sx={{ mt: 2 }}>
+              {message}
+            </Alert>
           )}
-        </div>
-      </div>
-    </div>
+        </Box>
+      ) : (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+          <Typography variant="h6" component="h2">
+            Select a post from the sidebar or create a new one
+          </Typography>
+        </Box>
+      )}
+    </Container>
   );
 }
 
-SimpleEditorPage.getLayout = (page: React.ReactElement) => {
-  return <SharedLayout>{page}</SharedLayout>;
+SimpleEditor.getLayout = function getLayout(page: ReactElement) {
+  return page;
 };
 
 export const getStaticProps: GetStaticProps = async () => {
-  const posts = getAllPosts('posts');
-  
-  // Ensure all post data is serializable
-  const serializedPosts = posts.map(post => {
-    // Create a deep copy to avoid modifying the original
-    const serializedPost = {
-      ...post,
-      frontmatter: { ...post.frontmatter }
-    };
-    
-    // Convert any Date objects to strings
-    if (serializedPost.frontmatter.date) {
-      if (serializedPost.frontmatter.date instanceof Date) {
-        serializedPost.frontmatter.date = serializedPost.frontmatter.date.toISOString();
-      } else if (typeof serializedPost.frontmatter.date === 'string') {
-        // Ensure the date string is valid
-        try {
-          const dateObj = new Date(serializedPost.frontmatter.date);
-          serializedPost.frontmatter.date = dateObj.toISOString();
-        } catch (e) {
-          // If date parsing fails, use current date
-          serializedPost.frontmatter.date = new Date().toISOString();
-        }
-      }
-    }
-    
-    return serializedPost;
-  });
+  const posts: BlogPost[] = [];
   
   return {
     props: {
-      posts: serializedPosts
-    }
+      posts,
+      ...(await serverSideTranslations('en', ['common'])),
+    },
   };
 };
+
+export default SimpleEditor;
