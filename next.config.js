@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
+const { i18n } = require('./next-i18next.config');
+
 const nextConfig = {
+  // i18n configuration
+  i18n,
+  
   // Specify dependencies that should be transpiled
   transpilePackages: ['react-markdown', 'remark', 'remark-html'],
   reactStrictMode: true,
@@ -39,6 +44,17 @@ const nextConfig = {
   trailingSlash: true,
   // Ensure assets are properly handled
   assetPrefix: process.env.NODE_ENV === 'production' ? 'https://livada-bio.netlify.app' : '',
-}
+  // Add webpack configuration
+  webpack: (config, { isServer }) => {
+    // Fixes npm packages that depend on `fs` module
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      };
+    }
+    return config;
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
