@@ -78,7 +78,7 @@
   # Use esbuild for faster builds
   node_bundler = "esbuild"
   
-  # Include all necessary external modules
+  # External modules that should not be bundled
   external_node_modules = [
     "node-cache", 
     "node-fetch", 
@@ -87,14 +87,8 @@
   
   # Include all function files and their dependencies
   included_files = [
-    "netlify/functions/sideband-bridge.js",
-    "netlify/functions/translations/translations.js",
-    "netlify/functions/translations/translations.json",
-    "netlify/functions/calendar/calendar.js",
-    "netlify/functions/inaturalist/inaturalist.js",
-    "netlify/functions/health.js",
-    "package.json",
-    "package-lock.json"
+    "netlify/functions/**/*.js",
+    "netlify/functions/**/*.json"
   ]
   
   # Function configuration options
