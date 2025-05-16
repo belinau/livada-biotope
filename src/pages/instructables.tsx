@@ -7,7 +7,6 @@ import {
   Container, 
   Typography, 
   Box, 
-  Grid, 
   Card, 
   CardContent, 
   CardActions,
@@ -20,6 +19,7 @@ import {
   School as DifficultyIcon 
 } from '@mui/icons-material';
 import StylizedImage from '../components/StylizedImage';
+import Grid from '../components/ui/Grid';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
