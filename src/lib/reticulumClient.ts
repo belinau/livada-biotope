@@ -253,12 +253,13 @@ export class ReticulumClient {
       // Construct the appropriate endpoint URL for the Sideband collector
       let url;
       
-      // For production with api:443 host, use the serverless function endpoint
+      // For production, use the serverless function endpoint directly
       if (this.config.sidebandHost === 'api' && this.config.sidebandPort === 443) {
-        url = `/api/sideband/data`;
+        // In production, use the full path to the Netlify function
+        url = `/.netlify/functions/sideband-bridge/data`;
       } else {
         // For development with local server, use direct API endpoint
-        url = `${this.baseUrl}/api/data`;
+        url = `${this.baseUrl}/api/sideband/data`;
         
         // If we have a sidebandHash, use the collectors endpoint
         if (this.config.sidebandHash) {
@@ -426,11 +427,13 @@ export class ReticulumClient {
       
       // For production (serverless function approach)
       if (this.config.sidebandHost === 'api' && this.config.sidebandPort === 443) {
-        // Use the path that's configured in Netlify redirects
-        url = `/api/sideband/status`;
+        // Use the direct path to the Netlify function
+        url = `/.netlify/functions/sideband-bridge/status`;
+        console.log('Using production endpoint for connection test:', url);
       } else {
         // For development with local Python bridge
         url = `${this.baseUrl}/api/status`;
+        console.log('Using development endpoint for connection test:', url);
       }
       
       console.log(`Attempting connection to Sideband at: ${url}`);
