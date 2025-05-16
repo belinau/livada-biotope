@@ -284,6 +284,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <p className="text-sm text-gray-500">
                   &copy; {new Date().getFullYear()} {t('menu.locale') === 'en' ? 'The Livada Biotope' : 'Biotop Livada'}. All rights reserved.
                 </p>
+                <p className="text-xs text-gray-500 mt-2">
+                  {t('menu.locale') === 'en' 
+                    ? 'The Livada Biotope is a special initiative under auspices of BOB Institute.' 
+                    : 'Biotop Livada je posebna pobuda v okviru zavoda BOB.'}
+                </p>
               </address>
             </div>
           </div>

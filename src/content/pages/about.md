@@ -12,12 +12,5 @@ body_sl: |
 
   Biotop Livada je zasnovan kot proti-prostor, igrišče srečanj, ki podpira različne načine odnosov do naših sorodnikov na dekolonialen način. Pod okriljem Inštituta BOB spodbujamo horizontalnost z drugimi bitji, rastlinami, živalmi, glivami in mikrobiotom, združujemo umetnost, znanost, (post)humanistiko, ekofeminizem, kmetijstvo, somatiko in druge domene skozi transdisciplinarne izobraževalne, izkustvene, družbene in politične dejavnosti.
 
-  Soočamo se z izzivom opuščanja antropocentričnih načel in potapljanja v mokrišča, da bi ponovno aktivirali inherentne odnosne povezave med vsemi akterji ekosistema. Želimo opolnomočiti skupnost, da uporablja prostor v skladu z ekofeminističnimi biocentričnimi pojmi, kjer so ljudje del medvrstnega skupnega življenja na zemlji v enaki meri in pod enakimi pogoji kot druga živa bitja. Ljudje so zdaj skrbniki - skrb je vzajemna agencija, v kateri je biotop naš učitelj.
-team:
-  - name: Example Team Member
-    role_en: Project Coordinator
-    role_sl: Koordinator projekta
-    bio_en: Bio in English
-    bio_sl: Bio v slovenščini
-    photo: /images/uploads/placeholder.jpg
+  Soočamo se z izzivom opuščanja antropocentričnih načel in potapljanja v mokrišča, da bi ponovno aktivirali inherentne odnosne povezave med vsemi akterji ekosistema. Želimo opolnomočiti skupnost, da uporablja prostor v skladu z ekofeminističnimi biocentričnimi pojmi, kjer so ljudje del medvrstnega skupnega življenja na zemlji v enaki meri in pod enakimi pogoji kot druga živa bitja.  Ljudje so zdaj skrbniki - skrb je vzajemna agencija, v kateri je biotop naš učitelj.
 ---

@@ -1,31 +1,44 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
-import StylizedImage from '../components/StylizedImage';
+import Image from 'next/image';
 import { useLanguage } from '../contexts/LanguageContext';
 import useTranslations from '../hooks/useTranslations';
 import TranslationLoader from '../components/TranslationLoader';
+import StylizedImage from '../components/StylizedImage';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
+import Paper from '@mui/material/Paper';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
-import Divider from '@mui/material/Divider';
 import { GetStaticProps } from 'next';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 
-// Define styled links to avoid TypeScript errors with '&:hover'
-const StyledLink = ({ href, children, style }: { href: string; children: React.ReactNode; style?: React.CSSProperties }) => (
-  <Link href={href} style={{ color: 'inherit', textDecoration: 'none', ...style }}>
-    {children}
-  </Link>
-);
+// Types
+interface Project {
+  slug: string;
+  title_en: string;
+  title_sl: string;
+  summary_en?: string;
+  summary_sl?: string;
+  thumbnail?: string;
+  date?: string;
+}
+
+interface Event {
+  title_en: string;
+  title_sl: string;
+  date: string;
+  description_en?: string;
+  description_sl?: string;
+  link?: string;
+}
 
 interface HomePageProps {
   homeData: {
@@ -38,39 +51,49 @@ interface HomePageProps {
     hero_image: string;
     intro_en: string;
     intro_sl: string;
-    featured_projects: any[];
-    featured_events: any[];
-  }
+    featured_projects: Project[];
+    featured_events: Event[];
+  };
 }
+
+// Helper function to format date
+const formatDate = (dateString: string, locale: 'en' | 'sl' = 'en'): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString(locale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
 
 export default function Home({ homeData }: HomePageProps) {
   const { language } = useLanguage();
   const { t } = useTranslations();
   
-  const getLangContent = (enContent: string, slContent: string) => {
-    return language === 'en' ? enContent : slContent;
-  };
+  const currentLang = language === 'en' ? 'en' : 'sl';
+  const getContent = (en: string, sl: string) => (language === 'en' ? en : sl);
 
   return (
     <>
-      {/* Use the simplified TranslationLoader */}
       <TranslationLoader />
       
       <Head>
-        <title>{getLangContent(homeData.title_en, homeData.title_sl)} | {getLangContent(homeData.subtitle_en, homeData.subtitle_sl)}</title>
+        <title>{getContent(homeData.title_en, homeData.title_sl)}</title>
         <meta 
           name="description" 
-          content={t('home.description', 'The Livada Biotope is a community-driven ecological project dedicated to preserving biodiversity and building drought resilience in Ljubljana, Slovenia.')}
+          content={getContent(homeData.summary_en || '', homeData.summary_sl || '')}
         />
       </Head>
       
-      {/* Hero Section with Full-width Image */}
+      {/* Hero Section */}
       <Box
         sx={{
           position: 'relative',
           height: { xs: '80vh', md: '90vh' },
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'center',
           color: 'white',
           textShadow: '0 2px 4px rgba(0,0,0,0.3)',
           overflow: 'hidden',
@@ -86,69 +109,123 @@ export default function Home({ homeData }: HomePageProps) {
           }
         }}
       >
-        <Box sx={{ position: 'absolute', width: '100%', height: '100%' }}>
-          <StylizedImage 
-            speciesName={{
-              en: "Snake's Head Fritillary",
-              sl: "Močvirski tulipan"
-            }}
-            latinName="Fritillaria meleagris"
-            backgroundColor="#f8f5e6"
-            patternColor="#2e7d32"
-            pattern="dots"
-            height="100%"
-            width="100%"
-            hideLatinName={true}
-            hideAllText={true}
-          />
-        </Box>
-        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
-          <Box sx={{ maxWidth: '800px', mx: 'auto' }}>
-            <Typography
-              variant="h1"
-              component="h1"
-              sx={{
-                fontSize: { xs: '2.5rem', md: '4rem' },
-                fontWeight: 700,
-                mb: 2,
+        {/* Hero Image */}
+        {homeData.hero_image && (
+          <Box sx={{ 
+            position: 'absolute', 
+            width: '100%', 
+            height: '100%',
+            zIndex: 0
+          }}>
+            <Image
+              src={homeData.hero_image}
+              alt={getContent(homeData.title_en, homeData.title_sl)}
+              fill
+              style={{
+                objectFit: 'cover',
+                objectPosition: 'center'
               }}
-            >
-              {getLangContent(homeData.title_en, homeData.title_sl)}
-            </Typography>
-            <Typography
-              variant="h4"
-              component="p"
-              sx={{
-                fontSize: { xs: '1.25rem', md: '1.5rem' },
-                fontWeight: 400,
-                mb: 4,
-                opacity: 0.9,
-              }}
-            >
-              {getLangContent(homeData.subtitle_en, homeData.subtitle_sl)}
-            </Typography>
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center' }}>
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                component={Link}
-                href="/projects"
-                sx={{ px: 4, py: 1.5 }}
-              >
-                {language === 'en' ? 'Our Projects' : 'Naši projekti'}
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                component={Link}
-                href="/contact"
-                sx={{ px: 4, py: 1.5, borderColor: 'white', color: 'white' }}
-              >
-                {language === 'en' ? 'Get Involved' : 'Pridruži se'}
-              </Button>
-            </Box>
+              priority
+            />
           </Box>
+        )}
+        
+        {/* Hero Content */}
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, textAlign: 'center', px: 3 }}>
+          <Typography 
+            variant="h1" 
+            component="h1" 
+            sx={{
+              fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4rem' },
+              fontWeight: 700,
+              mb: 2,
+              lineHeight: 1.2
+            }}
+          >
+            {getContent(homeData.hero_text_en, homeData.hero_text_sl)}
+          </Typography>
+          
+          <Typography 
+            variant="h2" 
+            component="h2" 
+            sx={{
+              fontSize: { xs: '1.5rem', md: '2rem' },
+              fontWeight: 400,
+              mb: 4,
+              fontStyle: 'italic'
+            }}
+          >
+            {getContent(homeData.subtitle_en, homeData.subtitle_sl)}
+          </Typography>
+          
+          <Button 
+            variant="contained" 
+            color="primary" 
+            size="large"
+            component={Link}
+            href="/about"
+            sx={{
+              px: 4,
+              py: 1.5,
+              fontSize: '1.1rem',
+              textTransform: 'none',
+              borderRadius: 2,
+              boxShadow: 3,
+              '&:hover': {
+                boxShadow: 6,
+              }
+            }}
+          >
+            {t('common.learnMore')}
+          </Button>
+        </Container>
+      </Box>
+      
+      {/* Introduction Section */}
+      <Box sx={{ py: 8, bgcolor: 'background.paper' }}>
+        <Container maxWidth="lg">
+          <Box 
+            sx={{ 
+              maxWidth: '800px', 
+              mx: 'auto',
+              '& h2': {
+                fontSize: '2rem',
+                fontWeight: 700,
+                mb: 3,
+                color: 'primary.main',
+                textAlign: 'center'
+              },
+              '& h3': {
+                fontSize: '1.5rem',
+                fontWeight: 600,
+                mb: 2,
+                color: 'text.primary',
+                mt: 4
+              },
+              '& p': {
+                fontSize: '1.1rem',
+                lineHeight: 1.8,
+                mb: 3,
+                textAlign: 'left'
+              },
+              '& ul, & ol': {
+                pl: 3,
+                mb: 3,
+                '& li': {
+                  mb: 1,
+                  fontSize: '1.1rem',
+                  lineHeight: 1.6
+                }
+              }
+            }}
+            dangerouslySetInnerHTML={{ 
+              __html: getContent(homeData.intro_en, homeData.intro_sl)
+                .replace(/\n/g, '<br />')
+                .replace(/^#\s+(.*)$/gm, '<h2>$1</h2>')
+                .replace(/^##\s+(.*)$/gm, '<h3>$1</h3>')
+                .replace(/^###\s+(.*)$/gm, '<h4>$1</h4>')
+            }} 
+          />
         </Container>
       </Box>
       
@@ -163,24 +240,20 @@ export default function Home({ homeData }: HomePageProps) {
                 color="primary"
                 sx={{ fontWeight: 600, mb: 2, textTransform: 'uppercase', letterSpacing: 1 }}
               >
-                {language === 'en' ? 'OUR MISSION' : 'NAŠE POSLANSTVO'}
+                {t('home.ourMission')}
               </Typography>
               <Typography
                 variant="h3"
                 component="h2"
                 sx={{ fontWeight: 700, mb: 3 }}
               >
-                {language === 'en' ? 'Preserving Urban Biodiversity' : 'Ohranjanje urbane biotske raznovrstnosti'}
+                {t('home.preservingBiodiversity')}
               </Typography>
               <Typography paragraph sx={{ mb: 3 }}>
-                {language === 'en' 
-                  ? 'The Livada Biotope is conceived as a counter-space, a playground of encounters that supports different ways of relating to our kin in a decolonial manner. Under auspices of BOB Institute, we foster horizontality with other beings, plants, animals, fungi and microbiota, combining art, science, (post)humanities, ecofeminism, agriculture, somatics and other domains through transdisciplinary educational, experiential, social and political activities.'
-                  : 'Biotop Livada je zasnovan kot protiprostor, igrišče srečanj, ki podpira različne načine povezovanja z našimi sorodniki na dekolonialen način. Pod okriljem Inštituta BOB spodbujamo horizontalnost z drugimi bitji, rastlinami, živalmi, glivami in mikrobioto, združujemo umetnost, znanost, (post)humanistiko, ekofeminizem, kmetijstvo, somatiko in druga področja skozi transdisciplinarne izobraževalne, izkustvene, družbene in politične dejavnosti.'}
+                {t('home.missionDescription', getContent(homeData.intro_en, homeData.intro_sl).split('\n\n').find(p => p.includes('mission') || p.includes('poslanstvo')) || '')}
               </Typography>
               <Typography paragraph>
-                {language === 'en'
-                  ? 'We are tackling the challenge of abandoning anthropocentric principles and immersing ourselves in the wetlands, to reactivate the inherent relational links between all the actors of the ecosystem. We want to empower the community to use the space according to ecofeminist biocentric notions where humans are part of the cross-species communal life on earth to the same extent and under the same conditions as other living beings. Humans are now custodians of the meadow, no longer masters or dominant extractive users of the environment.'
-                  : 'Soočamo se z izzivom opuščanja antropocentričnih načel in potapljanja v mokrišča, da bi ponovno aktivirali inherentne odnosne povezave med vsemi akterji ekosistema. Želimo opolnomočiti skupnost za uporabo prostora v skladu z ekofeministično biocentrično predstavo, kjer so ljudje del medvrstnega skupnostnega življenja na zemlji v enakem obsegu in pod enakimi pogoji kot druga živa bitja. Ljudje so zdaj skrbniki travnika, ne več gospodarji ali prevladujoči ekstraktivni uporabniki okolja.'}
+                {t('home.missionExtended', getContent(homeData.intro_en, homeData.intro_sl).split('\n\n').find(p => p.includes('aim') || p.includes('cilj')) || '')}
               </Typography>
               <Button
                 variant="contained"
@@ -190,7 +263,7 @@ export default function Home({ homeData }: HomePageProps) {
                 sx={{ mt: 2 }}
                 endIcon={<Box component="span" sx={{ ml: 1 }}>→</Box>}
               >
-                {language === 'en' ? 'Learn About Us' : 'Spoznajte nas'}
+                {t('nav.about')}
               </Button>
             </Grid>
             <Grid item xs={12} md={6}>
@@ -238,19 +311,17 @@ export default function Home({ homeData }: HomePageProps) {
               color="primary"
               sx={{ fontWeight: 600, mb: 2, textTransform: 'uppercase', letterSpacing: 1 }}
             >
-              {language === 'en' ? 'OUR PROJECTS' : 'NAŠI PROJEKTI'}
+              {t('projects.sectionTitle')}
             </Typography>
             <Typography
               variant="h3"
               component="h2"
               sx={{ fontWeight: 700, mb: 3, maxWidth: '800px', mx: 'auto' }}
             >
-              {language === 'en' ? 'Ecological Initiatives at Livada Biotope' : 'Ekološke pobude v Biotopu Livada'}
+              {t('projects.sectionSubtitle')}
             </Typography>
             <Typography sx={{ maxWidth: '700px', mx: 'auto' }}>
-              {language === 'en'
-                ? 'Discover our ongoing projects aimed at preserving biodiversity, building drought resilience, and educating the community about sustainable practices.'
-                : 'Odkrijte naše tekoče projekte, usmerjene v ohranjanje biotske raznovrstnosti, krepitev odpornosti proti suši in izobraževanje skupnosti o trajnostnih praksah.'}
+              {t('projects.sectionDescription')}
             </Typography>
           </Box>
           
@@ -262,8 +333,8 @@ export default function Home({ homeData }: HomePageProps) {
                 <Box sx={{ height: '200px', mb: 2 }}>
                   <StylizedImage 
                     speciesName={{
-                      en: "Wetland Restoration",
-                      sl: "Obnova mokrišč"
+                      en: t('projects.wetlandRestoration.title', 'Wetland Restoration'),
+                      sl: t('projects.wetlandRestoration.titleSl', 'Obnova mokrišč')
                     }}
                     backgroundColor="#f8f5e6"
                     patternColor="#2e7d32"
@@ -275,17 +346,15 @@ export default function Home({ homeData }: HomePageProps) {
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography gutterBottom variant="h5" component="h3" sx={{ fontWeight: 600 }}>
-                    {language === 'en' ? 'Wetland Restoration' : 'Obnova mokrišč'}
+                    {t('projects.wetlandRestoration.title')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" paragraph>
-                    {language === 'en'
-                      ? 'Restoring natural wetland habitats to support local biodiversity and improve water retention in urban areas.'
-                      : 'Obnavljanje naravnih mokriščnih habitatov za podporo lokalni biotski raznovrstnosti in izboljšanje zadrževanja vode v urbanih območjih.'}
+                    {t('projects.wetlandRestoration.description')}
                   </Typography>
                 </CardContent>
                 <CardActions>
                   <Button size="small" component={Link} href="/projects/wetland-restoration">
-                    {language === 'en' ? 'Learn More' : 'Več informacij'}
+                    {t('common.learnMore')}
                   </Button>
                 </CardActions>
               </Card>
@@ -297,10 +366,10 @@ export default function Home({ homeData }: HomePageProps) {
                 <Box sx={{ height: '220px', position: 'relative' }}>
                   <StylizedImage 
                     speciesName={{
-                      en: "Common Kingfisher",
-                      sl: "Vodomec"
+                      en: t('species.commonKingfisher.en', 'Common Kingfisher'),
+                      sl: t('species.commonKingfisher.sl', 'Vodomec')
                     }}
-                    latinName="Alcedo atthis"
+                    latinName={t('species.commonKingfisher.latin', 'Alcedo atthis')}
                     backgroundColor="#e0f7fa"
                     patternColor="#00838f"
                     pattern="waves"
@@ -311,17 +380,15 @@ export default function Home({ homeData }: HomePageProps) {
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography gutterBottom variant="h5" component="h3" sx={{ fontWeight: 600 }}>
-                    {language === 'en' ? 'Community Garden' : 'Skupnostni vrt'}
+                    {t('projects.communityGarden.title')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" paragraph>
-                    {language === 'en'
-                      ? 'A collaborative space where community members grow native plants and learn about sustainable gardening practices.'
-                      : 'Sodelovalni prostor, kjer člani skupnosti gojijo avtohtone rastline in se učijo o trajnostnih vrtnarskih praksah.'}
+                    {t('projects.communityGarden.description')}
                   </Typography>
                 </CardContent>
                 <CardActions>
                   <Button size="small" component={Link} href="/projects/community-garden">
-                    {language === 'en' ? 'Learn More' : 'Več informacij'}
+                    {t('common.learnMore')}
                   </Button>
                 </CardActions>
               </Card>
@@ -333,10 +400,10 @@ export default function Home({ homeData }: HomePageProps) {
                 <Box sx={{ height: '220px', position: 'relative' }}>
                   <StylizedImage 
                     speciesName={{
-                      en: "Bee Orchid",
-                      sl: "Čebelaska muhičnica"
+                      en: t('species.beeOrchid.en', 'Bee Orchid'),
+                      sl: t('species.beeOrchid.sl', 'Čebelaska muhičnica')
                     }}
-                    latinName="Ophrys apifera"
+                    latinName={t('species.beeOrchid.latin', 'Ophrys apifera')}
                     backgroundColor="#f9f3f3"
                     patternColor="#8c4a4a"
                     pattern="lines"
@@ -347,17 +414,15 @@ export default function Home({ homeData }: HomePageProps) {
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography gutterBottom variant="h5" component="h3" sx={{ fontWeight: 600 }}>
-                    {language === 'en' ? 'Biodiversity Monitoring' : 'Spremljanje biotske raznovrstnosti'}
+                    {t('projects.biodiversity.title')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" paragraph>
-                    {language === 'en'
-                      ? 'Citizen science project to monitor and document the diverse species that inhabit the Livada Biotope ecosystem.'
-                      : 'Projekt državljanske znanosti za spremljanje in dokumentiranje raznolikih vrst, ki naseljujejo ekosistem Biotopa Livada.'}
+                    {t('projects.biodiversity.description')}
                   </Typography>
                 </CardContent>
                 <CardActions>
                   <Button size="small" component={Link} href="/projects/biodiversity-monitoring">
-                    {language === 'en' ? 'Learn More' : 'Več informacij'}
+                    {t('common.learnMore')}
                   </Button>
                 </CardActions>
               </Card>
@@ -372,7 +437,7 @@ export default function Home({ homeData }: HomePageProps) {
               href="/projects"
               endIcon={<Box component="span" sx={{ ml: 1 }}>→</Box>}
             >
-              {language === 'en' ? 'View All Projects' : 'Ogled vseh projektov'}
+              {t('projects.viewAll')}
             </Button>
           </Box>
         </Container>
