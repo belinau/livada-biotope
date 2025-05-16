@@ -3,6 +3,7 @@
   publish = ".next"
   functions = "netlify/functions"
   ignore = "git diff --quiet HEAD^ HEAD -- ."  # Only build if there are actual changes
+  node_version = "18"
 
 [build.environment]
   # Only build specific branches (comma-separated list)
@@ -73,8 +74,7 @@
     "package-lock.json"
   ]
   
-  # Set Node.js version for all functions
-  node_version = "18"
+  # Function configuration options
 
 # ====================================
 # API Redirects
