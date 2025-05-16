@@ -42,44 +42,97 @@
 [build.processing.images]
   compress = true
 
-# Add external packages that might be causing build issues
+# Function configuration
 [functions]
-  external_node_modules = ["node-fetch", "jsonwebtoken", "jwks-rsa", "node-cache", "node-ical", "react-markdown", "remark", "remark-html"]
+  # Use esbuild for faster builds
   node_bundler = "esbuild"
-  included_files = ["netlify/functions/sideband-bridge.js"]
+  
+  # Include all necessary external modules
+  external_node_modules = [
+    "node-fetch", 
+    "jsonwebtoken", 
+    "jwks-rsa", 
+    "node-cache", 
+    "node-ical", 
+    "react-markdown", 
+    "remark", 
+    "remark-html",
+    "ical-generator",
+    "ical.js"
+  ]
+  
+  # Include all function files and their dependencies
+  included_files = [
+    "netlify/functions/sideband-bridge.js",
+    "netlify/functions/translations/translations.js",
+    "netlify/functions/translations/translations.json",
+    "netlify/functions/calendar/calendar.js",
+    "netlify/functions/inaturalist/inaturalist.js",
+    "netlify/functions/health.js",
+    "package.json",
+    "package-lock.json"
+  ]
+  
+  # Set Node.js version for all functions
+  node_version = "18"
 
-# Handle Sideband bridge requests
-[[redirects]]
-  from = "/.netlify/functions/sideband-bridge/*"
-  to = "/.netlify/functions/sideband-bridge"
-  status = 200
-  force = true
+# ====================================
+# API Redirects
+# ====================================
 
-# Handle Next.js routes and Auth0 callbacks
+# Handle Next.js internal routes
 [[redirects]]
   from = "/_next/*"
   to = "/_next/:splat"
   status = 200
+  force = true
 
+# Health check endpoint
 [[redirects]]
-  from = "/api/*"
-  to = "/functions/:splat"
+  from = "/api/health"
+  to = "/.netlify/functions/health"
   status = 200
+  force = true
+  [redirects.headers]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
 
-# Specific redirect for translations function
+# API endpoints to Netlify Functions
 [[redirects]]
   from = "/api/translations"
-  to = "/functions/translations"
+  to = "/.netlify/functions/translations"
   status = 200
+  force = true
 
-# Handle API requests - redirect to Netlify functions
+[[redirects]]
+  from = "/api/calendar"
+  to = "/.netlify/functions/calendar"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/inaturalist"
+  to = "/.netlify/functions/inaturalist"
+  status = 200
+  force = true
+  [redirects.headers]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+# Sideband bridge endpoints
 [[redirects]]
   from = "/api/sideband/*"
   to = "/.netlify/functions/sideband-bridge/:splat"
   status = 200
   force = true
+  [redirects.headers]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
 
-# Handle legacy API endpoints with explicit redirects
+# Legacy API endpoints for backward compatibility
 [[redirects]]
   from = "/api/data"
   to = "/.netlify/functions/sideband-bridge/data"
@@ -87,7 +140,7 @@
   force = true
   [redirects.headers]
     Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Methods = "GET, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type, Authorization"
 
 [[redirects]]
