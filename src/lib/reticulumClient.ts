@@ -69,21 +69,25 @@ export interface ReticulumConfig {
 }
 
 // Helper to determine if we're in production
-const isProduction = typeof window !== 'undefined' 
-  ? window.location.hostname === 'livada.bio' 
-  : process.env.NODE_ENV === 'production';
+const isProduction = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.hostname === 'livada.bio' || 
+           window.location.hostname === 'www.livada.bio';
+  }
+  return process.env.NODE_ENV === 'production';
+};
 
 // Default configuration with environment variables
 export const defaultReticulumConfig: ReticulumConfig = {
   // In production, use api as host to trigger Netlify functions
   // In development, use localhost or the specified host
-  sidebandHost: isProduction 
-    ? 'api'  // This will be used to trigger Netlify redirects
+  sidebandHost: isProduction() 
+    ? ''  // Use relative path for production
     : (process.env.NEXT_PUBLIC_SIDEBAND_HOST || 
       (typeof window !== 'undefined' ? window.location.hostname : 'localhost')),
   
   // Use 443 in production, or the specified port (or 3000 in development)
-  sidebandPort: isProduction 
+  sidebandPort: isProduction() 
     ? 443 
     : (parseInt(process.env.NEXT_PUBLIC_SIDEBAND_PORT || '3000')),
   
@@ -108,19 +112,13 @@ export class ReticulumClient {
   private constructor(config: ReticulumConfig = defaultReticulumConfig) {
     this.config = config;
     
-    // Determine the correct protocol based on the environment
-    const isProduction = typeof window !== 'undefined' && window.location.protocol === 'https:';
-    const protocol = isProduction ? 'https' : 'http';
-    
-    // Handle different environments:
-    // 1. Production (api:443): Use relative URLs to work with Netlify functions
-    // 2. Local development: Use full URLs with protocol
-    if (this.config.sidebandHost === 'api' && this.config.sidebandPort === 443) {
-      // For production, we'll use relative paths that will be handled by Netlify redirects
+    // In production, use empty base URL for relative paths
+    // In development, use full URL with protocol
+    if (isProduction()) {
       this.baseUrl = '';
       console.log(`Initializing ReticulumClient in production mode with serverless functions`);
     } else {
-      // For local development, use direct connection to the debug bridge
+      const protocol = window?.location.protocol === 'https:' ? 'https' : 'http';
       this.baseUrl = `${protocol}://${this.config.sidebandHost}:${this.config.sidebandPort}`;
       console.log(`Initializing ReticulumClient in development mode with baseUrl: ${this.baseUrl}`);
     }
@@ -431,10 +429,12 @@ export class ReticulumClient {
       const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
       
       // Always use the Netlify function endpoint in production
-      const isProd = this.config.sidebandHost === 'api' && this.config.sidebandPort === 443;
+      const isProd = isProduction();
       const url = isProd 
         ? `/.netlify/functions/sideband-bridge/status`
         : `${this.baseUrl}/api/status`;
+      
+      console.log(`Using ${isProd ? 'production' : 'development'} endpoint:`, url);
       
       console.log(`Attempting connection to Sideband at: ${url}`);
       
