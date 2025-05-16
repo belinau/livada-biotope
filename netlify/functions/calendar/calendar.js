@@ -1,7 +1,7 @@
 // Netlify serverless function to fetch and cache Google Calendar events
-const fetch = require("node-fetch");
-const ical = require("node-ical");
-const NodeCache = require("node-cache");
+const fetch = require('node-fetch');
+const ical = require('node-ical');
+const NodeCache = require('node-cache');
 
 // Create a cache with a default TTL of 30 minutes (1800 seconds)
 const cache = new NodeCache({ stdTTL: 1800 });
@@ -66,188 +66,151 @@ const commonTerms = {
 
 // Function to translate event title to Slovenian
 function translateEventTitle(title) {
-  let translatedTitle = title;
-  
-  // Check for common terms and replace them
-  Object.keys(commonTerms).forEach(term => {
-    const regex = new RegExp(`\\b${term}\\b`, 'gi');
-    translatedTitle = translatedTitle.replace(regex, commonTerms[term]);
+  if (!title) return '';
+  let translated = title;
+  Object.entries(commonTerms).forEach(([en, sl]) => {
+    const regex = new RegExp(`\\b${en}\\b`, 'gi');
+    translated = translated.replace(regex, sl);
   });
-  
-  // Handle specific patterns like "Workshop #2" -> "Delavnica #2"
-  translatedTitle = translatedTitle.replace(/Workshop #(\d+)/gi, 'Delavnica #$1');
-  
-  return translatedTitle;
+  return translated;
 }
 
 // Function to translate event description to Slovenian
 function translateEventDescription(description) {
   if (!description) return '';
+  let translated = description;
   
-  let translatedDescription = description;
+  // Translate common phrases
+  translated = translated.replace(/Location:/gi, 'Lokacija:');
+  translated = translated.replace(/Date:/gi, 'Datum:');
+  translated = translated.replace(/Time:/gi, 'Čas:');
+  translated = translated.replace(/Description:/gi, 'Opis:');
   
-  // Handle gender markers in the format [M:text] or [F:text]
-  // M for male, F for female - this affects Slovenian grammar
-  translatedDescription = translatedDescription.replace(/\[M:(.*?)\]/g, (match, text) => {
-    // Apply male grammatical forms in Slovenian
-    // For example, "he was" -> "on je bil" (not "ona je bila")
-    return text.trim();
+  // Translate common words
+  Object.entries(commonTerms).forEach(([en, sl]) => {
+    const regex = new RegExp(`\\b${en}\\b`, 'gi');
+    translated = translated.replace(regex, sl);
   });
   
-  translatedDescription = translatedDescription.replace(/\[F:(.*?)\]/g, (match, text) => {
-    // Apply female grammatical forms in Slovenian
-    // For example, "she was" -> "ona je bila" (not "on je bil")
-    return text.trim();
-  });
-  
-  // Check for common terms and replace them
-  Object.keys(commonTerms).forEach(term => {
-    const regex = new RegExp(`\\b${term}\\b`, 'gi');
-    translatedDescription = translatedDescription.replace(regex, commonTerms[term]);
-  });
-  
-  return translatedDescription;
+  return translated;
 }
 
 // Function to determine event type based on summary and description
 function determineEventType(summary, description) {
-  const text = (summary + ' ' + description).toLowerCase();
-  if (text.includes('workshop') || text.includes('delavnica')) {
-    return "workshop";
-  } else if (text.includes('lecture') || text.includes('predavanje')) {
-    return "lecture";
-  } else if (text.includes('community') || text.includes('skupnost')) {
-    return "community";
-  } else {
-    return "other";
-  }
+  const combined = `${summary || ''} ${description || ''}`.toLowerCase();
+  if (combined.includes('workshop') || combined.includes('delavnica')) return 'workshop';
+  if (combined.includes('lecture') || combined.includes('predavanje')) return 'lecture';
+  if (combined.includes('community') || combined.includes('skupnost')) return 'community';
+  return 'other';
 }
 
-exports.handler = async (event, context) => {
-  try {
-    // Set CORS headers
-    const headers = {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "Content-Type",
-      "Content-Type": "application/json"
+exports.handler = async function(event, context) {
+  // Set CORS headers
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json',
+  };
+
+  // Handle OPTIONS request for CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: '',
     };
+  }
 
-    // Handle OPTIONS request (preflight)
-    if (event.httpMethod === "OPTIONS") {
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ message: "CORS preflight request successful" })
-      };
-    }
-
-    // Parse query parameters
-    const params = event.queryStringParameters || {};
-    const locale = params.locale || "en";
-    
-    // Create a cache key based on the locale
-    const cacheKey = `calendar_events_${locale}`;
-
-    // Check if we have a cached response
+  try {
+    // Check cache first
+    const cacheKey = 'calendar-events';
     const cachedData = cache.get(cacheKey);
+    
     if (cachedData) {
-      console.log(`Serving cached calendar data for locale: ${locale}`);
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify(cachedData)
+        body: JSON.stringify(cachedData),
       };
     }
 
-    // Fetch events from Google Calendar
-    try {
-      console.log(`Fetching calendar data from: ${CALENDAR_URL}`);
-      
-      // Fetch the iCal data
-      const response = await fetch(CALENDAR_URL);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch calendar data: ${response.status}`);
-      }
-      
-      const icalData = await response.text();
-      
-      // Parse the iCal data using node-ical
-      const events = await ical.parseICS(icalData);
-      
-      // Process the events into our format
-      const processedEvents = [];
-      
-      for (const [key, event] of Object.entries(events)) {
-        // Skip non-event entries (like timezones)
-        if (event.type !== 'VEVENT') continue;
-        
-        // Process the event
-        const eventType = determineEventType(event.summary, event.description || '');
-        
-        // Skip events without start or end dates
-        if (!event.start || !event.end) continue;
-        
-        // Create a processed event object
-        const processedEvent = {
-          id: key,
-          title: locale === 'sl' ? translateEventTitle(event.summary) : event.summary,
-          description: locale === 'sl' ? translateEventDescription(event.description || '') : event.description || '',
-          start: event.start.toISOString(),
-          end: event.end.toISOString(),
-          location: event.location || '',
-          type: translations[locale][eventType] || eventType
-        };
-        
-        processedEvents.push(processedEvent);
-      }
-      
-      // Sort events by start date
-      processedEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
-      
-      // Create the response object with the expected format
-      const responseData = {
-        events: processedEvents
-      };
-      
-      // Cache the response
-      cache.set(cacheKey, responseData);
-      
-      // Return the response
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify(responseData)
-      };
-      
-    } catch (calendarError) {
-      console.error("Error fetching calendar data:", calendarError);
-      
-      // Return an error response
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ 
-          error: "Failed to fetch calendar data",
-          message: calendarError.message
-        })
-      };
+    // Fetch calendar data
+    const response = await fetch(CALENDAR_URL);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch calendar: ${response.statusText}`);
     }
+    
+    const icsData = await response.text();
+    const events = [];
+    const now = new Date();
+    const oneYearFromNow = new Date();
+    oneYearFromNow.setFullYear(now.getFullYear() + 1);
+
+    // Parse iCal data
+    const parsedData = ical.sync.parseICS(icsData);
+    
+    // Process events
+    for (const [uid, event] of Object.entries(parsedData)) {
+      if (event.type !== 'VEVENT') continue;
+      
+      const start = new Date(event.start);
+      const end = new Date(event.end);
+      
+      // Skip past events
+      if (end < now) continue;
+      
+      // Skip events more than a year in the future
+      if (start > oneYearFromNow) continue;
+      
+      const eventType = determineEventType(event.summary, event.description);
+      
+      // Create event object
+      const formattedEvent = {
+        id: uid,
+        title: event.summary || 'Event',
+        description: event.description || '',
+        location: event.location || '',
+        start: start.toISOString(),
+        end: end.toISOString(),
+        type: eventType,
+        translations: {
+          sl: {
+            title: translateEventTitle(event.summary || 'Event'),
+            description: translateEventDescription(event.description || ''),
+            type: translations.sl[eventType] || translations.sl.other
+          },
+          en: {
+            title: event.summary || 'Event',
+            description: event.description || '',
+            type: translations.en[eventType] || translations.en.other
+          }
+        }
+      };
+      
+      events.push(formattedEvent);
+    }
+
+    // Sort events by start date
+    events.sort((a, b) => new Date(a.start) - new Date(b.start));
+    
+    // Cache the result
+    cache.set(cacheKey, events);
+    
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(events),
+    };
     
   } catch (error) {
-    console.error("Serverless function error:", error);
-    
-    // Return an error response
+    console.error('Error fetching calendar:', error);
     return {
       statusCode: 500,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ 
-        error: "Server error",
+      headers,
+      body: JSON.stringify({
+        error: 'Failed to fetch calendar events',
         message: error.message
-      })
+      }),
     };
   }
 };
