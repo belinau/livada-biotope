@@ -106,17 +106,22 @@ export default function ProjectTemplate({ project, projects }: ProjectTemplatePr
           
           {project.thumbnail && (
             <Box sx={{ width: '100%', height: { xs: 300, md: 500 }, position: 'relative' }}>
-              <StylizedImage
-                speciesName={{ en: "Project Image", sl: "Slika projekta" }}
-                latinName="Project"
-                backgroundColor="#f8f5e6"
-                patternColor="#2e7d32"
-                pattern="lines"
-                fill
-                style={{ objectFit: 'cover' }}
-                imageSrc={project.thumbnail}
-                priority
-              />
+              <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
+                <StylizedImage
+                  speciesName={{
+                    en: typeof project.title === 'string' ? project.title : project.title.en || 'Project',
+                    sl: typeof project.title === 'string' ? project.title : project.title.sl || 'Projekt'
+                  }}
+                  latinName="Project"
+                  backgroundColor="#f8f5e6"
+                  patternColor="#2e7d32"
+                  pattern="lines"
+                  width="100%"
+                  height="100%"
+                  style={{ objectFit: 'cover' }}
+                  imageSrc={project.thumbnail}
+                />
+              </Box>
             </Box>
           )}
         </Paper>

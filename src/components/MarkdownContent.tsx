@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Typography, Link as MuiLink, Box } from '@mui/material';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { atomDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import atomDark from 'react-syntax-highlighter/dist/cjs/styles/prism/atom-dark';
+import type { CSSProperties } from 'react';
 
 interface MarkdownContentProps {
   content: string;
@@ -62,7 +63,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
           const match = /language-(\w+)/.exec(className || '');
           return !inline && match ? (
             <SyntaxHighlighter
-              style={atomDark}
+              style={atomDark as any}
               language={match[1]}
               PreTag="div"
               {...props}
