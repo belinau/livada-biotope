@@ -3,236 +3,52 @@
   command = "npm run build"
   publish = ".next"
   functions = "netlify/functions"
-  node_version = "18"
 
-# Skip builds for paths that don't affect the site
-[build.processing.skip_processing]
-  paths = ["*.md", "*.mdx", "*.log"]
-
-# Skip builds for specific paths
-[build.ignore]
-  # Skip build if only these files changed
-  ignore = "git diff --quiet HEAD^ HEAD -- ."
-  
-  # Skip build for specific paths
-  paths = [
-    "*.md",
-    "*.mdx",
-    "*.log",
-    "*.gitignore",
-    "*.editorconfig",
-    "*.prettierrc",
-    "*.eslintrc*",
-    "*.babelrc*",
-    "*.prettier*",
-    "*.stylelint*",
-    "*.vscode/*",
-    "netlify.toml"
-  ]
-
+# Environment variables
 [build.environment]
-  # Only build from main branch
-  BRANCH = "main"
-  
-  # Node.js version
   NODE_VERSION = "18.18.0"
-  
-  # Next.js configuration
-  NEXT_USE_NETLIFY_EDGE = "true"
-  
-  # Disable secrets scanning for Auth0 environment variables
-  SECRETS_SCAN_OMIT_KEYS = "AUTH0_DOMAIN,NEXT_PUBLIC_AUTH0_DOMAIN,AUTH0_AUDIENCE,NEXT_PUBLIC_AUTH0_AUDIENCE,AUTH0_CLIENT_ID,NEXT_PUBLIC_AUTH0_CLIENT_ID"
-  
-  # Increase Node.js memory limit
   NODE_OPTIONS = "--max_old_space_size=4096"
+  NEXT_USE_NETLIFY_EDGE = "true"
 
-# Disable all non-production builds
-[build.environment.deploy-preview]
-  command = "echo 'Skipping deploy preview' && exit 0"
-
-[build.environment.branch-deploy]
-  command = "[[ $BRANCH == 'main' ]] && npm run build || echo 'Skipping non-main branch deploy'"
-
+# Plugins
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Processing configuration
-[build.processing]
-skip_processing = false
-
-[build.processing.css]
-bundle = true
-minify = true
-
-[build.processing.js]
-bundle = true
-minify = true
-
-[build.processing.html]
-pretty_urls = true
-
-[build.processing.images]
-compress = true
-
-# Function configuration
+# Function settings
 [functions]
-  # Use esbuild for faster builds
   node_bundler = "esbuild"
-  
-  # External modules that should not be bundled
   external_node_modules = [
-    "node-cache", 
-    "node-fetch", 
-    "node-ical"
+    "node-cache",
+    "node-fetch",
+    "node-ical"  
   ]
-  
-  # Include all function files and their dependencies
-  included_files = [
-    "netlify/functions/**/*.js",
-    "netlify/functions/**/*.json"
-  ]
-  
-  # Function configuration options
 
-# ====================================
-# API Redirects
-# ====================================
-
-# Handle Next.js internal routes
-[[redirects]]
-  from = "/_next/*"
-  to = "/_next/:splat"
-  status = 200
-  force = true
-
-# Health check endpoint
-[[redirects]]
-  from = "/api/health"
-  to = "/.netlify/functions/health"
-  status = 200
-  force = true
-  [redirects.headers]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
-
-# API endpoints to Netlify Functions
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
+# Redirects
 [[redirects]]
   from = "/api/translations"
   to = "/.netlify/functions/translations"
   status = 200
-  force = true
 
 [[redirects]]
   from = "/api/calendar"
   to = "/.netlify/functions/calendar"
   status = 200
-  force = true
 
 [[redirects]]
   from = "/api/inaturalist"
   to = "/.netlify/functions/inaturalist"
   status = 200
-  force = true
-  [redirects.headers]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
 
-# Sideband bridge endpoints
 [[redirects]]
   from = "/api/sideband/*"
   to = "/.netlify/functions/sideband-bridge/:splat"
   status = 200
-  force = true
-  [redirects.headers]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
 
-# Legacy API endpoints for backward compatibility
-[[redirects]]
-  from = "/api/data"
-  to = "/.netlify/functions/sideband-bridge/data"
-  status = 200
-  force = true
-  [redirects.headers]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
-
-[[redirects]]
-  from = "/api/status"
-  to = "/.netlify/functions/sideband-bridge/status"
-  status = 200
-  force = true
-  [redirects.headers]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
-  
-[[redirects]]
-  from = "/api/debug"
-  to = "/.netlify/functions/sideband-bridge/debug"
-  status = 200
-  force = true
-  [redirects.headers]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
-
-# Direct access to Netlify functions for translations - using proxy path instead
-[[redirects]]
-  from = "/proxy/translations"
-  to = "/functions/translations"
-  status = 200
-
-# Handle static assets and images
-[[redirects]]
-  from = "/images/*"
-  to = "/images/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/assets/*"
-  to = "/assets/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/favicon.ico"
-  to = "/favicon.ico"
-  status = 200
-
-# Add specific redirect for admin routes
-[[redirects]]
-  from = "/admin/*"
-  to = "/admin/:splat"
-  status = 200
-
-# Add specific redirect for Auth0 callbacks
-[[redirects]]
-  from = "/api/auth/*"
-  to = "/api/auth/:splat"
-  status = 200
-
-# This redirect is essential for client-side routing (must be last)
+# Catch-all for client-side routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-# Add CORS headers for the API
-[[headers]]
-  for = "/api/*"
-    [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
 
 # Add CORS headers for Next.js resources
 [[headers]]
