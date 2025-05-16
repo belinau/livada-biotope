@@ -19,7 +19,13 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const filenames = fs.readdirSync(projectsDirectory);
 
   const paths = filenames
-    .filter((filename) => filename.endsWith('.md') && filename !== 'example-bilingual-project.md')
+    .filter((filename) => {
+      // Exclude example file and lets-not-dry-out-the-future
+      const slug = filename.replace(/\.md$/, '');
+      return filename.endsWith('.md') && 
+             filename !== 'example-bilingual-project.md' &&
+             slug !== 'lets-not-dry-out-the-future';
+    })
     .map((filename) => ({
       params: {
         slug: filename.replace(/\.md$/, ''),
@@ -40,7 +46,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const filenames = fs.readdirSync(projectsDirectory);
   
   const allProjects = filenames
-    .filter((filename) => filename.endsWith('.md') && filename !== 'example-bilingual-project.md')
+    .filter((filename) => {
+      const slug = filename.replace(/\.md$/, '');
+      return filename.endsWith('.md') && 
+             filename !== 'example-bilingual-project.md' &&
+             slug !== 'lets-not-dry-out-the-future';
+    })
     .map((filename) => {
       const filePath = path.join(projectsDirectory, filename);
       const fileContents = fs.readFileSync(filePath, 'utf8');
