@@ -64,6 +64,9 @@ function generateMockObservations(count, locale) {
   return mockSpecies.slice(0, count);
 }
 
+// Maximum number of items per page to prevent abuse
+const MAX_ITEMS_PER_PAGE = 20;
+
 exports.handler = async function(event, context) {
   // Set CORS headers
   const headers = {
@@ -82,11 +85,11 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    // Parse query parameters
+    // Parse and validate query parameters
     const params = event.queryStringParameters || {};
-    const page = parseInt(params.page) || 1;
-    const perPage = parseInt(params.per_page) || 6;
-    const locale = params.locale || 'en';
+    const page = Math.max(1, parseInt(params.page) || 1);
+    const perPage = Math.min(MAX_ITEMS_PER_PAGE, Math.max(1, parseInt(params.per_page) || 6));
+    const locale = ['en', 'sl'].includes(params.locale) ? params.locale : 'en';
     const projectId = params.project_id || 'the-livada-biotope-monitoring';
 
     // Create a cache key based on the request parameters
@@ -103,22 +106,40 @@ exports.handler = async function(event, context) {
       };
     }
 
-    // Try to fetch from iNaturalist API
+    // Try to fetch from iNaturalist API with timeout
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+      
       const response = await fetch(
-        `https://api.inaturalist.org/v1/observations?project_id=${projectId}&verifiable=any&order=desc&order_by=created_at&per_page=${perPage}&page=${page}&locale=${locale}&photos=true`,
+        `https://api.inaturalist.org/v1/observations?` + new URLSearchParams({
+          project_id: projectId,
+          verifiable: 'any',
+          order: 'desc',
+          order_by: 'created_at',
+          per_page: perPage,
+          page: page,
+          locale: locale,
+          photos: 'true'
+        }).toString(),
         {
+          signal: controller.signal,
           headers: {
             'User-Agent': 'LivadaBiotope/1.0 (https://livada-biotope.netlify.app/)',
             'Accept': 'application/json',
             'Content-Type': 'application/json'
-          },
-          timeout: 10000
+          }
         }
       );
       
+      clearTimeout(timeoutId);
+      
       if (!response.ok) {
-        throw new Error(`iNaturalist API error: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `iNaturalist API error: ${response.status} ${response.statusText}` +
+          (errorData.error ? ` - ${errorData.error}` : '')
+        );
       }
       
       const data = await response.json();
