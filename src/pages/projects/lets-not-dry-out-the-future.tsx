@@ -4,6 +4,7 @@ import { SensorVisualization } from '@/components/features/SensorVisualization';
 import BiodiversityShowcase from '@/components/features/BiodiversityShowcase';
 import { useLanguage } from '@/contexts/LanguageContext';
 import TranslationLoader from '@/components/TranslationLoader';
+import Link from 'next/link';
 import { 
   Typography, 
   Box, 
@@ -22,6 +23,21 @@ import {
 
 export default function LetsNotDryOutTheFuture() {
   const { language } = useLanguage();
+
+  // Define biodiversity items
+  const biodiversityItems = [
+    {
+      id: '1',
+      name: 'Common Blue',
+      scientificName: 'Polyommatus icarus',
+      image: '/images/biodiversity/butterfly.jpg',
+      description: {
+        en: 'A common butterfly found in meadows and grasslands.',
+        sl: 'Pogost metulj, ki ga najdemo na travnikih in traviščih.'
+      }
+    },
+    // Add more items as needed
+  ];
 
 
 
