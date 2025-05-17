@@ -1,63 +1,88 @@
 {
   "Navbar": {
     "home": "Domov",
-    "biodiversity": "Biotska raznovrstnost",
+    "biodiversity": "Biodiverziteta",
     "projects": "Projekti",
-    "instructables": "Naredi sam_a",
+    "instructables": "Navodila",
     "ecofeminism": "Ekofeminizem",
     "events": "Dogodki",
-    "about": "O skupnostni pobudi"
+    "about": "O nas",
+    "blog": "Blog"
   },
   "Footer": {
-    "description": "Ekofeministična iniciativa, ki razvija z zemljo povezane prakse.",
-    "quickLinks": "Hitri povezavi",
+    "description": "Eko-feministična pobuda za razvijanje trajnostnih praks na kmetiji.",
+    "quickLinks": "Hitre povezave",
     "contact": "Kontakt",
-    "followUs": "Spremljaj nas",
+    "followUs": "Sledite nam",
     "home": "Domov",
-    "biodiversity": "Biotska raznovrstnost",
+    "biodiversity": "Biodiverziteta",
     "projects": "Projekti",
-    "instructables": "Naredi sam_a",
+    "instructables": "Navodila",
     "ecofeminism": "Ekofeminizem",
     "events": "Dogodki",
-    "about": "O meni",
+    "about": "O nas",
     "rights": "Vse pravice pridržane."
   },
   "Home": {
-    "welcome": "Dobrodošel_a v Biotopu Livada",
-    "description": "Ekofeministična pobuda, ki razvija z zemljo povezane prakse in drugačne načine bivanja.",
-    "mission": "Moja misija",
-    "missionDescription": "Razvijamo trajnostne zemljiščne prakse in učimo o pomembnosti skrbi za okolje.",
-    "projects": "Moji projekti",
+    "welcome": "Dobrodošli v Biotopu Livada",
+    "description": "Eko-feministična pobuda za razvijanje trajnostnih praks na kmetiji in spodbujanje trajnostnega načina življenja.",
+    "mission": "Naš namen",
+    "missionDescription": "Razvijamo trajnostne prakse na kmetiji in izobražujemo o okoljski ozaveščenosti.",
+    "projects": "Naši projekti",
     "upcomingEvents": "Prihajajoči dogodki"
   },
   "SensorVisualization": {
-    "title": "Nadzor vlažnosti tal",
+    "title": "Spremljanje vlažnosti tal",
     "time": "Čas",
-    "moistureLevel": "Stopnja vlažnosti",
-    "description": "Grafični prikaz podatkov o vlažnosti prsti izmerjenih z 6 senzorji."
+    "moistureLevel": "Raven vlage",
+    "description": "Grafični prikaz podatkov o vlažnosti tal, zbranih s 6 senzorji."
   },
   "Error": {
     "title": "Napaka",
-    "message": "Šment. Poskusi še enkrat.",
+    "message": "Prišlo je do napake. Prosimo, poskusite znova.",
     "tryAgain": "Poskusi znova"
   },
   "LetsNotDryOutTheFuture": {
     "title": "Ne izsušimo prihodnosti",
-    "subtitle": "Projekt za spremljanje vlažnosti prsti",
+    "subtitle": "Projekt spremljanja vlažnosti tal",
     "projectDescription": "O projektu",
-    "description": "Projekt za spremljanje vlažnosti prsti s senzorji in lora RF povezavo z Reticulum omrežjem. Želimo razviti trajnostne načine za ohranjanje vlažnosti zemlje.",
-    "technology": "Tehnološka rešitev",
-    "technologyDescription": "Uporabljamo 6 senzorjev za merjenje vlažnosti prsti, povezanih preko Reticulum omrežja. Podatke zbiramo sproti in jih lahko spremljaš na našem spletišču.",
+    "description": "Projekt za spremljanje vlažnosti tal z uporabo senzorjev in omrežja Reticulum. Cilj je razviti trajnostne prakse za spremljanje in vzdrževanje vlažnosti tal.",
+    "technology": "Uporabljena tehnologija",
+    "technologyDescription": "Uporabljamo 6 senzorjev vlažnosti tal, povezanih prek omrežja Reticulum. Podatki se zbirajo v živo in so dostopni prek naše spletne strani.",
     "goals": "Cilji projekta",
-    "goal1": "Spremljanje vlažnosti prsti v realnem času",
-    "goal2": "Razvoj trajnostnih načinov za ohranjanje vlažnosti prsti",
-    "goal3": "Izobraževanje ljudi o tem, zakaj je vlažnost prsti pomembna",
+    "goal1": "Spremljanje vlažnosti tal v realnem času",
+    "goal2": "Razvoj trajnostnih načinov za ohranjanje vlažnosti tal",
+    "goal3": "Izobraževanje ljudi o tem, zakaj je vlažnost tal pomembna",
     "howToHelp": "Kako lahko pomagaš"
   },
   "Projects": {
     "title": "Naši projekti",
     "letsNotDryOutTheFuture": "Ne izsušimo prihodnosti",
-    "letsNotDryOutTheFutureDescription": "Projekt za spremljanje vlažnosti prsti s senzorji preko Reticulum omrežja.",
+    "letsNotDryOutTheFutureDescription": "Projekt za spremljanje vlažnosti tal s senzorji preko Reticulum omrežja.",
     "learnMore": "Poglej več"
+  },
+  "common": {
+    "learnMore": "Več o tem"
+  },
+  "home": {
+    "ourMission": "Naš namen",
+    "preservingBiodiversity": "Ohranjanje biotske raznovrstnosti"
+  },
+  "projects": {
+    "wetlandRestoration": {
+      "titleSl": "Obnova mokrišča"
+    }
+  },
+  "species": {
+    "commonKingfisher": {
+      "en": "Common Kingfisher",
+      "sl": "Navadni vodomec",
+      "latin": "Alcedo atthis"
+    },
+    "beeOrchid": {
+      "en": "Bee Orchid",
+      "sl": "Čebeljelika kukavica",
+      "latin": "Ophrys apifera"
+    }
   }
 }

@@ -7,7 +7,7 @@ hero_text_sl: Spodbujanje z zemljo povezanih skupnostnih praks, biotske
   raznovrstnosti in odpornosti na podnebne spremembe v Ljubljani
 subtitle_en: More than human encounters
 subtitle_sl: Več kot človeška srečanja
-hero_image: /images/uploads/placeholder.jpg
+hero_image: /images/biodiversity-monitoring.jpg
 intro_en: >
   # Welcome to The Livada Biotope
 

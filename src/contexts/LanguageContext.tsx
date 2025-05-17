@@ -1,40 +1,49 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-// Define the supported languages
-export type Language = 'en' | 'sl';
+type Language = 'en' | 'sl';
 
 interface LanguageContextType {
   language: Language;
-  setLanguage: (language: Language) => void;
+  setLanguage: (lang: Language) => void;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const defaultContext: LanguageContextType = {
+  language: 'en',
+  setLanguage: () => {},
+};
+
+const LanguageContext = createContext<LanguageContextType>(defaultContext);
+
+export const useLanguage = () => useContext(LanguageContext);
 
 interface LanguageProviderProps {
   children: ReactNode;
+  initialLanguage?: Language;
 }
 
-export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  // Initialize language from localStorage if available, otherwise default to 'en'
-  const [language, setLanguageState] = useState<Language>('en');
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({
+  children,
+  initialLanguage = 'en',
+}) => {
+  const [language, setLanguageState] = useState<Language>(initialLanguage);
 
-  // Load language preference from localStorage on initial render
+  // Load language from localStorage on initial render
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedLanguage = localStorage.getItem('livada_language') as Language;
-      if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'sl')) {
-        setLanguageState(savedLanguage);
-      }
+    const savedLanguage = localStorage.getItem('language') as Language | null;
+    if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'sl')) {
+      setLanguageState(savedLanguage);
+    } else {
+      // Default to browser language if available, otherwise 'en'
+      const browserLang = navigator.language.split('-')[0];
+      setLanguageState(browserLang === 'sl' ? 'sl' : 'en');
     }
   }, []);
 
-  // Save language preference to localStorage when it changes
-  const setLanguage = useCallback((newLanguage: Language) => {
-    setLanguageState(newLanguage);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('livada_language', newLanguage);
-    }
-  }, []);
+  const setLanguage = (lang: Language) => {
+    localStorage.setItem('language', lang);
+    document.documentElement.lang = lang;
+    setLanguageState(lang);
+  };
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage }}>
@@ -43,10 +52,4 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   );
 };
 
-export const useLanguage = (): LanguageContextType => {
-  const context = useContext(LanguageContext);
-  if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
-  return context;
-};
+export default LanguageContext;

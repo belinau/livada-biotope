@@ -3,8 +3,7 @@ import { GetStaticProps } from 'next';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { Container, Typography, Box, Card, CardContent, CardMedia } from '@mui/material';
-import Grid from '@/components/ui/Grid'; // Using our custom Grid component
+import { Container, Typography, Box, Card, CardContent, CardMedia, Grid } from '@mui/material';
 import SharedLayout from '@/components/layout/SharedLayout';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -51,7 +50,7 @@ export default function GalleriesPage({ galleries }: GalleriesPageProps) {
 
       <Grid container spacing={4}>
         {galleries.map((gallery) => (
-          <Grid item xs={12} sm={6} md={4} key={gallery.slug} component="div">
+          <Grid item xs={12} sm={6} md={4} key={gallery.slug}>
             <Link href={`/galleries/${gallery.slug}`} style={{ textDecoration: 'none' }}>
               <Card 
                 sx={{ 
@@ -72,7 +71,7 @@ export default function GalleriesPage({ galleries }: GalleriesPageProps) {
                     height: 240,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
-                    backgroundImage: `url(${gallery.gallery[0]?.image || '/images/placeholder.jpg'})`,
+                    backgroundImage: `url(${gallery.gallery[0]?.image || '/images/biodiversity-monitoring.jpg'})`,
                   }}
                 />
                 <CardContent sx={{ flexGrow: 1 }}>

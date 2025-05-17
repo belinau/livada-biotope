@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Head from 'next/head';
@@ -20,9 +20,12 @@ import {
   Divider, 
   Button,
   ThemeProvider,
-  createTheme
+  createTheme,
+  Grid as MuiGrid
 } from '@mui/material';
-import Grid from '@/components/ui/Grid'; // Using our custom Grid component
+
+// Create a styled Grid component that includes the container prop
+const Grid = MuiGrid;
 
 // Create a theme instance
 const theme = createTheme({

@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { CalendarEvent } from '@/lib/calendarService';
+import { CalendarEvent } from '@/types/calendar';
 import { 
   translateEventTitle, 
   translateEventDescription, 
-  translateEventLocation,
-  setTranslationLanguage 
+  translateEventLocation 
 } from '@/lib/translationService';
 
 interface TranslatedEventProps {
@@ -16,18 +15,17 @@ interface TranslatedEventProps {
 /**
  * Component that handles translation of event content based on the current language
  */
-export const TranslatedEvent: React.FC<TranslatedEventProps> = ({ event, renderEvent }) => {
+export const TranslatedEvent: React.FC<TranslatedEventProps> = ({ 
+  event, 
+  renderEvent 
+}) => {
   const { language } = useLanguage();
   const [translatedEvent, setTranslatedEvent] = useState<CalendarEvent>(event);
   
   // Update translations when language or event changes
   useEffect(() => {
-    // Set the translation language in the calendar service
-    setTranslationLanguage(language);
-    
     if (language === 'sl') {
       // Translate to Slovenian
-      // Update the event with translated content
       const translated: CalendarEvent = {
         ...event,
         title: translateEventTitle(event.title || ''),
@@ -46,3 +44,5 @@ export const TranslatedEvent: React.FC<TranslatedEventProps> = ({ event, renderE
   // Render the event with translated content
   return <>{renderEvent(translatedEvent)}</>;
 };
+
+export default TranslatedEvent;

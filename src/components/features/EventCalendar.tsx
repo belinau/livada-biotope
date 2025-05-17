@@ -39,7 +39,12 @@ export const EventCalendar: React.FC = () => {
       try {
         setLoading(true);
         const fetchedEvents = await fetchCalendarEvents();
-        setEvents(fetchedEvents);
+        // Ensure all events have a defined end date
+        const processedEvents = fetchedEvents.map(event => ({
+          ...event,
+          end: event.end || event.start
+        }));
+        setEvents(processedEvents);
       } catch (err) {
         console.error('Error loading events:', err);
         setError('Failed to load events. Please try again later.');
