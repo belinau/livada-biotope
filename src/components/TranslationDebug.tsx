@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
 import { Box, Typography, Paper, Button, CircularProgress, Divider, Chip, Alert } from '@mui/material';

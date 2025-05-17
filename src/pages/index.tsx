@@ -58,22 +58,9 @@ interface HomePageProps {
   };
 }
 
-// Helper function to format date
-const formatDate = (dateString: string, locale: 'en' | 'sl' = 'en'): string => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString(locale, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-};
-
 export default function Home({ homeData }: HomePageProps) {
   const { language } = useLanguage();
   const { t } = useTranslations();
-  
-  const currentLang = language === 'en' ? 'en' : 'sl';
   const getContent = (en: string, sl: string) => (language === 'en' ? en : sl);
 
   return (

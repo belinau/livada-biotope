@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '../../contexts/LanguageContext';
-import useTranslations from '../../hooks/useTranslations';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -54,7 +53,6 @@ interface INaturalistApiResponse {
 
 const INaturalistFeed: React.FC = () => {
   const { language } = useLanguage();
-  const { t } = useTranslations();
   const [observations, setObservations] = useState<INaturalistObservation[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -266,8 +264,6 @@ const INaturalistFeed: React.FC = () => {
     );
   }
   
-  // Show warning if there was an error but we have observations to show
-  const showWarning = error && observations.length > 0;
   
   return (
     <Box sx={{ my: 4 }}>

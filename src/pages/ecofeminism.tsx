@@ -2,7 +2,7 @@ import React from 'react';
 import Head from 'next/head';
 import { GetStaticProps } from 'next';
 import { useLanguage } from '../contexts/LanguageContext';
-import useTranslations from '../hooks/useTranslations';
+
 import TranslationLoader from '../components/TranslationLoader';
 import StylizedImage from '../components/StylizedImage';
 import Box from '@mui/material/Box';
@@ -17,12 +17,10 @@ import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import Link from '@mui/material/Link';
+
 import Button from '@mui/material/Button';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
+
 
 // Define types for our data
 interface Resource {
@@ -75,7 +73,7 @@ interface EcofeminismProps {
 
 export default function Ecofeminism({ data }: EcofeminismProps) {
   const { language } = useLanguage();
-  const { t } = useTranslations();
+
   
   return (
     <>

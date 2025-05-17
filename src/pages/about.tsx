@@ -3,7 +3,7 @@ import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
-import useTranslations from '@/hooks/useTranslations';
+
 import TranslationLoader from '@/components/TranslationLoader';
 import { 
   Box, 
@@ -13,10 +13,6 @@ import {
   useMediaQuery
 } from '@mui/material';
 import Grid from '@/components/ui/Grid'; // Updated to use our custom Grid
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
-import { styled } from '@mui/material/styles';
 
 // Types
 interface AboutPageProps {
@@ -32,7 +28,7 @@ interface AboutPageProps {
 
 export default function AboutPage({ content }: AboutPageProps) {
   const { language } = useLanguage();
-  const { t } = useTranslations();
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -66,7 +62,7 @@ export default function AboutPage({ content }: AboutPageProps) {
         <title>{title} | Livada Biotope</title>
         <meta 
           name="description" 
-          content={t('about.metaDescription', 'Learn more about Livada Biotope, our mission, and our team.')} 
+          content="Learn more about Livada Biotope, our mission, and our team." 
         />
       </Head>
 
@@ -193,7 +189,7 @@ export default function AboutPage({ content }: AboutPageProps) {
               fontWeight: 700,
             }}
           >
-            {t('about.ourSpace', 'Our Space')}
+            Our Space
           </Typography>
           <Grid container spacing={3}>
             {[

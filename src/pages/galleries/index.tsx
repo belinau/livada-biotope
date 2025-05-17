@@ -8,7 +8,7 @@ import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 import SharedLayout from '@/components/layout/SharedLayout';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
-import useTranslations from '@/hooks/useTranslations';
+
 
 interface GalleryImage {
   image: string;
@@ -30,7 +30,7 @@ interface GalleriesPageProps {
 
 export default function GalleriesPage({ galleries }: GalleriesPageProps) {
   const { language } = useLanguage();
-  const { t } = useTranslations();
+
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
