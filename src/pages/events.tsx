@@ -1,16 +1,14 @@
 import React from 'react';
 import Head from 'next/head';
 import { useLanguage } from '@/contexts/LanguageContext';
-import useTranslations from '@/hooks/useTranslations';
+
 import TranslationLoader from '../components/TranslationLoader';
 import { EnhancedEventCalendar } from '@/components/features/EnhancedEventCalendar';
 import { Box, Container, Typography, Paper, Button } from '@mui/material';
-import { green } from '@mui/material/colors';
-import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 
 export default function Events() {
   const { language } = useLanguage();
-  const { t } = useTranslations();
+
   
   return (
     <>
@@ -69,10 +67,10 @@ export default function Events() {
               border: '1px solid',
               borderColor: 'divider',
               boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-              bgcolor: green[50]
+              bgcolor: 'success.light'
             }}
           >
-            <Typography variant="h5" component="h3" gutterBottom sx={{ color: green[800] }}>
+            <Typography variant="h5" component="h3" gutterBottom sx={{ color: 'success.dark' }}>
               {language === 'en' ? 'Want to host an event?' : 'Želite organizirati dogodek?'}
             </Typography>
             <Typography paragraph>

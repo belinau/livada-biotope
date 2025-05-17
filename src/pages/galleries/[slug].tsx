@@ -7,7 +7,7 @@ import { Container, Typography, Box, Breadcrumbs, Link as MuiLink } from '@mui/m
 import SharedLayout from '@/components/layout/SharedLayout';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
-import useTranslations from '@/hooks/useTranslations';
+
 import PhotoGallery, { GalleryImage } from '@/components/features/PhotoGallery';
 import HomeIcon from '@mui/icons-material/Home';
 import CollectionsIcon from '@mui/icons-material/Collections';
@@ -25,7 +25,6 @@ interface GalleryPageProps {
 
 export default function GalleryPage({ gallery }: GalleryPageProps) {
   const { language } = useLanguage();
-  const { t } = useTranslations();
 
   if (!gallery) {
     return (

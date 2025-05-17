@@ -1,39 +1,23 @@
 import React from 'react';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
-import Link from 'next/link';
 import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
-import useTranslations from '@/hooks/useTranslations';
 import TranslationLoader from '@/components/TranslationLoader';
-import Grid from '@/components/ui/Grid'; // Import our custom Grid
 import { 
   Box, 
   Container, 
   Typography, 
-  Paper, 
   Button, 
   TextField, 
-  FormControl, 
-  InputLabel, 
-  MenuItem, 
-  Select, 
   Divider,
   useTheme,
   useMediaQuery,
-  styled,
-  alpha
+  Card,
+  CardContent,
+  Grid
 } from '@mui/material';
-import EmailIcon from '@mui/icons-material/Email';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
 
-// Types
 interface ContactPageProps {
   content: {
     title_en: string;
@@ -45,54 +29,42 @@ interface ContactPageProps {
     map_location: string;
     map_coordinates: string;
     social: {
-    [key: string]: string;
-  };
+      [key: string]: string;
+    };
   };
 }
 
-// Styled components
-const StyledCard = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(4),
-  height: '100%',
-  borderRadius: theme.shape.borderRadius * 2,
-  boxShadow: theme.shadows[2],
-  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-4px)',
-    boxShadow: theme.shadows[6],
-  },
-}));
-
-// Define styled links to avoid TypeScript errors with '&:hover'
-const StyledLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
-  <Link href={href} style={{ color: 'inherit', textDecoration: 'none' }}>
-    {children}
-  </Link>
-);
-
-// Default content in case it's not provided
 const defaultContent = {
   title_en: 'Contact Us',
   title_sl: 'Kontaktirajte nas',
   body_en: 'Error loading content. Please try again later.',
   body_sl: 'Napaka pri nalaganju vsebine. Poskusite znova kasneje.',
-  email: 'info@livada.bio',
-  address: 'Livada Biotope, Ljubljana, Slovenia',
-  map_location: 'Livada Biotope, Ljubljana',
-  map_coordinates: '46.0301,14.5089',
-  social: {}
+  email: 'info@livadabiotop.si',
+  address: 'Livada, 1234 City, Country',
+  map_location: 'https://www.google.com/maps/embed?pb=...',
+  map_coordinates: '46.0569,14.5058',
+  social: {
+    facebook: 'https://facebook.com',
+    instagram: 'https://instagram.com',
+    twitter: 'https://twitter.com',
+  },
 };
 
-export default function ContactPage({ content = defaultContent }: { content?: Partial<ContactPageProps['content']> }) {
+export default function ContactPage({ content = {} }: { content?: Partial<ContactPageProps['content']> }) {
   const { language } = useLanguage();
-  const { t } = useTranslations();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
+  // Simple translation function fallback - only using the fallback value for now
+  const t = (_key: string, fallback: string) => fallback;
 
   // Use provided content or fall back to defaults
   const safeContent = { ...defaultContent, ...content };
   
-  const getContent = (en: string, sl: string) => (language === 'en' ? en : sl);
+  const getContent = (en: string, sl: string) => {
+    return language === 'sl' ? sl : en;
+  };
+  
   const title = getContent(safeContent.title_en, safeContent.title_sl);
   const body = getContent(safeContent.body_en, safeContent.body_sl);
   
@@ -100,24 +72,18 @@ export default function ContactPage({ content = defaultContent }: { content?: Pa
     name: '',
     email: '',
     subject: '',
-    message: ''
+    message: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // In a real app, you would send this data to your API
+      // Handle form submission here
       console.log('Form submitted:', formData);
-      alert(t('contact.form.submitSuccess', 'Thank you for your message! We will get back to you soon.'));
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-      });
+      // Reset form
+      setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert(t('contact.form.submitError', 'There was an error sending your message. Please try again later.'));
     }
   };
 
@@ -156,7 +122,7 @@ export default function ContactPage({ content = defaultContent }: { content?: Pa
         <title>{`${title} | Livada Biotope`}</title>
         <meta 
           name="description" 
-          content={t('contact.metaDescription', 'Get in touch with Livada Biotope. Contact us for collaborations, questions, or to learn more about our projects.')} 
+          content="Get in touch with Livada Biotope. Contact us for collaborations, questions, or to learn more about our projects." 
         />
       </Head>
       
@@ -194,7 +160,7 @@ export default function ContactPage({ content = defaultContent }: { content?: Pa
           }}
         >
           <Image
-            src="/images/uploads/pxl_20250427_174211296.jpg"
+            src="/images/contact.jpg"
             alt="Livada Biotope contact"
             fill
             style={{
@@ -210,246 +176,124 @@ export default function ContactPage({ content = defaultContent }: { content?: Pa
             component="h1"
             sx={{
               fontWeight: 700,
-              mb: 3,
-              textShadow: '0 2px 10px rgba(0,0,0,0.7)',
-              lineHeight: 1.2
+              textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+              mb: 2,
             }}
           >
             {title}
           </Typography>
         </Container>
       </Box>
-
-      {/* Main Content */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Grid container spacing={6}>
-          {/* Contact Form */}
-          <Grid item xs={12} md={7}>
-            <StyledCard elevation={3}>
-              <Box 
-                sx={{ 
-                  mb: 4,
-                  '& h2': {
-                    fontSize: '1.75rem',
-                    fontWeight: 700,
-                    mb: 2,
-                    color: 'primary.main',
-                  },
-                  '& p': {
-                    color: 'text.secondary',
-                    mb: 3,
-                  },
-                }}
-                dangerouslySetInnerHTML={{ __html: processMarkdown(body) }}
-              />
-              <form onSubmit={handleSubmit}>
-                <TextField
-                  fullWidth
-                  label={t('contact.form.name')}
-                  variant="outlined"
-                  required
-                  margin="normal"
-                />
-                
-                <TextField
-                  fullWidth
-                  label={t('contact.form.email')}
-                  variant="outlined"
-                  type="email"
-                  required
-                  margin="normal"
-                />
-                
-                <FormControl fullWidth variant="outlined" margin="normal">
-                  <InputLabel id="subject-label">
-                    {t('contact.form.subject')}
-                  </InputLabel>
-                  <Select
-                    labelId="subject-label"
-                    label={t('contact.form.subject')}
-                    defaultValue=""
+      
+      <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Typography variant="h4" component="h2" gutterBottom>
+                  {t('contact.form.title', 'Send us a message')}
+                </Typography>
+                <form onSubmit={handleSubmit}>
+                  <TextField
+                    fullWidth
+                    label={t('contact.form.name', 'Your name')}
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    margin="normal"
                     required
+                  />
+                  
+                  <TextField
+                    fullWidth
+                    label={t('contact.form.email', 'Email address')}
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    margin="normal"
+                    required
+                  />
+                  
+                  <TextField
+                    fullWidth
+                    label={t('contact.form.subject', 'Subject')}
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    margin="normal"
+                    required
+                  />
+                  
+                  <TextField
+                    fullWidth
+                    label={t('contact.form.message', 'Your message')}
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    margin="normal"
+                    multiline
+                    rows={4}
+                    required
+                  />
+                  
+                  <Button 
+                    type="submit" 
+                    variant="contained" 
+                    color="primary"
+                    sx={{ mt: 3 }}
                   >
-                    <MenuItem value="">
-                      <em>{t('contact.form.selectSubject')}</em>
-                    </MenuItem>
-                    <MenuItem value="general">
-                      {t('contact.form.generalInquiry')}
-                    </MenuItem>
-                    <MenuItem value="volunteer">
-                      {t('contact.form.volunteering')}
-                    </MenuItem>
-                    <MenuItem value="project">
-                      {t('contact.form.projectCollaboration')}
-                    </MenuItem>
-                    <MenuItem value="donation">
-                      {t('contact.form.donations')}
-                    </MenuItem>
-                    <MenuItem value="other">
-                      {t('contact.form.other')}
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-                
-                <TextField
-                  fullWidth
-                  label={t('contact.form.message')}
-                  variant="outlined"
-                  multiline
-                  rows={4}
-                  required
-                  margin="normal"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                />
-                
-                <Button 
-                  type="submit" 
-                  variant="contained" 
-                  color="primary" 
-                  size="large"
-                  sx={{ mt: 2, fontWeight: 'medium' }}
-                >
-                  {t('contact.form.submit')}
-                </Button>
-              </form>
-            </StyledCard>
+                    {t('contact.form.submit', 'Send message')}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </Grid>
           
-          {/* Contact Information */}
-          <Grid item xs={12} md={5}>
-            <StyledCard elevation={3}>
-              <Box sx={{ mb: 4 }}>
-                <Typography variant="h4" component="h2" gutterBottom color="primary.main">
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Typography variant="h4" component="h2" gutterBottom>
                   {t('contact.info.title', 'Contact Information')}
                 </Typography>
-                <Typography paragraph>
-                  {t('contact.info.description', 'Feel free to reach out to us for any questions or collaborations.')}
-                </Typography>
-                
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <EmailIcon color="primary" sx={{ mr: 2 }} />
-                  <Link href={`mailto:${safeContent.email}`} color="inherit">
-                    {safeContent.email}
-                  </Link>
-                </Box>
-                
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 3 }}>
-                  <LocationOnIcon color="primary" sx={{ mr: 2, mt: 0.5 }} />
-                  <Box>
-                    {safeContent.address.split('\n').map((line, i) => (
-                      <Typography key={i} paragraph={i < safeContent.address.split('\n').length - 1}>
-                        {line}
-                      </Typography>
-                    ))}
-                  </Box>
-                </Box>
-                
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  startIcon={<LocationOnIcon />}
-                  href={`https://www.google.com/maps?q=${safeContent.map_coordinates}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{ mb: 3 }}
-                >
-                  {t('contact.info.viewOnMap', 'View on Map')}
-                </Button>
-                
                 <Divider sx={{ my: 3 }} />
-                
-                <Typography variant="h5" component="h3" gutterBottom color="primary.main">
-                  {t('contact.info.followUs', 'Follow Us')}
-                </Typography>
-                
-                {/* Social media links removed as per user request */}
-              </Box>
-            </StyledCard>
+                <Box 
+                  dangerouslySetInnerHTML={{ __html: processMarkdown(body) }}
+                  sx={{ 
+                    '& h2': { 
+                      mt: 4,
+                      mb: 2,
+                      color: 'primary.main',
+                      fontSize: '1.75rem',
+                      fontWeight: 600,
+                    },
+                    '& h3': {
+                      mt: 3,
+                      mb: 1.5,
+                      color: 'text.primary',
+                      fontSize: '1.25rem',
+                      fontWeight: 500,
+                    },
+                    '& p': {
+                      mb: 2,
+                      lineHeight: 1.8,
+                    },
+                  }}
+                />
+              </CardContent>
+            </Card>
           </Grid>
         </Grid>
-        
-        <Paper elevation={2} sx={{ mt: 6, p: 3, borderRadius: 2 }}>
-          <Typography variant="h5" component="h2" gutterBottom color="primary.main">
-            {t('contact.visitUs', 'Visit Us')}
-          </Typography>
-          
-          <Typography variant="body1" paragraph>
-            {t('contact.visitDescription', 'We welcome visitors to our biotope. Please contact us in advance to schedule your visit.')}
-          </Typography>
-          
-          <Box sx={{ 
-            height: '400px', 
-            bgcolor: '#e0e0e0', 
-            borderRadius: 1, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            mt: 2 
-          }}>
-            <Typography variant="body1" color="text.secondary">
-              {t('contact.mapPlaceholder', 'Map will be displayed here')}
-            </Typography>
-          </Box>
-        </Paper>
-        
-        <Divider sx={{ my: 6 }} />
-        
-        <Box sx={{ textAlign: 'center', mt: 4, mb: 4 }}>
-          <Typography variant="body2" color="text.secondary">
-            {new Date().getFullYear()} {t('contact.copyright', 'Livada Biotope. All rights reserved.')}
-          </Typography>
-        </Box>
       </Container>
     </Box>
   );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  try {
-    const fs = await import('fs/promises');
-    const path = await import('path');
-    const matter = (await import('gray-matter')).default;
-    
-    const contentPath = path.join(process.cwd(), 'src/content/pages/contact.md');
-    const fileContents = await fs.readFile(contentPath, 'utf8');
-    const { data } = matter(fileContents);
-    
-    // Ensure all required fields have default values
-    const content = {
-      title_en: data.title_en || 'Contact Us',
-      title_sl: data.title_sl || 'Kontaktirajte nas',
-      body_en: data.body_en || '',
-      body_sl: data.body_sl || '',
-      email: data.email || 'info@livada.bio',
-      address: data.address || 'Livada Biotope, Ljubljana, Slovenia',
-      map_location: data.map_location || 'Livada Biotope, Ljubljana',
-      map_coordinates: data.map_coordinates || '46.0301,14.5089',
-      social: data.social || {}
-    };
-    
-    return {
-      props: { content },
-      revalidate: 3600 // Revalidate at most once per hour
-    };
-  } catch (error) {
-    console.error('Error loading contact page content:', error);
-    return {
-      props: {
-        content: {
-          title_en: 'Contact Us',
-          title_sl: 'Kontaktirajte nas',
-          body_en: 'Error loading content. Please try again later.',
-          body_sl: 'Napaka pri nalaganju vsebine. Poskusite znova kasneje.',
-          email: 'info@livada.bio',
-          address: 'Livada Biotope, Ljubljana, Slovenia',
-          map_location: 'Livada Biotope, Ljubljana',
-          map_coordinates: '46.0301,14.5089',
-          social: {}
-        }
-      },
-      revalidate: 60 // Retry after 1 minute on error
-    };
-  }
+  // You can fetch content here if needed
+  return {
+    props: {
+      content: {}
+    },
+  };
 };

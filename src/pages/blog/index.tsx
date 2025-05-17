@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { getAllPosts } from '@/lib/markdown';
 import SharedLayout from '@/components/layout/SharedLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
-import useTranslations from '@/hooks/useTranslations';
-import StylizedImage from '@/components/StylizedImage';
+
+
 import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 import { 
   Box, 
@@ -40,7 +40,7 @@ interface BlogPageProps {
 
 export default function BlogPage({ posts }: BlogPageProps) {
   const { language } = useLanguage();
-  const { t } = useTranslations();
+
   
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>

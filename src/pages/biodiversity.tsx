@@ -1,23 +1,20 @@
 import React from 'react';
 import Head from 'next/head';
 import { useLanguage } from '../contexts/LanguageContext';
-import useTranslations from '../hooks/useTranslations';
+
 import TranslationLoader from '../components/TranslationLoader';
 import StylizedImage from '../components/StylizedImage';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
 import INaturalistFeed from '../components/biodiversity/INaturalistFeed';
 
 export default function Biodiversity() {
   const { language } = useLanguage();
-  const { t } = useTranslations();
+
   
   return (
     <>

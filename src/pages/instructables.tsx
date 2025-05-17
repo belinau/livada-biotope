@@ -1,7 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 import { useLanguage } from '../contexts/LanguageContext';
-import useTranslations from '../hooks/useTranslations';
+
 import TranslationLoader from '../components/TranslationLoader';
 import { 
   Container, 
@@ -15,8 +15,7 @@ import {
 } from '@mui/material';
 import { 
   AccessTime as TimeIcon,
-  Build as ToolsIcon,
-  School as DifficultyIcon 
+  School as DifficultyIcon
 } from '@mui/icons-material';
 import StylizedImage from '../components/StylizedImage';
 import Grid from '../components/ui/Grid';
@@ -66,7 +65,7 @@ export async function getStaticProps() {
 
 export default function Instructables({ instructablesData }: { instructablesData: InstructablesData }) {
   const { language } = useLanguage();
-  const { t } = useTranslations();
+
   
   // Helper function to get the appropriate language content
   const getLangContent = (en: string, sl: string) => language === 'en' ? en : sl;

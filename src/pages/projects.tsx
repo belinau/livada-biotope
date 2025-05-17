@@ -2,23 +2,17 @@ import React from 'react';
 import { GetStaticProps } from 'next';
 import Link from 'next/link';
 import Head from 'next/head';
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useTranslations from '@/hooks/useTranslations';
 import TranslationLoader from '@/components/TranslationLoader';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import Grid from '@/components/ui/Grid'; // Updated to use our custom Grid
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
-import Divider from '@mui/material/Divider';
-import StylizedImage from '@/components/StylizedImage';
 import { Project } from '@/types/project';
 
 interface ProjectsPageProps {
@@ -59,7 +53,7 @@ export default function Projects({ projects }: ProjectsPageProps) {
         <Divider sx={{ mb: 6 }} />
         
         <Grid container spacing={4}>
-          {projects.map((project, index) => (
+          {projects.map((project) => (
             <Grid item xs={12} md={6} key={project.slug} component="div">
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ height: 200, overflow: 'hidden' }}>

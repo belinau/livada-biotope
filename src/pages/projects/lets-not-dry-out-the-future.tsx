@@ -2,13 +2,8 @@ import React from 'react';
 import SharedLayout from '@/components/layout/SharedLayout';
 import { SensorVisualization } from '@/components/features/SensorVisualization';
 import BiodiversityShowcase from '@/components/features/BiodiversityShowcase';
-import { getBotanicalIllustrations, getZoologicalIllustrations } from '@/lib/illustrationsData';
-import { biodiversityItems } from '@/lib/biodiversityData';
 import { useLanguage } from '@/contexts/LanguageContext';
-import useTranslations from '@/hooks/useTranslations';
 import TranslationLoader from '@/components/TranslationLoader';
-import Link from 'next/link';
-
 import { 
   Typography, 
   Box, 
@@ -16,25 +11,16 @@ import {
   Paper, 
   List, 
   ListItem, 
-  ListItemIcon, 
   ListItemText,
   Card,
   CardContent,
-  Divider,
-  Button,
-  Tabs,
-  Tab,
-  useTheme,
+  Button
 } from '@mui/material';
-
-import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 
 export default function LetsNotDryOutTheFuture() {
   const { language } = useLanguage();
-  const { t } = useTranslations();
-  const theme = useTheme();
-  const botanicalIllustrations = getBotanicalIllustrations();
-  const zoologicalIllustrations = getZoologicalIllustrations();
+
+
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>

@@ -13,7 +13,6 @@ import {
   Divider,
   Paper
 } from '@mui/material';
-import StylizedImage from '@/components/StylizedImage';
 
 interface BlogPostProps {
   post: {
