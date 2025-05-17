@@ -6,7 +6,8 @@
     "instructables": "Instructables",
     "ecofeminism": "Ecofeminism",
     "events": "Events",
-    "about": "About"
+    "about": "About",
+    "blog": "Blog"
   },
   "Footer": {
     "description": "Eco-feminist initiative developing land-based practices.",
@@ -28,7 +29,9 @@
     "mission": "Our Mission",
     "missionDescription": "We develop sustainable land practices and educate about environmental awareness.",
     "projects": "Our Projects",
-    "upcomingEvents": "Upcoming Events"
+    "upcomingEvents": "Upcoming Events",
+    "ourMission": "Our Mission",
+    "preservingBiodiversity": "Preserving Biodiversity"
   },
   "SensorVisualization": {
     "title": "Soil Moisture Monitoring",
@@ -58,6 +61,22 @@
     "title": "Our Projects",
     "letsNotDryOutTheFuture": "Let's Not Dry Out The Future",
     "letsNotDryOutTheFutureDescription": "Project for monitoring soil moisture using sensors and Reticulum network.",
+    "learnMore": "Learn More",
+    "wetlandRestoration": {
+      "title": "Wetland Restoration"
+    }
+  },
+  "species": {
+    "commonKingfisher": {
+      "en": "Common Kingfisher",
+      "latin": "Alcedo atthis"
+    },
+    "beeOrchid": {
+      "en": "Bee Orchid",
+      "latin": "Ophrys apifera"
+    }
+  },
+  "common": {
     "learnMore": "Learn More"
   }
 }

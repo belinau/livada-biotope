@@ -1,4 +1,5 @@
 import React from 'react';
+import { NextPage } from 'next';
 import SharedLayout from '@/components/layout/SharedLayout';
 import { SensorVisualization } from '@/components/features/SensorVisualization';
 import BiodiversityShowcase from '@/components/features/BiodiversityShowcase';
@@ -17,29 +18,62 @@ import {
   Card,
   CardContent,
   Button,
-  Grid,
-  Divider
+  Grid
 } from '@mui/material';
 
-export default function LetsNotDryOutTheFuture() {
+// Define the BiodiversityItem type locally to match BiodiversityShowcase's expectations
+interface BiodiversityItem {
+  id: string;
+  name: {
+    en: string;
+    sl: string;
+    scientific: string;
+  };
+  description: {
+    en: string;
+    sl: string;
+  };
+  type: 'plant' | 'animal' | 'fungi' | 'other';
+  imageUrl: string;
+  inaturalistUrl?: string;
+}
+
+const LetsNotDryOutTheFuture: NextPage = () => {
   const { language } = useLanguage();
 
-  // Define biodiversity items
-  const biodiversityItems = [
+  const biodiversityItems: BiodiversityItem[] = [
     {
       id: '1',
-      name: 'Common Blue',
-      scientificName: 'Polyommatus icarus',
-      image: '/images/biodiversity/butterfly.jpg',
+      name: {
+        en: 'Common Dandelion',
+        sl: 'Navadni regrat',
+        scientific: 'Taraxacum officinale'
+      },
+      type: 'plant',
       description: {
-        en: 'A common butterfly found in meadows and grasslands.',
-        sl: 'Pogost metulj, ki ga najdemo na travnikih in traviščih.'
-      }
+        en: 'A common wildflower found in meadows and lawns.',
+        sl: 'Običajna divja roža, ki jo najdemo na travnikih in travnikih.'
+      },
+      imageUrl: '/images/biodiversity/dandelion.jpg',
+      inaturalistUrl: 'https://www.inaturalist.org/taxa/48591-Taraxacum-officinale'
+    },
+    {
+      id: '2',
+      name: {
+        en: 'European Honey Bee',
+        sl: 'Evropska čebela',
+        scientific: 'Apis mellifera'
+      },
+      type: 'animal',
+      description: {
+        en: 'An important pollinator for many plants.',
+        sl: 'Pomemben opraševalec številnih rastlin.'
+      },
+      imageUrl: '/images/biodiversity/bee.jpg',
+      inaturalistUrl: 'https://www.inaturalist.org/taxa/47219-Apis-mellifera'
     },
     // Add more items as needed
   ];
-
-
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
@@ -70,7 +104,18 @@ export default function LetsNotDryOutTheFuture() {
             {language === 'en' ? "Soil Moisture Monitoring" : "Spremljanje vlažnosti tal"}
           </Typography>
           
-          <SensorVisualization />
+          <SensorVisualization 
+        dataSource={{
+          id: 'soil-moisture',
+          name: 'Soil Moisture Sensor',
+          endpoint: '/api/sensors/soil-moisture',
+          type: 'moisture'
+        }}
+        onDataSourceChange={async () => {
+          // Handle data source change if needed
+          console.log('Data source changed');
+        }}
+      />
         </Box>
         
         {/* Section: Climate Change */}
@@ -188,7 +233,7 @@ export default function LetsNotDryOutTheFuture() {
             </Typography>
             
             <Grid container spacing={3}>
-              <Grid xs={12} md={6} component="div">
+              <Grid item xs={12} md={6} component="div">
                 <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ height: 240 }}>
                     {/* Removed botanical illustration */}
@@ -206,7 +251,7 @@ export default function LetsNotDryOutTheFuture() {
                 </Card>
               </Grid>
               
-              <Grid xs={12} md={6} component="div">
+              <Grid item xs={12} md={6} component="div">
                 <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ height: 240 }}>
                     {/* Removed botanical illustration */}
@@ -494,7 +539,9 @@ export default function LetsNotDryOutTheFuture() {
   );
 }
 
-// Add getLayout function to the page
-LetsNotDryOutTheFuture.getLayout = (page: React.ReactNode) => (
+const PageWithLayout = () => <LetsNotDryOutTheFuture />;
+PageWithLayout.getLayout = (page: React.ReactNode) => (
   <SharedLayout title="Ne izsušimo prihodnosti">{page}</SharedLayout>
 );
+
+export default PageWithLayout;

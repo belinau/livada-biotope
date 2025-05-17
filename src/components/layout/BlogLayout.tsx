@@ -1,47 +1,65 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
+import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import Head from 'next/head';
-import { Box, Container } from '@mui/material';
-import dynamic from 'next/dynamic';
-
-// Use dynamic imports for components that might not be immediately available
-const Header = dynamic(() => import('@/components/common/Header'), { 
-  ssr: false,
-  loading: () => <div>Loading header...</div> 
-});
-
-const Footer = dynamic(() => import('@/components/common/Footer'), { 
-  ssr: false,
-  loading: () => <div>Loading footer...</div> 
-});
+import theme from '@/styles/theme';
+import Header from './Header';
+import Footer from './Footer';
 
 interface BlogLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
   title?: string;
   description?: string;
+  keywords?: string[];
+  image?: string;
+  type?: string;
+  author?: string;
 }
 
-export default function BlogLayout({
+const BlogLayout: React.FC<BlogLayoutProps> = ({
   children,
   title = 'Blog - Livada Biotope',
-  description = 'Thoughts on sustainable living, permaculture, and community building'
-}: BlogLayoutProps) {
+  description = 'Read our latest articles on regenerative agriculture, biodiversity, and sustainable living.',
+  keywords = ['blog', 'regenerative agriculture', 'sustainability', 'biodiversity', 'permaculture'],
+  image = '/images/biodiversity-monitoring.jpg',
+  type = 'website',
+  author = 'Livada Biotope Team',
+}) => {
+  const canonicalUrl = typeof window !== 'undefined' ? window.location.href : '';
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Head>
         <title>{title}</title>
         <meta name="description" content={description} />
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <meta name="keywords" content={keywords.join(', ')} />
+        <meta name="author" content={author} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={image} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:type" content={type} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={image} />
+        <link rel="canonical" href={canonicalUrl} />
       </Head>
-      
-      {React.createElement(Header, {})}
-      
-      <Box component="main" sx={{ flexGrow: 1, py: 4 }}>
-        <Container maxWidth="lg">
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh',
+        }}
+      >
+        <Header />
+        <Box component="main" sx={{ flexGrow: 1 }}>
           {children}
-        </Container>
+        </Box>
+        <Footer />
       </Box>
-      
-      {React.createElement(Footer, {})}
-    </Box>
+    </ThemeProvider>
   );
-}
+};
+
+export default BlogLayout;

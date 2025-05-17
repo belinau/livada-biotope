@@ -59,16 +59,16 @@ export default function Biodiversity() {
                 <Box sx={{ height: 240 }}>
                   <StylizedImage
                     speciesName={{
-                      en: "Swamp Meadow Orchid",
-                      sl: "Močvirska kukavica"
+                      en: "Biodiversity Monitoring",
+                      sl: "Spremljanje biotske raznovrstnosti"
                     }}
-                    latinName="Anacamptis palustris"
+                    latinName=""
                     backgroundColor="#f8f5e6"
                     patternColor="#2e7d32"
                     pattern="dots"
                     height="100%"
                     width="100%"
-                    imageSrc="/images/illustrations/botanical-1.jpg"
+                    imageSrc="/images/biodiversity-monitoring.jpg"
                   />
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>
@@ -88,16 +88,16 @@ export default function Biodiversity() {
                 <Box sx={{ height: 240 }}>
                   <StylizedImage
                     speciesName={{
-                      en: "European Tree Frog",
-                      sl: "Zelena rega"
+                      en: "Wetland Habitat",
+                      sl: "Mokriški habitat"
                     }}
-                    latinName="Hyla arborea"
+                    latinName=""
                     backgroundColor="#f8f5e6"
                     patternColor="#d84315"
                     pattern="waves"
                     height="100%"
                     width="100%"
-                    imageSrc="/images/illustrations/zoological-2.jpg"
+                    imageSrc="/images/fritillaria.jpg"
                   />
                 </Box>
                 <CardContent sx={{ flexGrow: 1 }}>

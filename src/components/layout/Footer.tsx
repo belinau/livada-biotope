@@ -2,7 +2,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 
-export const Footer = () => {
+const Footer = () => {
   const t = useTranslations('Footer');
   const router = useRouter();
   const isSlLanguage = router.locale === 'sl';
@@ -77,3 +77,7 @@ export const Footer = () => {
     </footer>
   );
 };
+
+// Export as both named and default
+export { Footer };
+export default Footer;

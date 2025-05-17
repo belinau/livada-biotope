@@ -25,7 +25,13 @@ export default function EnhancedEventCalendar({
 }: EnhancedEventCalendarProps) {
   const [date, setDate] = useState<Date>(initialDate);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
-  const [events, setEvents] = useState<CalendarEvent[]>(initialEvents);
+  const [events, setEvents] = useState<CalendarEvent[]>(() => 
+    initialEvents.map(event => ({
+      ...event,
+      // Ensure end date is defined, default to start date if not provided
+      end: event.end || event.start
+    }))
+  );
   const [loading, setLoading] = useState<boolean>(!initialEvents.length);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +42,12 @@ export default function EnhancedEventCalendar({
       try {
         setLoading(true);
         const fetchedEvents = await fetchCalendarEvents();
-        setEvents(fetchedEvents);
+        // Ensure all events have a defined end date
+        const processedEvents = fetchedEvents.map(event => ({
+          ...event,
+          end: event.end || event.start
+        }));
+        setEvents(processedEvents);
       } catch (err) {
         console.error('Error loading events:', err);
         setError('Failed to load events. Please try again later.');
