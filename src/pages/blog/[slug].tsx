@@ -5,6 +5,7 @@ import { serialize } from 'next-mdx-remote/serialize';
 import { getPostBySlug, getAllPosts } from '@/lib/markdown';
 import SharedLayout from '@/components/layout/SharedLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
+import StylizedImage from '@/components/StylizedImage';
 import { 
   Box, 
   Container, 

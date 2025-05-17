@@ -14,6 +14,8 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import { Project } from '@/types/project';
+import StylizedImage from '@/components/StylizedImage';
+import Divider from '@mui/material/Divider';
 
 interface ProjectsPageProps {
   projects: Project[];
