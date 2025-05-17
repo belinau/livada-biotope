@@ -8,7 +8,7 @@ import { useLanguage } from '../contexts/LanguageContext';
  * This version is designed to work with Netlify CMS translations
  */
 export const TranslationLoader: React.FC = () => {
-  const { t, isLoading, error } = useTranslations();
+  const { isLoading, error } = useTranslations();
   const { language } = useLanguage();
   
   // Log translation status for debugging

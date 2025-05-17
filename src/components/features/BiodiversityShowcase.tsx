@@ -7,10 +7,7 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import Paper from '@mui/material/Paper';
 import Chip from '@mui/material/Chip';
-
-import Grid from '@/components/ui/Grid'; // Using our custom Grid component
 
 interface BiodiversityItem {
   id: string;
@@ -50,8 +47,7 @@ const BiodiversityShowcase: React.FC<BiodiversityShowcaseProps> = ({
     en: 'Discover the rich biodiversity of the Livada Biotope through our monitoring project.',
     sl: 'Odkrijte bogato biotsko raznovrstnost Biotopa Livada prek našega projekta spremljanja.'
   },
-  items,
-  className = '',
+  items
 }) => {
   const { language } = useLanguage();
 

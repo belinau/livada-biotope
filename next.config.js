@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const { i18n } = require('./next-i18next.config');
+const path = require('path');
 
 const nextConfig = {
   // i18n configuration
@@ -22,11 +23,15 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '**.inaturalist.org',
+        hostname: 'static.inaturalist.org',
       },
       {
         protocol: 'https',
         hostname: 'inaturalist-open-data.s3.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'inaturalist-assets.s3.amazonaws.com',
       },
       {
         protocol: 'https',
@@ -54,6 +59,17 @@ const nextConfig = {
       '@mui/system': '@mui/system/legacy',
       '@mui/base': '@mui/base/legacy',
       '@mui/utils': '@mui/utils/legacy',
+    };
+
+    // Add path aliases
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, 'src'),
+      '@/components': path.resolve(__dirname, 'src/components'),
+      '@/lib': path.resolve(__dirname, 'src/lib'),
+      '@/types': path.resolve(__dirname, 'src/types'),
+      '@/styles': path.resolve(__dirname, 'src/styles'),
+      '@/public': path.resolve(__dirname, 'public'),
     };
 
     // Fixes npm packages that depend on `fs` module

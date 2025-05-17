@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { SensorService, DataSource } from '@/lib/sensorService';
+import { DataSource, SensorService } from '@/lib/sensorService';
 import ReticulumClient from '@/lib/reticulumClient';
-import { useLanguage } from '../../contexts/LanguageContext';
 import useTranslations from '../../hooks/useTranslations';
-import { SxProps } from '@mui/material';
+import { Box, Button, SxProps, Theme } from '@mui/material';
 
 interface ReticulumDataSourceSelectorProps {
   dataSource: DataSource;
   onDataSourceChange: (source: DataSource) => Promise<void>;
-  sx?: SxProps;
+  sx?: SxProps<Theme>;
 }
 
 export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorProps> = ({ 
   dataSource, 
   onDataSourceChange,
-  sx 
+  sx = {}
 }) => {
-  const { language } = useLanguage();
   const { t } = useTranslations();
   const [currentDataSource, setCurrentDataSource] = useState<DataSource>(dataSource);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
@@ -24,8 +22,10 @@ export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorPr
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [sidebandHash, setSidebandHash] = useState<string>('a3641ddf337fcb827bdc092a4d9fd9de');
   const [isConfigured, setIsConfigured] = useState<boolean>(true);
-
+  
+  // Get singleton instances
   const sensorService = SensorService.getInstance();
+  const reticulumClient = ReticulumClient.getInstance();
 
   useEffect(() => {
     // Initialize with the current data source
@@ -43,11 +43,11 @@ export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorPr
       setConnectionError(status.error);
     }, 1000);
     
-    // Update local state when prop changes
-    setCurrentDataSource(dataSource);
-    
-    return () => clearInterval(timer);
-  }, [sensorService, dataSource]);
+    // Cleanup function
+    return () => {
+      clearInterval(timer);
+    };
+  }, [sensorService, dataSource, setCurrentDataSource, setIsConnecting, setConnectionError]);
 
   const configureSidebandHash = () => {
     if (!sidebandHash.trim()) {
@@ -55,8 +55,7 @@ export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorPr
       return;
     }
     
-    // Update the ReticulumClient configuration with the hash address
-    const reticulumClient = ReticulumClient.getInstance();
+    // Update the reticulumClient configuration with the hash address
     reticulumClient['config'].sidebandHash = sidebandHash.trim();
     
     setIsConfigured(true);
@@ -92,7 +91,7 @@ export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorPr
   };
 
   return (
-    <div className="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+    <Box sx={sx}>
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-md font-medium text-gray-700">{t('sensors.dataSource')}</h3>
@@ -104,7 +103,7 @@ export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorPr
         </div>
         
         <div className="flex items-center space-x-2">
-          <button
+          <Button
             onClick={() => handleDataSourceChange(DataSource.MOCK)}
             className={`px-3 py-1.5 text-sm font-medium rounded-md ${
               currentDataSource === DataSource.MOCK
@@ -114,9 +113,9 @@ export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorPr
             disabled={isConnecting || currentDataSource === DataSource.MOCK}
           >
             {t('sensors.simulated')}
-          </button>
+          </Button>
           
-          <button
+          <Button
             onClick={() => handleDataSourceChange(DataSource.RETICULUM)}
             className={`px-3 py-1.5 text-sm font-medium rounded-md ${
               currentDataSource === DataSource.RETICULUM
@@ -136,9 +135,9 @@ export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorPr
             ) : (
               t('sensors.reticulumNetwork')
             )}
-          </button>
+          </Button>
           
-          <button 
+          <Button 
             onClick={() => setShowDetails(!showDetails)}
             className="text-gray-400 hover:text-gray-600"
             aria-label={t('sensors.toggleDetails')}
@@ -150,7 +149,7 @@ export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorPr
                 <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
               )}
             </svg>
-          </button>
+          </Button>
         </div>
       </div>
       
@@ -170,13 +169,13 @@ export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorPr
                 className="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
                 disabled={isConfigured && dataSource === DataSource.RETICULUM}
               />
-              <button
+              <Button
                 onClick={configureSidebandHash}
                 className="ml-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                 disabled={isConfigured && dataSource === DataSource.RETICULUM}
               >
                 {isConfigured ? t('sensors.configured') : t('sensors.configure')}
-              </button>
+              </Button>
             </div>
             <p className="mt-1 text-xs text-gray-500">
               {t('sensors.hashAddressDescription')}
@@ -205,13 +204,13 @@ export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorPr
                 <p className="mt-1">Sensor data is being collected in real-time from the Sideband collector running on this Mac.</p>
               </div>
               
-              <button
+              <Button
                 onClick={() => handleDataSourceChange(DataSource.RETICULUM)}
                 className="mt-2 px-3 py-1.5 text-sm font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200"
                 disabled={isConnecting || !connectionError}
               >
                 Reconnect
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="text-sm text-gray-500">
@@ -221,6 +220,6 @@ export const ReticulumDataSourceSelector: React.FC<ReticulumDataSourceSelectorPr
           )}
         </div>
       )}
-    </div>
+    </Box>
   );
 };
