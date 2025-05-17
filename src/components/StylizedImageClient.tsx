@@ -47,7 +47,6 @@ const StylizedImageClient: React.FC<StylizedImageProps> = ({
   // Generate pattern styles using CSS - more subtle versions
   const getPatternStyle = () => {
     // Use lower opacity values for more subtle patterns
-    const color10 = hexToRgba(patternColor, 0.1); // 10% opacity
     const color15 = hexToRgba(patternColor, 0.15); // 15% opacity
     const color20 = hexToRgba(patternColor, 0.2); // 20% opacity
     
