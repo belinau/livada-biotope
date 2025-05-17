@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 
 import Grid from '@/components/ui/Grid'; // Using our custom Grid component
+import StylizedImage from '@/components/StylizedImage';
 import { 
   Box, 
   Container, 
