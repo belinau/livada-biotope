@@ -1,33 +1,52 @@
 import { SensorConfig, sensorConfigs } from './sensorConfig';
 import ReticulumClient, { defaultReticulumConfig } from './reticulumClient';
+import { EventEmitter } from 'events';
+
+declare const module: {
+  hot?: {
+    accept: () => void;
+    dispose: (callback: () => void) => void;
+  };
+};
 
 export interface SensorData {
-  timestamp: string;
-  sensorId: number;
-  moisture: number;
+  id: string;
+  value: number;
+  timestamp: Date;
+  type: string;
+  unit: string;
 }
+
+export interface HistoricalDataPoint {
+  timestamp: Date;
+  value: number;
+}
+
+type DataListener = (data: SensorData) => void;
 
 export enum DataSource {
   MOCK = 'mock',
   RETICULUM = 'reticulum'
 }
 
-export class SensorService {
+class SensorService extends EventEmitter {
   private static instance: SensorService;
-  private reticulumClient: ReticulumClient;
+  private dataListeners: Map<string, DataListener[]> = new Map();
+  private historicalData: Map<string, HistoricalDataPoint[]> = new Map();
+  private isConnected = false;
   private dataSource: DataSource = DataSource.MOCK;
   private cachedData: SensorData[] = [];
   private lastUpdated: Date | null = null;
-  private isConnecting: boolean = false;
+  private isConnecting = false;
   private connectionError: string | null = null;
-  
+  private reticulumClient: ReticulumClient;
+  private pollInterval: NodeJS.Timeout | null = null;
+
   private constructor() {
-    this.reticulumClient = ReticulumClient.getInstance(defaultReticulumConfig);
-    
-    // Set up listener for real-time updates from Reticulum
-    this.reticulumClient.addDataListener((data: SensorData[]) => {
-      this.handleNewData(data);
-    });
+    super();
+    this.setMaxListeners(50);
+    this.reticulumClient = ReticulumClient.getInstance();
+    this.initialize();
   }
 
   public static getInstance(): SensorService {
@@ -37,126 +56,182 @@ export class SensorService {
     return SensorService.instance;
   }
 
-  /**
-   * Get the current data source (mock or Reticulum)
-   */
-  public getDataSource(): DataSource {
-    return this.dataSource;
-  }
-
-  /**
-   * Set the data source to use (mock or Reticulum)
-   */
-  public async setDataSource(source: DataSource): Promise<void> {
-    if (source === this.dataSource) return;
-    
-    this.dataSource = source;
-    
-    if (source === DataSource.RETICULUM) {
-      await this.connectToReticulum();
-    } else {
-      // Disconnect from Reticulum if we're switching to mock data
-      this.reticulumClient.disconnect();
+  private async initialize() {
+    try {
+      await this.connect();
+      this.setupPolling();
+    } catch (error) {
+      console.error('Failed to initialize sensor service:', error);
+      this.connectionError = error instanceof Error ? error.message : 'Unknown error';
     }
   }
 
-  /**
-   * Get the connection status to the Reticulum network
-   */
-  public getConnectionStatus(): { isConnecting: boolean; error: string | null } {
-    return {
-      isConnecting: this.isConnecting,
-      error: this.connectionError
-    };
-  }
+  public async connect(): Promise<boolean> {
+    if (this.isConnected || this.isConnecting) {
+      return this.isConnected;
+    }
 
-  /**
-   * Connect to the Reticulum network via Sideband collector
-   */
-  public async connectToReticulum(): Promise<boolean> {
-    if (this.isConnecting) return false;
-    
     this.isConnecting = true;
     this.connectionError = null;
-    
+
     try {
-      const connected = await this.reticulumClient.connect();
-      this.isConnecting = false;
-      return connected;
-    } catch (error) {
-      this.isConnecting = false;
-      this.connectionError = error instanceof Error ? error.message : 'Unknown error';
-      return false;
-    }
-  }
-
-  /**
-   * Get sensor data - either from Reticulum or mock data depending on the current data source
-   */
-  async getSensorData(): Promise<SensorData[]> {
-    if (this.dataSource === DataSource.RETICULUM) {
-      try {
-        // If we have cached data and it's recent (last 30 seconds), use that
-        if (this.cachedData.length > 0 && this.lastUpdated && 
-            (new Date().getTime() - this.lastUpdated.getTime() < 30000)) {
-          return this.cachedData;
-        }
-        
-        // Otherwise fetch new data from Reticulum
-        return await this.reticulumClient.fetchSensorData();
-      } catch (error) {
-        console.error('Error fetching from Reticulum, falling back to mock data:', error);
-        // Fall back to mock data if there's an error
-        return this.generateMockData();
+      if (this.dataSource === DataSource.RETICULUM) {
+        await this.reticulumClient.connect();
       }
-    } else {
-      // Use mock data
-      return this.generateMockData();
+      this.isConnected = true;
+      this.emit('connected');
+      return true;
+    } catch (error) {
+      this.connectionError = error instanceof Error ? error.message : 'Failed to connect';
+      this.emit('error', this.connectionError);
+      throw error;
+    } finally {
+      this.isConnecting = false;
     }
   }
 
-  /**
-   * Generate mock sensor data for testing
-   */
-  private async generateMockData(): Promise<SensorData[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const now = new Date();
-        const data: SensorData[] = [];
+  private setupPolling() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+    }
 
-        // Generate mock data for the last 24 hours
-        for (let i = 0; i < 24; i++) {
-          const time = new Date(now.getTime() - i * 60 * 60 * 1000);
-          
-          // Generate mock data for each sensor
-          for (let sensorId = 1; sensorId <= 6; sensorId++) {
-            // Simulate realistic moisture levels (0-100%)
-            const moisture = 50 + Math.random() * 20 * Math.sin(i / 4);
-            data.push({
-              timestamp: time.toISOString(),
-              sensorId,
-              moisture: Math.max(0, Math.min(100, moisture))
-            });
-          }
-        }
+    this.pollInterval = setInterval(async () => {
+      try {
+        await this.fetchData();
+      } catch (error) {
+        console.error('Error polling sensor data:', error);
+      }
+    }, 5000); // Poll every 5 seconds
+  }
 
-        resolve(data.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()));
-      }, 1000);
+  private async fetchData() {
+    try {
+      let data: SensorData[] = [];
+      
+      if (this.dataSource === DataSource.RETICULUM) {
+        data = await this.reticulumClient.getSensorData();
+      } else {
+        // Mock data fallback
+        data = sensorConfigs.map(config => ({
+          id: config.id,
+          value: Math.random() * (config.max - config.min) + config.min,
+          timestamp: new Date(),
+          type: config.type,
+          unit: config.unit,
+        }));
+      }
+
+      this.cachedData = data;
+      this.lastUpdated = new Date();
+      this.notifyListeners(data);
+      this.storeHistoricalData(data);
+      this.emit('data', data);
+    } catch (error) {
+      console.error('Error fetching sensor data:', error);
+      this.emit('error', error instanceof Error ? error.message : 'Failed to fetch data');
+    }
+  }
+
+  private notifyListeners(data: SensorData[]) {
+    data.forEach(sensorData => {
+      const listeners = this.dataListeners.get(sensorData.id) || [];
+      listeners.forEach(listener => listener(sensorData));
     });
   }
 
-  /**
-   * Handle new data received from the Reticulum network
-   */
-  private handleNewData(data: SensorData[]): void {
-    this.cachedData = data;
-    this.lastUpdated = new Date();
-    
-    // Log for debugging
-    console.log(`Received ${data.length} sensor readings from Reticulum network`);
+  private storeHistoricalData(data: SensorData[]) {
+    const now = new Date();
+    data.forEach(sensorData => {
+      const history = this.historicalData.get(sensorData.id) || [];
+      history.push({
+        timestamp: now,
+        value: sensorData.value
+      });
+      
+      // Keep only the last 1000 data points
+      if (history.length > 1000) {
+        history.shift();
+      }
+      
+      this.historicalData.set(sensorData.id, history);
+    });
   }
 
-  getSensorConfig(sensorId: number): SensorConfig | undefined {
-    return sensorConfigs.find(sensor => sensor.id === sensorId);
+  public getSensorData(sensorId?: string): SensorData[] {
+    if (sensorId) {
+      return this.cachedData.filter(data => data.id === sensorId);
+    }
+    return [...this.cachedData];
   }
+
+  public getHistoricalData(sensorId: string, limit = 100): HistoricalDataPoint[] {
+    const history = this.historicalData.get(sensorId) || [];
+    return history.slice(-limit);
+  }
+
+  public subscribe(sensorId: string, callback: DataListener): () => void {
+    if (!this.dataListeners.has(sensorId)) {
+      this.dataListeners.set(sensorId, []);
+    }
+    
+    const listeners = this.dataListeners.get(sensorId)!;
+    listeners.push(callback);
+    
+    // Immediately send current data if available
+    const currentData = this.getSensorData(sensorId);
+    if (currentData.length > 0) {
+      callback(currentData[0]);
+    }
+    
+    // Return unsubscribe function
+    return () => {
+      const listeners = this.dataListeners.get(sensorId) || [];
+      const index = listeners.indexOf(callback);
+      if (index > -1) {
+        listeners.splice(index, 1);
+      }
+    };
+  }
+
+  public setDataSource(source: DataSource) {
+    if (this.dataSource !== source) {
+      this.dataSource = source;
+      this.initialize();
+    }
+  }
+
+  public getConnectionStatus() {
+    return {
+      isConnected: this.isConnected,
+      isConnecting: this.isConnecting,
+      error: this.connectionError,
+      lastUpdated: this.lastUpdated,
+      dataSource: this.dataSource,
+    };
+  }
+
+  public cleanup() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
+    
+    if (this.dataSource === DataSource.RETICULUM) {
+      this.reticulumClient.disconnect();
+    }
+    
+    this.isConnected = false;
+    this.emit('disconnected');
+  }
+}
+
+const sensorService = SensorService.getInstance();
+
+export default sensorService;
+
+// Clean up on hot module replacement
+if (typeof module !== 'undefined' && module.hot) {
+  module.hot.dispose(() => {
+    sensorService.cleanup();
+  });
 }

@@ -25,6 +25,12 @@
 
 # Redirects
 [[redirects]]
+  from = "/api/health"
+  to = "/api/health"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/translations"
   to = "/.netlify/functions/translations"
   status = 200

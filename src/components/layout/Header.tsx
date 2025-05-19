@@ -1,211 +1,183 @@
-import React, { useState } from 'react';
-import { 
-  AppBar, 
-  Toolbar, 
-  Typography, 
-  Button, 
-  IconButton, 
-  Box, 
-  useScrollTrigger, 
-  Slide, 
+import { useState, useCallback } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  IconButton,
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
   useTheme,
   useMediaQuery,
-  Menu,
-  MenuItem,
-  Divider,
-  ListItemIcon,
-  ListItemText
+  Container,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import HomeIcon from '@mui/icons-material/Home';
-import InfoIcon from '@mui/icons-material/Info';
-import EventIcon from '@mui/icons-material/Event';
-import ContactMailIcon from '@mui/icons-material/ContactMail';
-import LanguageSwitcher from '@/components/features/LanguageSwitcher';
+import CloseIcon from '@mui/icons-material/Close';
+import GrassIcon from '@mui/icons-material/Grass';
+import LanguageSwitcher from '../features/LanguageSwitcher';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
 
-interface HeaderProps {
-  onMenuClick?: () => void;
-  title?: string;
-}
-
-interface NavItem {
-  id: string;
-  label: {
-    en: string;
-    sl: string;
-  };
-  path: string;
-  icon: React.ReactNode;
-}
-
-const navItems: NavItem[] = [
-  {
-    id: 'home',
-    label: { en: 'Home', sl: 'Domov' },
-    path: '/',
-    icon: <HomeIcon fontSize="small" />
-  },
-  {
-    id: 'about',
-    label: { en: 'About', sl: 'O nas' },
-    path: '/about',
-    icon: <InfoIcon fontSize="small" />
-  },
-  {
-    id: 'events',
-    label: { en: 'Events', sl: 'Dogodki' },
-    path: '/events',
-    icon: <EventIcon fontSize="small" />
-  },
-  {
-    id: 'contact',
-    label: { en: 'Contact', sl: 'Kontakt' },
-    path: '/contact',
-    icon: <ContactMailIcon fontSize="small" />
-  },
+const navItems = [
+  { id: 'home', path: '/' },
+  { id: 'biodiversity', path: '/biodiversity' },
+  { id: 'events', path: '/events' },
+  { id: 'gallery', path: '/galleries' },
+  { id: 'blog', path: '/blog' },
+  { id: 'about', path: '/about' },
+  { id: 'contact', path: '/contact' },
 ];
 
-const HideOnScroll: React.FC<{ children: React.ReactElement }> = ({ children }) => {
-  const trigger = useScrollTrigger();
-  return (
-    <Slide appear={false} direction="down" in={!trigger}>
-      {children}
-    </Slide>
-  );
-};
-
-const Header: React.FC<HeaderProps> = ({ onMenuClick, title = 'Livada Biotope' }) => {
-  const { language } = useLanguage();
+export default function Header() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const router = useRouter();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const t = useTranslations('navigation');
+  const { locale, setLocale } = useLanguage();
 
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const handleDrawerToggle = useCallback(() => {
+    setMobileOpen((prev) => !prev);
+  }, []);
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleNavigation = (path: string) => {
+  const handleNavClick = useCallback((path: string) => {
     router.push(path);
-    handleClose();
-  };
+    setMobileOpen(false);
+  }, [router]);
 
-  return (
-    <HideOnScroll>
-      <AppBar position="fixed" color="default" elevation={1}>
-        <Toolbar>
-          {isMobile && (
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              sx={{ mr: 2 }}
-              onClick={onMenuClick}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-          
-          <Typography 
-            variant="h6" 
-            component="div" 
-            sx={{ 
-              flexGrow: 1,
-              fontWeight: 700,
-              '& a': {
-                color: 'inherit',
-                textDecoration: 'none',
+  const drawer = (
+    <Box
+      sx={{
+        width: 250,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: 'background.paper',
+      }}
+      role="presentation"
+      onClick={handleDrawerToggle}
+      onKeyDown={handleDrawerToggle}
+    >
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <GrassIcon sx={{ mr: 1, color: 'primary.main' }} />
+          <Typography variant="h6" component="div">
+            {t('siteName')}
+          </Typography>
+        </Box>
+        <IconButton onClick={handleDrawerToggle}>
+          <CloseIcon />
+        </IconButton>
+      </Box>
+      <Divider />
+      <List>
+        {navItems.map((item) => (
+          <ListItem
+            button
+            key={item.id}
+            onClick={() => handleNavClick(item.path)}
+            selected={pathname === item.path}
+            sx={{
+              '&.Mui-selected': {
+                backgroundColor: 'action.selected',
                 '&:hover': {
-                  color: 'primary.main',
-                }
-              }
+                  backgroundColor: 'action.hover',
+                },
+              },
             }}
           >
-            <Link href="/">{title}</Link>
-          </Typography>
-
-
-          {!isMobile && (
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              {navItems.map((item) => (
-                <Button
-                  key={item.id}
-                  color="inherit"
-                  startIcon={item.icon}
-                  onClick={() => handleNavigation(item.path)}
-                  sx={{
-                    mx: 0.5,
-                    '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                    },
-                  }}
-                >
-                  {item.label[language as keyof typeof item.label]}
-                </Button>
-              ))}
-              <Box sx={{ ml: 2 }}>
-                <LanguageSwitcher />
-              </Box>
-            </Box>
-          )}
-
-          {isMobile && (
-            <>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleMenu}
-                color="inherit"
-              >
-                <MenuIcon />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={open}
-                onClose={handleClose}
-              >
-                {navItems.map((item) => (
-                  <MenuItem key={item.id} onClick={() => handleNavigation(item.path)}>
-                    <ListItemIcon>
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText>{item.label[language as keyof typeof item.label]}</ListItemText>
-                  </MenuItem>
-                ))}
-                <Divider />
-                <Box sx={{ p: 1, display: 'flex', justifyContent: 'center' }}>
-                  <LanguageSwitcher />
-                </Box>
-              </Menu>
-            </>
-          )}
-        </Toolbar>
-      </AppBar>
-    </HideOnScroll>
+            <ListItemText primary={t(`nav.${item.id}`)} />
+          </ListItem>
+        ))}
+      </List>
+      <Box sx={{ mt: 'auto', p: 2 }}>
+        <LanguageSwitcher />
+      </Box>
+    </Box>
   );
-};
 
-// Export as both named and default
-export { Header };
-export default Header;
+  return (
+    <AppBar position="sticky" color="default" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Container maxWidth="lg">
+        <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
+          {/* Mobile menu button */}
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { md: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
+
+          {/* Logo */}
+          <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => router.push('/')}>
+            <GrassIcon sx={{ mr: 1, color: 'primary.main' }} />
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{
+                display: { xs: 'none', sm: 'block' },
+                fontWeight: 700,
+                letterSpacing: '.1rem',
+                textDecoration: 'none',
+              }}
+            >
+              {t('siteName')}
+            </Typography>
+          </Box>
+
+
+          {/* Desktop navigation */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
+            {navItems.map((item) => (
+              <Button
+                key={item.id}
+                onClick={() => handleNavClick(item.path)}
+                sx={{
+                  my: 2,
+                  mx: 1,
+                  color: pathname === item.path ? 'primary.main' : 'text.primary',
+                  display: 'block',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    color: 'primary.main',
+                  },
+                }}
+              >
+                {t(`nav.${item.id}`)}
+              </Button>
+            ))}
+            <Box sx={{ ml: 2 }}>
+              <LanguageSwitcher />
+            </Box>
+          </Box>
+        </Toolbar>
+      </Container>
+
+      {/* Mobile drawer */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile
+        }}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 250 },
+        }}
+      >
+        {drawer}
+      </Drawer>
+    </AppBar>
+  );
+}

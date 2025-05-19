@@ -1,81 +1,100 @@
-import React, { useState, useEffect } from 'react';
+'use client';
+
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Box, Typography, Paper, CircularProgress } from '@mui/material';
-import ReactCalendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
-import { CalendarEvent } from '@/types/calendar';
-import { 
-  fetchCalendarEvents, 
-  getEventsForDate as getEventsForDateUtil, 
-  dateHasEvents as dateHasEventsUtil, 
-  getUpcomingEvents as getUpcomingEventsUtil
-} from '@/lib/calendarService';
+import { Box, CircularProgress, Paper, Typography } from '@mui/material';
+import { format, parseISO, isSameDay, isToday, isSameMonth, addMonths } from 'date-fns';
+import { enUS, sl } from 'date-fns/locale';
+import { useCallback, useEffect, useState } from 'react';
 
-type ValuePiece = Date | null;
-type Value = ValuePiece | [ValuePiece, ValuePiece];
+const dateFnsLocales = { en: enUS, sl } as const;
 
-// Local type-safe wrappers for the utility functions
-const getEventsForDate = (date: Date, events: CalendarEvent[]): CalendarEvent[] => {
-  return getEventsForDateUtil(date, events);
-};
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: Date | string;
+  end?: Date | string;
+  description?: string;
+  location?: string;
+  allDay?: boolean;
+  type?: string;
+  url?: string;
+  extendedProps?: Record<string, unknown>;
+  resource?: any;
+}
 
-const dateHasEvents = (date: Date, events: CalendarEvent[]): boolean => {
-  return dateHasEventsUtil(date, events);
-};
-
-const getUpcomingEvents = (events: CalendarEvent[], count: number): CalendarEvent[] => {
-  return getUpcomingEventsUtil(events, count);
-};
-
-export const EventCalendar: React.FC = () => {
-  const { language } = useLanguage();
-  const [date, setDate] = useState<Date>(new Date());
+export default function EventCalendar() {
+  const { locale: contextLocale } = useLanguage();
+  const locale = contextLocale || 'en';
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        setLoading(true);
-        const fetchedEvents = await fetchCalendarEvents();
-        // Ensure all events have a defined end date
-        const processedEvents = fetchedEvents.map(event => ({
-          ...event,
-          end: event.end || event.start
-        }));
-        setEvents(processedEvents);
-      } catch (err) {
-        console.error('Error loading events:', err);
-        setError('Failed to load events. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadEvents();
+  // Mock data fetch - replace with your actual data fetching logic
+  const fetchEvents = useCallback(async () => {
+    try {
+      // Replace with your actual API call
+      const mockEvents: CalendarEvent[] = [
+        {
+          id: '1',
+          title: 'Sample Event',
+          start: new Date(),
+          description: 'This is a sample event',
+        },
+      ];
+      setEvents(mockEvents);
+    } catch (err) {
+      setError('Failed to load events');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const handleDateChange = (value: Value) => {
-    if (value === null) return;
-    
-    const newDate = Array.isArray(value) ? value[0] : value;
-    if (newDate) {
-      setDate(newDate);
-    }
-  };
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
-  const selectedDateEvents = getEventsForDate(date, events);
-  const upcomingEvents = getUpcomingEvents(events, 3);
+  const handlePrevMonth = useCallback(() => {
+    setCurrentDate(prev => addMonths(prev, -1));
+  }, []);
+
+  const handleNextMonth = useCallback(() => {
+    setCurrentDate(prev => addMonths(prev, 1));
+  }, []);
+
+  const getEventsForDate = useCallback((date: Date): CalendarEvent[] => {
+    return events.filter(event => {
+      const eventDate = typeof event.start === 'string' ? parseISO(event.start) : event.start;
+      return isSameDay(eventDate, date);
+    });
+  }, [events]);
+
+  const getUpcomingEvents = useCallback((count: number): CalendarEvent[] => {
+    const now = new Date();
+    return events
+      .filter(event => {
+        const eventDate = typeof event.start === 'string' ? parseISO(event.start) : event.start;
+        return eventDate >= now;
+      })
+      .sort((a, b) => {
+        const dateA = typeof a.start === 'string' ? parseISO(a.start) : a.start;
+        const dateB = typeof b.start === 'string' ? parseISO(b.start) : b.start;
+        return dateA.getTime() - dateB.getTime();
+      })
+      .slice(0, count);
+  }, [events]);
+
+  const selectedDateEvents = getEventsForDate(currentDate);
+  const upcomingEvents = getUpcomingEvents(3);
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" p={4}>
+      <Box display="flex" justifyContent="center" my={4}>
         <CircularProgress />
       </Box>
     );
   }
-
 
   if (error) {
     return (
@@ -87,67 +106,58 @@ export const EventCalendar: React.FC = () => {
 
   return (
     <Box>
-      <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
-        <ReactCalendar
-          onChange={handleDateChange}
-          value={date}
-          locale={language}
-          tileContent={({ date, view }) =>
-            view === 'month' && dateHasEvents(date, events) ? (
-              <div style={{ height: '4px', width: '4px', backgroundColor: 'red', borderRadius: '50%', margin: '0 auto' }} />
-            ) : null
-          }
-        />
+      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h6">
+            {format(currentDate, 'MMMM yyyy', { locale: dateFnsLocales[locale as keyof typeof dateFnsLocales] })}
+          </Typography>
+          <Box>
+            <button onClick={handlePrevMonth}>&lt;</button>
+            <button onClick={handleNextMonth}>&gt;</button>
+          </Box>
+        </Box>
+        
+        {/* Calendar grid would go here */}
+        
+        {selectedDateEvents.length > 0 && (
+          <Box mt={3}>
+            <Typography variant="subtitle1" gutterBottom>
+              Events on {format(currentDate, 'PP', { locale: dateFnsLocales[locale as keyof typeof dateFnsLocales] })}
+            </Typography>
+            {selectedDateEvents.map((event) => (
+              <Box key={event.id} mb={2}>
+                <Typography fontWeight="bold">{event.title}</Typography>
+                {event.description && (
+                  <Typography variant="body2" color="text.secondary">
+                    {event.description}
+                  </Typography>
+                )}
+              </Box>
+            ))}
+          </Box>
+        )}
       </Paper>
 
-
-      {selectedDateEvents.length > 0 && (
-        <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Events on {date.toLocaleDateString()}
-          </Typography>
-          {selectedDateEvents.map((event) => (
-            <Box key={event.id} p={2} mb={1} bgcolor="background.paper" borderRadius={1}>
-              <Typography variant="subtitle1">{event.title}</Typography>
-              <Typography variant="body2" color="text.secondary">
-                {new Date(event.start).toLocaleTimeString()} - {event.end ? new Date(event.end).toLocaleTimeString() : ''}
-              </Typography>
-              {event.location && (
-                <Typography variant="body2" color="text.secondary">
-                  {event.location}
-                </Typography>
-              )}
-              {event.description && (
-                <Typography variant="body2" color="text.secondary" mt={1}>
-                  {event.description}
-                </Typography>
-              )}
-            </Box>
-          ))}
-        </Paper>
-      )}
-
-      <Paper elevation={3} sx={{ p: 2 }}>
+      <Paper elevation={3} sx={{ p: 3 }}>
         <Typography variant="h6" gutterBottom>
           Upcoming Events
         </Typography>
         {upcomingEvents.length > 0 ? (
-          upcomingEvents.map((event) => (
-            <Box key={event.id} p={2} mb={1} bgcolor="background.paper" borderRadius={1}>
-              <Typography variant="subtitle2">{event.title}</Typography>
-              <Typography variant="caption" color="text.secondary">
-                {new Date(event.start).toLocaleString()}
-              </Typography>
-            </Box>
-          ))
+          upcomingEvents.map((event) => {
+            const eventDate = typeof event.start === 'string' ? parseISO(event.start) : event.start;
+            return (
+              <Box key={event.id} mb={2}>
+                <Typography fontWeight="bold">
+                  {format(eventDate, 'PP', { locale: dateFnsLocales[locale as keyof typeof dateFnsLocales] })}
+                </Typography>
+                <Typography>{event.title}</Typography>
+              </Box>
+            );
+          })
         ) : (
-          <Typography variant="body2" color="text.secondary">
-            No upcoming events
-          </Typography>
+          <Typography color="text.secondary">No upcoming events</Typography>
         )}
       </Paper>
     </Box>
   );
-};
-
-export default EventCalendar;
+}

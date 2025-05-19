@@ -1,68 +1,24 @@
-import React from 'react';
 import dynamic from 'next/dynamic';
-import Box from '@mui/material/Box';
+import { Box, Skeleton } from '@mui/material';
+import type { StylizedImageClientProps } from './StylizedImageClient';
 
-// Define the props interface
-interface StylizedImageProps {
-  speciesName: string | {
-    en: string;
-    sl: string;
-  };
-  latinName?: string;
-  backgroundColor?: string;
-  patternColor?: string;
-  height?: string | number;
-  width?: string | number;
-  pattern?: 'dots' | 'lines' | 'waves' | 'leaves';
-  imageSrc?: string; // Optional image source URL
-  objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down'; // Optional object-fit property
-  hideLatinName?: boolean; // Prop to hide the Latin name
-  hideAllText?: boolean; // New prop to hide all text (species name and Latin name)
-}
-
-// Create a placeholder component for server-side rendering
-const StylizedImagePlaceholder: React.FC<StylizedImageProps> = ({
-  backgroundColor = '#f8f5e6',
-  height = '100%',
-  width = '100%',
-}) => {
-  return (
-    <Box
-      sx={{
-        height,
-        width,
-        backgroundColor,
+const StylizedImageComponent = dynamic<StylizedImageClientProps>(
+  () => import('./StylizedImageClient').then(mod => mod.default as any),
+  {
+    loading: () => (
+      <Box sx={{ 
+        width: '100%', 
+        height: 300, 
+        bgcolor: 'grey.200',
         display: 'flex',
-        justifyContent: 'center',
         alignItems: 'center',
-      }}
-    />
-  );
-};
-
-// Use dynamic import with ssr: false to completely skip server-side rendering
-const StylizedImageClient = dynamic(
-  () => import('./StylizedImageClient'),
-  { 
+        justifyContent: 'center'
+      }}>
+        <Skeleton variant="rectangular" width="100%" height="100%" />
+      </Box>
+    ),
     ssr: false,
-    loading: () => <StylizedImagePlaceholder 
-      speciesName={{en: "", sl: ""}}
-      backgroundColor="#f8f5e6"
-      height="100%"
-      width="100%"
-    />
   }
 );
 
-// Main component that delegates to the client-only component
-const StylizedImage: React.FC<StylizedImageProps> = (props) => {
-  // For server-side rendering, show the placeholder
-  if (typeof window === 'undefined') {
-    return <StylizedImagePlaceholder {...props} />;
-  }
-  
-  // For client-side, use the dynamic component
-  return <StylizedImageClient {...props} />;
-};
-
-export default StylizedImage;
+export default StylizedImageComponent;

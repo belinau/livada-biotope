@@ -1,138 +1,124 @@
-import React from 'react';
-import Box from '@mui/material/Box';
-import { useLanguage } from '../contexts/LanguageContext';
+'use client';
 
-interface StylizedImageProps {
-  speciesName: string | {
-    en: string;
-    sl: string;
-  };
+import { Box, Typography, SxProps, Theme } from '@mui/material';
+import Image from 'next/image';
+
+export interface StylizedImageClientProps {
+  speciesName: string | { en: string; sl: string };
   latinName?: string;
   backgroundColor?: string;
   patternColor?: string;
-  height?: string | number;
-  width?: string | number;
-  pattern?: 'dots' | 'lines' | 'waves' | 'leaves';
+  pattern?: string;
+  height: string | number;
+  width: string | number;
+  imageSrc?: string;
+  className?: string;
+  objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
   hideLatinName?: boolean;
   hideAllText?: boolean;
+  sx?: SxProps<Theme>;
+  [key: string]: any;
 }
 
-const StylizedImageClient: React.FC<StylizedImageProps> = ({
+const StylizedImageClient: React.FC<StylizedImageClientProps> = ({
   speciesName,
-  latinName,
-  backgroundColor = '#f8f5e6',
-  patternColor = '#2e7d32',
-  height = '100%',
+  latinName = '',
+  backgroundColor = '#f5f5f5',
+  patternColor = '#e0e0e0',
+  pattern = 'leaves',
+  height = 300,
   width = '100%',
-  pattern = 'dots',
+  imageSrc,
+  className = '',
+  objectFit = 'cover',
   hideLatinName = false,
-  hideAllText = false
+  hideAllText = false,
+  sx = {},
+  ...boxProps
 }) => {
-  const { language } = useLanguage();
-  
-  // Helper function to convert hex to rgba
-  const hexToRgba = (hex: string, opacity: number) => {
-    // Remove the hash if it exists
-    hex = hex.replace('#', '');
-    
-    // Parse the hex values
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    
-    // Return rgba format
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-  };
-  
-  // Generate pattern styles using CSS - more subtle versions
   const getPatternStyle = () => {
-    // Use lower opacity values for more subtle patterns
-    const color15 = hexToRgba(patternColor, 0.15); // 15% opacity
-    const color20 = hexToRgba(patternColor, 0.2); // 20% opacity
-    
     switch (pattern) {
       case 'dots':
         return {
-          backgroundImage: `radial-gradient(${color20} 3px, transparent 3px), radial-gradient(${color15} 2px, transparent 2px)`,
-          backgroundSize: '30px 30px, 20px 20px',
-          backgroundPosition: '0 0, 15px 15px',
-          backgroundColor: backgroundColor, // Ensure background color is applied
+          backgroundImage: `radial-gradient(${patternColor} 1px, transparent 1px)`,
+          backgroundSize: '20px 20px',
         };
       case 'lines':
         return {
-          backgroundImage: `repeating-linear-gradient(45deg, ${color20}, ${color20} 1px, transparent 1px, transparent 10px), repeating-linear-gradient(135deg, ${color15}, ${color15} 1px, transparent 1px, transparent 15px)`,
-          backgroundColor: backgroundColor, // Ensure background color is applied
+          backgroundImage: `repeating-linear-gradient(
+            45deg,
+            ${patternColor},
+            ${patternColor} 1px,
+            transparent 1px,
+            transparent 10px
+          )`,
         };
       case 'waves':
         return {
-          backgroundImage: `radial-gradient(circle at 50% 50%, ${color20} 5px, transparent 5px), radial-gradient(circle at 70% 30%, ${color15} 3px, transparent 3px)`,
-          backgroundSize: '40px 40px, 25px 25px',
-          backgroundPosition: '0 0, 20px 20px',
-          backgroundColor: backgroundColor, // Ensure background color is applied
+          backgroundImage: `radial-gradient(circle at 100% 50%, transparent 20%, ${patternColor} 21%, ${patternColor} 34%, transparent 35%, transparent),
+            radial-gradient(circle at 0% 50%, transparent 20%, ${patternColor} 21%, ${patternColor} 34%, transparent 35%, transparent) 0 -25px,
+            radial-gradient(circle at 100% 50%, ${patternColor} 15%, transparent 16%, transparent 35%, ${patternColor} 36%, ${patternColor} 45%, transparent 46%),
+            radial-gradient(circle at 0% 50%, ${patternColor} 15%, transparent 16%, transparent 35%, ${patternColor} 36%, ${patternColor} 45%, transparent 46%) 0 -25px`,
+          backgroundSize: '70px 50px',
         };
       case 'leaves':
-        return {
-          backgroundImage: `linear-gradient(45deg, ${color20} 25%, transparent 25%, transparent 75%, ${color15} 75%, ${color15}), linear-gradient(135deg, ${color15} 25%, transparent 25%, transparent 75%, ${color20} 75%, ${color20})`,
-          backgroundSize: '30px 30px, 40px 40px',
-          backgroundPosition: '0 0, 15px 15px',
-          backgroundColor: backgroundColor, // Ensure background color is applied
-        };
       default:
-        // Default pattern when none specified
         return {
-          backgroundImage: `radial-gradient(${color20} 3px, transparent 3px)`,
-          backgroundSize: '20px 20px',
-          backgroundColor: backgroundColor, // Ensure background color is applied
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E")`,
         };
     }
   };
 
-  const altText = typeof speciesName === 'string' ? speciesName : (language === 'en' ? speciesName.en : speciesName.sl);
+  const displayName = typeof speciesName === 'string' ? speciesName : speciesName.en;
 
   return (
     <Box
       sx={{
         position: 'relative',
-        height,
         width,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
+        height,
+        backgroundColor,
         overflow: 'hidden',
-        // Always apply pattern styles for reliability
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         ...getPatternStyle(),
+        ...sx,
       }}
+      className={className}
+      {...boxProps}
     >
-      {/* Only show species name and latin name if they are provided and hideAllText is false */}
-      {altText && !hideAllText && (
+      {imageSrc && (
+        <Box
+          component="img"
+          src={imageSrc}
+          alt={displayName}
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit,
+            objectPosition: 'center',
+          }}
+        />
+      )}
+      {!hideAllText && !hideLatinName && latinName && (
         <Box
           sx={{
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            padding: 2,
-            borderRadius: 1,
-            textAlign: 'center',
-            maxWidth: '80%',
-            zIndex: 10,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            p: 1.5,
+            background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, transparent 100%)',
+            color: 'white',
           }}
         >
-          <div style={{ 
-            fontSize: '1.5rem', 
-            fontWeight: 'bold', 
-            color: patternColor,
-            marginBottom: '0.25rem'
-          }}>
-            {altText}
-          </div>
-          {latinName && !hideLatinName && (
-            <div style={{ 
-              fontStyle: 'italic',
-              color: '#666'
-            }}>
-              {latinName}
-            </div>
-          )}
+          <Typography variant="caption" component="div" sx={{ lineHeight: 1.2 }}>
+            {latinName}
+          </Typography>
         </Box>
       )}
     </Box>

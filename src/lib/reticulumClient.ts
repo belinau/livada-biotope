@@ -105,10 +105,18 @@ export class ReticulumClient {
   private isConnected: boolean = false;
   private connectionAttempts: number = 0;
   private pollTimer: NodeJS.Timeout | null = null;
-  private listeners: ((data: SensorData[]) => void)[] = [];
+  private listeners: ((data: any) => void)[] = [];
   private lastErrorMessage: string | null = null;
   private baseUrl: string;
   
+  // Make isConnected accessible via a getter
+  public get connectionStatus() {
+    return {
+      isConnected: this.isConnected,
+      error: this.lastErrorMessage
+    };
+  }
+
   private constructor(config: ReticulumConfig = defaultReticulumConfig) {
     this.config = config;
     
@@ -136,16 +144,6 @@ export class ReticulumClient {
    */
   public getLastError(): string | null {
     return this.lastErrorMessage;
-  }
-
-  /**
-   * Check if client is connected
-   */
-  public getConnectionStatus(): { connected: boolean; error: string | null } {
-    return {
-      connected: this.isConnected,
-      error: this.lastErrorMessage
-    };
   }
 
   /**
@@ -229,7 +227,7 @@ export class ReticulumClient {
    * Add a listener for sensor data updates
    * @param listener Function to call when new data is received
    */
-  public addDataListener(listener: (data: SensorData[]) => void): void {
+  public addDataListener(listener: (data: any) => void): void {
     this.listeners.push(listener);
   }
 
@@ -237,7 +235,7 @@ export class ReticulumClient {
    * Remove a listener
    * @param listener The listener function to remove
    */
-  public removeDataListener(listener: (data: SensorData[]) => void): void {
+  public removeDataListener(listener: (data: any) => void): void {
     const index = this.listeners.indexOf(listener);
     if (index !== -1) {
       this.listeners.splice(index, 1);
@@ -248,7 +246,7 @@ export class ReticulumClient {
    * Fetch the latest sensor data from the Sideband collector
    * @returns Promise that resolves with sensor data
    */
-  public async fetchSensorData(): Promise<SensorData[]> {
+  public async fetchSensorData(): Promise<any> {
     if (!this.isConnected) {
       await this.connect();
     }
@@ -316,9 +314,35 @@ export class ReticulumClient {
   }
 
   /**
+   * Get sensor data for a specific sensor
+   * @param sensorId The ID of the sensor to retrieve data for
+   * @returns Promise that resolves with sensor data
+   */
+  public async getSensorData(sensorId: string): Promise<any> {
+    if (!this.isConnected) {
+      const connected = await this.connect();
+      if (!connected) {
+        throw new Error('Not connected to Reticulum network');
+      }
+    }
+
+    try {
+      const response = await fetch(`${this.baseUrl}/api/sensors/${sensorId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch sensor data: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching sensor data:', error);
+      this.lastErrorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw error;
+    }
+  }
+
+  /**
    * Transform raw data from Sideband into SensorData format
    */
-  private transformSensorData(rawData: any): SensorData[] {
+  private transformSensorData(rawData: any): any {
     try {
       // This transformation will depend on the exact format that Sideband provides
       // Using SamsungGalaxyTelemetry as an example
@@ -341,7 +365,7 @@ export class ReticulumClient {
   /**
    * Parse a single reading from Sideband format to SensorData format
    */
-  private parseReadingToSensorData(reading: any): SensorData {
+  private parseReadingToSensorData(reading: any): any {
     // Adapt this based on the actual format from Sideband
     // This example assumes SamsungGalaxyTelemetry format
     
@@ -360,7 +384,7 @@ export class ReticulumClient {
       };
     } else if ('timestamp' in reading && 'moisture' in reading) {
       // Already in correct format
-      return reading as SensorData;
+      return reading;
     }
     
     // Default fallback if format doesn't match expected
