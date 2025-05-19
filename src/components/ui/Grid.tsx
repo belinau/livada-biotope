@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
-import { Box, BoxProps, styled } from '@mui/material';
+import React, { ReactNode, forwardRef } from 'react';
+import { Box, BoxProps, styled, Grid as MuiGrid, GridProps as MuiGridProps } from '@mui/material';
 
 export interface GridProps extends Omit<BoxProps, 'display'> {
   children: ReactNode;
@@ -72,6 +72,14 @@ const ResponsiveGrid = styled(Box, {
   };
 });
 
+export interface CustomGridProps extends MuiGridProps {}
+
+const CustomGrid = forwardRef<HTMLDivElement, CustomGridProps>((props, ref) => {
+  return <MuiGrid ref={ref} {...props} />;
+});
+
+CustomGrid.displayName = 'CustomGrid';
+
 export const Grid: React.FC<GridProps> = ({
   children,
   columns = 1,
@@ -106,4 +114,5 @@ export const Grid: React.FC<GridProps> = ({
   );
 };
 
+export { CustomGrid };
 export default Grid;

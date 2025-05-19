@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
-import { Box, Container, CssBaseline } from '@mui/material';
+import { Box, Container } from '@mui/material';
 import dynamic from 'next/dynamic';
 
 // Use dynamic imports for components that might not be immediately available
@@ -23,7 +23,7 @@ interface LayoutProps {
 export default function Layout({ 
   children, 
   title = 'Livada Biotope',
-  description = 'Sustainable living and community garden'
+  description = 'Sustainable living and biodiversity conservation'
 }: LayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -44,18 +44,24 @@ export default function Layout({
         <meta name="description" content={description} />
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
-      <CssBaseline />
       
       {/* Header with type assertion to handle dynamic import */}
       {React.createElement(Header, {
         onMenuClick: handleDrawerToggle
       })}
       
-      <Box component="main" sx={{ flexGrow: 1 }}>
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-          {children}
-        </Container>
-      </Box>
+      <Container 
+        component="main"
+        maxWidth="lg"
+        sx={{
+          flexGrow: 1,
+          py: 4,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {children}
+      </Container>
       
       {/* Footer */}
       {React.createElement(Footer, {})}

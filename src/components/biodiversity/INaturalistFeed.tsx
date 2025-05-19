@@ -1,388 +1,294 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
-import { useLanguage } from '../../contexts/LanguageContext';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
-import Alert from '@mui/material/Alert';
+'use client';
 
-// Define interfaces for the iNaturalist API response
-interface Taxon {
-  id: number;
-  name: string;
-  preferred_common_name?: string;
-}
+import { useState, useEffect } from 'react';
+import { 
+  Box, 
+  Typography, 
+  Skeleton, 
+  useTheme, 
+  useMediaQuery, 
+  Grid, 
+  Card, 
+  CardMedia, 
+  CardContent,
+  Link,
+  IconButton,
+  Tooltip,
+  Chip,
+  Stack
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { useTranslations } from 'next-intl';
+import { 
+  Visibility as VisibilityIcon,
+  Person as PersonIcon,
+  CalendarToday as CalendarIcon,
+  LocationOn as LocationIcon,
+  OpenInNew as OpenInNewIcon
+} from '@mui/icons-material';
 
-interface INaturalistPhoto {
-  id?: number;
-  url?: string;
-  medium_url?: string;
-  large_url?: string;
-  original_url?: string;
-}
+// Import types
+import { INaturalistObservation } from '@/types/inaturalist';
 
-interface INaturalistObservation {
-  id: string;
-  species_guess: string;
-  uri: string;
-  user: {
-    login: string;
-    name: string;
-  };
-  taxon?: Taxon;
-  photos?: INaturalistPhoto[];
-  created_at: string;
-  place_guess?: string;
-  // Processed fields
-  formattedName?: string;
-  imageUrl?: string;
-  date?: string;
-  // Fallback image URLs
-  originalUrl?: string;
-  largeUrl?: string;
-  mediumUrl?: string;
-  baseUrl?: string;
-}
+const StyledCard = styled(Card)(({ theme }) => ({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-4px)',
+    boxShadow: theme.shadows[8],
+  },
+  '& .MuiCardMedia-root': {
+    transition: 'transform 0.3s ease-in-out',
+  },
+  '&:hover .MuiCardMedia-root': {
+    transform: 'scale(1.05)',
+  },
+}));
 
-interface INaturalistApiResponse {
-  results: INaturalistObservation[];
-}
+const ImageContainer = styled(Box)({
+  position: 'relative',
+  paddingTop: '75%', // 4:3 aspect ratio
+  overflow: 'hidden',
+  backgroundColor: 'rgba(0, 0, 0, 0.08)',
+});
 
-const INaturalistFeed: React.FC = () => {
-  const { language } = useLanguage();
-  const [observations, setObservations] = useState<INaturalistObservation[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [loadingMore, setLoadingMore] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState<number>(1);
-  const [hasMore, setHasMore] = useState<boolean>(true);
-  const ITEMS_PER_PAGE = 6; // Number of observations to load per page
+const StyledCardMedia = styled(CardMedia)({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+});
+
+const ObservationDate = ({ dateString }: { dateString: string }) => {
+  if (!dateString) return null;
   
-  // Function to fetch observations - can be called multiple times for pagination
-  const fetchObservations = useCallback(async (pageNum: number, append: boolean = false) => {
-    try {
-      append ? setLoadingMore(true) : setLoading(true);
-      
-      // Set locale based on language
-      const locale = language === 'sl' ? 'sl' : 'en';
-      
-      // Create a timeout promise to cancel the request if it takes too long
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), 10000);
-      });
-      
-      // Use Netlify serverless function instead of direct API call
-      // This will handle caching, rate limiting, and optimize the response
-      // Using place_id for Ljubljana, Slovenia instead of project_id for more reliable results
-      const functionUrl = `/.netlify/functions/inaturalist?page=${pageNum}&per_page=${ITEMS_PER_PAGE}&locale=${locale}`;
-      
-      // Race between fetch and timeout
-      const response = await Promise.race([
-        fetch(functionUrl),
-        timeoutPromise
-      ]) as Response;
-      
-      if (!response.ok) {
-        throw new Error(`Error fetching from serverless function: ${response.status}`);
-      }
-      
-      const data: INaturalistApiResponse = await response.json();
-        
-        // Process observations to ensure high-res images and proper localization
-        const processedObservations = data.results.map(observation => {
-          let imageUrl = 'https://via.placeholder.com/800x600?text=No+Image';
-          
-          // Optimized approach to get high-resolution images while improving performance
-          if (observation.photos && observation.photos.length > 0) {
-            const photo = observation.photos[0];
-            
-            // Function to check if URL is a thumbnail from any iNaturalist domain
-            const isINaturalistThumbnail = (url: string | undefined) => {
-              if (!url) return false;
-              
-              // Match any iNaturalist domain with square thumbnails
-              return (url.includes('square.jpg') || url.includes('square.jpeg')) && 
-                     (url.includes('inaturalist.org') || url.includes('s3.amazonaws.com'));
-            };
-            
-            // Special case for square thumbnails from any iNaturalist domain
-            if (photo.url && isINaturalistThumbnail(photo.url)) {
-              // Handle both .jpg and .jpeg extensions
-              const isJpeg = photo.url.includes('.jpeg');
-              const squarePattern = isJpeg ? 'square.jpeg' : 'square.jpg';
-              const largePattern = isJpeg ? 'large.jpeg' : 'large.jpg';
-              const originalPattern = isJpeg ? 'original.jpeg' : 'original.jpg';
-              const mediumPattern = isJpeg ? 'medium.jpeg' : 'medium.jpg';
-              
-              // Directly replace square with large for better performance balance
-              imageUrl = photo.url.replace(squarePattern, largePattern);
-              console.log(`iNaturalist thumbnail detected, using large version: ${imageUrl}`);
-              
-              // Store fallback URLs without doing excessive replacements
-              observation.originalUrl = photo.url.replace(squarePattern, originalPattern);
-              observation.largeUrl = imageUrl;
-              observation.mediumUrl = photo.url.replace(squarePattern, mediumPattern);
-              observation.baseUrl = photo.url;
-            }
-            // Use photo ID if available (fastest approach)
-            else if (photo.id) {
-              // Use large format by default - better performance while still high quality
-              imageUrl = `https://static.inaturalist.org/photos/${photo.id}/large.jpg`;
-              console.log(`Using photo ID ${photo.id} for URL: ${imageUrl}`);
-              
-              // Store other resolutions for fallbacks
-              observation.originalUrl = `https://static.inaturalist.org/photos/${photo.id}/original.jpg`;
-              observation.largeUrl = imageUrl;
-              observation.mediumUrl = `https://static.inaturalist.org/photos/${photo.id}/medium.jpg`;
-              observation.baseUrl = photo.url || observation.mediumUrl;
-            }
-            // Use API-provided URLs if available
-            else {
-              // Start with large URL (best balance between quality and performance)
-              if (photo.large_url) {
-                imageUrl = photo.large_url;
-                console.log(`Using large_url: ${imageUrl}`);
-              }
-              // Fall back to other formats if large not available
-              else if (photo.original_url) {
-                imageUrl = photo.original_url;
-                console.log(`Using original_url: ${imageUrl}`);
-              }
-              else if (photo.medium_url) {
-                imageUrl = photo.medium_url;
-                console.log(`Using medium_url: ${imageUrl}`);
-              }
-              else if (photo.url) {
-                // Handle any remaining URL patterns
-                imageUrl = photo.url;
-                console.log(`Using base URL: ${imageUrl}`);
-                
-                // Check for square thumbnails from any iNaturalist domain
-                if ((imageUrl.includes('square.jpg') || imageUrl.includes('square.jpeg')) &&
-                    (imageUrl.includes('inaturalist.org') || imageUrl.includes('s3.amazonaws.com'))) {
-                  const isJpeg = imageUrl.includes('.jpeg');
-                  const squarePattern = isJpeg ? 'square.jpeg' : 'square.jpg';
-                  const largePattern = isJpeg ? 'large.jpeg' : 'large.jpg';
-                  
-                  imageUrl = imageUrl.replace(squarePattern, largePattern);
-                  console.log(`Replaced square thumbnail with large: ${imageUrl}`);
-                }
-              }
-              
-              // Store URLs for fallbacks
-              observation.originalUrl = photo.original_url;
-              observation.largeUrl = photo.large_url;
-              observation.mediumUrl = photo.medium_url;
-              observation.baseUrl = photo.url;
-            }
-          }
-          
-          // Format date according to locale
-          const date = new Date(observation.created_at);
-          const formattedDate = date.toLocaleDateString(
-            locale === 'sl' ? 'sl-SI' : 'en-US'
-          );
-          
-          // Get localized name
-          let formattedName = observation.species_guess;
-          if (locale === 'sl' && observation.taxon?.preferred_common_name) {
-            formattedName = observation.taxon.preferred_common_name;
-          } else if (observation.taxon?.preferred_common_name) {
-            formattedName = observation.taxon.preferred_common_name;
-          }
-          
-          return {
-            ...observation,
-            formattedName,
-            imageUrl,
-            date: formattedDate
-          };
-        });
-        
-        if (append) {
-          // Append new observations to existing ones
-          setObservations(prev => [...prev, ...processedObservations]);
-          setLoadingMore(false);
-        } else {
-          // Replace observations (first page load)
-          setObservations(processedObservations);
-          setLoading(false);
-        }
-        
-        // Check if there are more observations to load
-        setHasMore(processedObservations.length === ITEMS_PER_PAGE);
-      } catch (error) {
-        console.error('Error fetching observations:', error);
-        setError(language === 'sl' ? 'Napaka pri nalaganju podatkov.' : 'Error loading data.');
-        append ? setLoadingMore(false) : setLoading(false);
-      }
-    }, [language]);
+  const date = new Date(dateString);
+  const formattedDate = date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+
+  return (
+    <Box display="flex" alignItems="center" gap={0.5} color="text.secondary">
+      <CalendarIcon fontSize="small" />
+      <Typography variant="body2" component="span">
+        {formattedDate}
+      </Typography>
+    </Box>
+  );
+};
+
+const QualityGradeBadge = ({ grade }: { grade: string }) => {
+  if (!grade) return null;
   
-  // Initial load of observations
-  useEffect(() => {
-    // Load initial data with a short delay to ensure reliable loading
-    const timer = setTimeout(() => {
-      fetchObservations(1, false);
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, [fetchObservations]);
-  
-  // Function to load more observations
-  const loadMore = () => {
-    if (!loadingMore && hasMore) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      fetchObservations(nextPage, true);
+  const getGradeLabel = (g: string) => {
+    switch (g) {
+      case 'research': return 'Research Grade';
+      case 'needs_id': return 'Needs ID';
+      case 'casual': return 'Casual';
+      default: return g;
     }
   };
-  
-  // Render loading state
-  if (loading && observations.length === 0) {
+
+  return (
+    <Chip 
+      size="small" 
+      label={getGradeLabel(grade)} 
+      color={grade === 'research' ? 'success' : 'default'}
+      variant="outlined"
+    />
+  );
+};
+
+interface INaturalistFeedProps {
+  maxItems?: number;
+  showTitle?: boolean;
+  showViewAll?: boolean;
+  locale?: string;
+}
+
+const INaturalistFeed: React.FC<INaturalistFeedProps> = ({ 
+  maxItems = 6, 
+  showTitle = true,
+  showViewAll = true,
+  locale = 'en'
+}) => {
+  const [observations, setObservations] = useState<INaturalistObservation[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const t = useTranslations('biodiversity');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  useEffect(() => {
+    const fetchObservations = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `/api/inaturalist?per_page=${maxItems}`
+        );
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch observations');
+        }
+        
+        const data = await response.json();
+        setObservations(data.results || []);
+      } catch (err) {
+        console.error('Error fetching iNaturalist observations:', err);
+        setError(t('errors.fetchFailed'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchObservations();
+  }, [maxItems, t]);
+
+  const renderLoadingSkeletons = () => {
+    return Array.from({ length: 3 }).map((_, index) => (
+      <Grid item xs={12} sm={6} md={4} key={index}>
+        <Skeleton variant="rectangular" height={200} />
+        <Skeleton variant="text" width="80%" />
+        <Skeleton variant="text" width="60%" />
+      </Grid>
+    ));
+  };
+
+  if (error) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
-        <CircularProgress color="primary" />
-        <Typography sx={{ ml: 2 }}>
-          {language === 'sl' ? 'Nalaganje podatkov...' : 'Loading observations...'}
-        </Typography>
+      <Box textAlign="center" py={4}>
+        <Typography color="error">{error}</Typography>
       </Box>
     );
   }
 
-  // Render error state - only if we have no observations to show
-  if (error && observations.length === 0) {
-    return (
-      <Alert severity="error" sx={{ mb: 4 }}>
-        <Typography color="error">{error}</Typography>
-        <Typography sx={{ mt: 2 }}>
-          {language === 'sl' ? 'Poskusite osvežiti stran kasneje.' : 'Please try refreshing the page later.'}
-        </Typography>
-      </Alert>
-    );
-  }
-  
-  
+  const getSpeciesName = (observation: INaturalistObservation) => {
+    return observation.taxon?.preferred_common_name || 
+           observation.taxon?.name || 
+           t('unknownSpecies');
+  };
+
   return (
-    <Box sx={{ my: 4 }}>
-      <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 3, color: 'primary.main' }}>
-        {language === 'en' ? 'Recent Observations' : 'Nedavna opažanja'}
-      </Typography>
-      
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
-        {observations.map((observation) => (
-          <div key={observation.id}>
-            <Card 
-              sx={{ 
-                height: '100%', 
-                display: 'flex', 
-                flexDirection: 'column',
-                transition: 'transform 0.3s, box-shadow 0.3s',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: 6,
-                },
-              }}
-            >
-              <Box sx={{ position: 'relative', height: 240, width: '100%', overflow: 'hidden' }}>
-                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                  <Image
-                    src={observation.imageUrl || observation.largeUrl || observation.mediumUrl || observation.originalUrl || 'https://via.placeholder.com/800x600?text=No+Image'}
-                    alt={observation.formattedName || observation.species_guess}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 300px"
-                    style={{ objectFit: 'cover' }}
-                    unoptimized={true}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      if (target.src === observation.imageUrl && observation.largeUrl) {
-                        target.src = observation.largeUrl;
-                      } else if (target.src === observation.largeUrl && observation.mediumUrl) {
-                        target.src = observation.mediumUrl;
-                      } else if (target.src === observation.mediumUrl && observation.originalUrl) {
-                        target.src = observation.originalUrl;
-                      } else {
-                        target.src = 'https://via.placeholder.com/800x600?text=No+Image';
-                      }
-                    }}
-                  />
-                </div>
-              </Box>
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Typography variant="h6" component="h3" gutterBottom>
-                  {observation.formattedName || observation.species_guess}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', mb: 1 }}>
-                  {observation.taxon?.name}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" display="block" gutterBottom sx={{ mt: 1, mb: 1 }}>
-                  <strong>{observation.date}</strong>
-                </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  {language === 'en' ? 'By' : 'Avtor'}: {observation.user.name || observation.user.login}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {observation.place_guess}
-                </Typography>
-                <Box sx={{ mt: 2 }}>
-                  <Button 
-                    href={observation.uri} 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    size="small"
-                    color="primary"
-                  >
-                    {language === 'en' ? 'View on iNaturalist' : 'Ogled na iNaturalist'}
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          </div>
-        ))}
-      </div>
-      
-      {/* Load More button */}
-      {!loading && observations.length > 0 && (
-        <Box sx={{ textAlign: 'center', mt: 4 }}>
-          {loadingMore ? (
-            <CircularProgress size={30} color="primary" />
-          ) : hasMore ? (
-            <Button 
-              variant="contained" 
-              color="primary" 
-              onClick={loadMore}
-              startIcon={<span>+</span>}
-              sx={{ 
-                py: 1.5,
-                px: 3,
-                borderRadius: 8,
-                boxShadow: 2,
-                '&:hover': { boxShadow: 4 }
-              }}
-            >
-              {language === 'en' ? 'Load More Observations' : 'Naloži več opažanj'}
-            </Button>
-          ) : (
-            <Typography variant="body2" color="text.secondary">
-              {language === 'en' ? 'No more observations to load' : 'Ni več opažanj za nalaganje'}
-            </Typography>
+    <Box>
+      {showTitle && (
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+          <Typography variant="h4" component="h2" gutterBottom={false}>
+            {t('recentObservations')}
+          </Typography>
+          {showViewAll && (
+            <Link href="/biodiversity/observations" color="primary">
+              {t('viewAll')}
+            </Link>
           )}
         </Box>
       )}
       
-      <Box sx={{ mt: 4, textAlign: 'center' }}>
-        <Button 
-          href="https://www.inaturalist.org/projects/the-livada-biotope-monitoring"
-          target="_blank"
-          rel="noopener noreferrer"
-          variant="contained"
-          color="primary"
-        >
-          {language === 'en' ? 'View all observations on iNaturalist' : 'Oglejte si vsa opažanja na iNaturalist'}
-        </Button>
-      </Box>
+      <Grid container spacing={3}>
+        {loading ? (
+          renderLoadingSkeletons()
+        ) : (
+          observations.map((observation) => {
+            const speciesName = getSpeciesName(observation);
+            const photoUrl = observation.photos?.[0]?.url?.replace('square', 'medium');
+            const identificationsCount = observation.identifications_count || 0;
+            
+            return (
+              <Grid item xs={12} sm={6} md={4} key={observation.id}>
+                <StyledCard>
+                  <ImageContainer>
+                    {photoUrl ? (
+                      <StyledCardMedia
+                        image={photoUrl}
+                        title={speciesName}
+                      />
+                    ) : (
+                      <Box 
+                        display="flex" 
+                        alignItems="center" 
+                        justifyContent="center" 
+                        height="100%"
+                        bgcolor="background.paper"
+                      >
+                        <Typography color="text.secondary">
+                          {t('noImage')}
+                        </Typography>
+                      </Box>
+                    )}
+                  </ImageContainer>
+                  
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
+                      <Typography variant="h6" component="h3" noWrap>
+                        {speciesName}
+                      </Typography>
+                      <Tooltip title={t('viewOnINaturalist')}>
+                        <IconButton 
+                          size="small" 
+                          href={`https://www.inaturalist.org/observations/${observation.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <OpenInNewIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    
+                    {observation.taxon?.name && (
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        <i>{observation.taxon.name}</i>
+                      </Typography>
+                    )}
+                    
+                    <Stack direction="row" spacing={1} mb={1}>
+                      {observation.quality_grade && (
+                        <QualityGradeBadge grade={observation.quality_grade} />
+                      )}
+                      {observation.user?.login && (
+                        <Chip
+                          size="small"
+                          icon={<PersonIcon />}
+                          label={observation.user.login}
+                          variant="outlined"
+                        />
+                      )}
+                    </Stack>
+                    
+                    <Box display="flex" flexDirection="column" gap={1} mt={2}>
+                      {observation.observed_on_string && (
+                        <ObservationDate dateString={observation.observed_on_string} />
+                      )}
+                      
+                      {observation.place_guess && (
+                        <Box display="flex" alignItems="center" gap={0.5} color="text.secondary">
+                          <LocationIcon fontSize="small" />
+                          <Typography variant="body2" noWrap>
+                            {observation.place_guess}
+                          </Typography>
+                        </Box>
+                      )}
+                      
+                      {identificationsCount > 0 && (
+                        <Box display="flex" alignItems="center" gap={0.5} color="text.secondary">
+                          <VisibilityIcon fontSize="small" />
+                          <Typography variant="body2">
+                            {t('identifications', { count: identificationsCount })}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+                  </CardContent>
+                </StyledCard>
+              </Grid>
+            );
+          })
+        )}
+      </Grid>
     </Box>
   );
 };

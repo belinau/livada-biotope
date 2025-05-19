@@ -1,198 +1,241 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar as ReactCalendar } from 'react-calendar';
-import { Box, Typography, Paper, CircularProgress, Alert, Divider } from '@mui/material';
-import { format } from 'date-fns';
-import { sl } from 'date-fns/locale';
-import { CalendarEvent } from '@/types/calendar';
-import { fetchCalendarEvents, getEventsForDate, getUpcomingEvents } from '@/lib/calendarService';
+'use client';
 
-type CalendarValue = Date | null | [Date | null, Date | null];
+import * as React from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { Box, Typography, CircularProgress, Paper, List, ListItem, ListItemText, Divider } from '@mui/material';
+import { Calendar, dateFnsLocalizer, Event as RBCEvent } from 'react-big-calendar';
+import { format, parse, startOfWeek, getDay, isSameDay } from 'date-fns';
+import { enUS, sl } from 'date-fns/locale';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-interface EnhancedEventCalendarProps {
-  events?: CalendarEvent[];
-  onSelectEvent?: (event: CalendarEvent) => void;
-  onSelectDate?: (date: Date) => void;
-  initialDate?: Date;
-  locale?: string;
+const dateFnsLocales = { en: enUS, sl } as const;
+
+export interface CalendarEvent extends RBCEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  description?: string;
+  location?: string;
+  allDay?: boolean;
+  type?: string;
+  url?: string;
+  extendedProps?: Record<string, unknown>;
+  resource?: any;
 }
 
-export default function EnhancedEventCalendar({
-  events: initialEvents = [],
+export interface EnhancedEventCalendarProps {
+  locale?: 'en' | 'sl';
+  showUpcomingEvents?: boolean;
+  maxUpcomingEvents?: number;
+  events?: CalendarEvent[];
+  loading?: boolean;
+  error?: string | null;
+  onSelectEvent?: (event: CalendarEvent) => void;
+  onSelectSlot?: (slotInfo: { start: Date; end: Date; slots: Date[] }) => void;
+  onNavigate?: (date: Date) => void;
+  onView?: (view: string) => void;
+}
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
+  getDay,
+  locales: { 'en-US': enUS, sl },
+});
+
+const EnhancedEventCalendar: React.FC<EnhancedEventCalendarProps> = ({
+  locale: propLocale,
+  showUpcomingEvents = true,
+  maxUpcomingEvents = 5,
+  events = [],
+  loading = false,
+  error = null,
   onSelectEvent,
-  onSelectDate,
-  initialDate = new Date(),
-  locale = 'en'
-}: EnhancedEventCalendarProps) {
-  const [date, setDate] = useState<Date>(initialDate);
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
-  const [events, setEvents] = useState<CalendarEvent[]>(() => 
-    initialEvents.map(event => ({
-      ...event,
-      // Ensure end date is defined, default to start date if not provided
-      end: event.end || event.start
-    }))
-  );
-  const [loading, setLoading] = useState<boolean>(!initialEvents.length);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadEvents = async () => {
-      if (initialEvents.length) return;
-      
-      try {
-        setLoading(true);
-        const fetchedEvents = await fetchCalendarEvents();
-        // Ensure all events have a defined end date
-        const processedEvents = fetchedEvents.map(event => ({
-          ...event,
-          end: event.end || event.start
-        }));
-        setEvents(processedEvents);
-      } catch (err) {
-        console.error('Error loading events:', err);
-        setError('Failed to load events. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadEvents();
-  }, [initialEvents.length]);
-
-  const handleDateChange = (value: CalendarValue) => {
-    if (value === null) return;
-    
-    const newDate = Array.isArray(value) ? value[0] : value;
-    if (newDate) {
-      setDate(newDate);
-      onSelectDate?.(newDate);
-      setSelectedEvent(null);
-    }
+  onSelectSlot,
+  onNavigate,
+  onView,
+}) => {
+  const { locale: contextLocale } = useLanguage();
+  const locale = (propLocale || contextLocale || 'en') as 'en' | 'sl';
+  const [currentDate, setCurrentDate] = React.useState<Date>(new Date());
+  
+  // Get events for the current date
+  const getEventsForDate = (date: Date): CalendarEvent[] => {
+    return events.filter(event => isSameDay(event.start, date));
   };
 
-  const handleEventClick = (event: CalendarEvent) => {
-    setSelectedEvent(event);
-    onSelectEvent?.(event);
+  // Get upcoming events
+  const upcomingEvents = React.useMemo(() => {
+    const now = new Date();
+    return events
+      .filter(event => event.start >= now)
+      .sort((a, b) => a.start.getTime() - b.start.getTime())
+      .slice(0, maxUpcomingEvents);
+  }, [events, maxUpcomingEvents]);
+
+  const selectedDateEvents = getEventsForDate(currentDate);
+
+  const handleNavigate = (newDate: Date) => {
+    setCurrentDate(newDate);
+    if (onNavigate) onNavigate(newDate);
   };
 
-  const selectedDateEvents = getEventsForDate(date, events);
-  const upcomingEvents = getUpcomingEvents(events, 3);
-
-  const formatDate = (date: Date): string => {
-    return format(date, 'EEEE, MMMM d, yyyy', { locale: locale === 'sl' ? sl : undefined });
+  const handleView = (view: string) => {
+    if (onView) onView(view);
   };
 
-  const formatTime = (date: Date | string): string => {
-    return format(new Date(date), 'HH:mm');
+  const messages = {
+    next: locale === 'en' ? 'Next' : 'Naprej',
+    previous: locale === 'en' ? 'Back' : 'Nazaj',
+    today: locale === 'en' ? 'Today' : 'Danes',
+    month: locale === 'en' ? 'Month' : 'Mesec',
+    week: locale === 'en' ? 'Week' : 'Teden',
+    day: locale === 'en' ? 'Day' : 'Dan',
+    agenda: locale === 'en' ? 'Agenda' : 'Dnevni red',
+    date: locale === 'en' ? 'Date' : 'Datum',
+    time: locale === 'en' ? 'Time' : 'Čas',
+    event: locale === 'en' ? 'Event' : 'Dogodek',
+    noEventsInRange: locale === 'en' 
+      ? 'No events in this range.' 
+      : 'V tem obdobju ni dogodkov.',
   };
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" p={4}>
+      <Box display="flex" justifyContent="center" my={4}>
         <CircularProgress />
       </Box>
     );
   }
 
-
   if (error) {
     return (
-      <Alert severity="error" sx={{ m: 2 }}>
-        {error}
-      </Alert>
+      <Box p={2}>
+        <Typography color="error">{error}</Typography>
+      </Box>
     );
   }
 
   return (
-    <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={4}>
-      <Box flex={1}>
-        <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
-          <ReactCalendar
-            onChange={handleDateChange}
-            value={date}
-            locale={locale}
-            tileContent={({ date, view }) =>
-              view === 'month' && getEventsForDate(date, events).length > 0 ? (
-                <div style={{ height: '4px', width: '4px', backgroundColor: 'red', borderRadius: '50%', margin: '0 auto' }} />
-              ) : null
-            }
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <Paper elevation={3} sx={{ p: 3 }}>
+        <Typography variant="h5" gutterBottom>
+          {format(currentDate, 'MMMM yyyy', { locale: dateFnsLocales[locale] })}
+        </Typography>
+        
+        <div style={{ height: 500 }}>
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: '100%' }}
+            culture={locale}
+            messages={messages}
+            onSelectEvent={onSelectEvent}
+            onSelectSlot={onSelectSlot}
+            onNavigate={handleNavigate}
+            onView={handleView}
+            selectable={!!onSelectSlot}
+            defaultView="month"
+            views={['month', 'week', 'day', 'agenda']}
+            step={60}
+            timeslots={1}
+            defaultDate={new Date()}
+            toolbar={true}
           />
-        </Paper>
-
+        </div>
 
         {selectedDateEvents.length > 0 && (
-          <Paper elevation={3} sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              {formatDate(date)}
+          <Box mt={3}>
+            <Typography variant="subtitle1" gutterBottom>
+              {locale === 'en' 
+                ? `Events on ${format(currentDate, 'PP', { locale: dateFnsLocales[locale] })}`
+                : `Dogodki ${format(currentDate, 'PP', { locale: dateFnsLocales[locale] })}`}
             </Typography>
-            <Divider sx={{ my: 2 }} />
-            {selectedDateEvents.map((event) => (
-              <Box
-                key={event.id}
-                onClick={() => handleEventClick(event)}
-                sx={{
-                  p: 2,
-                  mb: 1,
-                  borderRadius: 1,
-                  cursor: 'pointer',
-                  '&:hover': { bgcolor: 'action.hover' },
-                  bgcolor: selectedEvent?.id === event.id ? 'action.selected' : 'background.paper',
-                }}
-              >
-                <Typography variant="subtitle1">{event.title}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {formatTime(event.start)}
-                  {event.end && ` - ${formatTime(event.end)}`}
-                </Typography>
-                {event.location && (
-                  <Typography variant="body2" color="text.secondary">
-                    {event.location}
-                  </Typography>
-                )}
-              </Box>
-            ))}
-          </Paper>
+            <List>
+              {selectedDateEvents.map((event, index) => (
+                <React.Fragment key={event.id}>
+                  <ListItem 
+                    alignItems="flex-start"
+                    button={!!onSelectEvent as any}
+                    onClick={() => onSelectEvent?.(event)}
+                  >
+                    <ListItemText
+                      primary={event.title}
+                      secondary={
+                        <>
+                          <Typography component="span" variant="body2" color="text.primary">
+                            {format(event.start, 'PPp', { locale: dateFnsLocales[locale] })}
+                            {event.end && ` - ${format(event.end, 'p', { locale: dateFnsLocales[locale] })}`}
+                          </Typography>
+                          {event.location && (
+                            <Typography component="div" variant="body2" color="text.secondary">
+                              {event.location}
+                            </Typography>
+                          )}
+                          {event.description && (
+                            <Typography component="div" variant="body2" color="text.secondary">
+                              {event.description}
+                            </Typography>
+                          )}
+                        </>
+                      }
+                    />
+                  </ListItem>
+                  {index < selectedDateEvents.length - 1 && <Divider component="li" />}
+                </React.Fragment>
+              ))}
+            </List>
+          </Box>
         )}
-      </Box>
+      </Paper>
 
-      <Box width={{ xs: '100%', md: 300 }}>
-        <Paper elevation={3} sx={{ p: 2, position: 'sticky', top: 20 }}>
-          <Typography variant="h6" gutterBottom>
-            Upcoming Events
+      {showUpcomingEvents && upcomingEvents.length > 0 && (
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <Typography variant="h5" gutterBottom>
+            {locale === 'en' ? 'Upcoming Events' : 'Prihajajoči dogodki'}
           </Typography>
-          <Divider sx={{ mb: 2 }} />
-          {upcomingEvents.length > 0 ? (
-            upcomingEvents.map((event) => (
-              <Box 
-                key={event.id} 
-                sx={{ 
-                  mb: 2, 
-                  pb: 2, 
-                  borderBottom: '1px solid', 
-                  borderColor: 'divider',
-                  cursor: 'pointer',
-                  '&:hover': { bgcolor: 'action.hover' },
-                  p: 1,
-                  borderRadius: 1
-                }}
-                onClick={() => {
-                  setDate(new Date(event.start));
-                  handleEventClick(event);
-                }}
-              >
-                <Typography variant="subtitle2">{event.title}</Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {formatDate(new Date(event.start))}
-                </Typography>
-              </Box>
-            ))
-          ) : (
-            <Typography variant="body2" color="text.secondary">
-              No upcoming events
-            </Typography>
-          )}
+          <List>
+            {upcomingEvents.map((event, index) => (
+              <React.Fragment key={event.id}>
+                <ListItem 
+                  alignItems="flex-start"
+                  button={!!onSelectEvent as any}
+                  onClick={() => onSelectEvent?.(event)}
+                >
+                  <ListItemText
+                    primary={event.title}
+                    secondary={
+                      <>
+                        <Typography component="span" variant="body2" color="text.primary">
+                          {format(event.start, 'PPp', { locale: dateFnsLocales[locale] })}
+                          {event.end && ` - ${format(event.end, 'p', { locale: dateFnsLocales[locale] })}`}
+                        </Typography>
+                        {event.location && (
+                          <Typography component="div" variant="body2" color="text.secondary">
+                            {event.location}
+                          </Typography>
+                        )}
+                        {event.description && (
+                          <Typography component="div" variant="body2" color="text.secondary">
+                            {event.description}
+                          </Typography>
+                        )}
+                      </>
+                    }
+                  />
+                </ListItem>
+                {index < upcomingEvents.length - 1 && <Divider component="li" />}
+              </React.Fragment>
+            ))}
+          </List>
         </Paper>
-      </Box>
+      )}
     </Box>
   );
-}
+};
+
+export default EnhancedEventCalendar;

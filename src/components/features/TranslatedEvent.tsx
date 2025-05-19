@@ -19,12 +19,12 @@ export const TranslatedEvent: React.FC<TranslatedEventProps> = ({
   event, 
   renderEvent 
 }) => {
-  const { language } = useLanguage();
+  const { locale } = useLanguage();
   const [translatedEvent, setTranslatedEvent] = useState<CalendarEvent>(event);
   
   // Update translations when language or event changes
   useEffect(() => {
-    if (language === 'sl') {
+    if (locale === 'sl') {
       // Translate to Slovenian
       const translated: CalendarEvent = {
         ...event,
@@ -39,7 +39,7 @@ export const TranslatedEvent: React.FC<TranslatedEventProps> = ({
       // Use original English content
       setTranslatedEvent(event);
     }
-  }, [event, language]);
+  }, [event, locale]);
   
   // Render the event with translated content
   return <>{renderEvent(translatedEvent)}</>;

@@ -1,168 +1,139 @@
+'use client';
+
 import React from 'react';
-import { useLanguage } from '../../contexts/LanguageContext';
-
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
-
-interface BiodiversityItem {
-  id: string;
-  name: {
-    en: string;
-    sl: string;
-    scientific: string;
-  };
-  description: {
-    en: string;
-    sl: string;
-  };
-  type: 'plant' | 'animal' | 'fungi' | 'other';
-  imageUrl: string;
-  inaturalistUrl?: string;
-}
+import { 
+  Box, 
+  Typography, 
+  Card, 
+  CardContent, 
+  CardMedia, 
+  Grid, 
+  Chip, 
+  Link
+} from '@mui/material';
+import { useTheme, useMediaQuery } from '@mui/material';
+import { useLocale, useTranslations } from 'next-intl';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { 
+  BiodiversityItem, 
+  BiodiversityItemType 
+} from '@/types/biodiversity';
 
 interface BiodiversityShowcaseProps {
-  title?: {
-    en: string;
-    sl: string;
-  };
-  description?: {
-    en: string;
-    sl: string;
-  };
   items: BiodiversityItem[];
-  className?: string;
 }
 
-const BiodiversityShowcase: React.FC<BiodiversityShowcaseProps> = ({
-  title = {
-    en: 'Biodiversity Monitoring',
-    sl: 'Spremljanje biotske raznovrstnosti'
-  },
-  description = {
-    en: 'Discover the rich biodiversity of the Livada Biotope through our monitoring project.',
-    sl: 'Odkrijte bogato biotsko raznovrstnost Biotopa Livada prek našega projekta spremljanja.'
-  },
-  items
-}) => {
-  const { language } = useLanguage();
+const BiodiversityShowcase: React.FC<BiodiversityShowcaseProps> = ({ items }) => {
+  const { locale } = useLanguage();
+  const t = useTranslations('common');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  // Helper function to get type icon text
-  const getTypeIcon = (type: string) => {
-    switch(type) {
-      case 'plant': return '🌿';
-      case 'animal': return '🦋';
-      case 'fungi': return '🍄';
-      case 'other': return '✨';
-      default: return '';
+  const getTypeColor = (type: BiodiversityItemType) => {
+    switch (type) {
+      case 'plant':
+        return 'success';
+      case 'animal':
+        return 'primary';
+      case 'fungi':
+        return 'secondary';
+      default:
+        return 'default';
     }
   };
 
+  if (items.length === 0) {
+    return (
+      <Box textAlign="center" py={4}>
+        <Typography variant="body1" color="text.secondary">
+          {t('noBiodiversityItems')}
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{ my: 4 }}>
-      <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 3, color: 'primary.main', fontWeight: 'bold' }}>
-        {title[language]}
-      </Typography>
-      
-      <Typography variant="body1" sx={{ mb: 4, textAlign: 'center', maxWidth: '800px', mx: 'auto' }}>
-        {description[language]}
-      </Typography>
-      
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
-        {items.map((item) => (
-          <Box key={item.id}>
-            <Card 
-              sx={{ 
-                height: '100%', 
-                display: 'flex', 
-                flexDirection: 'column',
-                transition: 'transform 0.3s, box-shadow 0.3s',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: 6,
-                },
-              }}
-            >
-              <Box sx={{ position: 'relative', height: 240, overflow: 'hidden' }}>
-                <CardMedia
-                  component="img"
-                  height="100%"
-                  image={item.imageUrl}
-                  alt={item.name[language]}
-                  sx={{ objectFit: 'cover' }}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = 'https://via.placeholder.com/800x600?text=No+Image';
-                  }}
-                />
-                <Box 
-                  sx={{ 
-                    position: 'absolute', 
-                    bottom: 0, 
-                    left: 0, 
-                    right: 0, 
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
-                    p: 1
-                  }}
-                >
-                  <Chip 
-                    label={`${getTypeIcon(item.type)} ${item.type}`} 
-                    size="small" 
-                    sx={{ 
-                      bgcolor: 'rgba(0,0,0,0.3)', 
-                      color: 'white',
-                      fontSize: '0.75rem'
-                    }} 
-                  />
-                </Box>
-              </Box>
-              
-              <CardContent sx={{ flexGrow: 1, p: 2 }}>
-                <Typography variant="h6" component="h3" sx={{ color: 'primary.dark', mb: 0.5, fontWeight: 'medium' }}>
-                  {item.name[language]}
+    <Grid container spacing={3}>
+      {items.map((item) => (
+        <Grid item xs={12} sm={6} md={4} key={item.id}>
+          <Card 
+            elevation={0}
+            sx={{
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              borderRadius: 2,
+              overflow: 'hidden',
+              transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: theme.shadows[6],
+              },
+            }}
+          >
+            <Box sx={{ position: 'relative', pt: '56.25%' }}>
+              <CardMedia
+                component="img"
+                image={item.imageUrl}
+                alt={locale === 'en' ? item.name.en : item.name.sl}
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+              />
+              <Chip
+                label={item.type}
+                color={getTypeColor(item.type)}
+                size="small"
+                sx={{
+                  position: 'absolute',
+                  top: 16,
+                  right: 16,
+                  textTransform: 'capitalize',
+                  fontWeight: 600,
+                  backdropFilter: 'blur(4px)',
+                  bgcolor: 'rgba(255, 255, 255, 0.8)',
+                }}
+              />
+            </Box>
+            <CardContent sx={{ flexGrow: 1, p: 3 }}>
+              <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
+                <Typography variant="h6" component="h3" fontWeight={600}>
+                  {locale === 'en' ? item.name.en : item.name.sl}
                 </Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic', display: 'block', mb: 1.5 }}>
-                  {item.name.scientific}
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                  {item.description[language]}
-                </Typography>
-                
                 {item.inaturalistUrl && (
-                  <Button 
+                  <Link 
                     href={item.inaturalistUrl} 
                     target="_blank" 
-                    rel="noopener noreferrer" 
-                    size="small"
-                    variant="text"
+                    rel="noopener noreferrer"
                     color="primary"
-                    sx={{ fontSize: '0.75rem', p: 0, textTransform: 'none' }}
+                    variant="caption"
+                    sx={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center',
+                      whiteSpace: 'nowrap',
+                      ml: 1
+                    }}
                   >
-                    {language === 'en' ? 'View on iNaturalist' : 'Ogled na iNaturalist'}
-                  </Button>
+                    iNaturalist
+                  </Link>
                 )}
-              </CardContent>
-            </Card>
-          </Box>
-        ))}
-      </Box>
-      
-      <Box sx={{ mt: 4, textAlign: 'center' }}>
-        <Button 
-          href="https://www.inaturalist.org/projects/the-livada-biotope-monitoring" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          variant="contained"
-          color="primary"
-        >
-          {language === 'en' ? 'Explore All Observations' : 'Raziščite vse opazke'}
-        </Button>
-      </Box>
-    </Box>
+              </Box>
+              <Typography variant="body2" color="text.secondary" fontStyle="italic" mb={1.5}>
+                {item.name.scientific}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {locale === 'en' ? item.description.en : item.description.sl}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
   );
 };
 

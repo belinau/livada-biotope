@@ -1,80 +1,45 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslations as useNextIntlTranslations } from 'next-intl';
+import { AbstractIntlMessages } from 'next-intl';
 
-// Type for the translations object
-type TranslationsMap = Record<string, string>;
+type Namespace = string;
+
+// Helper type to get nested keys from an object
+type NestedKeyOf<ObjectType extends object> = {
+  [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
+    ? `${Key}.${NestedKeyOf<ObjectType[Key]>}`
+    : Key;
+}[keyof ObjectType & (string | number)];
+
+type UseTranslationsReturn<Namespace extends string> = (
+  key: NestedKeyOf<{
+    [K in Namespace]: AbstractIntlMessages[K] extends object
+      ? AbstractIntlMessages[K]
+      : never;
+  }> | string,
+  values?: Record<string, any>
+) => string;
 
 /**
- * Custom hook for accessing translations
- * This updated version is designed to work with Netlify CMS translations
+ * A wrapper around next-intl's useTranslations hook that provides type safety
+ * and a consistent API for our application.
+ * 
+ * @param namespace - The namespace to use for translations
+ * @returns The translation function
  */
-const useTranslations = () => {
-  const { language } = useLanguage();
-  const [translations, setTranslations] = useState<TranslationsMap>({});
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+export function useTranslations<ObjectType extends object>(
+  namespace?: string
+): UseTranslationsReturn<string> {
+  const t = useNextIntlTranslations(namespace);
+  
+  return (key: NestedKeyOf<ObjectType> | string, values?: Record<string, any>) => 
+    t(key as string, values);
+}
 
-  // Fetch translations from the Netlify function
-  useEffect(() => {
-    const fetchTranslations = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        // Log the current language and fetch URL for debugging
-        const fetchUrl = `/api/translations?locale=${language}`;
-        console.log(`Fetching translations for language: ${language} from: ${fetchUrl}`);
-        
-        // Fetch translations from the Netlify function
-        const response = await fetch(fetchUrl);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch translations: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log(`Received translations data with ${Object.keys(data).length} keys`);
-        
-        // Check if we got empty data
-        if (Object.keys(data).length === 0) {
-          console.warn('Received empty translations data');
-        }
-        
-        setTranslations(data);
-        setLastUpdated(new Date());
-      } catch (err) {
-        console.error('Error fetching translations:', err);
-        setError(err instanceof Error ? err : new Error(String(err)));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTranslations();
-  }, [language]);
-
-  // Translation function
-  const t = useCallback(
-    (key: string, defaultValue?: string): string => {
-      if (isLoading) {
-        return defaultValue || key;
-      }
-
-      const translation = translations[key];
-      
-      // Log missing translations for debugging
-      if (!translation && process.env.NODE_ENV !== 'production') {
-        console.warn(`Missing translation for key: "${key}" in language: ${language}`);
-      }
-      
-      // Return the translation, default value, or key
-      return translation || defaultValue || key;
-    },
-    [translations, isLoading, language]
-  );
-
-  return { t, isLoading, error, lastUpdated };
-};
+// Helper function to get translations with a specific namespace
+export function createTranslations<NS extends string>(namespace: NS) {
+  return function useNsTranslations() {
+    return useTranslations(namespace);
+  };
+}
 
 export default useTranslations;

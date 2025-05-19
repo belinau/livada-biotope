@@ -1,0 +1,156 @@
+{
+  "about": {
+    "title": "O Biotopu Livada",
+    "description": "Več o tem barjanskem travniku in kaj počnemo.",
+    "hero": {
+      "alt": "Barjanski travnik Biotop Livada"
+    },
+    "content": "## Kaj počnemo\n\nBiotop Livada je barjanski travnik, kjer raziskujemo različne načine povezovanja z okoljem in drugimi živimi bitji. Prek Inštituta BOB povezujemo umetnost, znanost in praktične dejavnosti, da ustvarjamo povezave med različnimi področji in načini doživljanja sveta.\n\n## Naš pristop\n\nZanima nas preseganje človekomernega razmišljanja in učenje od okolja okoli nas. Kot začasni prebivalci tega prostora se učimo živeti skupaj z drugimi vrstami na način, ki ustreza vsem.",
+    "galleryTitle": "Prostor Biotop Livada",
+    "gallery": {
+      "alt": "Pogledi na barjanski travnik Biotop Livada"
+    }
+  },
+  "projects": {
+    "title": "Na čem delamo",
+    "subtitle": "Trenutne in pretekle pobude v Biotopu Livada.",
+    "status": "Status",
+    "learnMore": "Več podrobnosti",
+    "noProjects": "Trenutno ni aktivnih projektov.",
+    "description": "Razišči različne projekte v Biotopu Livada, s poudarkom na trajnostnih pristopih in spoštovanju do vseh živih bitij."
+  },
+  "events": {
+    "title": "Dogodki",
+    "description": "Na območju mokrišča skozi vse leto potekajo različne aktivnosti - od praktičnih delavnic in izobraževalnih predavanj do skupnostnih srečanj in prostovoljskih akcij. Poglej si naš koledar in se nam pridruži!",
+    "joinCommunity": "Pridruži se nam",
+    "hostEvent": {
+      "title": "Bi rad_a organiziral_a dogodek?",
+      "description": "Če te zanima organizacija delavnice, predavanja ali skupnostnega dogodka v okviru mokrišča, se nam obrni. Vsemu so dobrodoči predlogi, ki so v skladu z našim poslanstvom spodbujanja biotske raznovrstnosti, ekološke ozaveščenosti in spoštljivega sožitja z naravo.",
+      "button": "Piši nam"
+    },
+    "upcomingEvents": "Prihajajoči dogodki",
+    "noEvents": "Trenutno ni prihajajočih dogodkov",
+    "allDay": "Ves dan",
+    "eventDetails": "Podrobnosti dogodka",
+    "time": "Čas",
+    "location": "Lokacija",
+    "addToCalendar": "Dodaj v koledar"
+  },
+  "common": {
+    "welcome": "Dobrodošl_ v Biotopu Livada",
+    "welcomeMessage": "Dobrodošl_ v Biotopu Livada",
+    "pageDescription": "Barjanski travnik za trajnostno življenje in permakulturo v Ljubljani",
+    "loading": "Nalagam...",
+    "loadingMessage": "Nalagam...",
+    "error": "Ups, nekaj je šlo narobe",
+    "errorMessage": "Nekaj je šlo narobe",
+    "retry": "Poskusi znova",
+    "retryButton": "Poskusi znova",
+    "backToHome": "Nazaj na domačo stran",
+    "backToHomeButton": "Nazaj na začetno stran",
+    "notFound": "Stran ne obstaja",
+    "notFoundMessage": "Stran ne obstaja",
+    "serverError": "Napaka strežnika",
+    "serverErrorMessage": "Napaka strežnika",
+    "readMore": "Preberi več",
+    "readMoreButton": "Preberi več",
+    "landBasedPractices": "prakse povezane z zemljo",
+    "followUs": "Sledi nam na @livada.bio na Blueskyju"
+  },
+  "navigation": {
+    "home": "Domov",
+    "homeLink": "Domov",
+    "about": "O nas",
+    "aboutLink": "O nas",
+    "projects": "Projekti",
+    "projectsLink": "Projekti",
+    "events": "Dogodki",
+    "biodiversity": "Biotska raznovrstnost",
+    "biodiversityLink": "Biotska raznovrstnost",
+    "contact": "Kontakt",
+    "contactLink": "Kontakt",
+    "donateButton": "Podpri nas"
+  },
+  "biodiversity": {
+    "title": "Živi svet",
+    "description": "Odkrij raznolikost življenja v Biotopu Livada prek skupnostne znanosti in medvrstnih povezav.",
+    "kinship": {
+      "title": "Medvrstna sorodnost",
+      "content1": "V Biotopu Livada sprejemamo koncept medvrstne sorodnosti – prepoznavamo naše globoke povezave z vsemi živimi bitji. Nismo le opazovalci narave; smo aktivni udeleženci v kompleksni mreži odnosov, ki sega preko meja vrst.",
+      "content2": "Skozi naše pobude za spremljanje biotske raznovrstnosti te vabimo, da razviješ pomembne odnose z več kot človeškim svetom okoli nas. Ne gre se le za znanstveno opazovanje – gre za negovanje povezav, razumevanje medsebojne povezanosti in razvijanje ekološkega sočutja."
+    },
+    "observations": {
+      "title": "Zadnja opažanja",
+      "description": "Razišči najnovejša opažanja vrst v mokrišču, ki so jih prispevali člani naše skupnosti občanskih znanstvenikov in ljubiteljev narave."
+    },
+    "citizenScience": {
+      "title": "Občanska znanost",
+      "description": "Pridruži se naši skupnosti občanskih znanstvenikov in prispevaj k zbiranju podatkov o biotski raznovrstnosti v mokrišču.",
+      "howToParticipate": "Kako sodelovati",
+      "contribute": "Prispevaj svoja opažanja in pomagaj pri spremljanju biotske raznovrstnosti v mokrišču.",
+      "getInvolved": "Pridruži se nam še danes in postani del naše skupnosti občanskih znanstvenikov!"
+    },
+    "speciesList": {
+      "title": "Seznam vrst",
+      "description": "Oglej si seznam vrst, ki so bile doslej zabeležene v mokrišču.",
+      "search": "Išči vrste...",
+      "noResults": "Ni najdenih vrst.",
+      "commonName": "Splošno ime",
+      "scientificName": "Znanstveno ime",
+      "firstSeen": "Prvič opaženo",
+      "lastSeen": "Zadnjič opaženo",
+      "status": "Status",
+      "native": "Avtohtona",
+      "introduced": "Namenoma vnesena",
+      "invasive": "Invazivna"
+    }
+  },
+  "footer": {
+    "description": "Kompleksna pobuda za razvijanje z zemljo povezanih praks na območju mokrišča in spodbujanje trajnostnega načina življenja.",
+    "quickLinks": "Hitre povezave",
+    "contactUs": "Kontaktiraj nas",
+    "followUs": "Sledi nam",
+    "newsletter": {
+      "title": "Naroči se na naše novice",
+      "description": "Bodi obveščen_a o naših najnovejših projektih in dogodkih.",
+      "placeholder": "Tvoj e-poštni naslov",
+      "subscribe": "Naroči se",
+      "success": "Uspešno si se naročil_a na naše novice!",
+      "error": "Ups, nekaj je šlo narobe. Poskusi znova."
+    },
+    "copyright": " Biotop Livada. Vse pravice pridržane.",
+    "privacyPolicy": "Politika zasebnosti",
+    "termsOfService": "Pogoji uporabe"
+  },
+  "contact": {
+    "title": "Stopi v stik",
+    "email": "hello@livada.bio",
+    "meta": {
+      "title": "Kontakt",
+      "description": "Stopi v stik s pobudo Biotop Livada. Piši nam za sodelovanje, vprašanja ali več informacij o naših dejavnostih."
+    },
+    "description": "Imaš vprašanja ali želiš izvedeti več o našem delu v mokrišču? Piši nam preko spodnjega obrazca ali nas kontaktiraj neposredno.",
+    "form": {
+      "name": "Ime in priimek",
+      "email": "E-pošta",
+      "subject": "Zadeva",
+      "message": "Sporočilo",
+      "submit": "Pošlji sporočilo",
+      "success": "Hvala za tvoje sporočilo! Odgovorili ti bomo v najkrajšem možnem času.",
+      "error": "Pri pošiljanju sporočila je prišlo do napake. Poskusi znova.",
+      "required": "To polje je obvezno.",
+      "invalidEmail": "Vnesi veljaven e-poštni naslov.",
+      "namePlaceholder": "Tvoje polno ime",
+      "emailPlaceholder": "tvoj.email@primer.si",
+      "subjectPlaceholder": "Zakaj nas kontaktiraš?",
+      "messagePlaceholder": "Kako ti lahko pomagamo?"
+    },
+    "visitUs": "Obišči nas",
+    "address": "Naslov",
+    "phone": "Telefon",
+    "openingHours": "Odpiralni čas",
+    "getDirections": "Pokaži na zemljevidu",
+    "socialMedia": "Družbena omrežja",
+    "followUs": "Sledi nam na družbenih omrežjih"
+  }
+}

@@ -57,61 +57,85 @@ declare module 'next-intl' {
   export function useLocale(): string;
 }
 
-// For next-i18next (kept for compatibility)
-declare module 'next-i18next' {
-  import { InitOptions } from 'i18next';
-
-  export interface UserConfig {
-    defaultNS?: string;
-    localePath?: string;
-    localeExtension?: string;
-    localeStructure?: string;
-    use?: any[];
+declare namespace NodeJS {
+  interface ProcessEnv {
+    NODE_ENV: 'development' | 'production' | 'test';
+    // Add other environment variables as needed
   }
+}
 
-  export interface SSRConfig {
-    _nextI18Next: {
-      initialI18nStore: {
-        [language: string]: {
-          [namespace: string]: any;
-        };
-      };
-      initialLocale: string;
-      userConfig: UserConfig | null;
+// Add any global type extensions here
+declare module '*.md' {
+  const content: string;
+  export default content;
+}
+
+import 'react';
+
+declare module 'react' {
+  interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
+    // Add any custom HTML attributes here
+    css?: any;
+  }
+}
+
+declare module '*.module.css' {
+  const classes: { [key: string]: string };
+  export default classes;
+}
+
+declare module '*.svg' {
+  import React = require('react');
+  export const ReactComponent: React.FC<React.SVGProps<SVGSVGElement>>;
+  const src: string;
+  export default src;
+}
+
+declare module '*.png';
+declare module '*.jpg';
+declare module '*.jpeg';
+declare module '*.gif';
+declare module '*.webp';
+declare module '*.ico';
+declare module '*.svg';
+declare module '*.json';
+// Add other asset type declarations as needed
+
+// SVG Module Declaration
+declare module '*.svg' {
+  import React = require('react');
+  export const ReactComponent: React.FC<React.SVGProps<SVGSVGElement>>;
+  const src: string;
+  export default src;
+}
+
+// Global Type Extensions
+declare global {
+  interface Window {
+    // Add any global window properties here
+    ENV?: {
+      NODE_ENV: 'development' | 'production' | 'test';
     };
   }
 
-  export function serverSideTranslations(
-    initialLocale: string,
-    namespacesRequired?: string[],
-    configOverride?: UserConfig | null
-  ): Promise<SSRConfig>;
+  // Common types used throughout the application
+  type Locale = 'en' | 'sl';
 
-  export function useTranslation(ns?: string | string[], options?: {
-    keyPrefix?: string;
-  }): {
-    t: (key: string, options?: any) => string;
-    i18n: any;
-    ready: boolean;
-  };
+  interface LocalizedContent {
+    en: string;
+    sl: string;
+  }
 
-  export const appWithTranslation: <P extends object>(
-    Component: React.ComponentType<P>,
-    configOverride?: UserConfig | null
-  ) => React.ComponentType<P>;
+  interface ImageAsset {
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+    blurDataURL?: string;
+  }
 
-  // Add other exports as needed
-  export const i18n: any;
-  export const withTranslation: any;
-  export interface I18n extends i18n {}
-  export const initReactI18next: any;
-  export const Trans: any;
-  export const I18nextProvider: any;
-
-  // For backward compatibility
-  export default function useTranslation(ns?: string | string[]): {
-    t: (key: string, options?: any) => string;
-    i18n: any;
-    ready: boolean;
-  };
+  // Add any other global types here
 }
+
+// This export is needed for TypeScript to treat this file as a module
+export {};

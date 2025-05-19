@@ -3,8 +3,19 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 
-import { Box, Container, Typography, Paper, Button, Divider, Chip, Card, CardContent, CardActions } from '@mui/material';
-import Grid from '@/components/ui/Grid'; // Using our custom Grid component
+import { 
+  Box, 
+  Container, 
+  Typography, 
+  Paper, 
+  Button, 
+  Divider, 
+  Chip, 
+  Card, 
+  CardContent, 
+  CardActions,
+  Grid // Import Grid from MUI directly
+} from '@mui/material';
 
 import { Project } from '@/types/project';
 import TranslationLoader from '@/components/TranslationLoader';
@@ -142,7 +153,7 @@ export default function ProjectTemplate({ project, projects }: ProjectTemplatePr
             </Typography>
             <Divider sx={{ mb: 4 }} />
             
-            <Grid container spacing={4}>
+            <Grid container spacing={4} sx={{ justifyContent: 'center' }}>
               {relatedProjects.map((relatedProject) => (
                 <Grid item xs={12} md={6} key={relatedProject.slug}>
                   <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>

@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
-import { Box, Typography, Modal, IconButton, useTheme, useMediaQuery } from '@mui/material';
-import Grid from '@/components/ui/Grid'; // Using our custom Grid component
+import { 
+  Box, 
+  Typography, 
+  Modal, 
+  IconButton, 
+  useTheme, 
+  useMediaQuery,
+  Grid // Import Grid from MUI
+} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -79,6 +86,11 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ title, description, images 
                 src={`${image.image}?nf_resize=smartcrop&w=600&h=400`}
                 alt={image.alt || `Gallery image ${index + 1}`}
                 objectFit="cover"
+                sx={{
+                  objectFit: 'cover',
+                  width: '100%',
+                  height: '100%',
+                }}
               />
               {image.caption && (
                 <Box
@@ -103,111 +115,140 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ title, description, images 
       <Modal
         open={open}
         onClose={handleClose}
+        aria-labelledby="image-modal"
+        aria-describedby="image-modal-description"
         sx={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          '& .MuiBackdrop-root': {
-            backgroundColor: 'rgba(0, 0, 0, 0.9)'
-          }
+          p: 2,
         }}
       >
-        <div>
-          <Box
+        <Box
+          sx={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: '90vw',
+            maxHeight: '90vh',
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 24,
+            outline: 'none',
+            overflow: 'hidden',
+          }}
+        >
+          <IconButton
+            onClick={handleClose}
             sx={{
-              position: 'relative',
-              outline: 'none',
-              width: isMobile ? '95%' : '80%',
-              maxHeight: '90vh',
-              bgcolor: 'background.paper',
-              borderRadius: 2,
-              p: 0,
-              overflow: 'hidden'
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              color: 'white',
+              bgcolor: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 1,
+              '&:hover': {
+                bgcolor: 'rgba(0, 0, 0, 0.7)',
+              },
             }}
-            onClick={(e) => e.stopPropagation()}
           >
-            {/* Navigation controls */}
-            <IconButton
-              sx={{
-                position: 'absolute',
-                top: 10,
-                right: 10,
-                color: 'white',
-                bgcolor: 'rgba(0, 0, 0, 0.5)',
-                zIndex: 10,
-                '&:hover': {
-                  bgcolor: 'rgba(0, 0, 0, 0.7)'
-                }
-              }}
-              onClick={handleClose}
-            >
-              <CloseIcon />
-            </IconButton>
-            
-            <IconButton
-              sx={{
-                position: 'absolute',
-                left: isMobile ? 5 : 20,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'white',
-                bgcolor: 'rgba(0, 0, 0, 0.5)',
-                zIndex: 10,
-                '&:hover': {
-                  bgcolor: 'rgba(0, 0, 0, 0.7)'
-                }
-              }}
-              onClick={handlePrev}
-            >
-              <ArrowBackIosNewIcon />
-            </IconButton>
-            
-            <IconButton
-              sx={{
-                position: 'absolute',
-                right: isMobile ? 5 : 20,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'white',
-                bgcolor: 'rgba(0, 0, 0, 0.5)',
-                zIndex: 10,
-                '&:hover': {
-                  bgcolor: 'rgba(0, 0, 0, 0.7)'
-                }
-              }}
-              onClick={handleNext}
-            >
-              <ArrowForwardIosIcon />
-            </IconButton>
+            <CloseIcon />
+          </IconButton>
 
-            {/* Main image */}
-            <Box sx={{ position: 'relative', width: '100%', height: isMobile ? '60vh' : '80vh' }}>
-              <ResponsiveImage
-                src={`${images[currentImage].image}?nf_resize=fit&w=1200&h=900`}
-                alt={images[currentImage].alt || `Gallery image ${currentImage + 1}`}
-                objectFit="contain"
-                priority
-                sizes="(max-width: 768px) 95vw, 80vw"
-              />
-            </Box>
-
-            {/* Caption */}
-            {images[currentImage].caption && (
-              <Box
+          {!isMobile && (
+            <>
+              <IconButton
+                onClick={handlePrev}
                 sx={{
-                  width: '100%',
-                  p: 2,
-                  bgcolor: 'rgba(0, 0, 0, 0.7)',
-                  color: 'white'
+                  position: 'absolute',
+                  left: 16,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'white',
+                  bgcolor: 'rgba(0, 0, 0, 0.5)',
+                  zIndex: 1,
+                  '&:hover': {
+                    bgcolor: 'rgba(0, 0, 0, 0.7)',
+                  },
                 }}
               >
-                <Typography variant="body1" align="center">
-                  {images[currentImage].caption}
-                </Typography>
+                <ArrowBackIosNewIcon />
+              </IconButton>
+              <IconButton
+                onClick={handleNext}
+                sx={{
+                  position: 'absolute',
+                  right: 16,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'white',
+                  bgcolor: 'rgba(0, 0, 0, 0.5)',
+                  zIndex: 1,
+                  '&:hover': {
+                    bgcolor: 'rgba(0, 0, 0, 0.7)',
+                  },
+                }}
+              >
+                <ArrowForwardIosIcon />
+              </IconButton>
+            </>
+          )}
+
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              maxHeight: '90vh',
+              overflow: 'hidden',
+            }}
+          >
+            <Box
+              sx={{
+                flexGrow: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+                bgcolor: 'black',
+              }}
+            >
+              <ResponsiveImage
+                src={`${images[currentImage].image}?nf_resize=smartcrop&w=1200&h=800`}
+                alt={images[currentImage].alt || `Gallery image ${currentImage + 1}`}
+                objectFit="contain"
+                sx={{
+                  maxWidth: '100%',
+                  maxHeight: '80vh',
+                  width: 'auto',
+                  height: 'auto',
+                }}
+              />
+            </Box>
+            
+            {(images[currentImage].caption || images.length > 1) && (
+              <Box
+                sx={{
+                  p: 2,
+                  bgcolor: 'background.paper',
+                  borderTop: (theme) => `1px solid ${theme.palette.divider}`,
+                }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {images[currentImage].caption && (
+                    <Typography variant="body1">
+                      {images[currentImage].caption}
+                    </Typography>
+                  )}
+                  {images.length > 1 && (
+                    <Typography variant="body2" color="text.secondary">
+                      {currentImage + 1} / {images.length}
+                    </Typography>
+                  )}
+                </Box>
               </Box>
             )}
           </Box>
-        </div>
+        </Box>
       </Modal>
     </Box>
   );

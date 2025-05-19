@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { SxProps, Theme, Box } from '@mui/material';
 
 interface ResponsiveImageProps {
   src: string;
@@ -11,18 +12,28 @@ interface ResponsiveImageProps {
   sizes?: string;
   objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
   onClick?: () => void;
+  sx?: SxProps<Theme>;
+  style?: React.CSSProperties;
 }
 
 /**
  * ResponsiveImage component that leverages Netlify Image CDN for optimized images
+ * and integrates with MUI's styling system
  * 
  * Usage examples:
  * 
  * Basic usage:
  * <ResponsiveImage src="/images/uploads/example.jpg" alt="Example image" />
  * 
+ * With MUI sx prop:
+ * <ResponsiveImage 
+ *   src="/images/example.jpg" 
+ *   alt="Example" 
+ *   sx={{ maxWidth: '100%', height: 'auto' }} 
+ * />
+ * 
  * With Netlify transformations:
- * <ResponsiveImage src="/images/uploads/example.jpg?nf_resize=fit&w=800&h=600" alt="Example image" />
+ * <ResponsiveImage src="/images/uploads/example.jpg?nf_resize=fit&w=800&h=600" alt="Example" />
  * 
  * Common transformations:
  * - Resize: ?nf_resize=fit&w=800&h=600
@@ -42,43 +53,43 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   priority = false,
   sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
   objectFit = 'cover',
-  onClick
+  onClick,
+  sx = {},
+  style = {}
 }) => {
   // Default dimensions if not provided
   const defaultWidth = 800;
   const defaultHeight = 600;
 
   // Check if the image URL already has Netlify transformations
-  const hasNetlifyParams = src.includes('?nf_resize=') || src.includes('&nf_resize=');
-
-  // If no transformations are present, add default responsive settings
-  const imageSrc = hasNetlifyParams 
-    ? src 
-    : `${src}?nf_resize=fit&w=${width || defaultWidth}&h=${height || defaultHeight}`;
+  const hasTransformations = src.includes('?');
+  const imageUrl = hasTransformations ? src : `${src}?nf_resize=fit&w=${width || defaultWidth}&h=${height || defaultHeight}`;
 
   return (
-    <div 
-      className={`responsive-image-container ${className}`} 
-      style={{ 
+    <Box 
+      component="span"
+      sx={{
         position: 'relative',
-        width: width ? `${width}px` : '100%',
-        height: height ? `${height}px` : 'auto',
-        cursor: onClick ? 'pointer' : 'default'
+        display: 'block',
+        width: '100%',
+        height: '100%',
+        ...sx,
       }}
+      className={className}
       onClick={onClick}
     >
       <Image
-        src={imageSrc}
+        src={imageUrl}
         alt={alt}
-        fill={!width || !height}
-        width={width}
-        height={height}
+        fill
         sizes={sizes}
         priority={priority}
-        style={{ objectFit }}
-        loading={priority ? 'eager' : 'lazy'}
+        style={{
+          objectFit,
+          ...style,
+        }}
       />
-    </div>
+    </Box>
   );
 };
 

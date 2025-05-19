@@ -1,0 +1,161 @@
+{
+  "about": {
+    "title": "About the Livada Biotope",
+    "description": "Learn about this wetlands meadow space and what we do.",
+    "hero": {
+      "alt": "The Livada Biotope wetlands meadow"
+    },
+    "content": "## What we're about\n\nThe Livada Biotope is a wetlands meadow that explores different ways of relating to our surroundings and other living beings. Through the BOB Institute, we work with art, science, and practical activities to create connections across different fields and ways of knowing.\n\n## Our approach\n\nWe're interested in moving beyond human-centered thinking and learning from the environment around us. As temporary residents of this space, we're figuring out how to live alongside other species in ways that work for everyone.",
+    "galleryTitle": "The Livada Biotope space",
+    "gallery": {
+      "alt": "Views of the Livada Biotope wetlands meadow"
+    }
+  },
+  "projects": {
+    "title": "What we're working on",
+    "subtitle": "Current and past initiatives in the Livada Biotope.",
+    "status": "Status",
+    "learnMore": "More details",
+    "noProjects": "No active projects at the moment.",
+    "description": "Explore the different projects happening in the Livada Biotope, with a focus on sustainable approaches and respect for all living beings."
+  },
+  "events": {
+    "title": "Events",
+    "description": "Throughout the year, various activities take place in the wetlands - from practical workshops and educational lectures to community gatherings and volunteer actions. Check out our calendar and join us!",
+    "joinCommunity": "Join us",
+    "hostEvent": {
+      "title": "Want to organize an event?",
+      "description": "If you're interested in organizing a workshop, lecture, or community event in the wetlands, get in touch. We welcome all proposals that align with our mission of promoting biodiversity, ecological awareness, and respectful coexistence with nature.",
+      "button": "Contact us"
+    },
+    "upcomingEvents": "Upcoming Events",
+    "noEvents": "No upcoming events at the moment",
+    "allDay": "All day",
+    "eventDetails": "Event Details",
+    "time": "Time",
+    "location": "Location",
+    "addToCalendar": "Add to Calendar"
+  },
+  "common": {
+    "welcome": "Welcome to the Livada Biotope",
+    "pageDescription": "A wetlands meadow space for sustainable living and permaculture in Ljubljana",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "backToHome": "Back to home",
+    "notFound": "Page not found",
+    "serverError": "Server error",
+    "readMore": "Read more",
+    "landBasedPractices": "land-based practices",
+    "followUs": "Follow us @livada.bio on Bluesky"
+  },
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "projects": "Projects",
+    "events": "Events",
+    "biodiversity": "Biodiversity",
+    "contact": "Contact",
+    "donateButton": "Support us"
+  },
+  "biodiversity": {
+    "title": "Living world",
+    "description": "Discover the variety of life in the Livada Biotope through community science and interspecies connections.",
+    "kinship": {
+      "title": "Interspecies Kinship",
+      "content1": "At Livada Biotope, we embrace the concept of interspecies kinship – recognizing our deep connections with all living beings. We are not just observers of nature; we are active participants in a complex web of relationships that transcends species boundaries.",
+      "content2": "Through our biodiversity monitoring initiatives, we invite you to develop meaningful relationships with the more-than-human world around us. This is not just about scientific observation – it's about nurturing connections, understanding interdependence, and developing ecological empathy."
+    },
+    "observations": {
+      "title": "Recent Observations",
+      "description": "Explore the latest species observations in the wetlands, contributed by members of our citizen science community and nature enthusiasts."
+    },
+    "citizenScience": {
+      "title": "Citizen Science",
+      "description": "Join our community of citizen scientists and contribute to biodiversity data collection in the wetlands.",
+      "howToParticipate": "How to Participate",
+      "contribute": "Contribute your observations and help monitor biodiversity in the wetlands.",
+      "getInvolved": "Join us today and become part of our citizen science community!"
+    },
+    "speciesList": {
+      "title": "Species List",
+      "description": "View the list of species that have been recorded in the wetlands so far.",
+      "search": "Search species...",
+      "noResults": "No species found.",
+      "commonName": "Common Name",
+      "scientificName": "Scientific Name",
+      "firstSeen": "First Seen",
+      "lastSeen": "Last Seen",
+      "status": "Status",
+      "native": "Native",
+      "introduced": "Introduced",
+      "invasive": "Invasive"
+    }
+  },
+  "footer": {
+    "description": "A complex initiative for developing land-based practices in the wetlands and promoting sustainable ways of living.",
+    "quickLinks": "Quick Links",
+    "contactUs": "Contact Us",
+    "followUs": "Follow us @livada.bio on Bluesky",
+    "newsletter": {
+      "title": "Subscribe to our newsletter",
+      "description": "Stay updated on our latest projects and events.",
+      "placeholder": "Your email address",
+      "subscribe": "Subscribe",
+      "success": "Successfully subscribed to our newsletter!",
+      "error": "Oops, something went wrong. Please try again."
+    },
+    "copyright": " Livada Biotope. All rights reserved.",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
+  },
+  "contact": {
+    "title": "Get in touch",
+    "email": "hello@livada.bio",
+    "socialMedia": "Follow us @livada.bio on Bluesky",
+    "meta": {
+      "title": "Contact",
+      "description": "Get in touch with the Livada Biotope initiative. Contact us for collaboration, questions, or more information about our activities."
+    },
+    "description": "Do you have questions or want to learn more about our work in the wetlands? Contact us using the form below or reach out directly.",
+    "form": {
+      "name": "Full Name",
+      "email": "Email",
+      "subject": "Subject",
+      "message": "Message",
+      "submit": "Send Message",
+      "success": "Thank you for your message! We'll get back to you as soon as possible.",
+      "error": "There was an error sending your message. Please try again.",
+      "required": "This field is required.",
+      "invalidEmail": "Please enter a valid email address.",
+      "namePlaceholder": "Your full name",
+      "emailPlaceholder": "your.email@example.com",
+      "subjectPlaceholder": "How can we help?",
+      "messagePlaceholder": "Your message here"
+    },
+    "visitUs": "Visit Us",
+    "address": "Address",
+    "phone": "Phone",
+    "openingHours": "Opening Hours",
+    "getDirections": "Get Directions"
+  },
+  "ecofeminism": {
+    "title": "Ecofeminism",
+    "description": "Exploring the intersection of ecology and feminism in our work at The Livada Biotope.",
+    "intro": {
+      "title": "Ecofeminist Perspectives",
+      "content": "Our approach at The Livada Biotope is deeply rooted in ecofeminist principles. We believe in the interconnectedness of all life forms and challenge the patriarchal structures that have led to environmental destruction and social inequalities. Through our work, we aim to create spaces where diverse forms of knowledge and ways of being can flourish."
+    },
+    "resources": {
+      "title": "Resources & Tools"
+    },
+    "readings": {
+      "title": "Recommended Readings",
+      "read": "Read"
+    },
+    "media": {
+      "title": "Media & Documentaries",
+      "watch": "Watch"
+    }
+  }
+}
