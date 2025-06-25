@@ -1,9 +1,0 @@
-visual_editor:
-  content_directories:
-    - "src/lib/translations.ts"
-    - "src/lib/translationService.ts"
-    - "public/locales"
-  editable_file_types:
-    - "ts"
-    - "tsx"
-    - "json"
