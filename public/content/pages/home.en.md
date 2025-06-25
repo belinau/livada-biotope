@@ -1,3 +1,4 @@
+---
 title: "Home"
 hero_title: "livada.bio"
 hero_subtitle: "Fostering kinship in a more than human world"

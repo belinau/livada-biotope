@@ -1,3 +1,4 @@
+---
 title: "Domov"
 hero_title: "livada.bio"
 hero_subtitle: "Gojenje sorodstev v več kot človeškem svetu"
