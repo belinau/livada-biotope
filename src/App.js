@@ -479,24 +479,33 @@ function Section({ title, children, className = '' }) {
     );
 }
 
+// --- CORRECTED ProjectsPage Component ---
 function ProjectsPage() {
     const { t, language } = useTranslation();
     const [pageData, setPageData] = useState({ title: '', description: '' });
 
     useEffect(() => {
-        const fileName = `intertwinings.${language}.md`;
-        fetch(`/content/pages/${fileName}`)
+        // Fetch the single content file for this page.
+        fetch(`/content/pages/intertwinings.md?v=${new Date().getTime()}`)
             .then(res => {
                 if (!res.ok) {
-                    return fetch(`/content/pages/intertwinings.sl.md`).then(res => res.text());
+                    throw new Error('Failed to fetch intertwinings.md');
                 }
                 return res.text();
             })
             .then(text => {
-                const { metadata, content } = parseMarkdown(text);
+                const { metadata } = parseMarkdown(text);
+                
+                // For single_file i18n, data is nested under language keys (e.g., metadata.title.en, metadata.title.sl)
+                // We select the title for the current language, or fall back to the default (sl), then to the translation key.
+                const title = metadata.title?.[language] || metadata.title?.sl || t('sensorDataTitle');
+                
+                // Same logic for the description.
+                const description = metadata.description?.[language] || metadata.description?.sl || t('projectFutureDesc');
+
                 setPageData({ 
-                    title: metadata.title || t('sensorDataTitle'), 
-                    description: content || t('projectFutureDesc')
+                    title: title, 
+                    description: description 
                 });
             })
             .catch(err => {
@@ -609,7 +618,6 @@ function ContentCollectionPage({ t, title, contentPath }) {
     );
 }
 
-// --- NEW AND IMPROVED GALLERY PAGE ---
 function GalleryPage() {
     const { t, language } = useTranslation();
     const [galleries, setGalleries] = useState([]);
@@ -619,30 +627,23 @@ function GalleryPage() {
         const fetchGalleries = async () => {
             setIsLoading(true);
             try {
-                // Fetch the manifest which lists all gallery markdown files
                 const manifestResponse = await fetch('/content/galleries/manifest.json');
                 if (!manifestResponse.ok) throw new Error('Gallery manifest not found');
                 const manifest = await manifestResponse.json();
-
-                // Get unique gallery names (e.g., 'summer-trip' from 'summer-trip.sl.md')
                 const baseFileNames = [...new Set(manifest.files.map(f => f.replace(/\.(sl|en)\.md$/, '')))];
 
-                // Fetch data for each unique gallery, handling the current language
                 const fetchedGalleries = await Promise.all(
                     baseFileNames.map(async baseName => {
                         const langFile = `${baseName}.${language}.md`;
                         const defaultLangFile = `${baseName}.sl.md`;
-
                         let fileToFetch = langFile;
                         let res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`);
                         
-                        // If the file for the current language doesn't exist, fall back to the default (sl)
                         if (!res.ok) {
                             fileToFetch = defaultLangFile;
                             res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`);
                         }
-
-                        if (!res.ok) return null; // Skip if neither file can be loaded
+                        if (!res.ok) return null;
 
                         const text = await res.text();
                         const { metadata } = parseMarkdown(text);
@@ -650,10 +651,9 @@ function GalleryPage() {
                     })
                 );
                 
-                // Filter out any nulls and ensure the gallery has images
                 const validGalleries = fetchedGalleries
                     .filter(gallery => gallery && gallery.images && gallery.images.length > 0)
-                    .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort galleries by date, newest first
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
 
                 setGalleries(validGalleries);
 
@@ -666,7 +666,7 @@ function GalleryPage() {
         };
 
         fetchGalleries();
-    }, [language]); // Re-fetch when the language changes
+    }, [language]);
 
     return (
         <Page title={t('navGallery')}>
@@ -677,17 +677,14 @@ function GalleryPage() {
                     <div className="space-y-16">
                         {galleries.map(gallery => (
                             <article key={gallery.id}>
-                                {/* Gallery Header: Title, Date, Description */}
                                 <div className="text-center mb-8">
                                     <h3 className="text-3xl font-mono text-primary">{gallery.title}</h3>
                                     {gallery.date && <p className="text-sm text-gray-500 mt-1">{new Date(gallery.date).toLocaleDateString(language)}</p>}
                                     {gallery.description && <p className="prose mt-2 max-w-2xl mx-auto text-gray-600">{gallery.description}</p>}
                                 </div>
                                 
-                                {/* Grid of Images for the Gallery */}
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                     {gallery.images.map((image, index) => {
-                                        // Select the correct caption based on language, with a fallback to the other language
                                         const caption = language === 'sl' ? image.caption_sl : (image.caption_en || image.caption_sl);
                                         return (
                                             <div key={index} className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden group">

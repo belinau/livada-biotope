@@ -4,7 +4,7 @@ backend:
   name: git-gateway
   branch: main
 
-# i18n configuration for bilingual (sl/en) content
+# Global i18n configuration remains the same.
 i18n:
   structure: multiple_files
   locales: [sl, en]
@@ -15,20 +15,24 @@ media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
 
 collections:
-  # This "File Collection" for the Intertwinings page is correct.
+  # --- CORRECTED "File Collection" ---
+  # This collection now correctly overrides the global i18n setting.
   - name: "strani"
     label: "Urejanje Strani"
-    i18n: true
+    # This i18n block tells this collection to use single_file mode, resolving the error.
+    i18n:
+      structure: single_file
     files:
       - name: "intertwinings_page"
         label: "Stran Prepletanja (senzorji)"
         file: "public/content/pages/intertwinings.md"
+        # This i18n flag enables the translation UI for the file.
         i18n: true
         fields:
+          # These fields will now be translated within the single intertwinings.md file.
           - { label: "Glavni naslov strani", name: "title", widget: "string", i18n: true }
           - { label: "Besedilo pod naslovom", name: "description", widget: "markdown", i18n: true }
 
-  # The "Zapisi" (Posts) and "Utelešenja" (Practices) collections are correct.
   - name: "posts"
     label: "Zapisi"
     folder: "public/content/posts"
@@ -53,14 +57,12 @@ collections:
       - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true }
       - { label: "Vsebina", name: "body", widget: "markdown", i18n: true }
   
-  # --- CORRECTED BILINGUAL GALLERY COLLECTION ---
-  # This collection allows you to create a single entry for an entire gallery of photos.
   - name: "galleries"
     label: "Galerije"
-    folder: "public/content/galleries" # Each file in this folder is a gallery.
+    folder: "public/content/galleries" 
     create: true
-    slug: "{{slug}}" # e.g., "my-awesome-trip"
-    i18n: true # This will create my-awesome-trip.sl.md and my-awesome-trip.en.md
+    slug: "{{slug}}"
+    i18n: true 
     fields:
       - { label: "Naslov Galerije", name: "title", widget: "string", i18n: true }
       - { label: "Datum", name: "date", widget: "datetime" }
@@ -69,11 +71,7 @@ collections:
       - name: "images"
         label: "Slike"
         widget: "list"
-        # The list of images is shared between languages.
-        # NOTE: Netlify CMS does not support i18n on fields inside a list.
-        # The workaround is to have separate fields for each language's caption.
         fields:
           - { label: "Slika", name: "image", widget: "image" }
           - { label: "Podnapis (SL)", name: "caption_sl", widget: "string", required: false }
           - { label: "Caption (EN)", name: "caption_en", widget: "string", required: false }
-
