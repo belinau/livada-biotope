@@ -719,13 +719,83 @@ function GalleryPage() {
     );
 }
 
+// --- New HomePage Component ---
+function HomePage() {
+    const { t, language } = useTranslation();
+    const [pageData, setPageData] = useState({ content: '', metadata: {} });
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchContent = async () => {
+            setIsLoading(true);
+            const langFile = `/content/pages/home.${language}.md?v=${new Date().getTime()}`;
+            const defaultLangFile = `/content/pages/home.sl.md?v=${new Date().getTime()}`;
+            
+            try {
+                let response = await fetch(langFile);
+                if (!response.ok) {
+                    // Fallback to default language if the specific one is not found
+                    response = await fetch(defaultLangFile);
+                }
+                if (!response.ok) {
+                    throw new Error('Home page content file not found at ' + langFile + ' or ' + defaultLangFile);
+                }
+                const text = await response.text();
+                const { metadata, content } = parseMarkdown(text);
+                setPageData({ content, metadata });
+            } catch (error) {
+                console.error("Failed to fetch home page content:", error);
+                // Provide some default content so the page isn't empty on error
+                const defaultContent = language === 'sl' 
+                    ? '### Dobrodošli na livada.bio\n\nTo je prostor za urejanje vsebine. Uredite datoteko `/content/pages/home.sl.md`.'
+                    : '### Welcome to livada.bio\n\nThis is a placeholder. Edit the file `/content/pages/home.en.md` to change this content.';
+                setPageData({ content: defaultContent, metadata: {} });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchContent();
+    }, [language]);
+
+    const title = pageData.metadata.title || t('navHome');
+    const heroTitle = pageData.metadata.hero_title || 'livada.bio';
+    const heroSubtitle = pageData.metadata.hero_subtitle || (language === 'sl' ? 'Živi laboratorij za prepletanje umetnosti, znanosti in tehnologije' : 'A living laboratory for intertwining art, science, and technology');
+
+    return (
+        <Page title={title}>
+            {/* Hero section that allows the animated background to be visible */}
+            <div style={{ minHeight: '60vh' }} className="flex flex-col items-center justify-center text-center p-4">
+                <h1 className="text-4xl md:text-6xl font-mono text-primary drop-shadow-lg">{heroTitle}</h1>
+                <p className="mt-4 text-lg md:text-xl text-gray-700 max-w-2xl">{heroSubtitle}</p>
+            </div>
+
+            {/* Content Section rendered on a slightly opaque background to ensure readability */}
+            <div className="bg-[#f7faf9]/95 backdrop-blur-sm rounded-t-2xl shadow-lg -mt-16 pt-16">
+                 <div className="container mx-auto px-4 py-12">
+                     {isLoading ? (
+                        <div className="text-center prose lg:prose-xl max-w-4xl mx-auto">{t('loading')}...</div>
+                     ) : (
+                        <div
+                            className="prose lg:prose-xl max-w-4xl mx-auto"
+                            dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }}
+                        />
+                     )}
+                </div>
+            </div>
+        </Page>
+    );
+}
 
 // --- Main App Component ---
 function App() {
-    const [currentPage, setCurrentPage] = useState('projects');
+    // Set 'home' as the default page
+    const [currentPage, setCurrentPage] = useState('home'); 
     const { t, setLanguage, language } = useTranslation();
 
     const pages = [
+        // Add 'home' to the navigation
+        { key: 'home', label: t('navHome') },
         { key: 'projects', label: t('navProjects') },
         { key: 'posts', label: t('navPosts') },
         { key: 'practices', label: t('navPractices') },
@@ -736,13 +806,16 @@ function App() {
     
     const renderPage = () => {
         switch (currentPage) {
+            // Add a case to render the new HomePage
+            case 'home': return <HomePage />;
             case 'projects': return <ProjectsPage />;
             case 'posts': return <ContentCollectionPage t={t} title={t('navPosts')} contentPath="content/posts" />;
             case 'practices': return <ContentCollectionPage t={t} title={t('navPractices')} contentPath="content/practices" />;
             case 'biodiversity': return <BiodiversityPage />;
             case 'calendar': return <CalendarPage />;
             case 'gallery': return <GalleryPage />;
-            default: return <ProjectsPage />;
+            // Fallback to home page
+            default: return <HomePage />;
         }
     };
 
@@ -753,7 +826,8 @@ function App() {
                 <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-lg border-b border-white/20">
                     <nav className="container mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
                         <div className="flex items-center">
-                            <span className="text-xl font-bold cursor-pointer text-primary" onClick={() => setCurrentPage('projects')}>livada.bio</span>
+                            {/* Update logo to navigate to 'home' */}
+                            <span className="text-xl font-bold cursor-pointer text-primary" onClick={() => setCurrentPage('home')}>livada.bio</span>
                         </div>
                         <div className="flex flex-wrap gap-1 my-2">
                             {pages.map(page => (
