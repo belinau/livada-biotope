@@ -3,7 +3,7 @@ import { ResponsiveLine } from '@nivo/line';
 import { marked } from 'marked';
 import { parse } from 'yaml';
 
-// --- Komponenta za animirano ozadje ---
+// --- Animated Background Component ---
 
 const AnimatedBackground = () => {
     const canvasRef = useRef(null);
@@ -68,7 +68,7 @@ const AnimatedBackground = () => {
 };
 
 
-// --- Konfiguracija in Pomožne Funkcije ---
+// --- Config and Helper Functions ---
 
 const BED_MAPPING = {
     '!35c2d45c-0': { name: 'travni sestoj', color: '#52796f' },
@@ -95,7 +95,7 @@ const parseMarkdown = (rawContent) => {
     }
 };
 
-// --- Konteksti (Contexts) ---
+// --- Contexts ---
 
 const SensorContext = createContext();
 const useSensorData = () => useContext(SensorContext);
@@ -183,6 +183,7 @@ const translations = {
         airTemp: 'temperatura zraka',
         airHumidity: 'vlažnost zraka',
         footerText: 'Biotop Livada – posebna pobuda v okviru zavoda BOB © 2025',
+        photoBy: 'Foto',
     },
     en: {
         navHome: 'Home',
@@ -218,6 +219,7 @@ const translations = {
         airTemp: 'Air Temperature',
         airHumidity: 'Air Humidity',
         footerText: 'The Livada Biotope – special initiative within BOB Institute © 2025',
+        photoBy: 'Photo',
     }
 };
 const LanguageProvider = ({ children }) => {
@@ -228,7 +230,7 @@ const LanguageProvider = ({ children }) => {
 const useTranslation = () => useContext(LanguageContext);
 
 
-// --- Komponente ---
+// --- Components ---
 const MetricCard = ({ label, value, unit = '', decimals = 0 }) => {
     const isValid = typeof value === 'number' && !isNaN(value);
     const displayValue = isValid ? value.toFixed(decimals) : '--';
@@ -356,12 +358,12 @@ function SensorVisualization() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t">
                         <ChartWrapper title={t('moistureFlows')}>
                             {hasMoistureData ? (
-                                <ResponsiveLine data={chartData.moisture} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 80, left: 50 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: 'Vlaga (%)', legendOffset: -40 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemDirection: 'left-to-right', itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
+                                <ResponsiveLine data={chartData.moisture} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 80, left: 50 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: 'Vlaga (%)', legendOffset: -40 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
                             ) : ( <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> )}
                         </ChartWrapper>
                         <ChartWrapper title={t('temperatureFlows')}>
                             {hasTemperatureData ? (
-                                <ResponsiveLine data={chartData.temperature} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 80, left: 50 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemDirection: 'left-to-right', itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
+                                <ResponsiveLine data={chartData.temperature} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 80, left: 50 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
                             ) : ( <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> )}
                         </ChartWrapper>
                     </div>
@@ -462,7 +464,7 @@ const CalendarFeed = ({ icsUrl }) => {
     );
 }
 
-// --- Komponente za Strani (Pages) ---
+// --- Page Components ---
 function Page({ title, children }) {
     useEffect(() => { document.title = `${title} | Biotop Livada`; }, [title]);
     return <div>{children}</div>;
@@ -478,11 +480,41 @@ function Section({ title, children, className = '' }) {
 }
 
 function ProjectsPage() {
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
+    const [pageData, setPageData] = useState({ title: '', description: '' });
+
+    useEffect(() => {
+        const fileName = `intertwinings.${language}.md`;
+        fetch(`/content/pages/${fileName}`)
+            .then(res => {
+                if (!res.ok) {
+                    return fetch(`/content/pages/intertwinings.sl.md`).then(res => res.text());
+                }
+                return res.text();
+            })
+            .then(text => {
+                const { metadata, content } = parseMarkdown(text);
+                setPageData({ 
+                    title: metadata.title || t('sensorDataTitle'), 
+                    description: content || t('projectFutureDesc')
+                });
+            })
+            .catch(err => {
+                console.error("Failed to fetch page content, using fallback:", err);
+                setPageData({
+                    title: t('sensorDataTitle'),
+                    description: t('projectFutureDesc')
+                });
+            });
+    }, [t, language]);
+
     return (
-        <Page title={t('navProjects')}>
-            <Section title={t('sensorDataTitle')}>
-                <p className="mb-8 text-lg text-gray-600 max-w-3xl mx-auto text-center">{t('projectFutureDesc')}</p>
+        <Page title={pageData.title}>
+            <Section title={pageData.title}>
+                <div 
+                    className="prose lg:prose-xl mb-8 max-w-3xl mx-auto text-center text-gray-600"
+                    dangerouslySetInnerHTML={{ __html: marked(pageData.description || '') }} 
+                />
                 <SensorVisualization />
             </Section>
         </Page>
@@ -513,7 +545,6 @@ function CalendarPage() {
     );
 }
 
-
 function ContentCollectionPage({ t, title, contentPath }) {
     const [items, setItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -524,18 +555,34 @@ function ContentCollectionPage({ t, title, contentPath }) {
             setIsLoading(true);
             try {
                 const manifestResponse = await fetch(`/${contentPath}/manifest.json`);
+                if (!manifestResponse.ok) throw new Error('Manifest not found');
                 const manifest = await manifestResponse.json();
-                const langSuffix = `_${language}.md`;
-                const fileNames = manifest.files.filter(name => name.endsWith(langSuffix));
+                
+                const langSuffix = `.${language}.md`;
+                const baseFileNames = [...new Set(manifest.files.map(f => f.replace('.sl.md', '').replace('.en.md', '')))];
 
                 const fetchedItems = await Promise.all(
-                    fileNames.map(fileName =>
-                        fetch(`/${contentPath}/${fileName}`).then(res => res.text()).then(text => ({ ...parseMarkdown(text), id: fileName }))
-                    )
+                    baseFileNames.map(async baseName => {
+                        const langFile = `${baseName}${langSuffix}`;
+                        const defaultLangFile = `${baseName}.sl.md`;
+                        
+                        let fileToFetch = langFile;
+                        let res = await fetch(`/${contentPath}/${fileToFetch}`);
+                        if (!res.ok) {
+                            fileToFetch = defaultLangFile;
+                            res = await fetch(`/${contentPath}/${fileToFetch}`);
+                        }
+                         if (!res.ok) return null;
+
+                        const text = await res.text();
+                        return { ...parseMarkdown(text), id: baseName };
+                    })
                 );
                 
-                fetchedItems.sort((a, b) => (a.metadata.date && b.metadata.date) ? new Date(b.metadata.date) - new Date(a.metadata.date) : 0);
-                setItems(fetchedItems);
+                const validItems = fetchedItems.filter(item => item !== null);
+                validItems.sort((a, b) => (a.metadata.date && b.metadata.date) ? new Date(b.metadata.date) - new Date(a.metadata.date) : 0);
+                setItems(validItems);
+
             } catch (error) { console.error(`Error fetching content from ${contentPath}:`, error); setItems([]); }
             setIsLoading(false);
         };
@@ -548,42 +595,156 @@ function ContentCollectionPage({ t, title, contentPath }) {
         <Page title={title}>
             <Section title={title}>
                 <div className="space-y-8 max-w-3xl mx-auto">
-                    {items.map(item => (
+                    {items.length > 0 ? items.map(item => (
                         <div key={item.id} className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md">
                             {item.metadata.date && <p className="text-sm text-gray-500 mb-1">{new Date(item.metadata.date).toLocaleDateString(language)}</p>}
                             <h3 className="text-2xl font-mono text-primary mb-3">{item.metadata.title}</h3>
                             <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: marked(item.content) }}></div>
                             {item.metadata.tags && <div className="mt-4">{item.metadata.tags.map(tag => (<span key={tag} className="inline-block bg-primary/10 text-primary text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full">{tag}</span>))}</div>}
                         </div>
-                    ))}
+                    )) : <p className="text-center text-gray-500">{t('noMoreObservations')}</p>}
                 </div>
             </Section>
         </Page>
     );
 }
 
-// --- Glavna Komponenta Aplikacije ---
+// --- NEW AND IMPROVED GALLERY PAGE ---
+function GalleryPage() {
+    const { t, language } = useTranslation();
+    const [galleries, setGalleries] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchGalleries = async () => {
+            setIsLoading(true);
+            try {
+                // Fetch the manifest which lists all gallery markdown files
+                const manifestResponse = await fetch('/content/galleries/manifest.json');
+                if (!manifestResponse.ok) throw new Error('Gallery manifest not found');
+                const manifest = await manifestResponse.json();
+
+                // Get unique gallery names (e.g., 'summer-trip' from 'summer-trip.sl.md')
+                const baseFileNames = [...new Set(manifest.files.map(f => f.replace(/\.(sl|en)\.md$/, '')))];
+
+                // Fetch data for each unique gallery, handling the current language
+                const fetchedGalleries = await Promise.all(
+                    baseFileNames.map(async baseName => {
+                        const langFile = `${baseName}.${language}.md`;
+                        const defaultLangFile = `${baseName}.sl.md`;
+
+                        let fileToFetch = langFile;
+                        let res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`);
+                        
+                        // If the file for the current language doesn't exist, fall back to the default (sl)
+                        if (!res.ok) {
+                            fileToFetch = defaultLangFile;
+                            res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`);
+                        }
+
+                        if (!res.ok) return null; // Skip if neither file can be loaded
+
+                        const text = await res.text();
+                        const { metadata } = parseMarkdown(text);
+                        return { id: baseName, ...metadata };
+                    })
+                );
+                
+                // Filter out any nulls and ensure the gallery has images
+                const validGalleries = fetchedGalleries
+                    .filter(gallery => gallery && gallery.images && gallery.images.length > 0)
+                    .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort galleries by date, newest first
+
+                setGalleries(validGalleries);
+
+            } catch (error) {
+                console.error("Failed to load galleries:", error);
+                setGalleries([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchGalleries();
+    }, [language]); // Re-fetch when the language changes
+
+    return (
+        <Page title={t('navGallery')}>
+            <Section title={t('navGallery')}>
+                {isLoading ? (
+                    <div className="text-center py-10">{t('loading')}...</div>
+                ) : galleries.length > 0 ? (
+                    <div className="space-y-16">
+                        {galleries.map(gallery => (
+                            <article key={gallery.id}>
+                                {/* Gallery Header: Title, Date, Description */}
+                                <div className="text-center mb-8">
+                                    <h3 className="text-3xl font-mono text-primary">{gallery.title}</h3>
+                                    {gallery.date && <p className="text-sm text-gray-500 mt-1">{new Date(gallery.date).toLocaleDateString(language)}</p>}
+                                    {gallery.description && <p className="prose mt-2 max-w-2xl mx-auto text-gray-600">{gallery.description}</p>}
+                                </div>
+                                
+                                {/* Grid of Images for the Gallery */}
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    {gallery.images.map((image, index) => {
+                                        // Select the correct caption based on language, with a fallback to the other language
+                                        const caption = language === 'sl' ? image.caption_sl : (image.caption_en || image.caption_sl);
+                                        return (
+                                            <div key={index} className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden group">
+                                                <div className="aspect-w-1 aspect-h-1">
+                                                    <img src={image.image} alt={caption || gallery.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+                                                </div>
+                                                {(caption || gallery.author) && (
+                                                    <div className="p-3 text-sm">
+                                                        {caption && <p className="text-gray-700">{caption}</p>}
+                                                        {gallery.author && (
+                                                          <p className="text-xs text-gray-500 mt-1 flex items-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 opacity-70" viewBox="0 0 20 20" fill="currentColor">
+                                                              <path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm5 6a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                                                            </svg>
+                                                            {t('photoBy')}: {gallery.author}
+                                                          </p>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-center text-gray-500">{t('noMoreObservations')}</p>
+                )}
+            </Section>
+        </Page>
+    );
+}
+
+
+// --- Main App Component ---
 function App() {
     const [currentPage, setCurrentPage] = useState('projects');
     const { t, setLanguage, language } = useTranslation();
 
     const pages = [
-        { key: 'home', label: t('navHome') },
         { key: 'projects', label: t('navProjects') },
+        { key: 'posts', label: t('navPosts') },
         { key: 'practices', label: t('navPractices') },
         { key: 'biodiversity', label: t('navBiodiversity') },
         { key: 'gallery', label: t('navGallery') },
         { key: 'calendar', label: t('navCalendar') },
-        { key: 'posts', label: t('navPosts') },
     ];
-
+    
     const renderPage = () => {
         switch (currentPage) {
             case 'projects': return <ProjectsPage />;
-            case 'posts': return <ContentCollectionPage t={t} title={t('postsTitle')} contentPath="content/posts" />;
-            case 'practices': return <ContentCollectionPage t={t} title={t('practicesTitle')} contentPath="content/practices" />;
+            case 'posts': return <ContentCollectionPage t={t} title={t('navPosts')} contentPath="content/posts" />;
+            case 'practices': return <ContentCollectionPage t={t} title={t('navPractices')} contentPath="content/practices" />;
             case 'biodiversity': return <BiodiversityPage />;
             case 'calendar': return <CalendarPage />;
+            case 'gallery': return <GalleryPage />;
             default: return <ProjectsPage />;
         }
     };
@@ -595,7 +756,7 @@ function App() {
                 <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-lg border-b border-white/20">
                     <nav className="container mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
                         <div className="flex items-center">
-                            <span className="text-xl font-bold cursor-pointer text-primary" onClick={() => setCurrentPage('home')}>livada.bio</span>
+                            <span className="text-xl font-bold cursor-pointer text-primary" onClick={() => setCurrentPage('projects')}>livada.bio</span>
                         </div>
                         <div className="flex flex-wrap gap-1 my-2">
                             {pages.map(page => (
@@ -634,7 +795,7 @@ function App() {
     );
 }
 
-// Korenski ovoj (Root Wrapper)
+// Root Wrapper
 export default function WrappedApp() {
     return (
         <LanguageProvider>

@@ -1,0 +1,79 @@
+# This configuration enables a professional, bilingual gallery workflow.
+
+backend:
+  name: git-gateway
+  branch: main
+
+# i18n configuration for bilingual (sl/en) content
+i18n:
+  structure: multiple_files
+  locales: [sl, en]
+  default_locale: sl
+
+# Media will be uploaded to this folder
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  # This "File Collection" for the Intertwinings page is correct.
+  - name: "strani"
+    label: "Urejanje Strani"
+    i18n: true
+    files:
+      - name: "intertwinings_page"
+        label: "Stran Prepletanja (senzorji)"
+        file: "public/content/pages/intertwinings.md"
+        i18n: true
+        fields:
+          - { label: "Glavni naslov strani", name: "title", widget: "string", i18n: true }
+          - { label: "Besedilo pod naslovom", name: "description", widget: "markdown", i18n: true }
+
+  # The "Zapisi" (Posts) and "Utelešenja" (Practices) collections are correct.
+  - name: "posts"
+    label: "Zapisi"
+    folder: "public/content/posts"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    i18n: true
+    fields:
+      - { label: "Naslov", name: "title", widget: "string", i18n: true }
+      - { label: "Datum objave", name: "date", widget: "datetime" }
+      - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true }
+      - { label: "Vsebina", name: "body", widget: "markdown", i18n: true }
+
+  - name: "practices"
+    label: "Utelešenja"
+    folder: "public/content/practices"
+    create: true
+    slug: "{{slug}}"
+    i18n: true
+    fields:
+      - { label: "Naslov", name: "title", widget: "string", i18n: true }
+      - { label: "Datum objave", name: "date", widget: "datetime" }
+      - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true }
+      - { label: "Vsebina", name: "body", widget: "markdown", i18n: true }
+  
+  # --- CORRECTED BILINGUAL GALLERY COLLECTION ---
+  # This collection allows you to create a single entry for an entire gallery of photos.
+  - name: "galleries"
+    label: "Galerije"
+    folder: "public/content/galleries" # Each file in this folder is a gallery.
+    create: true
+    slug: "{{slug}}" # e.g., "my-awesome-trip"
+    i18n: true # This will create my-awesome-trip.sl.md and my-awesome-trip.en.md
+    fields:
+      - { label: "Naslov Galerije", name: "title", widget: "string", i18n: true }
+      - { label: "Datum", name: "date", widget: "datetime" }
+      - { label: "Avtor fotografij", name: "author", widget: "string", required: false }
+      - { label: "Opis Galerije", name: "description", widget: "text", i18n: true, required: false }
+      - name: "images"
+        label: "Slike"
+        widget: "list"
+        # The list of images is shared between languages.
+        # NOTE: Netlify CMS does not support i18n on fields inside a list.
+        # The workaround is to have separate fields for each language's caption.
+        fields:
+          - { label: "Slika", name: "image", widget: "image" }
+          - { label: "Podnapis (SL)", name: "caption_sl", widget: "string", required: false }
+          - { label: "Caption (EN)", name: "caption_en", widget: "string", required: false }
+
