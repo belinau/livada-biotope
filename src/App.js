@@ -1,3 +1,5 @@
+// App.js
+
 import React, { useState, useEffect, createContext, useContext, useCallback, useRef } from 'react';
 import { ResponsiveLine } from '@nivo/line';
 import { marked } from 'marked';
@@ -283,7 +285,7 @@ const ChartWrapper = ({ title, children }) => (
 );
 
 function SensorVisualization() {
-    const { t } = useTranslation();
+    const { t, language } = useTranslation(); // CHANGE: Get language for tooltip
     const { history, status, lastUpdated, refreshData } = useSensorData();
     const [chartData, setChartData] = useState({ moisture: [], temperature: [] });
     const [latestReadings, setLatestReadings] = useState({});
@@ -292,6 +294,38 @@ function SensorVisualization() {
         axis: { ticks: { text: { fill: '#333' } }, legend: { text: { fill: '#333', fontSize: 14 } } },
         grid: { line: { stroke: '#e0e0e0', strokeDasharray: '2 2' } },
         tooltip: { container: { background: 'white', color: '#333', border: '1px solid #ccc' } },
+    };
+
+    // CHANGE: Custom tooltip component
+    const CustomTooltip = ({ point }) => {
+        const date = new Date(point.data.x);
+        const formattedDate = date.toLocaleString(language, {
+            dateStyle: 'short',
+            timeStyle: 'short',
+        });
+        return (
+            <div
+                style={{
+                    background: 'white',
+                    padding: '9px 12px',
+                    border: '1px solid #ccc',
+                    borderRadius: '2px',
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span style={{
+                        display: 'block',
+                        width: '12px',
+                        height: '12px',
+                        background: point.serieColor,
+                        marginRight: '8px'
+                    }}></span>
+                    <strong>{point.serieId}</strong>
+                </div>
+                <div>{formattedDate}</div>
+                <div>{`${point.data.yFormatted}`}</div>
+            </div>
+        );
     };
 
     useEffect(() => {
@@ -363,15 +397,16 @@ function SensorVisualization() {
                             <BedCard key={bedId} bed={bed} reading={latestReadings[bedId]} t={t} />
                         ))}
                     </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t">
+                    {/* CHANGE: Removed lg:grid-cols-2 to make charts full-width */}
+                    <div className="grid grid-cols-1 gap-8 pt-6 border-t">
                         <ChartWrapper title={t('moistureFlows')}>
                             {hasMoistureData ? (
-                                <ResponsiveLine data={chartData.moisture} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 80, left: 50 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: 'Vlaga (%)', legendOffset: -40 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
+                                <ResponsiveLine tooltip={CustomTooltip} data={chartData.moisture} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 80, left: 50 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: 'Vlaga (%)', legendOffset: -40 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
                             ) : ( <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> )}
                         </ChartWrapper>
                         <ChartWrapper title={t('temperatureFlows')}>
                             {hasTemperatureData ? (
-                                <ResponsiveLine data={chartData.temperature} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 80, left: 50 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
+                                <ResponsiveLine tooltip={CustomTooltip} data={chartData.temperature} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 80, left: 50 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
                             ) : ( <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> )}
                         </ChartWrapper>
                     </div>
@@ -645,49 +680,49 @@ function MemoryGame() {
 // --- CORRECTED ProjectsPage Component ---
 function ProjectsPage() {
     const { t, language } = useTranslation();
-    // CHANGE 1: The state now holds 'content' instead of 'description'.
     const [pageData, setPageData] = useState({ title: '', content: '' });
 
     useEffect(() => {
-        fetch(`/content/pages/intertwinings.md?v=${new Date().getTime()}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error('Failed to fetch intertwinings.md');
+        const fetchContent = async () => {
+            const langFile = `/content/pages/intertwinings.${language}.md?v=${new Date().getTime()}`;
+            const defaultLangFile = `/content/pages/intertwinings.sl.md?v=${new Date().getTime()}`;
+            
+            try {
+                let response = await fetch(langFile);
+                if (!response.ok) {
+                    response = await fetch(defaultLangFile);
                 }
-                return res.text();
-            })
-            .then(text => {
-                // CHANGE 2: Capture 'content' from the parsed markdown file.
+                if (!response.ok) {
+                    throw new Error('Intertwinings content file not found');
+                }
+                const text = await response.text();
                 const { metadata, content } = parseMarkdown(text);
                 
-                const title = metadata.title?.[language] || metadata.title?.sl || t('sensorDataTitle');
-                
-                // If the main content is empty, fall back to the description from the metadata.
-                const bodyContent = content || metadata.description?.[language] || metadata.description?.sl || t('projectFutureDesc');
-
-                setPageData({ 
-                    title: title, 
-                    content: bodyContent // Store the actual body content.
-                });
-            })
-            .catch(err => {
-                console.error("Failed to fetch page content, using fallback:", err);
                 setPageData({
-                    title: t('sensorDataTitle'),
-                    content: t('projectFutureDesc') // Use fallback content on error.
+                    title: metadata.title || t('navProjects'),
+                    content: content
                 });
-            });
+
+            } catch (error) {
+                console.error("Failed to fetch page content, using fallback:", error);
+                setPageData({
+                    title: t('navProjects'),
+                    content: t('projectFutureDesc')
+                });
+            }
+        };
+
+        fetchContent();
     }, [t, language]);
 
     return (
         <Page title={pageData.title}>
             <Section title={pageData.title}>
-                <SensorVisualization />
                 <div 
                     className="prose lg:prose-xl mb-8 max-w-3xl mx-auto text-center text-gray-600"
-                    // CHANGE 3: Render the 'content' from the state.
                     dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} 
                 />
+                <SensorVisualization />
             </Section>
         </Page>
     );
