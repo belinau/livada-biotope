@@ -176,23 +176,23 @@ const translations = {
         noChartData: 'Ni dovolj podatkov za prikaz grafa.',
         noSensorData: 'Ni podatkov o senzorjih',
         noUpcomingEvents: 'Trenutno ni napovedanih dogodkov.',
-        moistureFlows: 'Pretoki vlage',
-        temperatureFlows: 'Pretoki temperature',
+        moistureFlows: 'Vlaga v zraku in prsti',
+        temperatureFlows: 'Temperatura zraka in prsti',
         time: 'Čas',
         temperature: 'temperatura',
         soilMoisture: 'vlaga v prsti',
         soilTemp: 'temperatura prsti',
         airTemp: 'temperatura zraka',
-        airHumidity: 'vlažnost zraka',
+        airHumidity: 'vlaga v zraku',
         footerText: 'Biotop Livada – posebna pobuda v okviru zavoda BOB © 2025',
         photoBy: 'Foto',
         navMemoryGame: 'Spomin',
         memoryGameTitle: 'Spomin',
-        moves: 'Poteze',
-        playAgain: 'Nova igra',
-        slovenian: 'Slovensko',
-        english: 'Angleško',
-        latin: 'Latinsko'
+        moves: 'poteze',
+        playAgain: 'nova igra',
+        slovenian: 'SL',
+        english: 'EN',
+        latin: 'strokovna imena'
     },
     en: {
         navHome: 'Home',
@@ -933,7 +933,7 @@ function HomePage() {
 
     const title = pageData.metadata.title || t('navHome');
     const heroTitle = pageData.metadata.hero_title || 'livada.bio';
-    const heroSubtitle = pageData.metadata.hero_subtitle || (language === 'sl' ? 'Živi laboratorij za prepletanje umetnosti, znanosti in tehnologije' : 'A living laboratory for intertwining art, science, and technology');
+    const heroSubtitle = pageData.metadata.hero_subtitle || (language === 'sl' ? 'Gojenje sorodstev v več kot človeškem svetu' : 'Fostering kinship in a more than human world');
 
     return (
         <Page title={title}>
