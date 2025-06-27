@@ -489,7 +489,7 @@ function Section({ title, children, className = '' }) {
 
 // --- Add this component above your Page components ---
 function MemoryGame() {
-    const { t, language } = useTranslation();
+    const { t } = useTranslation();
     const [cards, setCards] = useState([]);
     const [flipped, setFlipped] = useState([]);
     const [matched, setMatched] = useState([]);
