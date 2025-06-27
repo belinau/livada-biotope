@@ -15,23 +15,18 @@ media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
 
 collections:
-  # --- CORRECTED "File Collection" ---
-  # This collection now correctly overrides the global i18n setting.
+  # --- CORRECTED "Pages" Collection ---
+  # This collection is now a Folder Collection, consistent with Posts and Practices.
+  # It will now manage the separate .sl.md and .en.md files in the pages folder.
   - name: "strani"
     label: "Urejanje Strani"
-    # This i18n block tells this collection to use single_file mode, resolving the error.
-    i18n:
-      structure: single_file
-    files:
-      - name: "intertwinings_page"
-        label: "Stran Prepletanja (senzorji)"
-        file: "public/content/pages/intertwinings.md"
-        # This i18n flag enables the translation UI for the file.
-        i18n: true
-        fields:
-          # These fields will now be translated within the single intertwinings.md file.
-          - { label: "Glavni naslov strani", name: "title", widget: "string", i18n: true }
-          - { label: "Besedilo pod naslovom", name: "description", widget: "markdown", i18n: true }
+    folder: "public/content/pages" # Changed from "files" to "folder"
+    i18n: true # This tells the collection to use the global i18n settings
+    fields:
+      # These fields will now be translated in separate files.
+      - { label: "Naslov Strani", name: "title", widget: "string", i18n: true }
+      # The main content of the page is now the "body".
+      - { label: "Vsebina Strani", name: "body", widget: "markdown", i18n: true }
 
   - name: "posts"
     label: "Zapisi"
@@ -57,6 +52,7 @@ collections:
       - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true }
       - { label: "Vsebina", name: "body", widget: "markdown", i18n: true }
   
+  # The gallery collection remains special, as requested.
   - name: "galleries"
     label: "Galerije"
     folder: "public/content/galleries" 
