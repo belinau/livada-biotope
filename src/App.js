@@ -16,9 +16,9 @@ const AnimatedBackground = () => {
         let time = 0;
 
         const waves = [
-            { amplitude: 25, frequency: 0.02, speed: 0.001, yOffset: 0.45, color: 'rgba(74, 124, 89, 0.15)' },
-            { amplitude: 30, frequency: 0.015, speed: -0.0015, yOffset: 0.5, color: 'rgba(74, 124, 89, 0.1)' },
-            { amplitude: 20, frequency: 0.01, speed: 0.0008, yOffset: 0.55, color: 'rgba(74, 124, 89, 0.05)' },
+            { amplitude: 15, frequency: 0.02, speed: 0.001, yOffset: 0.45, color: 'rgba(74, 124, 89, 0.15)' },
+            { amplitude: 20, frequency: 0.015, speed: -0.0015, yOffset: 0.5, color: 'rgba(74, 124, 89, 0.1)' },
+            { amplitude: 5, frequency: 0.01, speed: 0.0008, yOffset: 0.55, color: 'rgba(74, 124, 89, 0.05)' },
         ];
 
         const resizeCanvas = () => {
@@ -149,7 +149,6 @@ const SensorProvider = ({ children }) => {
 
 
 const LanguageContext = createContext();
-// CHANGE: Added new translations for the memory game
 const translations = {
     sl: {
         navHome: 'Domov',
@@ -391,14 +390,14 @@ function SensorVisualization() {
                     <div className="grid grid-cols-1 gap-8 pt-6 border-t">
                         <ChartWrapper title={t('moistureFlows')}>
                             {hasMoistureData ? (
-                                // CHANGE: Increased chart margins
-                                <ResponsiveLine tooltip={CustomTooltip} data={chartData.moisture} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 90, left: 60 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: 'Vlaga (%)', legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
+                                // CHANGE: Increased chart margins and legend itemWidth
+                                <ResponsiveLine tooltip={CustomTooltip} data={chartData.moisture} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 120, left: 70 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: 'Vlaga (%)', legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 80, itemsSpacing: 4, itemWidth: 180, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
                             ) : ( <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> )}
                         </ChartWrapper>
                         <ChartWrapper title={t('temperatureFlows')}>
                             {hasTemperatureData ? (
-                                // CHANGE: Increased chart margins
-                                <ResponsiveLine tooltip={CustomTooltip} data={chartData.temperature} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 90, left: 60 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
+                                // CHANGE: Increased chart margins and legend itemWidth
+                                <ResponsiveLine tooltip={CustomTooltip} data={chartData.temperature} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 120, left: 70 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 80, itemsSpacing: 4, itemWidth: 180, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
                             ) : ( <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> )}
                         </ChartWrapper>
                     </div>
@@ -514,7 +513,6 @@ function Section({ title, children, className = '' }) {
     );
 }
 
-// CHANGE: Updated MemoryGame component
 function MemoryGame() {
     const { t } = useTranslation();
     const [cards, setCards] = useState([]);
@@ -529,8 +527,6 @@ function MemoryGame() {
         const fetchData = async () => {
             setLoading(true);
             try {
-                // FIX 1: Add the `locale` parameter to the API call.
-                // We only add it if the mode is not 'latin'.
                 const localeParam = gameMode !== 'latin' ? `&locale=${gameMode}` : '';
                 const response = await fetch(`https://api.inaturalist.org/v1/observations?project_id=the-livada-biotope-monitoring&per_page=12&quality_grade=research&order_by=random${localeParam}`);
                 
@@ -541,11 +537,9 @@ function MemoryGame() {
                     const scientificName = obs.taxon?.name || "Unknown";
                     let displayName;
 
-                    // FIX 2: Simplify name logic and apply lowercase rule.
                     if (gameMode === 'latin') {
                         displayName = scientificName;
                     } else {
-                        // The API now returns the correct localized name here.
                         displayName = obs.taxon?.preferred_common_name || scientificName;
                     }
 
@@ -708,7 +702,13 @@ function ProjectsPage() {
     return (
         <Page title={pageData.title}>
             <Section title={pageData.title}>
-                <div className="prose lg:prose-xl mb-8 max-w-3xl mx-auto text-center text-gray-600" dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} />
+                { /* CHANGE: Updated prose classes for better styling */ }
+                <div 
+                    className="prose max-w-3xl mx-auto text-gray-700 
+                               [&_h2]:text-2xl [&_h2]:font-mono [&_h2]:text-primary 
+                               prose-li:[&_li::before]:bg-primary"
+                    dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} 
+                />
                 <SensorVisualization />
             </Section>
         </Page>
@@ -954,7 +954,6 @@ function HomePage() {
 // --- Main App Component ---
 function App() {
     const { t, setLanguage, language } = useTranslation();
-    // CHANGE: State for mobile menu
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const pages = [
