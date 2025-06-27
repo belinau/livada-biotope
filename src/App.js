@@ -15,10 +15,11 @@ const AnimatedBackground = () => {
         let animationFrameId;
         let time = 0;
 
+        // I've slightly increased the amplitude for a more noticeable effect
         const waves = [
-            { amplitude: 15, frequency: 0.02, speed: 0.001, yOffset: 0.45, color: 'rgba(74, 124, 89, 0.15)' },
-            { amplitude: 20, frequency: 0.015, speed: -0.0015, yOffset: 0.5, color: 'rgba(74, 124, 89, 0.1)' },
-            { amplitude: 15, frequency: 0.01, speed: 0.0008, yOffset: 0.55, color: 'rgba(74, 124, 89, 0.05)' },
+            { amplitude: 25, frequency: 0.02, speed: 0.001, yOffset: 0.45, color: 'rgba(74, 124, 89, 0.15)' },
+            { amplitude: 30, frequency: 0.015, speed: -0.0015, yOffset: 0.5, color: 'rgba(74, 124, 89, 0.1)' },
+            { amplitude: 25, frequency: 0.01, speed: 0.0008, yOffset: 0.55, color: 'rgba(74, 124, 89, 0.05)' },
         ];
 
         const resizeCanvas = () => {
@@ -30,15 +31,21 @@ const AnimatedBackground = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             time += 1;
 
-            const gradientAlpha = 0.12 + Math.sin(time * 0.005) * 0.08;
-            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.8);
-            skyGradient.addColorStop(0, `rgba(74, 124, 89, ${gradientAlpha})`);
-            skyGradient.addColorStop(1, `rgba(255, 102, 0, 0.58)`);
+            // --- CORRECTED GRADIENT LOGIC ---
+
+            // 1. Define the gradient. Let's make the orange more subtle.
+            const gradientAlpha = 0.1 + Math.sin(time * 0.005) * 0.06;
+            const skyGradient = ctx.createLinearGradient(0, canvas.height * 0.3, 0, canvas.height);
             
-            ctx.fillStyle = skyGradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.8);
+            skyGradient.addColorStop(0, `rgba(74, 124, 89, ${gradientAlpha})`); // Top color (greenish)
+            skyGradient.addColorStop(1, `rgba(247, 146, 5, 0.69)`); // Bottom color (subtle orange accent)
+
+            // 2. We no longer draw the gradient as a background rectangle.
+            // That ctx.fillRect() line has been removed.
 
             waves.forEach((wave) => {
+                // Use the wave's own green color for a layered effect
+                ctx.fillStyle = wave.color; 
                 ctx.beginPath();
                 ctx.moveTo(0, canvas.height);
                 for (let x = 0; x < canvas.width; x++) {
@@ -47,9 +54,23 @@ const AnimatedBackground = () => {
                 }
                 ctx.lineTo(canvas.width, canvas.height);
                 ctx.closePath();
-                ctx.fillStyle = wave.color;
                 ctx.fill();
             });
+
+            // 3. Now, draw one of the waves AGAIN, but this time using the GRADIENT as its fill style.
+            // This layers the gradient effect on top of the green waves for a rich, blended look.
+            const topWave = waves[1];
+            ctx.fillStyle = skyGradient; // Use the gradient as the paint
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            for (let x = 0; x < canvas.width; x++) {
+                    const y = Math.sin(x * topWave.frequency + time * topWave.speed) * topWave.amplitude + canvas.height * topWave.yOffset;
+                    ctx.lineTo(x, y);
+            }
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
 
             animationFrameId = requestAnimationFrame(animate);
         };
@@ -67,7 +88,6 @@ const AnimatedBackground = () => {
 
     return <canvas ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, zIndex: -1, background: '#f7faf9' }} />;
 };
-
 
 // --- Config and Helper Functions ---
 
