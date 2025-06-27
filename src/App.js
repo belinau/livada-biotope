@@ -16,9 +16,9 @@ const AnimatedBackground = () => {
         let time = 0;
 
         const waves = [
-            { amplitude: 15, frequency: 0.02, speed: 0.001, yOffset: 0.45, color: 'rgba(74, 124, 89, 0.15)' },
+            { amplitude: 10, frequency: 0.02, speed: 0.001, yOffset: 0.45, color: 'rgba(74, 124, 89, 0.15)' },
             { amplitude: 20, frequency: 0.015, speed: -0.0015, yOffset: 0.5, color: 'rgba(74, 124, 89, 0.1)' },
-            { amplitude: 5, frequency: 0.01, speed: 0.0008, yOffset: 0.55, color: 'rgba(74, 124, 89, 0.05)' },
+            { amplitude: 15, frequency: 0.01, speed: 0.0008, yOffset: 0.55, color: 'rgba(74, 124, 89, 0.05)' },
         ];
 
         const resizeCanvas = () => {
@@ -33,7 +33,7 @@ const AnimatedBackground = () => {
             const gradientAlpha = 0.12 + Math.sin(time * 0.005) * 0.08;
             const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.6);
             skyGradient.addColorStop(0, `rgba(74, 124, 89, ${gradientAlpha})`);
-            skyGradient.addColorStop(1, `rgba(0, 161, 30, 0)`);
+            skyGradient.addColorStop(1, `rgba(255, 102, 0, 0.82)`);
             
             ctx.fillStyle = skyGradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height * 0.6);
