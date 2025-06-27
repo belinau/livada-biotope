@@ -648,10 +648,17 @@ function MemoryGame() {
                     onClick={() => handleCardClick(index)}
                 >
                     {/* Card Back */}
-                    <div className="absolute inset-0 bg-primary/10 rounded-lg shadow-md flex items-center justify-center backface-hidden">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                            <span className="text-lg">?</span>
-                        </div>
+                    <div className="absolute inset-0 bg-primary/10 rounded-lg shadow-md flex items-center justify-center backface-hidden overflow-hidden">
+                        {/* This SVG creates the new background pattern */}
+                        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-60">
+                            <defs>
+                                <pattern id="cardPattern" patternUnits="userSpaceOnUse" width="25" height="25" patternTransform="rotate(45)">
+                                    <circle cx="5" cy="5" r="1.5" fill="#f6ad55" /> 
+                                    <circle cx="15" cy="15" r="2" fill="#84a98c" /> 
+                                </pattern>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#cardPattern)" />
+                        </svg>
                     </div>
                     {/* Card Front */}
                     <div className={`absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center p-2 rotate-y-180 backface-hidden ${isMatched ? 'opacity-60' : ''}`}>
