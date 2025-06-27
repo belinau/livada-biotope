@@ -1,6 +1,8 @@
 // App.js
 
 import React, { useState, useEffect, createContext, useContext, useCallback, useRef } from 'react';
+// Import components from react-router-dom
+import { BrowserRouter, Routes, Route, NavLink, Link } from 'react-router-dom';
 import { ResponsiveLine } from '@nivo/line';
 import { marked } from 'marked';
 import { parse } from 'yaml';
@@ -285,7 +287,7 @@ const ChartWrapper = ({ title, children }) => (
 );
 
 function SensorVisualization() {
-    const { t, language } = useTranslation(); // CHANGE: Get language for tooltip
+    const { t, language } = useTranslation(); // Get language for tooltip
     const { history, status, lastUpdated, refreshData } = useSensorData();
     const [chartData, setChartData] = useState({ moisture: [], temperature: [] });
     const [latestReadings, setLatestReadings] = useState({});
@@ -296,7 +298,7 @@ function SensorVisualization() {
         tooltip: { container: { background: 'white', color: '#333', border: '1px solid #ccc' } },
     };
 
-    // CHANGE: Custom tooltip component
+    // Custom tooltip component
     const CustomTooltip = ({ point }) => {
         const date = new Date(point.data.x);
         const formattedDate = date.toLocaleString(language, {
@@ -397,7 +399,7 @@ function SensorVisualization() {
                             <BedCard key={bedId} bed={bed} reading={latestReadings[bedId]} t={t} />
                         ))}
                     </div>
-                    {/* CHANGE: Removed lg:grid-cols-2 to make charts full-width */}
+                    {/* Removed lg:grid-cols-2 to make charts full-width */}
                     <div className="grid grid-cols-1 gap-8 pt-6 border-t">
                         <ChartWrapper title={t('moistureFlows')}>
                             {hasMoistureData ? (
@@ -926,7 +928,7 @@ function MemoryGamePage() {
           <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
             <MemoryGame />
           </div>
-        </Section>
+        </section>
       </Page>
     );
   }
@@ -1001,36 +1003,23 @@ function HomePage() {
 
 // --- Main App Component ---
 function App() {
-    // Set 'home' as the default page
-    const [currentPage, setCurrentPage] = useState('home'); 
+    // Remove useState for currentPage
+    // const [currentPage, setCurrentPage] = useState('home'); 
     const { t, setLanguage, language } = useTranslation();
 
+    // Define pages with URL paths
     const pages = [
-        { key: 'home', label: t('navHome') },
-        { key: 'projects', label: t('navProjects') },
-        { key: 'posts', label: t('navPosts') },
-        { key: 'practices', label: t('navPractices') },
-        { key: 'biodiversity', label: t('navBiodiversity') },
-        { key: 'gallery', label: t('navGallery') },
-        { key: 'calendar', label: t('navCalendar') },
-        // Add memory game to navigation
-        { key: 'memory', label: t('navMemoryGame') },
+        { path: '/', label: t('navHome'), element: <HomePage /> },
+        { path: '/prepletanja', label: t('navProjects'), element: <ProjectsPage /> },
+        { path: '/zapisi', label: t('navPosts'), element: <ContentCollectionPage t={t} title={t('navPosts')} contentPath="content/posts" /> },
+        { path: '/utelesenja', label: t('navPractices'), element: <ContentCollectionPage t={t} title={t('navPractices')} contentPath="content/practices" /> },
+        { path: '/biodiverziteta', label: t('navBiodiversity'), element: <BiodiversityPage /> },
+        { path: '/galerija', label: t('navGallery'), element: <GalleryPage /> },
+        { path: '/koledar', label: t('navCalendar'), element: <CalendarPage /> },
+        { path: '/spomin', label: t('navMemoryGame'), element: <MemoryGamePage /> },
       ];
       
-      const renderPage = () => {
-        switch (currentPage) {
-          case 'home': return <HomePage />;
-          case 'projects': return <ProjectsPage />;
-          case 'posts': return <ContentCollectionPage t={t} title={t('navPosts')} contentPath="content/posts" />;
-          case 'practices': return <ContentCollectionPage t={t} title={t('navPractices')} contentPath="content/practices" />;
-          case 'biodiversity': return <BiodiversityPage />;
-          case 'calendar': return <CalendarPage />;
-          case 'gallery': return <GalleryPage />;
-          // Add case for memory game
-          case 'memory': return <MemoryGamePage />;
-          default: return <HomePage />;
-        }
-      };    
+    // Remove the old renderPage function
 
     return (
         <div className="app-container relative z-0">
@@ -1039,27 +1028,32 @@ function App() {
                 <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-lg border-b border-white/20">
                     <nav className="container mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
                         <div className="flex items-center">
-                            {/* Update logo to navigate to 'home' */}
-                            <span className="text-xl font-bold cursor-pointer text-primary" onClick={() => setCurrentPage('home')}>livada.bio</span>
+                            {/* Use Link for the logo */}
+                            <Link to="/" className="text-xl font-bold cursor-pointer text-primary">livada.bio</Link>
                         </div>
                         <div className="flex flex-wrap gap-1 my-2">
+                            {/* Use NavLink for navigation */}
                             {pages.map(page => (
-                                <button 
-                                    key={page.key} 
-                                    onClick={() => setCurrentPage(page.key)} 
-                                    className={`relative px-3 py-2 font-medium text-gray-700 transition-colors duration-300 group ${
-                                        currentPage === page.key 
-                                            ? 'text-primary' 
-                                            : 'hover:text-primary'
-                                    }`}
+                                <NavLink 
+                                    key={page.path} 
+                                    to={page.path} 
+                                    className={({ isActive }) =>
+                                        `relative px-3 py-2 font-medium text-gray-700 transition-colors duration-300 group ${
+                                            isActive ? 'text-primary' : 'hover:text-primary'
+                                        }`
+                                    }
                                 >
-                                    {page.label}
-                                    <span 
-                                        className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transform transition-transform duration-300 ${
-                                            currentPage === page.key ? 'scale-x-100' : 'scale-x-0'
-                                        } group-hover:scale-x-100`}
-                                    />
-                                </button>
+                                    {({ isActive }) => (
+                                        <>
+                                            {page.label}
+                                            <span 
+                                                className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transform transition-transform duration-300 ${
+                                                    isActive ? 'scale-x-100' : 'scale-x-0'
+                                                } group-hover:scale-x-100`}
+                                            />
+                                        </>
+                                    )}
+                                </NavLink>
                             ))}
                         </div>
                         <div className="flex space-x-2">
@@ -1069,7 +1063,14 @@ function App() {
                     </nav>
                 </header>
                 <main className="flex-grow">
-                    {renderPage()}
+                    {/* Use Routes to render pages based on URL */}
+                    <Routes>
+                        {pages.map(page => (
+                            <Route key={page.path} path={page.path} element={page.element} />
+                        ))}
+                        {/* You can add a 404 Not Found page here if you like */}
+                        {/* <Route path="*" element={<NotFoundPage />} /> */}
+                    </Routes>
                 </main>
                 <footer className="py-6 text-center bg-gray-100/80 backdrop-blur-sm">
                     <div className="container mx-auto text-gray-600">{t('footerText')}</div>
@@ -1079,12 +1080,14 @@ function App() {
     );
 }
 
-// Root Wrapper
+// Wrap the entire App in BrowserRouter
 export default function WrappedApp() {
     return (
         <LanguageProvider>
             <SensorProvider>
-                <App />
+                <BrowserRouter>
+                    <App />
+                </BrowserRouter>
             </SensorProvider>
         </LanguageProvider>
     );
