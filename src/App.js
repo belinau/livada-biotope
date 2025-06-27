@@ -184,6 +184,10 @@ const translations = {
         airHumidity: 'vlažnost zraka',
         footerText: 'Biotop Livada – posebna pobuda v okviru zavoda BOB © 2025',
         photoBy: 'Foto',
+        navMemoryGame: 'Spomin',
+        memoryGameTitle: 'Spomin',
+        moves: 'Poteze',
+        playAgain: 'Nova igra'
     },
     en: {
         navHome: 'Home',
@@ -220,6 +224,10 @@ const translations = {
         airHumidity: 'Air Humidity',
         footerText: 'The Livada Biotope – special initiative within BOB Institute © 2025',
         photoBy: 'Photo',
+        navMemoryGame: 'Memory',
+        memoryGameTitle: 'Memory',
+        moves: 'Moves',
+        playAgain: 'Play Again'
     }
 };
 const LanguageProvider = ({ children }) => {
@@ -479,13 +487,168 @@ function Section({ title, children, className = '' }) {
     );
 }
 
+// --- Add this component above your Page components ---
+function MemoryGame() {
+    const { t, language } = useTranslation();
+    const [cards, setCards] = useState([]);
+    const [flipped, setFlipped] = useState([]);
+    const [matched, setMatched] = useState([]);
+    const [moves, setMoves] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [gameComplete, setGameComplete] = useState(false);
+  
+    // Fetch observations and prepare cards
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const response = await fetch(
+            `https://api.inaturalist.org/v1/observations?project_id=the-livada-biotope-monitoring&per_page=12`
+          );
+          const data = await response.json();
+          const observations = data.results.filter(obs => obs.photos?.length > 0);
+          
+          // Create card pairs (image + name)
+          const gameCards = observations.flatMap(obs => {
+            const displayName = obs.taxon?.preferred_common_name || obs.taxon?.name || "Unknown";
+            return [
+              { 
+                id: `${obs.id}-image`,
+                type: 'image',
+                content: obs.photos[0]?.url.replace('square', 'medium'),
+                organismId: obs.id
+              },
+              { 
+                id: `${obs.id}-name`,
+                type: 'name',
+                content: displayName,
+                organismId: obs.id
+              }
+            ];
+          });
+          
+          // Shuffle cards
+          setCards(gameCards.sort(() => Math.random() - 0.5));
+        } catch (error) {
+          console.error("Error fetching game data:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchData();
+    }, []);
+  
+    const handleCardClick = (index) => {
+      // Prevent clicking when game is complete or card is already matched
+      if (gameComplete || matched.includes(index) || flipped.includes(index)) return;
+      
+      const newFlipped = [...flipped, index];
+      setFlipped(newFlipped);
+      
+      if (newFlipped.length === 2) {
+        setMoves(moves + 1);
+        
+        const firstCard = cards[newFlipped[0]];
+        const secondCard = cards[newFlipped[1]];
+        
+        if (
+          firstCard.organismId === secondCard.organismId &&
+          firstCard.type !== secondCard.type
+        ) {
+          setMatched([...matched, ...newFlipped]);
+          
+          // Check if game is complete
+          if (matched.length + 2 === cards.length) {
+            setGameComplete(true);
+          }
+        }
+        
+        setTimeout(() => setFlipped([]), 1000);
+      }
+    };
+  
+    const resetGame = () => {
+      setFlipped([]);
+      setMatched([]);
+      setMoves(0);
+      setGameComplete(false);
+      setCards([...cards].sort(() => Math.random() - 0.5));
+    };
+  
+    if (loading) return <div className="text-center py-12">{t('loading')}...</div>;
+    
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-mono font-bold text-primary">{t('memoryGameTitle')}</h3>
+          <p className="text-gray-600">{t('moves')}: {moves}</p>
+        </div>
+        
+        <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+          {cards.map((card, index) => {
+            const isFlipped = flipped.includes(index);
+            const isMatched = matched.includes(index);
+            const isVisible = isFlipped || isMatched;
+            
+            return (
+              <div
+                key={index}
+                className={`relative h-32 cursor-pointer transition-all duration-300 ${
+                  isMatched ? 'opacity-75' : 'hover:scale-105'
+                }`}
+                onClick={() => handleCardClick(index)}
+              >
+                <div className={`absolute inset-0 bg-primary/10 rounded-lg shadow-md flex items-center justify-center transition-opacity duration-300 ${
+                  isVisible ? 'opacity-0' : 'opacity-100'
+                }`}>
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                    <span className="text-lg">?</span>
+                  </div>
+                </div>
+                
+                <div className={`absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center p-2 transition-opacity duration-300 ${
+                  isVisible ? 'opacity-100' : 'opacity-0'
+                }`}>
+                  {card.type === 'image' ? (
+                    <img 
+                      src={card.content || "placeholder-image.jpg"} 
+                      alt="Organism" 
+                      className="w-full h-full object-cover rounded-lg"
+                      onError={(e) => { 
+                        e.target.onerror = null; 
+                        e.target.src = `https://placehold.co/400x400/2d3748/a0aec0?text=Ni+slike`;
+                      }}
+                    />
+                  ) : (
+                    <p className="text-sm font-medium text-center">{card.content}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        {(gameComplete || cards.length === 0) && (
+          <div className="text-center mt-8">
+            <button 
+              onClick={resetGame} 
+              className="bg-primary/90 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-primary transition-colors"
+            >
+              {t('playAgain')}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+  
 // --- CORRECTED ProjectsPage Component ---
 function ProjectsPage() {
     const { t, language } = useTranslation();
-    const [pageData, setPageData] = useState({ title: '', description: '' });
+    // CHANGE 1: The state now holds 'content' instead of 'description'.
+    const [pageData, setPageData] = useState({ title: '', content: '' });
 
     useEffect(() => {
-        // Fetch the single content file for this page.
         fetch(`/content/pages/intertwinings.md?v=${new Date().getTime()}`)
             .then(res => {
                 if (!res.ok) {
@@ -494,25 +657,24 @@ function ProjectsPage() {
                 return res.text();
             })
             .then(text => {
-                const { metadata } = parseMarkdown(text);
+                // CHANGE 2: Capture 'content' from the parsed markdown file.
+                const { metadata, content } = parseMarkdown(text);
                 
-                // For single_file i18n, data is nested under language keys (e.g., metadata.title.en, metadata.title.sl)
-                // We select the title for the current language, or fall back to the default (sl), then to the translation key.
                 const title = metadata.title?.[language] || metadata.title?.sl || t('sensorDataTitle');
                 
-                // Same logic for the description.
-                const description = metadata.description?.[language] || metadata.description?.sl || t('projectFutureDesc');
+                // If the main content is empty, fall back to the description from the metadata.
+                const bodyContent = content || metadata.description?.[language] || metadata.description?.sl || t('projectFutureDesc');
 
                 setPageData({ 
                     title: title, 
-                    description: description 
+                    content: bodyContent // Store the actual body content.
                 });
             })
             .catch(err => {
                 console.error("Failed to fetch page content, using fallback:", err);
                 setPageData({
                     title: t('sensorDataTitle'),
-                    description: t('projectFutureDesc')
+                    content: t('projectFutureDesc') // Use fallback content on error.
                 });
             });
     }, [t, language]);
@@ -520,11 +682,12 @@ function ProjectsPage() {
     return (
         <Page title={pageData.title}>
             <Section title={pageData.title}>
+                <SensorVisualization />
                 <div 
                     className="prose lg:prose-xl mb-8 max-w-3xl mx-auto text-center text-gray-600"
-                    dangerouslySetInnerHTML={{ __html: marked(pageData.description || '') }} 
+                    // CHANGE 3: Render the 'content' from the state.
+                    dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} 
                 />
-                <SensorVisualization />
             </Section>
         </Page>
     );
@@ -719,6 +882,20 @@ function GalleryPage() {
     );
 }
 
+// --- Memory Game page component ---
+function MemoryGamePage() {
+    const { t } = useTranslation();
+    return (
+      <Page title={t('navMemoryGame')}>
+        <Section title={t('memoryGameTitle')}>
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
+            <MemoryGame />
+          </div>
+        </Section>
+      </Page>
+    );
+  }
+
 // --- New HomePage Component ---
 function HomePage() {
     const { t, language } = useTranslation();
@@ -794,7 +971,6 @@ function App() {
     const { t, setLanguage, language } = useTranslation();
 
     const pages = [
-        // Add 'home' to the navigation
         { key: 'home', label: t('navHome') },
         { key: 'projects', label: t('navProjects') },
         { key: 'posts', label: t('navPosts') },
@@ -802,22 +978,24 @@ function App() {
         { key: 'biodiversity', label: t('navBiodiversity') },
         { key: 'gallery', label: t('navGallery') },
         { key: 'calendar', label: t('navCalendar') },
-    ];
-    
-    const renderPage = () => {
+        // Add memory game to navigation
+        { key: 'memory', label: t('navMemoryGame') },
+      ];
+      
+      const renderPage = () => {
         switch (currentPage) {
-            // Add a case to render the new HomePage
-            case 'home': return <HomePage />;
-            case 'projects': return <ProjectsPage />;
-            case 'posts': return <ContentCollectionPage t={t} title={t('navPosts')} contentPath="content/posts" />;
-            case 'practices': return <ContentCollectionPage t={t} title={t('navPractices')} contentPath="content/practices" />;
-            case 'biodiversity': return <BiodiversityPage />;
-            case 'calendar': return <CalendarPage />;
-            case 'gallery': return <GalleryPage />;
-            // Fallback to home page
-            default: return <HomePage />;
+          case 'home': return <HomePage />;
+          case 'projects': return <ProjectsPage />;
+          case 'posts': return <ContentCollectionPage t={t} title={t('navPosts')} contentPath="content/posts" />;
+          case 'practices': return <ContentCollectionPage t={t} title={t('navPractices')} contentPath="content/practices" />;
+          case 'biodiversity': return <BiodiversityPage />;
+          case 'calendar': return <CalendarPage />;
+          case 'gallery': return <GalleryPage />;
+          // Add case for memory game
+          case 'memory': return <MemoryGamePage />;
+          default: return <HomePage />;
         }
-    };
+      };    
 
     return (
         <div className="app-container relative z-0">
