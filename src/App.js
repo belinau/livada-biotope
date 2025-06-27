@@ -524,74 +524,74 @@ function MemoryGame() {
     const [loading, setLoading] = useState(true);
     const [gameComplete, setGameComplete] = useState(false);
     const [gameMode, setGameMode] = useState('sl'); // 'sl', 'en', or 'latin'
-  
+
     useEffect(() => {
-      const fetchData = async () => {
-        setLoading(true);
-        try {
-          const response = await fetch(`https://api.inaturalist.org/v1/observations?project_id=the-livada-biotope-monitoring&per_page=12&quality_grade=research&order_by=random`);
-          const data = await response.json();
-          const observations = data.results.filter(obs => obs.photos?.length > 0);
-          
-          const gameCards = observations.flatMap(obs => {
-            const getTaxonName = (taxon, lang) => {
-                 if (!taxon) return "Unknown";
-                 const commonNames = taxon.names || [];
-                 const localName = commonNames.find(n => n.locale === lang && n.lexicon === 'Taxon Name');
-                 return localName?.name || taxon.name;
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                // FIX 1: Add the `locale` parameter to the API call.
+                // We only add it if the mode is not 'latin'.
+                const localeParam = gameMode !== 'latin' ? `&locale=${gameMode}` : '';
+                const response = await fetch(`https://api.inaturalist.org/v1/observations?project_id=the-livada-biotope-monitoring&per_page=12&quality_grade=research&order_by=random${localeParam}`);
+                
+                const data = await response.json();
+                const observations = data.results.filter(obs => obs.photos?.length > 0);
+
+                const gameCards = observations.flatMap(obs => {
+                    const scientificName = obs.taxon?.name || "Unknown";
+                    let displayName;
+
+                    // FIX 2: Simplify name logic and apply lowercase rule.
+                    if (gameMode === 'latin') {
+                        displayName = scientificName;
+                    } else {
+                        // The API now returns the correct localized name here.
+                        displayName = obs.taxon?.preferred_common_name || scientificName;
+                    }
+
+                    if (gameMode === 'sl') {
+                        displayName = displayName.toLowerCase();
+                    }
+
+                    return [
+                        { id: `${obs.id}-image`, type: 'image', content: obs.photos[0]?.url.replace('square', 'medium'), organismId: obs.id },
+                        { id: `${obs.id}-name`, type: 'name', content: displayName, organismId: obs.id }
+                    ];
+                });
+
+                setCards(gameCards.sort(() => Math.random() - 0.5));
+            } catch (error) {
+                console.error("Error fetching game data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [gameMode]);
+
+    const handleCardClick = (index) => {
+        if (gameComplete || matched.includes(index) || flipped.length >= 2) return;
+
+        const newFlipped = [...flipped, index];
+        setFlipped(newFlipped);
+
+        if (newFlipped.length === 2) {
+            setMoves(moves + 1);
+            const firstCard = cards[newFlipped[0]];
+            const secondCard = cards[newFlipped[1]];
+
+            if (firstCard.organismId === secondCard.organismId && firstCard.type !== secondCard.type) {
+                setMatched(prev => [...prev, ...newFlipped]);
+                if (matched.length + 2 === cards.length) {
+                    setGameComplete(true);
+                }
             }
 
-            const slName = obs.taxon?.preferred_common_name || getTaxonName(obs.taxon, 'sl-SI');
-            const enName = obs.taxon?.preferred_common_name || getTaxonName(obs.taxon, 'en-US');
-            const latinName = obs.taxon?.name || "Unknown";
-            
-            let name;
-            switch(gameMode) {
-              case 'sl': name = slName; break;
-              case 'en': name = enName; break;
-              case 'latin': name = latinName; break;
-              default: name = slName;
-            }
-            
-            return [
-              { id: `${obs.id}-image`, type: 'image', content: obs.photos[0]?.url.replace('square', 'medium'), organismId: obs.id },
-              { id: `${obs.id}-name`, type: 'name', content: name, organismId: obs.id }
-            ];
-          });
-          
-          setCards(gameCards.sort(() => Math.random() - 0.5));
-        } catch (error) {
-          console.error("Error fetching game data:", error);
-        } finally {
-          setLoading(false);
+            setTimeout(() => setFlipped([]), 1200);
         }
-      };
-  
-      fetchData();
-    }, [gameMode]);
-  
-    const handleCardClick = (index) => {
-      if (gameComplete || matched.includes(index) || flipped.length >= 2) return;
-      
-      const newFlipped = [...flipped, index];
-      setFlipped(newFlipped);
-      
-      if (newFlipped.length === 2) {
-        setMoves(moves + 1);
-        const firstCard = cards[newFlipped[0]];
-        const secondCard = cards[newFlipped[1]];
-        
-        if (firstCard.organismId === secondCard.organismId && firstCard.type !== secondCard.type) {
-          setMatched(prev => [...prev, ...newFlipped]);
-          if (matched.length + 2 === cards.length) {
-            setGameComplete(true);
-          }
-        }
-        
-        setTimeout(() => setFlipped([]), 1200);
-      }
     };
-  
+
     const resetGame = (mode = gameMode) => {
         setLoading(true);
         setGameMode(mode);
