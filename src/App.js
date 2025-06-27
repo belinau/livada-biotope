@@ -928,7 +928,7 @@ function MemoryGamePage() {
           <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
             <MemoryGame />
           </div>
-        </section>
+        </Section>
       </Page>
     );
   }
