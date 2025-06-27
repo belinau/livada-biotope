@@ -1,7 +1,4 @@
-// App.js
-
 import React, { useState, useEffect, createContext, useContext, useCallback, useRef } from 'react';
-// Import components from react-router-dom
 import { BrowserRouter, Routes, Route, NavLink, Link } from 'react-router-dom';
 import { ResponsiveLine } from '@nivo/line';
 import { marked } from 'marked';
@@ -152,6 +149,7 @@ const SensorProvider = ({ children }) => {
 
 
 const LanguageContext = createContext();
+// CHANGE: Added new translations for the memory game
 const translations = {
     sl: {
         navHome: 'Domov',
@@ -191,7 +189,10 @@ const translations = {
         navMemoryGame: 'Spomin',
         memoryGameTitle: 'Spomin',
         moves: 'Poteze',
-        playAgain: 'Nova igra'
+        playAgain: 'Nova igra',
+        slovenian: 'Slovensko',
+        english: 'Angleško',
+        latin: 'Latinsko'
     },
     en: {
         navHome: 'Home',
@@ -228,10 +229,13 @@ const translations = {
         airHumidity: 'Air Humidity',
         footerText: 'The Livada Biotope – special initiative within BOB Institute © 2025',
         photoBy: 'Photo',
-        navMemoryGame: 'Memory',
-        memoryGameTitle: 'Memory',
+        navMemoryGame: 'Memory Game',
+        memoryGameTitle: 'Memory Game',
         moves: 'Moves',
-        playAgain: 'Play Again'
+        playAgain: 'Play Again',
+        slovenian: 'Slovenian',
+        english: 'English',
+        latin: 'Latin'
     }
 };
 const LanguageProvider = ({ children }) => {
@@ -287,7 +291,7 @@ const ChartWrapper = ({ title, children }) => (
 );
 
 function SensorVisualization() {
-    const { t, language } = useTranslation(); // Get language for tooltip
+    const { t, language } = useTranslation();
     const { history, status, lastUpdated, refreshData } = useSensorData();
     const [chartData, setChartData] = useState({ moisture: [], temperature: [] });
     const [latestReadings, setLatestReadings] = useState({});
@@ -298,7 +302,6 @@ function SensorVisualization() {
         tooltip: { container: { background: 'white', color: '#333', border: '1px solid #ccc' } },
     };
 
-    // Custom tooltip component
     const CustomTooltip = ({ point }) => {
         const date = new Date(point.data.x);
         const formattedDate = date.toLocaleString(language, {
@@ -306,22 +309,9 @@ function SensorVisualization() {
             timeStyle: 'short',
         });
         return (
-            <div
-                style={{
-                    background: 'white',
-                    padding: '9px 12px',
-                    border: '1px solid #ccc',
-                    borderRadius: '2px',
-                }}
-            >
+            <div style={{ background: 'white', padding: '9px 12px', border: '1px solid #ccc', borderRadius: '2px' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <span style={{
-                        display: 'block',
-                        width: '12px',
-                        height: '12px',
-                        background: point.serieColor,
-                        marginRight: '8px'
-                    }}></span>
+                    <span style={{ display: 'block', width: '12px', height: '12px', background: point.serieColor, marginRight: '8px' }}></span>
                     <strong>{point.serieId}</strong>
                 </div>
                 <div>{formattedDate}</div>
@@ -344,9 +334,7 @@ function SensorVisualization() {
                 const bedId = historyKey.substring(0, historyKey.lastIndexOf('-'));
                 const metricType = historyKey.substring(historyKey.lastIndexOf('-') + 1);
 
-                if (!newLatestReadings[bedId]) {
-                    newLatestReadings[bedId] = {};
-                }
+                if (!newLatestReadings[bedId]) { newLatestReadings[bedId] = {}; }
                 newLatestReadings[bedId][metricType] = lastPoint.y;
                 newLatestReadings[bedId].timestamp = lastPoint.x;
 
@@ -399,16 +387,18 @@ function SensorVisualization() {
                             <BedCard key={bedId} bed={bed} reading={latestReadings[bedId]} t={t} />
                         ))}
                     </div>
-                    {/* Removed lg:grid-cols-2 to make charts full-width */}
+                    
                     <div className="grid grid-cols-1 gap-8 pt-6 border-t">
                         <ChartWrapper title={t('moistureFlows')}>
                             {hasMoistureData ? (
-                                <ResponsiveLine tooltip={CustomTooltip} data={chartData.moisture} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 80, left: 50 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: 'Vlaga (%)', legendOffset: -40 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
+                                // CHANGE: Increased chart margins
+                                <ResponsiveLine tooltip={CustomTooltip} data={chartData.moisture} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 90, left: 60 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: 'Vlaga (%)', legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
                             ) : ( <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> )}
                         </ChartWrapper>
                         <ChartWrapper title={t('temperatureFlows')}>
                             {hasTemperatureData ? (
-                                <ResponsiveLine tooltip={CustomTooltip} data={chartData.temperature} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 80, left: 50 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
+                                // CHANGE: Increased chart margins
+                                <ResponsiveLine tooltip={CustomTooltip} data={chartData.temperature} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 90, left: 60 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 70, itemsSpacing: 4, itemWidth: 160, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
                             ) : ( <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> )}
                         </ChartWrapper>
                     </div>
@@ -524,7 +514,7 @@ function Section({ title, children, className = '' }) {
     );
 }
 
-// --- Add this component above your Page components ---
+// CHANGE: Updated MemoryGame component
 function MemoryGame() {
     const { t } = useTranslation();
     const [cards, setCards] = useState([]);
@@ -533,37 +523,42 @@ function MemoryGame() {
     const [moves, setMoves] = useState(0);
     const [loading, setLoading] = useState(true);
     const [gameComplete, setGameComplete] = useState(false);
+    const [gameMode, setGameMode] = useState('sl'); // 'sl', 'en', or 'latin'
   
-    // Fetch observations and prepare cards
     useEffect(() => {
       const fetchData = async () => {
+        setLoading(true);
         try {
-          const response = await fetch(
-            `https://api.inaturalist.org/v1/observations?project_id=the-livada-biotope-monitoring&per_page=12`
-          );
+          const response = await fetch(`https://api.inaturalist.org/v1/observations?project_id=the-livada-biotope-monitoring&per_page=12&quality_grade=research&order_by=random`);
           const data = await response.json();
           const observations = data.results.filter(obs => obs.photos?.length > 0);
           
-          // Create card pairs (image + name)
           const gameCards = observations.flatMap(obs => {
-            const displayName = obs.taxon?.preferred_common_name || obs.taxon?.name || "Unknown";
+            const getTaxonName = (taxon, lang) => {
+                 if (!taxon) return "Unknown";
+                 const commonNames = taxon.names || [];
+                 const localName = commonNames.find(n => n.locale === lang && n.lexicon === 'Taxon Name');
+                 return localName?.name || taxon.name;
+            }
+
+            const slName = obs.taxon?.preferred_common_name || getTaxonName(obs.taxon, 'sl-SI');
+            const enName = obs.taxon?.preferred_common_name || getTaxonName(obs.taxon, 'en-US');
+            const latinName = obs.taxon?.name || "Unknown";
+            
+            let name;
+            switch(gameMode) {
+              case 'sl': name = slName; break;
+              case 'en': name = enName; break;
+              case 'latin': name = latinName; break;
+              default: name = slName;
+            }
+            
             return [
-              { 
-                id: `${obs.id}-image`,
-                type: 'image',
-                content: obs.photos[0]?.url.replace('square', 'medium'),
-                organismId: obs.id
-              },
-              { 
-                id: `${obs.id}-name`,
-                type: 'name',
-                content: displayName,
-                organismId: obs.id
-              }
+              { id: `${obs.id}-image`, type: 'image', content: obs.photos[0]?.url.replace('square', 'medium'), organismId: obs.id },
+              { id: `${obs.id}-name`, type: 'name', content: name, organismId: obs.id }
             ];
           });
           
-          // Shuffle cards
           setCards(gameCards.sort(() => Math.random() - 0.5));
         } catch (error) {
           console.error("Error fetching game data:", error);
@@ -573,113 +568,111 @@ function MemoryGame() {
       };
   
       fetchData();
-    }, []);
+    }, [gameMode]);
   
     const handleCardClick = (index) => {
-      // Prevent clicking when game is complete or card is already matched
-      if (gameComplete || matched.includes(index) || flipped.includes(index)) return;
+      if (gameComplete || matched.includes(index) || flipped.length >= 2) return;
       
       const newFlipped = [...flipped, index];
       setFlipped(newFlipped);
       
       if (newFlipped.length === 2) {
         setMoves(moves + 1);
-        
         const firstCard = cards[newFlipped[0]];
         const secondCard = cards[newFlipped[1]];
         
-        if (
-          firstCard.organismId === secondCard.organismId &&
-          firstCard.type !== secondCard.type
-        ) {
-          setMatched([...matched, ...newFlipped]);
-          
-          // Check if game is complete
+        if (firstCard.organismId === secondCard.organismId && firstCard.type !== secondCard.type) {
+          setMatched(prev => [...prev, ...newFlipped]);
           if (matched.length + 2 === cards.length) {
             setGameComplete(true);
           }
         }
         
-        setTimeout(() => setFlipped([]), 1000);
+        setTimeout(() => setFlipped([]), 1200);
       }
     };
   
-    const resetGame = () => {
-      setFlipped([]);
-      setMatched([]);
-      setMoves(0);
-      setGameComplete(false);
-      setCards([...cards].sort(() => Math.random() - 0.5));
+    const resetGame = (mode = gameMode) => {
+        setLoading(true);
+        setGameMode(mode);
+        setFlipped([]);
+        setMatched([]);
+        setMoves(0);
+        setGameComplete(false);
     };
-  
-    if (loading) return <div className="text-center py-12">{t('loading')}...</div>;
+
+    const changeGameMode = (mode) => {
+        if (gameMode !== mode) {
+            resetGame(mode);
+        }
+    };
+
+    if (loading) return (
+        <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8">
+                <h3 className="text-2xl font-mono font-bold text-primary">{t('memoryGameTitle')}</h3>
+                <p className="text-gray-600">{t('moves')}: {moves}</p>
+                 <div className="flex justify-center gap-4 mt-4">
+                     <button className={`px-4 py-2 rounded-lg bg-gray-200 text-gray-700 opacity-50`}>{t('slovenian')}</button>
+                     <button className={`px-4 py-2 rounded-lg bg-gray-200 text-gray-700 opacity-50`}>{t('english')}</button>
+                     <button className={`px-4 py-2 rounded-lg bg-gray-200 text-gray-700 opacity-50`}>{t('latin')}</button>
+                 </div>
+             </div>
+            <div className="text-center py-12">{t('loading')}...</div>
+        </div>
+    );
     
     return (
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h3 className="text-2xl font-mono font-bold text-primary">{t('memoryGameTitle')}</h3>
           <p className="text-gray-600">{t('moves')}: {moves}</p>
+          
+          <div className="flex justify-center gap-2 md:gap-4 mt-4">
+            <button onClick={() => changeGameMode('sl')} className={`px-3 py-2 text-sm md:px-4 md:text-base rounded-lg transition-colors ${gameMode === 'sl' ? 'bg-primary text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>{t('slovenian')}</button>
+            <button onClick={() => changeGameMode('en')} className={`px-3 py-2 text-sm md:px-4 md:text-base rounded-lg transition-colors ${gameMode === 'en' ? 'bg-primary text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>{t('english')}</button>
+            <button onClick={() => changeGameMode('latin')} className={`px-3 py-2 text-sm md:px-4 md:text-base rounded-lg transition-colors ${gameMode === 'latin' ? 'bg-primary text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>{t('latin')}</button>
+          </div>
         </div>
         
-        <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-4">
           {cards.map((card, index) => {
             const isFlipped = flipped.includes(index);
             const isMatched = matched.includes(index);
             const isVisible = isFlipped || isMatched;
             
             return (
-              <div
-                key={index}
-                className={`relative h-32 cursor-pointer transition-all duration-300 ${
-                  isMatched ? 'opacity-75' : 'hover:scale-105'
-                }`}
-                onClick={() => handleCardClick(index)}
-              >
-                <div className={`absolute inset-0 bg-primary/10 rounded-lg shadow-md flex items-center justify-center transition-opacity duration-300 ${
-                  isVisible ? 'opacity-0' : 'opacity-100'
-                }`}>
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                    <span className="text-lg">?</span>
-                  </div>
-                </div>
-                
-                <div className={`absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center p-2 transition-opacity duration-300 ${
-                  isVisible ? 'opacity-100' : 'opacity-0'
-                }`}>
-                  {card.type === 'image' ? (
-                    <img 
-                      src={card.content || "placeholder-image.jpg"} 
-                      alt="Organism" 
-                      className="w-full h-full object-cover rounded-lg"
-                      onError={(e) => { 
-                        e.target.onerror = null; 
-                        e.target.src = `https://placehold.co/400x400/2d3748/a0aec0?text=Ni+slike`;
-                      }}
-                    />
-                  ) : (
-                    <p className="text-sm font-medium text-center">{card.content}</p>
-                  )}
+              <div key={card.id} className="perspective-1000">
+                <div
+                    className={`relative w-full aspect-square transition-transform duration-500 transform-style-3d ${isVisible ? 'rotate-y-180' : ''}`}
+                    onClick={() => handleCardClick(index)}
+                >
+                    {/* Card Back */}
+                    <div className="absolute inset-0 bg-primary/10 rounded-lg shadow-md flex items-center justify-center backface-hidden">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                            <span className="text-lg">?</span>
+                        </div>
+                    </div>
+                    {/* Card Front */}
+                    <div className={`absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center p-2 rotate-y-180 backface-hidden ${isMatched ? 'opacity-60' : ''}`}>
+                        {card.type === 'image' ? ( <img src={card.content || "placeholder-image.jpg"} alt="Organism" className="w-full h-full object-cover rounded-lg"/>) 
+                                             : ( <p className="text-sm font-medium text-center">{card.content}</p> )}
+                    </div>
                 </div>
               </div>
             );
           })}
         </div>
         
-        {(gameComplete || cards.length === 0) && (
+        {gameComplete && (
           <div className="text-center mt-8">
-            <button 
-              onClick={resetGame} 
-              className="bg-primary/90 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-primary transition-colors"
-            >
-              {t('playAgain')}
-            </button>
+            <button onClick={() => resetGame(gameMode)} className="bg-primary/90 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-primary transition-colors">{t('playAgain')}</button>
           </div>
         )}
       </div>
     );
-  }
-  
-// --- CORRECTED ProjectsPage Component ---
+}
+
 function ProjectsPage() {
     const { t, language } = useTranslation();
     const [pageData, setPageData] = useState({ title: '', content: '' });
@@ -691,26 +684,14 @@ function ProjectsPage() {
             
             try {
                 let response = await fetch(langFile);
-                if (!response.ok) {
-                    response = await fetch(defaultLangFile);
-                }
-                if (!response.ok) {
-                    throw new Error('Intertwinings content file not found');
-                }
+                if (!response.ok) { response = await fetch(defaultLangFile); }
+                if (!response.ok) { throw new Error('Intertwinings content file not found'); }
                 const text = await response.text();
                 const { metadata, content } = parseMarkdown(text);
-                
-                setPageData({
-                    title: metadata.title || t('navProjects'),
-                    content: content
-                });
-
+                setPageData({ title: metadata.title || t('navProjects'), content: content });
             } catch (error) {
                 console.error("Failed to fetch page content, using fallback:", error);
-                setPageData({
-                    title: t('navProjects'),
-                    content: t('projectFutureDesc')
-                });
+                setPageData({ title: t('navProjects'), content: t('projectFutureDesc') });
             }
         };
 
@@ -720,10 +701,7 @@ function ProjectsPage() {
     return (
         <Page title={pageData.title}>
             <Section title={pageData.title}>
-                <div 
-                    className="prose lg:prose-xl mb-8 max-w-3xl mx-auto text-center text-gray-600"
-                    dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} 
-                />
+                <div className="prose lg:prose-xl mb-8 max-w-3xl mx-auto text-center text-gray-600" dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} />
                 <SensorVisualization />
             </Section>
         </Page>
@@ -777,10 +755,7 @@ function ContentCollectionPage({ t, title, contentPath }) {
                         
                         let fileToFetch = langFile;
                         let res = await fetch(`/${contentPath}/${fileToFetch}`);
-                        if (!res.ok) {
-                            fileToFetch = defaultLangFile;
-                            res = await fetch(`/${contentPath}/${fileToFetch}`);
-                        }
+                        if (!res.ok) { fileToFetch = defaultLangFile; res = await fetch(`/${contentPath}/${fileToFetch}`); }
                          if (!res.ok) return null;
 
                         const text = await res.text();
@@ -791,7 +766,6 @@ function ContentCollectionPage({ t, title, contentPath }) {
                 const validItems = fetchedItems.filter(item => item !== null);
                 validItems.sort((a, b) => (a.metadata.date && b.metadata.date) ? new Date(b.metadata.date) - new Date(a.metadata.date) : 0);
                 setItems(validItems);
-
             } catch (error) { console.error(`Error fetching content from ${contentPath}:`, error); setItems([]); }
             setIsLoading(false);
         };
@@ -839,10 +813,7 @@ function GalleryPage() {
                         let fileToFetch = langFile;
                         let res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`);
                         
-                        if (!res.ok) {
-                            fileToFetch = defaultLangFile;
-                            res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`);
-                        }
+                        if (!res.ok) { fileToFetch = defaultLangFile; res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`); }
                         if (!res.ok) return null;
 
                         const text = await res.text();
@@ -851,12 +822,8 @@ function GalleryPage() {
                     })
                 );
                 
-                const validGalleries = fetchedGalleries
-                    .filter(gallery => gallery && gallery.images && gallery.images.length > 0)
-                    .sort((a, b) => new Date(b.date) - new Date(a.date));
-
+                const validGalleries = fetchedGalleries.filter(gallery => gallery && gallery.images && gallery.images.length > 0).sort((a, b) => new Date(b.date) - new Date(a.date));
                 setGalleries(validGalleries);
-
             } catch (error) {
                 console.error("Failed to load galleries:", error);
                 setGalleries([]);
@@ -864,16 +831,14 @@ function GalleryPage() {
                 setIsLoading(false);
             }
         };
-
         fetchGalleries();
     }, [language]);
 
     return (
         <Page title={t('navGallery')}>
             <Section title={t('navGallery')}>
-                {isLoading ? (
-                    <div className="text-center py-10">{t('loading')}...</div>
-                ) : galleries.length > 0 ? (
+                {isLoading ? ( <div className="text-center py-10">{t('loading')}...</div> ) 
+                           : galleries.length > 0 ? (
                     <div className="space-y-16">
                         {galleries.map(gallery => (
                             <article key={gallery.id}>
@@ -882,7 +847,6 @@ function GalleryPage() {
                                     {gallery.date && <p className="text-sm text-gray-500 mt-1">{new Date(gallery.date).toLocaleDateString(language)}</p>}
                                     {gallery.description && <p className="prose mt-2 max-w-2xl mx-auto text-gray-600">{gallery.description}</p>}
                                 </div>
-                                
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                     {gallery.images.map((image, index) => {
                                         const caption = language === 'sl' ? image.caption_sl : (image.caption_en || image.caption_sl);
@@ -896,9 +860,7 @@ function GalleryPage() {
                                                         {caption && <p className="text-gray-700">{caption}</p>}
                                                         {gallery.author && (
                                                           <p className="text-xs text-gray-500 mt-1 flex items-center">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 opacity-70" viewBox="0 0 20 20" fill="currentColor">
-                                                              <path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm5 6a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-                                                            </svg>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 opacity-70" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm5 6a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
                                                             {t('photoBy')}: {gallery.author}
                                                           </p>
                                                         )}
@@ -911,15 +873,12 @@ function GalleryPage() {
                             </article>
                         ))}
                     </div>
-                ) : (
-                    <p className="text-center text-gray-500">{t('noMoreObservations')}</p>
-                )}
+                ) : ( <p className="text-center text-gray-500">{t('noMoreObservations')}</p> )}
             </Section>
         </Page>
     );
 }
 
-// --- Memory Game page component ---
 function MemoryGamePage() {
     const { t } = useTranslation();
     return (
@@ -933,7 +892,6 @@ function MemoryGamePage() {
     );
   }
 
-// --- New HomePage Component ---
 function HomePage() {
     const { t, language } = useTranslation();
     const [pageData, setPageData] = useState({ content: '', metadata: {} });
@@ -947,19 +905,13 @@ function HomePage() {
             
             try {
                 let response = await fetch(langFile);
-                if (!response.ok) {
-                    // Fallback to default language if the specific one is not found
-                    response = await fetch(defaultLangFile);
-                }
-                if (!response.ok) {
-                    throw new Error('Home page content file not found at ' + langFile + ' or ' + defaultLangFile);
-                }
+                if (!response.ok) { response = await fetch(defaultLangFile); }
+                if (!response.ok) { throw new Error('Home page content file not found at ' + langFile + ' or ' + defaultLangFile); }
                 const text = await response.text();
                 const { metadata, content } = parseMarkdown(text);
                 setPageData({ content, metadata });
             } catch (error) {
                 console.error("Failed to fetch home page content:", error);
-                // Provide some default content so the page isn't empty on error
                 const defaultContent = language === 'sl' 
                     ? '### Dobrodošli na livada.bio\n\nTo je prostor za urejanje vsebine. Uredite datoteko `/content/pages/home.sl.md`.'
                     : '### Welcome to livada.bio\n\nThis is a placeholder. Edit the file `/content/pages/home.en.md` to change this content.';
@@ -978,23 +930,14 @@ function HomePage() {
 
     return (
         <Page title={title}>
-            {/* Hero section that allows the animated background to be visible */}
             <div style={{ minHeight: '60vh' }} className="flex flex-col items-center justify-center text-center p-4">
                 <h1 className="text-4xl md:text-6xl font-mono text-primary drop-shadow-lg">{heroTitle}</h1>
                 <p className="mt-4 text-lg md:text-xl text-gray-700 max-w-2xl">{heroSubtitle}</p>
             </div>
-
-            {/* Content Section rendered on a slightly opaque background to ensure readability */}
             <div className="bg-[#f7faf9]/95 backdrop-blur-sm rounded-t-2xl shadow-lg -mt-16 pt-16">
                  <div className="container mx-auto px-4 py-12">
-                     {isLoading ? (
-                        <div className="text-center prose lg:prose-xl max-w-4xl mx-auto">{t('loading')}...</div>
-                     ) : (
-                        <div
-                            className="prose lg:prose-xl max-w-4xl mx-auto"
-                            dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }}
-                        />
-                     )}
+                     {isLoading ? ( <div className="text-center prose lg:prose-xl max-w-4xl mx-auto">{t('loading')}...</div> ) 
+                                : ( <div className="prose lg:prose-xl max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} /> )}
                 </div>
             </div>
         </Page>
@@ -1003,11 +946,10 @@ function HomePage() {
 
 // --- Main App Component ---
 function App() {
-    // Remove useState for currentPage
-    // const [currentPage, setCurrentPage] = useState('home'); 
     const { t, setLanguage, language } = useTranslation();
+    // CHANGE: State for mobile menu
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    // Define pages with URL paths
     const pages = [
         { path: '/', label: t('navHome'), element: <HomePage /> },
         { path: '/prepletanja', label: t('navProjects'), element: <ProjectsPage /> },
@@ -1019,57 +961,60 @@ function App() {
         { path: '/spomin', label: t('navMemoryGame'), element: <MemoryGamePage /> },
       ];
       
-    // Remove the old renderPage function
-
     return (
         <div className="app-container relative z-0">
             <AnimatedBackground />
             <div className="relative z-10 flex flex-col min-h-screen">
                 <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-lg border-b border-white/20">
-                    <nav className="container mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
+                    <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
                         <div className="flex items-center">
-                            {/* Use Link for the logo */}
                             <Link to="/" className="text-xl font-bold cursor-pointer text-primary">livada.bio</Link>
                         </div>
-                        <div className="flex flex-wrap gap-1 my-2">
-                            {/* Use NavLink for navigation */}
+                        
+                        {/* Desktop Menu */}
+                        <div className="hidden md:flex flex-wrap gap-1">
                             {pages.map(page => (
-                                <NavLink 
-                                    key={page.path} 
-                                    to={page.path} 
-                                    className={({ isActive }) =>
-                                        `relative px-3 py-2 font-medium text-gray-700 transition-colors duration-300 group ${
-                                            isActive ? 'text-primary' : 'hover:text-primary'
-                                        }`
-                                    }
-                                >
-                                    {({ isActive }) => (
-                                        <>
-                                            {page.label}
-                                            <span 
-                                                className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transform transition-transform duration-300 ${
-                                                    isActive ? 'scale-x-100' : 'scale-x-0'
-                                                } group-hover:scale-x-100`}
-                                            />
-                                        </>
-                                    )}
+                                <NavLink key={page.path} to={page.path} className={({ isActive }) => `relative px-3 py-2 font-medium text-gray-700 transition-colors duration-300 group ${isActive ? 'text-primary' : 'hover:text-primary'}`}>
+                                    {({ isActive }) => (<> {page.label} <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transform transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0'} group-hover:scale-x-100`}/> </>)}
                                 </NavLink>
                             ))}
                         </div>
-                        <div className="flex space-x-2">
+                        
+                        <div className="hidden md:flex items-center space-x-2">
                             <button onClick={() => setLanguage('sl')} className={`px-2 py-1 font-semibold transition-colors ${language === 'sl' ? 'text-primary' : 'text-gray-500 hover:text-primary'}`}>SL</button>
                             <button onClick={() => setLanguage('en')} className={`px-2 py-1 font-semibold transition-colors ${language === 'en' ? 'text-primary' : 'text-gray-500 hover:text-primary'}`}>EN</button>
                         </div>
+
+                        {/* Mobile Menu Button */}
+                        <div className="md:hidden flex items-center">
+                             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-700 hover:text-primary focus:outline-none">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}></path>
+                                </svg>
+                            </button>
+                        </div>
                     </nav>
+
+                    {/* Mobile Menu Drawer */}
+                    {isMenuOpen && (
+                        <div className="md:hidden bg-white/95 backdrop-blur-md">
+                            <div className="flex flex-col px-4 pt-2 pb-4 space-y-2">
+                                {pages.map(page => (
+                                    <NavLink key={page.path} to={page.path} onClick={() => setIsMenuOpen(false)} className={({ isActive }) => `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-100'}`}>
+                                        {page.label}
+                                    </NavLink>
+                                ))}
+                                <div className="flex justify-center space-x-4 pt-4 border-t mt-4">
+                                     <button onClick={() => { setLanguage('sl'); setIsMenuOpen(false); }} className={`px-3 py-1 font-semibold transition-colors ${language === 'sl' ? 'text-primary' : 'text-gray-500'}`}>Slovenščina</button>
+                                     <button onClick={() => { setLanguage('en'); setIsMenuOpen(false); }} className={`px-3 py-1 font-semibold transition-colors ${language === 'en' ? 'text-primary' : 'text-gray-500'}`}>English</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </header>
                 <main className="flex-grow">
-                    {/* Use Routes to render pages based on URL */}
                     <Routes>
-                        {pages.map(page => (
-                            <Route key={page.path} path={page.path} element={page.element} />
-                        ))}
-                        {/* You can add a 404 Not Found page here if you like */}
-                        {/* <Route path="*" element={<NotFoundPage />} /> */}
+                        {pages.map(page => ( <Route key={page.path} path={page.path} element={page.element} /> ))}
                     </Routes>
                 </main>
                 <footer className="py-6 text-center bg-gray-100/80 backdrop-blur-sm">
@@ -1080,7 +1025,7 @@ function App() {
     );
 }
 
-// Wrap the entire App in BrowserRouter
+// Root Wrapper
 export default function WrappedApp() {
     return (
         <LanguageProvider>
