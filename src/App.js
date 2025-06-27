@@ -31,12 +31,12 @@ const AnimatedBackground = () => {
             time += 1;
 
             const gradientAlpha = 0.12 + Math.sin(time * 0.005) * 0.08;
-            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.6);
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.8);
             skyGradient.addColorStop(0, `rgba(74, 124, 89, ${gradientAlpha})`);
             skyGradient.addColorStop(1, `rgba(255, 102, 0, 0.58)`);
             
             ctx.fillStyle = skyGradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.6);
+            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.8);
 
             waves.forEach((wave) => {
                 ctx.beginPath();
