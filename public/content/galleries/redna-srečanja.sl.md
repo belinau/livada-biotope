@@ -13,7 +13,6 @@ images:
   - image: /images/uploads/livada-srecanja7.jpg
   - image: /images/uploads/livada-srecanja8.jpg
   - image: /images/uploads/livada-srecanja9.jpg
-  - image: /images/uploads/livada-srecanja9.jpg
   - image: /images/uploads/livada-srecanja10.jpg
   - image: /images/uploads/livada-srecanja11.jpg
   - image: /images/uploads/livada-srecanja12.jpg
