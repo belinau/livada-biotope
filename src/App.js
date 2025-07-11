@@ -799,13 +799,12 @@ function MemoryGame() {
                             const isVisible = isFlipped || isMatched;
                             
                             return (
-                                <div key={card.id} className="perspective-1000">
-                                    <div
-                                        className={`relative w-full aspect-square transition-all duration-500 transform-style-3d ${
-                                            isVisible ? 'rotate-y-180 scale-110' : 'scale-100'
-                                        }`}
-                                        onClick={() => handleCardClick(index)}
-                                    >
+                                <div 
+                                    key={card.id} 
+                                    className="perspective-1000 cursor-pointer"
+                                    onClick={() => handleCardClick(index)}
+                                >
+                                    <div className={`relative w-full aspect-square transition-transform duration-500 transform-style-3d ${isVisible ? 'rotate-y-180' : ''}`}>
                                         {/* Card Back */}
                                         <div className="absolute inset-0 bg-primary/10 rounded-lg shadow-md flex items-center justify-center backface-hidden overflow-hidden">
                                             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-60">
@@ -819,9 +818,7 @@ function MemoryGame() {
                                             </svg>
                                         </div>
                                         {/* Card Front */}
-                                        <div className={`absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center p-2 rotate-y-180 backface-hidden ${
-                                            isMatched ? 'opacity-60' : ''
-                                        }`}>
+                                        <div className={`absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center p-2 rotate-y-180 backface-hidden ${isMatched ? 'opacity-60' : ''}`}>
                                             {card.type === 'image' ? ( 
                                                 <img 
                                                     src={card.content || "placeholder-image.jpg"} 
