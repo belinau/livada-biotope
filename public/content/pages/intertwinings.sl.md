@@ -1,13 +1,17 @@
 ---
 title: Prepletanja
 ---
-V tem prepletanju ne merimo, temveč poslušamo šepet prsti, ki nam pripoveduje o vlagi, temperaturi in življenju pod površjem. Podatki se osvežujejo vsako uro.
+V teh prepletanjih ne merimo, temveč poslušamo šepet prsti, ki nam pripoveduje o vlagi, temperaturi in življenju pod površjem. Podatki se osvežujejo vsako uro.
 
 ## Ne izsušimo prihodnosti
+
+![](/images/uploads/img_20250617_174637153.jpg)
 
 Projekt se osredotoča na razvoj trajnostnih praks upravljanja z vodo v Biotopu Livada. Z združevanjem radijske tehnologije in tipal smo razvili sistem za spremljanje okoljskih ekoloških kazalnikov, s čimer želimo okrepiti razumevanje dinamik v tem krhkem in ključnem ekosistemu. Največji poudarek je na spremljanju stanja vlage v prsti, saj v poletnem času prihaja do drastičnega izsuševanja in nastajanja velikih razpok na zemljišču, zaradi česar se okrepijo procesi erozije, zato preučujemo vpliv različnih pokrovnih rastlin na blaženje tega pojava.
 
 Z vključevanjem skupnosti v načrtovanje rešitev in ohranitvena prizadevanja želimo spodbuditi globljo povezanost med ljudmi, več kot človeškimi prebivalci travnika in njihovim lokalnim okoljem v iskanju dejanskega ravnovesja, v katerem so upoštevane potrebe vseh živih bitij, ne samo ljudi.
+
+![](/images/uploads/img_20250703_170157975-1-.jpg)
 
 ### Cilji projekta
 
@@ -18,11 +22,15 @@ Z vključevanjem skupnosti v načrtovanje rešitev in ohranitvena prizadevanja �
 * Ustvarjanje izobraževalnih virov o mokriščih in njihovi biotski pestrosti in o izdelavi rešitev.
 * Vključevanje lokalne skupnosti, zlasti mladih, v ohranitvena prizadevanja in več kot človeška razmerja.
 
+![](/images/uploads/img_20250708_173652125.jpg)
+
 ### Trenutno stanje
 
 Po celotnem Biotopu Livada smo namestili več senzorjev, ki neprekinjeno spremljajo stanje okolja. Podatki se zbirajo v realnem času in se preko lora radijske zveze pošiljajo v naš sistem za arhiviranje in prikaz.
 
 Vporedno izvajamo tudi redni monitoring vrst oziroma prebivalcev travnika. Do sedaj smo dokumentirali številne rastline in živali, vključno z uvrščenimi na rdeče sezname ogroženosti, ki za svoje preživetje nujno potrebujejo ohranjanje tega zelo specifičnega življenjskega prostora. 
+
+![](/images/uploads/livada-srecanja5.jpg)
 
 ### Kako lahko prispevaš
 
