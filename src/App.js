@@ -241,6 +241,9 @@ const translations = {
         slovenian: 'SL',
         english: 'EN',
         latin: 'strokovna imena'
+        close: 'Zapri',
+        previous: 'Prejšnja',
+        next: 'Naslednja'
     },
     en: {
         navHome: 'Home',
@@ -284,6 +287,9 @@ const translations = {
         slovenian: 'Slovenian',
         english: 'English',
         latin: 'Latin'
+        close: 'Close',
+        previous: 'Previous',
+        next: 'Next'
     }
 };
 const LanguageProvider = ({ children }) => {
@@ -852,7 +858,40 @@ function GalleryPage() {
     const { t, language } = useTranslation();
     const [galleries, setGalleries] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedImage, setSelectedImage] = useState(null);
+    
+    // Helper functions for image optimization
+    const getOptimizedImageUrl = (src, width = 400, height = 400) => {
+      if (!src.startsWith('/')) return src;
+      
+      const params = new URLSearchParams({
+        url: src,
+        w: width.toString(),
+        h: height.toString(),
+        fit: 'cover',
+        position: 'center',
+      });
   
+      return `/.netlify/images?${params.toString()}`;
+    };
+  
+    const getResponsiveSrcSet = (src) => {
+      if (!src.startsWith('/')) return '';
+      
+      const widths = [300, 600, 900];
+      return widths.map(width => {
+        const params = new URLSearchParams({
+          url: src,
+          w: width.toString(),
+          h: width.toString(),
+          fit: 'cover',
+          position: 'center',
+        });
+        return `/.netlify/images?${params.toString()} ${width}w`;
+      }).join(', ');
+    };
+  
+    // Fetch galleries
     useEffect(() => {
       const fetchGalleries = async () => {
         setIsLoading(true);
@@ -897,6 +936,40 @@ function GalleryPage() {
       fetchGalleries();
     }, [language]);
   
+    // Modal functions
+    const openImage = (gallery, imageIndex) => {
+      setSelectedImage({ gallery, imageIndex });
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    };
+  
+    const closeImage = () => {
+      setSelectedImage(null);
+      document.body.style.overflow = ''; // Restore scrolling
+    };
+  
+    // Keyboard navigation
+    useEffect(() => {
+      const handleKeyDown = (e) => {
+        if (!selectedImage) return;
+        
+        const { gallery, imageIndex } = selectedImage;
+        const totalImages = gallery.images.length;
+        
+        if (e.key === 'Escape') {
+          closeImage();
+        } else if (e.key === 'ArrowLeft') {
+          const newIndex = (imageIndex - 1 + totalImages) % totalImages;
+          setSelectedImage({ gallery, imageIndex: newIndex });
+        } else if (e.key === 'ArrowRight') {
+          const newIndex = (imageIndex + 1) % totalImages;
+          setSelectedImage({ gallery, imageIndex: newIndex });
+        }
+      };
+  
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedImage]);
+  
     return (
       <Page title={t('navGallery')}>
         <Section title={t('navGallery')}>
@@ -926,9 +999,12 @@ function GalleryPage() {
                         : (image.caption_en || image.caption_sl);
                       
                       return (
-                        <div key={index} className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden group">
-                          {/* Fixed aspect ratio container */}
-                          <div className="relative pb-[100%]"> {/* Changed from aspect-ratio-container */}
+                        <div 
+                          key={index} 
+                          className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden group cursor-zoom-in"
+                          onClick={() => openImage(gallery, index)}
+                        >
+                          <div className="relative pb-[100%]">
                             <img 
                               src={getOptimizedImageUrl(image.image)} 
                               srcSet={getResponsiveSrcSet(image.image)}
@@ -964,6 +1040,78 @@ function GalleryPage() {
             </div>
           ) : (
             <p className="text-center text-gray-500">{t('noMoreObservations')}</p>
+          )}
+  
+          {/* Image Modal Overlay */}
+          {selectedImage && (
+            <div 
+              className="fixed inset-0 z-50 bg-black/90 backdrop-blur-lg flex items-center justify-center p-4"
+              onClick={closeImage}
+            >
+              <button 
+                className="absolute top-4 right-4 text-white p-2 rounded-full hover:bg-white/10 transition-colors"
+                onClick={closeImage}
+                aria-label={t('close')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              
+              <button 
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-3 rounded-full hover:bg-white/10 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const newIndex = (selectedImage.imageIndex - 1 + selectedImage.gallery.images.length) % selectedImage.gallery.images.length;
+                  setSelectedImage({...selectedImage, imageIndex: newIndex});
+                }}
+                aria-label={t('previous')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              
+              <button 
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-3 rounded-full hover:bg-white/10 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const newIndex = (selectedImage.imageIndex + 1) % selectedImage.gallery.images.length;
+                  setSelectedImage({...selectedImage, imageIndex: newIndex});
+                }}
+                aria-label={t('next')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+              
+              <div className="relative max-w-6xl max-h-[90vh] w-full" onClick={e => e.stopPropagation()}>
+                <img 
+                  src={selectedImage.gallery.images[selectedImage.imageIndex].image} 
+                  alt=""
+                  className="max-h-[90vh] w-auto mx-auto object-contain"
+                  loading="eager"
+                />
+                
+                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-4 text-center">
+                  <p className="text-lg">
+                    {language === 'sl' 
+                      ? selectedImage.gallery.images[selectedImage.imageIndex].caption_sl 
+                      : selectedImage.gallery.images[selectedImage.imageIndex].caption_en}
+                  </p>
+                  {selectedImage.gallery.author && (
+                    <p className="text-sm opacity-80 mt-1">
+                      {t('photoBy')}: {selectedImage.gallery.author}
+                    </p>
+                  )}
+                </div>
+                
+                <div className="absolute top-0 right-0 bg-black/70 text-white px-3 py-1 text-sm">
+                  {selectedImage.imageIndex + 1} / {selectedImage.gallery.images.length}
+                </div>
+              </div>
+            </div>
           )}
         </Section>
       </Page>
