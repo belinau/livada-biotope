@@ -1,12 +1,3 @@
-[[plugins]]
-package = "@netlify/plugin-nextjs"
-
 [build]
   command = "npm run build"
-  publish = "out"
-
-[[redirects]]
-  from = "/.netlify/images/*"
-  to = "https://api.netlify.com/image/v1/:splat"
-  status = 200
-  force = true
+  publish = "build"
