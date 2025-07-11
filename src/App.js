@@ -90,6 +90,14 @@ const AnimatedBackground = () => {
 };
 
 // --- Config and Helper Functions ---
+// Add these helper functions at the top of your file (after imports)
+/**
+ * Generates optimized image URL using Netlify's CDN
+ * @param {string} src - Image source path
+ * @param {number} [width=400] - Desired width
+ * @param {number} [height=400] - Desired height
+ * @returns {string} Optimized image URL
+ */
 const getOptimizedImageUrl = (src, width = 400, height = 400) => {
     if (!src.startsWith('/')) return src;
     
@@ -104,6 +112,11 @@ const getOptimizedImageUrl = (src, width = 400, height = 400) => {
     return `/.netlify/images?${params.toString()}`;
   };
   
+  /**
+   * Generates responsive srcset for optimized images
+   * @param {string} src - Image source path
+   * @returns {string} Responsive srcset string
+   */
   const getResponsiveSrcSet = (src) => {
     if (!src.startsWith('/')) return '';
     
@@ -860,37 +873,6 @@ function GalleryPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(null);
     
-    // Helper functions for image optimization
-    const getOptimizedImageUrl = (src, width = 400, height = 400) => {
-      if (!src.startsWith('/')) return src;
-      
-      const params = new URLSearchParams({
-        url: src,
-        w: width.toString(),
-        h: height.toString(),
-        fit: 'cover',
-        position: 'center',
-      });
-  
-      return `/.netlify/images?${params.toString()}`;
-    };
-  
-    const getResponsiveSrcSet = (src) => {
-      if (!src.startsWith('/')) return '';
-      
-      const widths = [300, 600, 900];
-      return widths.map(width => {
-        const params = new URLSearchParams({
-          url: src,
-          w: width.toString(),
-          h: width.toString(),
-          fit: 'cover',
-          position: 'center',
-        });
-        return `/.netlify/images?${params.toString()} ${width}w`;
-      }).join(', ');
-    };
-  
     // Fetch galleries
     useEffect(() => {
       const fetchGalleries = async () => {
@@ -899,7 +881,9 @@ function GalleryPage() {
           const manifestResponse = await fetch('/content/galleries/manifest.json');
           if (!manifestResponse.ok) throw new Error('Gallery manifest not found');
           const manifest = await manifestResponse.json();
-          const baseFileNames = [...new Set(manifest.files.map(f => f.replace(/\.(sl|en)\.md$/, '')))];
+          const baseFileNames = [...new Set(
+            manifest.files.map(f => f.replace(/\.(sl|en)\.md$/, ''))
+          )];
   
           const fetchedGalleries = await Promise.all(
             baseFileNames.map(async baseName => {
@@ -939,12 +923,12 @@ function GalleryPage() {
     // Modal functions
     const openImage = (gallery, imageIndex) => {
       setSelectedImage({ gallery, imageIndex });
-      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      document.body.style.overflow = 'hidden';
     };
   
     const closeImage = () => {
       setSelectedImage(null);
-      document.body.style.overflow = ''; // Restore scrolling
+      document.body.style.overflow = '';
     };
   
     // Keyboard navigation
