@@ -1,6 +1,6 @@
 ---
 title: Redna srečanja
-date: 2025-04-03T13:00:37.213Z
+date: 2025-07-10T16:00:37.213Z
 author: Urban Belina, Albin Bobnar
 description: Vsak četrtek se skupnost zbere na Livadi.
 images:
@@ -20,4 +20,12 @@ images:
   - image: /images/uploads/livada-srecanja14.jpg
   - image: /images/uploads/livada-srecanja15.jpg
   - image: /images/uploads/livada-srecanja16.jpg
+  - image: /images/uploads/img_5747-3.jpg
+  - image: /images/uploads/img_5943-3.jpg
+  - image: /images/uploads/img_6010-3.jpg
+  - image: /images/uploads/img_20250705_172956228.jpg
+  - image: /images/uploads/img_20250708_173652125.jpg
+  - image: /images/uploads/img_5764-3.jpg
+  - image: /images/uploads/img_20250710_211413461.jpg
+  - image: /images/uploads/img_20250710_211500410.jpg
 ---
