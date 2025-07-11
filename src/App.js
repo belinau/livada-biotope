@@ -90,6 +90,35 @@ const AnimatedBackground = () => {
 };
 
 // --- Config and Helper Functions ---
+const getOptimizedImageUrl = (src, width = 400, height = 400) => {
+    if (!src.startsWith('/')) return src;
+    
+    const params = new URLSearchParams({
+      url: src,
+      w: width.toString(),
+      h: height.toString(),
+      fit: 'cover',
+      position: 'center',
+    });
+  
+    return `/.netlify/images?${params.toString()}`;
+  };
+  
+  const getResponsiveSrcSet = (src) => {
+    if (!src.startsWith('/')) return '';
+    
+    const widths = [300, 600, 900];
+    return widths.map(width => {
+      const params = new URLSearchParams({
+        url: src,
+        w: width.toString(),
+        h: width.toString(),
+        fit: 'cover',
+        position: 'center',
+      });
+      return `/.netlify/images?${params.toString()} ${width}w`;
+    }).join(', ');
+  };
 
 const BED_MAPPING = {
     '!35c2d45c-0': { name: 'travni sestoj', color: '#52796f' },
@@ -823,88 +852,123 @@ function GalleryPage() {
     const { t, language } = useTranslation();
     const [galleries, setGalleries] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-
+  
     useEffect(() => {
-        const fetchGalleries = async () => {
-            setIsLoading(true);
-            try {
-                const manifestResponse = await fetch('/content/galleries/manifest.json');
-                if (!manifestResponse.ok) throw new Error('Gallery manifest not found');
-                const manifest = await manifestResponse.json();
-                const baseFileNames = [...new Set(manifest.files.map(f => f.replace(/\.(sl|en)\.md$/, '')))];
-
-                const fetchedGalleries = await Promise.all(
-                    baseFileNames.map(async baseName => {
-                        const langFile = `${baseName}.${language}.md`;
-                        const defaultLangFile = `${baseName}.sl.md`;
-                        let fileToFetch = langFile;
-                        let res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`);
-                        
-                        if (!res.ok) { fileToFetch = defaultLangFile; res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`); }
-                        if (!res.ok) return null;
-
-                        const text = await res.text();
-                        const { metadata } = parseMarkdown(text);
-                        return { id: baseName, ...metadata };
-                    })
-                );
-                
-                const validGalleries = fetchedGalleries.filter(gallery => gallery && gallery.images && gallery.images.length > 0).sort((a, b) => new Date(b.date) - new Date(a.date));
-                setGalleries(validGalleries);
-            } catch (error) {
-                console.error("Failed to load galleries:", error);
-                setGalleries([]);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchGalleries();
+      const fetchGalleries = async () => {
+        setIsLoading(true);
+        try {
+          const manifestResponse = await fetch('/content/galleries/manifest.json');
+          if (!manifestResponse.ok) throw new Error('Gallery manifest not found');
+          const manifest = await manifestResponse.json();
+          const baseFileNames = [...new Set(manifest.files.map(f => f.replace(/\.(sl|en)\.md$/, '')))];
+  
+          const fetchedGalleries = await Promise.all(
+            baseFileNames.map(async baseName => {
+              const langFile = `${baseName}.${language}.md`;
+              const defaultLangFile = `${baseName}.sl.md`;
+              let fileToFetch = langFile;
+              let res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`);
+              
+              if (!res.ok) { 
+                fileToFetch = defaultLangFile; 
+                res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`); 
+              }
+              if (!res.ok) return null;
+  
+              const text = await res.text();
+              const { metadata } = parseMarkdown(text);
+              return { id: baseName, ...metadata };
+            })
+          );
+          
+          const validGalleries = fetchedGalleries.filter(gallery => 
+            gallery && gallery.images && gallery.images.length > 0
+          ).sort((a, b) => new Date(b.date) - new Date(a.date));
+          
+          setGalleries(validGalleries);
+        } catch (error) {
+          console.error("Failed to load galleries:", error);
+          setGalleries([]);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      fetchGalleries();
     }, [language]);
-
+  
     return (
-        <Page title={t('navGallery')}>
-            <Section title={t('navGallery')}>
-                {isLoading ? ( <div className="text-center py-10">{t('loading')}...</div> ) 
-                           : galleries.length > 0 ? (
-                    <div className="space-y-16">
-                        {galleries.map(gallery => (
-                            <article key={gallery.id}>
-                                <div className="text-center mb-8">
-                                    <h3 className="text-3xl font-mono text-primary">{gallery.title}</h3>
-                                    {gallery.date && <p className="text-sm text-gray-500 mt-1">{new Date(gallery.date).toLocaleDateString(language)}</p>}
-                                    {gallery.description && <p className="prose mt-2 max-w-2xl mx-auto text-gray-600">{gallery.description}</p>}
-                                </div>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                    {gallery.images.map((image, index) => {
-                                        const caption = language === 'sl' ? image.caption_sl : (image.caption_en || image.caption_sl);
-                                        return (
-                                            <div key={index} className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden group">
-                                                <div className="aspect-w-1 aspect-h-1">
-                                                    <img src={image.image} alt={caption || gallery.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
-                                                </div>
-                                                {(caption || gallery.author) && (
-                                                    <div className="p-3 text-sm">
-                                                        {caption && <p className="text-gray-700">{caption}</p>}
-                                                        {gallery.author && (
-                                                          <p className="text-xs text-gray-500 mt-1 flex items-center">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 opacity-70" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm5 6a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
-                                                            {t('photoBy')}: {gallery.author}
-                                                          </p>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </article>
-                        ))}
-                    </div>
-                ) : ( <p className="text-center text-gray-500">{t('noMoreObservations')}</p> )}
-            </Section>
-        </Page>
+      <Page title={t('navGallery')}>
+        <Section title={t('navGallery')}>
+          {isLoading ? (
+            <div className="text-center py-10">{t('loading')}...</div>
+          ) : galleries.length > 0 ? (
+            <div className="space-y-16">
+              {galleries.map(gallery => (
+                <article key={gallery.id}>
+                  <div className="text-center mb-8">
+                    <h3 className="text-3xl font-mono text-primary">{gallery.title}</h3>
+                    {gallery.date && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        {new Date(gallery.date).toLocaleDateString(language)}
+                      </p>
+                    )}
+                    {gallery.description && (
+                      <p className="prose mt-2 max-w-2xl mx-auto text-gray-600">
+                        {gallery.description}
+                      </p>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {gallery.images.map((image, index) => {
+                      const caption = language === 'sl' 
+                        ? image.caption_sl 
+                        : (image.caption_en || image.caption_sl);
+                      
+                      return (
+                        <div key={index} className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden group">
+                          {/* Fixed aspect ratio container */}
+                          <div className="relative pb-[100%]"> {/* Changed from aspect-ratio-container */}
+                            <img 
+                              src={getOptimizedImageUrl(image.image)} 
+                              srcSet={getResponsiveSrcSet(image.image)}
+                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" 
+                              alt={caption || gallery.title} 
+                              className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                              loading="lazy" 
+                              onError={(e) => { 
+                                e.target.onerror = null; 
+                                e.target.src = image.image;
+                              }}
+                            />
+                          </div>
+                          {(caption || gallery.author) && (
+                            <div className="p-3 text-sm">
+                              {caption && <p className="text-gray-700">{caption}</p>}
+                              {gallery.author && (
+                                <p className="text-xs text-gray-500 mt-1 flex items-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 opacity-70" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm5 6a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                                  </svg>
+                                  {t('photoBy')}: {gallery.author}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500">{t('noMoreObservations')}</p>
+          )}
+        </Section>
+      </Page>
     );
-}
+  }
 
 function MemoryGamePage() {
     const { t } = useTranslation();

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@netlify/plugin-nextjs": "^5.11.5",
     "@nivo/bar": "^0.99.0",
     "@nivo/line": "^0.99.0",
     "@tailwindcss/typography": "^0.5.16",
