@@ -613,6 +613,7 @@ function MemoryGame() {
     const [playerName, setPlayerName] = useState('');
     const [scores, setScores] = useState([]);
     const [showHallOfFame, setShowHallOfFame] = useState(false);
+    const [zoomedImage, setZoomedImage] = useState(null); // New state for zoomed image
 
     // Initialize scores from localStorage
     useEffect(() => {
@@ -650,6 +651,7 @@ function MemoryGame() {
         setGameComplete(false);
         setPlayerName('');
         setShowHallOfFame(false);
+        setZoomedImage(null); // Reset zoomed image
     };
 
     const changeGameMode = (mode) => {
@@ -719,6 +721,12 @@ function MemoryGame() {
 
             setTimeout(() => setFlipped([]), 1200);
         }
+    };
+
+    // New function to handle image zoom
+    const handleImageZoom = (e, imageUrl) => {
+        e.stopPropagation();
+        setZoomedImage(imageUrl);
     };
 
     if (loading) return (
@@ -820,11 +828,22 @@ function MemoryGame() {
                                         {/* Card Front */}
                                         <div className={`absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center p-2 rotate-y-180 backface-hidden ${isMatched ? 'opacity-60' : ''}`}>
                                             {card.type === 'image' ? ( 
-                                                <img 
-                                                    src={card.content || "placeholder-image.jpg"} 
-                                                    alt="Organism" 
-                                                    className="w-full h-full object-cover rounded-lg"
-                                                />
+                                                <div className="relative w-full h-full">
+                                                    <img 
+                                                        src={card.content || "placeholder-image.jpg"} 
+                                                        alt="Organism" 
+                                                        className="w-full h-full object-cover rounded-lg"
+                                                    />
+                                                    <button 
+                                                        onClick={(e) => handleImageZoom(e, card.content)}
+                                                        className="absolute top-1 right-1 bg-white/70 rounded-full p-1 hover:bg-white transition-colors"
+                                                        aria-label={t('zoomImage')}
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
                                             ) : ( 
                                                 <p className="text-sm md:text-base font-medium text-center p-1">{card.content}</p> 
                                             )}
@@ -869,6 +888,31 @@ function MemoryGame() {
                     {t('memoryGameDescription')}
                 </p>
             </div>
+            
+            {/* Image Zoom Modal */}
+            {zoomedImage && (
+                <div 
+                    className="fixed inset-0 z-50 bg-black/90 backdrop-blur-lg flex items-center justify-center p-4"
+                    onClick={() => setZoomedImage(null)}
+                >
+                    <div className="relative max-w-4xl w-full">
+                        <button 
+                            className="absolute top-4 right-4 text-white p-2 rounded-full hover:bg-white/10 transition-colors z-10"
+                            onClick={() => setZoomedImage(null)}
+                            aria-label={t('close')}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        <img 
+                            src={zoomedImage} 
+                            alt="Enlarged view" 
+                            className="max-h-[90vh] w-auto mx-auto object-contain"
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
