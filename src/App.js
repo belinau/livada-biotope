@@ -240,7 +240,7 @@ const translations = {
         playAgain: 'nova igra',
         slovenian: 'SL',
         english: 'EN',
-        latin: 'strokovna imena'
+        latin: 'strokovna imena',
         close: 'Zapri',
         previous: 'Prejšnja',
         next: 'Naslednja'
@@ -286,7 +286,7 @@ const translations = {
         playAgain: 'Play Again',
         slovenian: 'Slovenian',
         english: 'English',
-        latin: 'Latin'
+        latin: 'Latin',
         close: 'Close',
         previous: 'Previous',
         next: 'Next'
