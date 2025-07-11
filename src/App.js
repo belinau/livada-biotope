@@ -256,7 +256,17 @@ const translations = {
         latin: 'strokovna imena',
         close: 'Zapri',
         previous: 'Prejšnja',
-        next: 'Naslednja'
+        next: 'Naslednja',
+        memoryGameDescription: 'V igri Spomin so uporabljeni posnetki, zbrani med rednimi monitoringi v Biotopu Livada, celotno zbirko lahko pogledaš na odseku Biodiverziteta. Če bi v igri rad_a videl_a tudi tvoje fotografije, se nam lahko pridružiš na monitoringu na Livadi in prispevaš svoja opažanja preko platforme iNaturalist. Vsa opažanja na tej mikrolokaciji (opremljena z geokoordinatami LivadaLAB ali bližnje okolice) se samodejno vpišejo v naš namenski projekt na omenjeni plaformi.',
+        congratulations: 'Čestitamo!',
+        yourScore: 'Tvoj rezultat:',
+        enterName: 'Vpiši ime za lestvico:',
+        submitScore: 'Shrani rezultat',
+        hallOfFame: 'Lestvica najboljših',
+        player: 'Bitje',
+        score: 'Točke',
+        newGame: 'Nova igra',
+        noScores: 'Ni še rezultatov',
     },
     en: {
         navHome: 'Home',
@@ -302,7 +312,17 @@ const translations = {
         latin: 'Latin',
         close: 'Close',
         previous: 'Previous',
-        next: 'Next'
+        next: 'Next',
+        memoryGameDescription: 'The Memory game uses images collected during regular monitoring in the Livada Biotope. You can view the entire collection in the Biodiversity section. If you would like to see your photos in the game, you can join us in monitoring at Livada and contribute your observations via the iNaturalist platform. All observations in this microlocation (equipped with the coordinates of LivadaLAB or the immediate vicinity) are automatically entered into our dedicated project on the mentioned platform.',
+        congratulations: 'Congratulations!',
+        yourScore: 'Your score:',
+        enterName: 'Enter name for leaderboard:',
+        submitScore: 'Save Score',
+        hallOfFame: 'Hall of Fame',
+        player: 'Player',
+        score: 'Score',
+        newGame: 'New Game',
+        noScores: 'No scores yet',
     }
 };
 const LanguageProvider = ({ children }) => {
@@ -589,7 +609,54 @@ function MemoryGame() {
     const [moves, setMoves] = useState(0);
     const [loading, setLoading] = useState(true);
     const [gameComplete, setGameComplete] = useState(false);
-    const [gameMode, setGameMode] = useState('sl'); // 'sl', 'en', or 'latin'
+    const [gameMode, setGameMode] = useState('sl');
+    const [playerName, setPlayerName] = useState('');
+    const [scores, setScores] = useState([]);
+    const [showHallOfFame, setShowHallOfFame] = useState(false);
+
+    // Initialize scores from localStorage
+    useEffect(() => {
+        const savedScores = JSON.parse(localStorage.getItem('memoryGameScores') || '[]');
+        setScores(savedScores);
+    }, []);
+
+    // Save score to localStorage
+    const saveScore = () => {
+        if (!playerName.trim()) return;
+        
+        const newScore = {
+            name: playerName,
+            moves,
+            date: new Date().toISOString(),
+            mode: gameMode
+        };
+        
+        const updatedScores = [...scores, newScore]
+            .sort((a, b) => a.moves - b.moves)
+            .slice(0, 10);
+        
+        setScores(updatedScores);
+        localStorage.setItem('memoryGameScores', JSON.stringify(updatedScores));
+        setPlayerName('');
+        setShowHallOfFame(true);
+    };
+
+    const resetGame = (mode = gameMode) => {
+        setLoading(true);
+        setGameMode(mode);
+        setFlipped([]);
+        setMatched([]);
+        setMoves(0);
+        setGameComplete(false);
+        setPlayerName('');
+        setShowHallOfFame(false);
+    };
+
+    const changeGameMode = (mode) => {
+        if (gameMode !== mode) {
+            resetGame(mode);
+        }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -654,23 +721,8 @@ function MemoryGame() {
         }
     };
 
-    const resetGame = (mode = gameMode) => {
-        setLoading(true);
-        setGameMode(mode);
-        setFlipped([]);
-        setMatched([]);
-        setMoves(0);
-        setGameComplete(false);
-    };
-
-    const changeGameMode = (mode) => {
-        if (gameMode !== mode) {
-            resetGame(mode);
-        }
-    };
-
     if (loading) return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
             <div className="text-center mb-8">
                 <h3 className="text-2xl font-mono font-bold text-primary">{t('memoryGameTitle')}</h3>
                 <p className="text-gray-600">{t('moves')}: {moves}</p>
@@ -685,60 +737,142 @@ function MemoryGame() {
     );
     
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h3 className="text-2xl font-mono font-bold text-primary">{t('memoryGameTitle')}</h3>
-          <p className="text-gray-600">{t('moves')}: {moves}</p>
-          
-          <div className="flex justify-center gap-2 md:gap-4 mt-4">
-            <button onClick={() => changeGameMode('sl')} className={`px-3 py-2 text-sm md:px-4 md:text-base rounded-lg transition-colors ${gameMode === 'sl' ? 'bg-primary text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>{t('slovenian')}</button>
-            <button onClick={() => changeGameMode('en')} className={`px-3 py-2 text-sm md:px-4 md:text-base rounded-lg transition-colors ${gameMode === 'en' ? 'bg-primary text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>{t('english')}</button>
-            <button onClick={() => changeGameMode('latin')} className={`px-3 py-2 text-sm md:px-4 md:text-base rounded-lg transition-colors ${gameMode === 'latin' ? 'bg-primary text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>{t('latin')}</button>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-4">
-          {cards.map((card, index) => {
-            const isFlipped = flipped.includes(index);
-            const isMatched = matched.includes(index);
-            const isVisible = isFlipped || isMatched;
-            
-            return (
-              <div key={card.id} className="perspective-1000">
-                <div
-                    className={`relative w-full aspect-square transition-transform duration-500 transform-style-3d ${isVisible ? 'rotate-y-180' : ''}`}
-                    onClick={() => handleCardClick(index)}
-                >
-                    {/* Card Back */}
-                    <div className="absolute inset-0 bg-primary/10 rounded-lg shadow-md flex items-center justify-center backface-hidden overflow-hidden">
-                        {/* This SVG creates the new background pattern */}
-                        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-60">
-                            <defs>
-                                <pattern id="cardPattern" patternUnits="userSpaceOnUse" width="25" height="25" patternTransform="rotate(45)">
-                                    <circle cx="5" cy="5" r="1.5" fill="#f6ad55" /> 
-                                    <circle cx="15" cy="15" r="2" fill="#84a98c" /> 
-                                </pattern>
-                            </defs>
-                            <rect width="100%" height="100%" fill="url(#cardPattern)" />
-                        </svg>
-                    </div>
-                    {/* Card Front */}
-                    <div className={`absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center p-2 rotate-y-180 backface-hidden ${isMatched ? 'opacity-60' : ''}`}>
-                        {card.type === 'image' ? ( <img src={card.content || "placeholder-image.jpg"} alt="Organism" className="w-full h-full object-cover rounded-lg"/>) 
-                                             : ( <p className="text-sm font-medium text-center">{card.content}</p> )}
-                    </div>
+        <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+                <h3 className="text-2xl font-mono font-bold text-primary">{t('memoryGameTitle')}</h3>
+                <p className="text-gray-600">{t('moves')}: {moves}</p>
+                
+                <div className="flex justify-center gap-2 md:gap-4 mt-4">
+                    <button onClick={() => changeGameMode('sl')} className={`px-3 py-2 text-sm md:px-4 md:text-base rounded-lg transition-colors ${gameMode === 'sl' ? 'bg-primary text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>{t('slovenian')}</button>
+                    <button onClick={() => changeGameMode('en')} className={`px-3 py-2 text-sm md:px-4 md:text-base rounded-lg transition-colors ${gameMode === 'en' ? 'bg-primary text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>{t('english')}</button>
+                    <button onClick={() => changeGameMode('latin')} className={`px-3 py-2 text-sm md:px-4 md:text-base rounded-lg transition-colors ${gameMode === 'latin' ? 'bg-primary text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>{t('latin')}</button>
                 </div>
-              </div>
-            );
-          })}
+            </div>
+            
+            {/* Hall of Fame Toggle */}
+            <div className="flex justify-center mb-6">
+                <button 
+                    onClick={() => setShowHallOfFame(!showHallOfFame)}
+                    className="px-4 py-2 bg-primary/10 text-primary font-medium rounded-lg hover:bg-primary/20 transition-colors"
+                >
+                    {showHallOfFame ? t('newGame') : t('hallOfFame')}
+                </button>
+            </div>
+            
+            {showHallOfFame ? (
+                <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
+                    <h4 className="text-xl font-mono text-primary mb-4 text-center">{t('hallOfFame')}</h4>
+                    
+                    {scores.length > 0 ? (
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('player')}</th>
+                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('moves')}</th>
+                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('date')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {scores.map((score, index) => (
+                                        <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{score.name}</td>
+                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{score.moves}</td>
+                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
+                                                {new Date(score.date).toLocaleDateString()}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <p className="text-center text-gray-500 py-4">{t('noScores')}</p>
+                    )}
+                </div>
+            ) : (
+                <>
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+                        {cards.map((card, index) => {
+                            const isFlipped = flipped.includes(index);
+                            const isMatched = matched.includes(index);
+                            const isVisible = isFlipped || isMatched;
+                            
+                            return (
+                                <div key={card.id} className="perspective-1000">
+                                    <div
+                                        className={`relative w-full aspect-square transition-all duration-500 transform-style-3d ${
+                                            isVisible ? 'rotate-y-180 scale-110' : 'scale-100'
+                                        }`}
+                                        onClick={() => handleCardClick(index)}
+                                    >
+                                        {/* Card Back */}
+                                        <div className="absolute inset-0 bg-primary/10 rounded-lg shadow-md flex items-center justify-center backface-hidden overflow-hidden">
+                                            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-60">
+                                                <defs>
+                                                    <pattern id="cardPattern" patternUnits="userSpaceOnUse" width="25" height="25" patternTransform="rotate(45)">
+                                                        <circle cx="5" cy="5" r="1.5" fill="#f6ad55" /> 
+                                                        <circle cx="15" cy="15" r="2" fill="#84a98c" /> 
+                                                    </pattern>
+                                                </defs>
+                                                <rect width="100%" height="100%" fill="url(#cardPattern)" />
+                                            </svg>
+                                        </div>
+                                        {/* Card Front */}
+                                        <div className={`absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center p-2 rotate-y-180 backface-hidden ${
+                                            isMatched ? 'opacity-60' : ''
+                                        }`}>
+                                            {card.type === 'image' ? ( 
+                                                <img 
+                                                    src={card.content || "placeholder-image.jpg"} 
+                                                    alt="Organism" 
+                                                    className="w-full h-full object-cover rounded-lg"
+                                                />
+                                            ) : ( 
+                                                <p className="text-sm md:text-base font-medium text-center p-1">{card.content}</p> 
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    
+                    {gameComplete && (
+                        <div className="mt-8 bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg max-w-2xl mx-auto">
+                            <div className="text-center">
+                                <h4 className="text-xl font-mono text-primary mb-2">{t('congratulations')}</h4>
+                                <p className="text-gray-700 mb-4">{t('yourScore')} {moves} {t('moves')}</p>
+                                
+                                <div className="flex flex-col items-center gap-3">
+                                    <input
+                                        type="text"
+                                        value={playerName}
+                                        onChange={(e) => setPlayerName(e.target.value)}
+                                        placeholder={t('enterName')}
+                                        className="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                                    />
+                                    <button 
+                                        onClick={saveScore}
+                                        disabled={!playerName.trim()}
+                                        className="bg-primary/90 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-primary transition-colors disabled:opacity-50"
+                                    >
+                                        {t('submitScore')}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </>
+            )}
+            
+            {/* Game Description */}
+            <div className="mt-12 bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
+                <p className="prose max-w-3xl mx-auto text-gray-700 text-center">
+                    {t('memoryGameDescription')}
+                </p>
+            </div>
         </div>
-        
-        {gameComplete && (
-          <div className="text-center mt-8">
-            <button onClick={() => resetGame(gameMode)} className="bg-primary/90 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-primary transition-colors">{t('playAgain')}</button>
-          </div>
-        )}
-      </div>
     );
 }
 
