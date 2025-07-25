@@ -1054,10 +1054,36 @@ function CalendarPage() {
     );
 }
 
+// Function to render markdown with Mermaid and custom shortcodes
+const renderMarkdown = (content) => {
+  if (!content) return '';
+  // Process markdown to HTML
+  const html = marked(content);
+  // Apply custom shortcodes
+  return enhanceHTML(html);
+};
+
+// Function to render Mermaid diagrams
+const renderMermaid = () => {
+  try {
+    mermaid.init(undefined, '.language-mermaid');
+  } catch (error) {
+    console.error('Error rendering Mermaid diagrams:', error);
+  }
+};
+
 function ContentCollectionPage({ t, title, contentPath }) {
     const [items, setItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const { language } = useTranslation();
+
+    // Process markdown content when items change
+    const processedItems = useMemo(() => {
+      return items.map(item => ({
+        ...item,
+        processedContent: renderMarkdown(item.content)
+      }));
+    }, [items]);
   
     useEffect(() => {
       const fetchContent = async () => {
@@ -1096,6 +1122,11 @@ function ContentCollectionPage({ t, title, contentPath }) {
       };
       fetchContent();
     }, [contentPath, language]);
+
+    // Render Mermaid diagrams after component updates
+    useEffect(() => {
+      renderMermaid();
+    });
   
     useEffect(() => {
       if (items.length) mermaid.initialize({ startOnLoad: false, theme: 'base' });
@@ -1113,10 +1144,15 @@ function ContentCollectionPage({ t, title, contentPath }) {
       <Page title={title}>
         <Section title={title}>
           <div className="space-y-8 max-w-3xl mx-auto">
-            {items.length ? items.map(item => (
+            {processedItems.length ? processedItems.map(item => (
               <div key={item.id} className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md">
+                {/* Processed content with Mermaid and video embeds */}
+                <div 
+                  className="prose max-w-none"
+                  dangerouslySetInnerHTML={{ __html: item.processedContent }} 
+                />
                 {item.metadata.date && (
-                  <p className="text-sm text-gray-500 mb-1">
+                  <p className="text-sm text-gray-500 mt-4">
                     {new Date(item.metadata.date).toLocaleDateString(language)}
                   </p>
                 )}
