@@ -688,7 +688,6 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
   
     return (
       <div className="max-w-2xl mx-auto bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-        {/* month switcher */}
         <div className="flex items-center justify-between mb-4">
           <button
             onClick={() => changeMonth(-1)}
@@ -714,7 +713,6 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
           )}
         </ul>
   
-        {/* link to Google Calendar */}
         <div className="mt-6 text-center">
           <a
             href={calendarUrl}
@@ -872,7 +870,6 @@ function MemoryGame() {
               const isMatched = matched.includes(idx);
               const showFront = isFlipped || isMatched;
               
-              // If card is matched, render it in a fixed face-up state with consistent styling
               if (isMatched) {
                 return (
                   <div 
@@ -1021,7 +1018,6 @@ function ProjectsPage() {
     return (
         <Page title={pageData.title}>
             <Section title={pageData.title}>
-                { /* CHANGE: Updated prose classes for better styling */ }
                 <div 
                     className="prose max-w-3xl mx-auto text-gray-700 
                                [&_h2]:text-2xl [&_h2]:font-mono [&_h2]:text-primary 
@@ -1228,7 +1224,6 @@ function GalleryPage() {
         fetchGalleries();
     }, [language]);
 
-    // Handle image click with animation
     const openImage = (gallery, imageIndex, event) => {
         const rect = event.currentTarget.getBoundingClientRect();
         setSelectedImage({ gallery, imageIndex });
