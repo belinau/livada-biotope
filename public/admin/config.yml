@@ -37,7 +37,7 @@ collections:
       - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true }
       - { label: "Vsebina", name: "body", widget: "markdown", i18n: true }
 
-   - name: "practices"
+  - name: "practices"
     label: "Utelešenja"
     folder: "public/content/practices"
     create: true
