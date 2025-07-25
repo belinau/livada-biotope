@@ -1230,25 +1230,11 @@ function GalleryPage() {
 
     // Handle image click with animation
     const openImage = (gallery, imageIndex, event) => {
-        const clickedElement = event.currentTarget;
-        const rect = clickedElement.getBoundingClientRect();
-        
-        setClickedImage({
-            element: clickedElement,
-            rect: {
-                top: rect.top + window.scrollY,
-                left: rect.left + window.scrollX,
-                width: rect.width,
-                height: rect.height
-            }
-        });
-        
-        requestAnimationFrame(() => {
-            setSelectedImage({ gallery, imageIndex });
-            document.body.style.overflow = 'hidden';
-            document.documentElement.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
-        });
-    };
+        const rect = event.currentTarget.getBoundingClientRect();
+        setSelectedImage({ gallery, imageIndex });
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
+      };
 
     const closeImage = () => {
         setSelectedImage(null);
