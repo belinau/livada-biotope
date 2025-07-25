@@ -4,7 +4,7 @@ import { ResponsiveLine } from '@nivo/line';
 import { marked } from 'marked';
 import { parse } from 'yaml';
 import { motion, AnimatePresence } from 'framer-motion';
-import * as mermaid from 'mermaid';
+import mermaid from 'mermaid';
 
 // --- Animated Background Component ---
 
@@ -156,7 +156,7 @@ const parseMarkdown = (rawContent) => {
 };
 
 // 1️⃣  Mermaid 
-mermaid.init({ startOnLoad: false, theme: 'base' });
+mermaid.initialize({ startOnLoad: false, theme: 'base' });
 
 // 2️⃣  Custom short-code renderer
 function enhanceHTML(html) {
@@ -1111,98 +1111,116 @@ function ContentCollectionPage({ t, title, contentPath }) {
     const [items, setItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const { language } = useTranslation();
-
+  
     useEffect(() => {
-        const fetchContent = async () => {
-            setIsLoading(true);
-            try {
-                const manifestResponse = await fetch(`/${contentPath}/manifest.json`);
-                if (!manifestResponse.ok) throw new Error('Manifest not found');
-                const manifest = await manifestResponse.json();
-                
-                const langSuffix = `.${language}.md`;
-                const baseFileNames = [...new Set(manifest.files.map(f => f.replace('.sl.md', '').replace('.en.md', '')))];
-
-                const fetchedItems = await Promise.all(
-                    baseFileNames.map(async baseName => {
-                        const langFile = `${baseName}${langSuffix}`;
-                        const defaultLangFile = `${baseName}.sl.md`;
-                        
-                        let fileToFetch = langFile;
-                        let res = await fetch(`/${contentPath}/${fileToFetch}`);
-                        if (!res.ok) { fileToFetch = defaultLangFile; res = await fetch(`/${contentPath}/${fileToFetch}`); }
-                         if (!res.ok) return null;
-
-                        const text = await res.text();
-                        return { ...parseMarkdown(text), id: baseName };
-                    })
-                );
-                
-                const validItems = fetchedItems.filter(item => item !== null);
-                validItems.sort((a, b) => (a.metadata.date && b.metadata.date) ? new Date(b.metadata.date) - new Date(a.metadata.date) : 0);
-                setItems(validItems);
-            } catch (error) { console.error(`Error fetching content from ${contentPath}:`, error); setItems([]); }
-            setIsLoading(false);
-        };
-        fetchContent();
+      const fetchContent = async () => {
+        setIsLoading(true);
+        try {
+          const manifestResponse = await fetch(`/${contentPath}/manifest.json`);
+          if (!manifestResponse.ok) throw new Error('Manifest not found');
+          const manifest = await manifestResponse.json();
+  
+          const langSuffix = `.${language}.md`;
+          const baseNames = [...new Set(manifest.files.map(f => f.replace(/\.(sl|en)\.md$/, '')))];
+  
+          const fetchedItems = await Promise.all(
+            baseNames.map(async baseName => {
+              const langFile = `${baseName}${langSuffix}`;
+              const defaultFile = `${baseName}.sl.md`;
+              let file = langFile;
+              let res = await fetch(`/${contentPath}/${file}`);
+              if (!res.ok) { file = defaultFile; res = await fetch(`/${contentPath}/${file}`); }
+              if (!res.ok) return null;
+  
+              const text = await res.text();
+              return { ...parseMarkdown(text), id: baseName };
+            })
+          );
+  
+          const validItems = fetchedItems.filter(Boolean);
+          validItems.sort((a, b) => (a.metadata.date && b.metadata.date) ? new Date(b.metadata.date) - new Date(a.metadata.date) : 0);
+          setItems(validItems);
+        } catch (err) {
+          console.error(`Error fetching ${contentPath}:`, err);
+          setItems([]);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchContent();
     }, [contentPath, language]);
-
-    if (isLoading) return <Section title={title}><div className="text-center">{t('loading')}...</div></Section>;
-    
-    return (
-        <Page title={title}>
-            <Section title={title}>
-                <div className="space-y-8 max-w-3xl mx-auto">
-                    {items.length > 0 ? items.map(item => (
-                        <div key={item.id} className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md">
-                            {item.metadata.date && <p className="text-sm text-gray-500 mb-1">{new Date(item.metadata.date).toLocaleDateString(language)}</p>}
-                            <h3 className="text-2xl font-mono text-primary mb-3">{item.metadata.title}</h3>
-                            <div
-  className="prose max-w-none"
-  dangerouslySetInnerHTML={{
-    __html: (() => {
-      let html = marked.parse(item.content);
-      html = enhanceHTML(html); // YouTube, Vimeo, accordions
-      return html;
-    })()
-  }}
-  ref={node => {
-    if (node) {
-      // Render mermaid charts
-      node.querySelectorAll('.language-mermaid').forEach(pre => {
-        const graphDefinition = pre.textContent;
-        const id = 'mermaid-' + Math.random().toString(36).substr(2, 9);
-        pre.parentNode.replaceChild(
-          Object.assign(document.createElement('div'), { id, className: 'mermaid mb-4' }),
-          pre
-        );
-        mermaid.render(id, graphDefinition).then(({ svg }) => {
-            document.getElementById(id).innerHTML = svg;
-        });
-      });
+  
+    useEffect(() => {
+      if (items.length) mermaid.initialize({ startOnLoad: false, theme: 'base' });
+    }, [items]);
+  
+    if (isLoading) {
+      return (
+        <Section title={title}>
+          <div className="text-center">{t('loading')}…</div>
+        </Section>
+      );
     }
-  }}
-/>
-
-{item.metadata.tags && (
-  <div className="mt-4">
-    {item.metadata.tags.map((tag) => (
-      <span
-        key={tag}
-        className="inline-block bg-primary/10 text-primary text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full"
-      >
-        {tag}
-      </span>
-    ))}
-  </div>
-)}
-</div>
-                    )) : <p className="text-center text-gray-500">{t('noMoreObservations')}</p>}
-                </div>
-            </Section>
-        </Page>
+  
+    return (
+      <Page title={title}>
+        <Section title={title}>
+          <div className="space-y-8 max-w-3xl mx-auto">
+            {items.length ? items.map(item => (
+              <div key={item.id} className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md">
+                {item.metadata.date && (
+                  <p className="text-sm text-gray-500 mb-1">
+                    {new Date(item.metadata.date).toLocaleDateString(language)}
+                  </p>
+                )}
+                <h3 className="text-2xl font-mono text-primary mb-3">{item.metadata.title}</h3>
+  
+                <div
+                  className="prose max-w-none"
+                  dangerouslySetInnerHTML={{
+                    __html: (() => {
+                      let html = marked.parse(item.content);
+                      html = enhanceHTML(html);
+                      return html;
+                    })()
+                  }}
+                  ref={node => {
+                    if (!node) return;
+                    node.querySelectorAll('.language-mermaid').forEach(pre => {
+                      const graph = pre.textContent;
+                      const id = 'mermaid-' + Math.random().toString(36).substr(2, 9);
+                      pre.parentNode.replaceChild(
+                        Object.assign(document.createElement('div'), { id, className: 'mermaid mb-4' }),
+                        pre
+                      );
+                      mermaid.render(id, graph).then(({ svg }) => {
+                        document.getElementById(id).innerHTML = svg;
+                      });
+                    });
+                  }}
+                />
+  
+                {item.metadata.tags && (
+                  <div className="mt-4">
+                    {item.metadata.tags.map(tag => (
+                      <span
+                        key={tag}
+                        className="inline-block bg-primary/10 text-primary text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )) : (
+              <p className="text-center text-gray-500">{t('noMoreObservations')}</p>
+            )}
+          </div>
+        </Section>
+      </Page>
     );
-}
+  }
 
 function GalleryPage() {
     const { t, language } = useTranslation();
