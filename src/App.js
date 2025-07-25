@@ -863,12 +863,11 @@ function MemoryGame() {
             ))}
           </div>
         </div>
-          /* ---------- card grid ---------- */
+          {/* ---------- card grid ---------- */}
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
             {cards.map((card, idx) => {
               const isFlipped = flipped.includes(idx);
               const isMatched = matched.includes(idx);
-              const showFront = isFlipped || isMatched;
               
               if (isMatched) {
                 return (
@@ -1225,7 +1224,6 @@ function GalleryPage() {
     }, [language]);
 
     const openImage = (gallery, imageIndex, event) => {
-        const rect = event.currentTarget.getBoundingClientRect();
         setSelectedImage({ gallery, imageIndex });
         document.body.style.overflow = 'hidden';
         document.documentElement.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
