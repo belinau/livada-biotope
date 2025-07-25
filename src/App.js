@@ -1,8 +1,10 @@
-import React, { useState, useEffect, createContext, useContext, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, createContext, useContext, useCallback, useRef } from 'react';
 import { BrowserRouter, Routes, Route, NavLink, Link } from 'react-router-dom';
 import { ResponsiveLine } from '@nivo/line';
 import { marked } from 'marked';
 import { parse } from 'yaml';
+import { motion, AnimatePresence } from 'framer-motion';
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
 
 // --- Animated Background Component ---
 
@@ -14,8 +16,6 @@ const AnimatedBackground = () => {
         const ctx = canvas.getContext('2d');
         let animationFrameId;
         let time = 0;
-
-        // I've slightly increased the amplitude for a more noticeable effect
         const waves = [
             { amplitude: 25, frequency: 0.02, speed: 0.001, yOffset: 0.45, color: 'rgba(74, 124, 89, 0.15)' },
             { amplitude: 30, frequency: 0.015, speed: -0.0015, yOffset: 0.5, color: 'rgba(74, 124, 89, 0.1)' },
@@ -30,21 +30,12 @@ const AnimatedBackground = () => {
         const animate = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             time += 1;
-
-            // --- CORRECTED GRADIENT LOGIC ---
-
-            // 1. Define the gradient. Let's make the orange more subtle.
             const gradientAlpha = 0.1 + Math.sin(time * 0.005) * 0.06;
             const skyGradient = ctx.createLinearGradient(0, canvas.height * 0.3, 0, canvas.height);
             
             skyGradient.addColorStop(0, `rgba(74, 124, 89, ${gradientAlpha})`); // Top color (greenish)
-            skyGradient.addColorStop(1, `rgba(247, 146, 5, 0.69)`); // Bottom color (subtle orange accent)
-
-            // 2. We no longer draw the gradient as a background rectangle.
-            // That ctx.fillRect() line has been removed.
-
+            skyGradient.addColorStop(1, `rgba(247, 146, 5, 0.69)`); // Bottom color (subtle orange accent)        
             waves.forEach((wave) => {
-                // Use the wave's own green color for a layered effect
                 ctx.fillStyle = wave.color; 
                 ctx.beginPath();
                 ctx.moveTo(0, canvas.height);
@@ -57,10 +48,8 @@ const AnimatedBackground = () => {
                 ctx.fill();
             });
 
-            // 3. Now, draw one of the waves AGAIN, but this time using the GRADIENT as its fill style.
-            // This layers the gradient effect on top of the green waves for a rich, blended look.
             const topWave = waves[1];
-            ctx.fillStyle = skyGradient; // Use the gradient as the paint
+            ctx.fillStyle = skyGradient; 
             ctx.beginPath();
             ctx.moveTo(0, canvas.height);
             for (let x = 0; x < canvas.width; x++) {
@@ -90,7 +79,6 @@ const AnimatedBackground = () => {
 };
 
 // --- Config and Helper Functions ---
-// Add these helper functions at the top of your file (after imports)
 /**
  * Generates optimized image URL using Netlify's CDN
  * @param {string} src - Image source path
@@ -98,40 +86,49 @@ const AnimatedBackground = () => {
  * @param {number} [height=400] - Desired height
  * @returns {string} Optimized image URL
  */
-const getOptimizedImageUrl = (src, width = 400, height = 400) => {
-    if (!src.startsWith('/')) return src;
-    
-    const params = new URLSearchParams({
-      url: src,
-      w: width.toString(),
-      h: height.toString(),
-      fit: 'cover',
-      position: 'center',
-    });
+const isLocalDevelopment = process.env.NODE_ENV === 'development';
+
+const getOptimizedImageUrl = (imagePath) => {
+  if (!imagePath) return '';
   
-    return `/.netlify/images?${params.toString()}`;
-  };
+  // In local development, return the path directly without Netlify CDN
+  if (isLocalDevelopment) {
+    // Handle both relative and absolute paths
+    if (imagePath.startsWith('http') || imagePath.startsWith('//')) {
+      return imagePath;
+    }
+    // Ensure the path is correctly formatted for local development
+    return imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  }
+
+  // Production: Use Netlify CDN
+  const url = new URL('https://livada.bio');
+  url.pathname = `/.netlify/images`;
+  url.searchParams.append('url', imagePath);
+  url.searchParams.append('w', '1200');
+  url.searchParams.append('q', '80');
+  return url.toString();
+};
+
+const getResponsiveSrcSet = (imagePath) => {
+  if (!imagePath || isLocalDevelopment) {
+    // In local development, just return the image path as is
+    return imagePath;
+  }
+
+  // Production: Generate responsive srcset
+  const widths = [400, 600, 800, 1000, 1200, 1600, 2000];
+  const url = new URL('https://livada.bio');
   
-  /**
-   * Generates responsive srcset for optimized images
-   * @param {string} src - Image source path
-   * @returns {string} Responsive srcset string
-   */
-  const getResponsiveSrcSet = (src) => {
-    if (!src.startsWith('/')) return '';
-    
-    const widths = [300, 600, 900];
-    return widths.map(width => {
-      const params = new URLSearchParams({
-        url: src,
-        w: width.toString(),
-        h: width.toString(),
-        fit: 'cover',
-        position: 'center',
-      });
-      return `/.netlify/images?${params.toString()} ${width}w`;
-    }).join(', ');
-  };
+  return widths.map(width => {
+    url.pathname = `/.netlify/images`;
+    const params = new URLSearchParams();
+    params.append('url', imagePath);
+    params.append('w', width.toString());
+    params.append('q', '80');
+    return `${url.toString()}?${params.toString()} ${width}w`;
+  }).join(', ');
+};
 
 const BED_MAPPING = {
     '!35c2d45c-0': { name: 'travni sestoj', color: '#52796f' },
@@ -141,7 +138,7 @@ const BED_MAPPING = {
     '!04c5ad60-1': { name: 'cvetlice za opraševalce', color: '#cad2c5' },
 
     '!76208ba5-0': { name: 'majaron in melisa', color: '#90a955' },
-    '!76208ba5-1': { name: 'kamilica in slezenovec', color: '#606c38' },
+    '!76208ba5-1': { name: 'tolščak in slezenovec', color: '#606c38' },
 };
 
 const parseMarkdown = (rawContent) => {
@@ -158,6 +155,51 @@ const parseMarkdown = (rawContent) => {
     }
 };
 
+// 1️⃣  Mermaid 
+mermaid.initialize({ startOnLoad: false, theme: 'base' });
+
+// 2️⃣  Custom short-code renderer
+function enhanceHTML(html) {
+  return html
+    // :::details Title↵↵content↵:::
+    .replace(/:::details\s+(.+?)\n([\s\S]*?)\n:::/g, '<details><summary>$1</summary><div class="mt-2">$2</div></details>')
+    // {{youtube ID}}
+    .replace(/{{youtube\s+(.+?)}}/g, `<div class="aspect-video"><iframe class="w-full h-full" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe></div>`)
+    // {{vimeo ID}}
+    .replace(/{{vimeo\s+(.+?)}}/g, `<div class="aspect-video"><iframe class="w-full h-full" src="https://player.vimeo.com/video/$1" frameborder="0" allowfullscreen></iframe></div>`);
+}
+
+/* ---------- Calendar helper component ---------- */
+const EventRow = ({ event, lang, isPast }) => {
+    const fmt = (d) =>
+      d.toLocaleString(lang, {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+  
+    return (
+      <li
+        className={`p-3 rounded-lg shadow-sm ${
+          isPast ? 'bg-gray-100 opacity-70' : 'bg-primary/5'
+        }`}
+      >
+        <div className="font-semibold text-sm">{event.summary}</div>
+        <div className="text-xs text-gray-500 mt-1">{fmt(event.startDate)}</div>
+        {event.location && (
+          <div className="text-xs text-gray-500 mt-1">📍 {event.location}</div>
+        )}
+        {event.description && (
+          <div className="text-xs text-gray-700 mt-2 whitespace-pre-wrap break-words">
+            {event.description}
+          </div>
+        )}
+      </li>
+    );
+  };
+  
 // --- Contexts ---
 
 const SensorContext = createContext();
@@ -478,13 +520,11 @@ function SensorVisualization() {
                     <div className="grid grid-cols-1 gap-8 pt-6 border-t">
                         <ChartWrapper title={t('moistureFlows')}>
                             {hasMoistureData ? (
-                                // CHANGE: Increased chart margins and legend itemWidth
                                 <ResponsiveLine tooltip={CustomTooltip} data={chartData.moisture} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 120, left: 70 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: 'Vlaga (%)', legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 80, itemsSpacing: 4, itemWidth: 180, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
                             ) : ( <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> )}
                         </ChartWrapper>
                         <ChartWrapper title={t('temperatureFlows')}>
                             {hasTemperatureData ? (
-                                // CHANGE: Increased chart margins and legend itemWidth
                                 <ResponsiveLine tooltip={CustomTooltip} data={chartData.temperature} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 120, left: 70 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 80, itemsSpacing: 4, itemWidth: 180, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
                             ) : ( <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> )}
                         </ChartWrapper>
@@ -558,33 +598,150 @@ const INaturalistFeed = ({ projectSlug }) => {
     );
 }
 
-const CalendarFeed = ({ icsUrl }) => {
-    const [events, setEvents] = useState([]); const [isLoading, setIsLoading] = useState(true); const { t, language } = useTranslation();
+const CalendarFeed = ({ icsUrl, calendarUrl }) => {
+    const [events, setEvents] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const { t, language } = useTranslation();
+  
+    /* -------- month navigation -------- */
+    const today = new Date();
+    const [viewYear, setViewYear] = useState(today.getFullYear());
+    const [viewMonth, setViewMonth] = useState(today.getMonth());
+  
+    const changeMonth = (delta) => {
+      const d = new Date(viewYear, viewMonth + delta, 1);
+      setViewYear(d.getFullYear());
+      setViewMonth(d.getMonth());
+    };
+  
+    /* -------- fetch & parse -------- */
     useEffect(() => {
         const parseICS = (icsText) => {
-            const parsedEvents = []; const eventBlocks = icsText.split('BEGIN:VEVENT'); eventBlocks.shift();
-            for (const block of eventBlocks) {
-                const summaryMatch = block.match(/SUMMARY:(.*)/); const dtstartMatch = block.match(/DTSTART(?:;TZID=.*)?:(.*)/); const locationMatch = block.match(/LOCATION:(.*)/);
-                if (summaryMatch && dtstartMatch) {
-                    const startDateStr = dtstartMatch[1].trim(); const year = parseInt(startDateStr.substring(0, 4), 10); const month = parseInt(startDateStr.substring(4, 6), 10) - 1; const day = parseInt(startDateStr.substring(6, 8), 10); const hour = startDateStr.length > 8 ? parseInt(startDateStr.substring(9, 11), 10) : 0; const minute = startDateStr.length > 8 ? parseInt(startDateStr.substring(11, 13), 10) : 0;
-                    const startDate = new Date(Date.UTC(year, month, day, hour, minute));
-                    if (startDate > new Date()) { parsedEvents.push({ uid: (block.match(/UID:(.*)/) || ['', ''])[1].trim(), summary: summaryMatch[1].trim(), location: locationMatch ? locationMatch[1].trim().replace(/\\,/g, ',') : '', startDate: startDate, }); }
-                }
-            }
-            return parsedEvents.sort((a, b) => a.startDate - b.startDate);
-        };
-        const proxyUrl = 'https://api.allorigins.win/raw?url=';
-        fetch(proxyUrl + encodeURIComponent(icsUrl)).then(response => { if (!response.ok) { throw new Error('Network response was not ok'); } return response.text(); }).then(icsText => { setEvents(parseICS(icsText)); }).catch(e => { console.error("Error fetching or parsing ICS file:", e); }).finally(() => setIsLoading(false));
-    }, [icsUrl]);
+          const blocks = icsText.split('BEGIN:VEVENT');
+          blocks.shift();
+          const parsed = [];
+      
+          for (const block of blocks) {
+            const summary  = (block.match(/^SUMMARY:(.*)/m)?.[1] ?? '').trim();
+            const location = (block.match(/^LOCATION:(.*)/m)?.[1] ?? '').trim().replace(/\\,/g, ',');
+            const uid      = (block.match(/^UID:(.*)/m)?.[1] ?? '').trim();
+      
+            let description = '';
+            const descStart = block.search(/^DESCRIPTION:/im);
+            if (descStart !== -1) {
+              description = block
+                .slice(descStart + 12)               // +12 skips "DESCRIPTION:" + the colon
+                .split(/\r?\n/)
+                .reduce((a, l) => (/^[\t ]/.test(l) ? a + l.trimStart() : /^[A-Z-]+:/.test(l) ? a + '\0' : a + l), '')
+                .split('\0')[0]
+                .replace(/\\(.)/g, '$1')
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<a\b[^>]*>(.*?)<\/a>/gi, '$1')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
 
+              if (description.length > 200) {
+                description = description.slice(0, 200).split('\n').slice(0, 3).join('\n').replace(/\s+$/, '') + '…';
+              }
+            }
+      
+            const dt = block.match(/DTSTART(?:;TZID=[^:]*)?:(.*)/);
+            if (!dt) continue;
+            const raw = dt[1].trim();
+            const startDate = new Date(Date.UTC(
+              +raw.slice(0, 4),
+              +raw.slice(4, 6) - 1,
+              +raw.slice(6, 8),
+              raw.length > 8 ? +raw.slice(9, 11) : 0,
+              raw.length > 8 ? +raw.slice(11, 13) : 0
+            ));
+            parsed.push({ uid, summary, description, location, startDate });
+          }
+      
+          return parsed.sort((a, b) => +a.startDate - +b.startDate);
+        };
+      
+        const proxy = 'https://api.allorigins.win/raw?url=';
+        fetch(proxy + encodeURIComponent(icsUrl))
+          .then(r => (r.ok ? r.text() : Promise.reject(r.status)))
+          .then(t => setEvents(parseICS(t)))
+          .catch(e => console.error('ICS error:', e))
+          .finally(() => setIsLoading(false));
+      }, [icsUrl]);
+  
+    /* -------- events for the current month -------- */
+    const currentMonthEvents = useMemo(() => {
+      const monthStart = new Date(viewYear, viewMonth, 1);
+      const monthEnd = new Date(viewYear, viewMonth + 1, 1);
+  
+      return events.filter(
+        (e) => e.startDate >= monthStart && e.startDate < monthEnd
+      );
+    }, [events, viewYear, viewMonth]);
+  
     if (isLoading) return <div className="text-center">{t('loading')}...</div>;
+  
+    const monthName = new Date(viewYear, viewMonth).toLocaleString(language, {
+      month: 'long',
+      year: 'numeric',
+    });
+  
     return (
-        <div className="max-w-2xl mx-auto bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-            {events.length > 0 ? (<ul className="space-y-4">{events.map(event => (<li key={event.uid} className="flex items-start space-x-4 p-4 rounded-lg bg-gray-50/50"><div className="text-center flex-shrink-0 w-20"><p className="text-primary font-mono font-bold text-lg">{event.startDate.toLocaleDateString(language, { month: 'short' }).toUpperCase()}</p><p className="text-3xl font-bold text-gray-700">{event.startDate.getDate()}</p></div><div className="border-l-2 border-primary/20 pl-4 pt-1"><h3 className="font-bold text-lg text-primary">{event.summary}</h3>{event.location && <p className="text-sm text-gray-600">{event.location}</p>}<p className="text-sm text-gray-500 mt-1">{event.startDate.toLocaleTimeString(language, { hour: '2-digit', minute: '2-digit' })}</p></div></li>))}</ul>)
-                : (<p className="text-center text-gray-500">{t('noUpcomingEvents')}</p>)}
+      <div className="max-w-2xl mx-auto bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
+        {/* month switcher */}
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => changeMonth(-1)}
+            className="px-3 py-1 rounded bg-primary/10 hover:bg-primary/20"
+          >
+            &larr;
+          </button>
+          <span className="font-bold text-lg">{monthName}</span>
+          <button
+            onClick={() => changeMonth(1)}
+            className="px-3 py-1 rounded bg-primary/10 hover:bg-primary/20"
+          >
+            &rarr;
+          </button>
         </div>
+  
+        <ul className="space-y-4">
+          {currentMonthEvents.map((e) => (
+            <EventRow key={e.uid} event={e} lang={language} />
+          ))}
+          {currentMonthEvents.length === 0 && (
+            <p className="text-center text-gray-500">{t('noUpcomingEvents')}</p>
+          )}
+        </ul>
+  
+        {/* link to Google Calendar */}
+        <div className="mt-6 text-center">
+          <a
+            href={calendarUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+              />
+            </svg>
+            {t('openInGoogleCalendar')}
+          </a>
+        </div>
+      </div>
     );
-}
+  }; 
 
 // --- Page Components ---
 function Page({ title, children }) {
@@ -603,319 +760,286 @@ function Section({ title, children, className = '' }) {
 
 function MemoryGame() {
     const { t } = useTranslation();
+  
+    /* ---------- state ---------- */
     const [cards, setCards] = useState([]);
     const [flipped, setFlipped] = useState([]);
     const [matched, setMatched] = useState([]);
     const [moves, setMoves] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [gameComplete, setGameComplete] = useState(false);
     const [gameMode, setGameMode] = useState('sl');
-    const [playerName, setPlayerName] = useState('');
     const [scores, setScores] = useState([]);
-    const [showHallOfFame, setShowHallOfFame] = useState(false);
-    const [zoomedImage, setZoomedImage] = useState(null); // New state for zoomed image
-
-    // Initialize scores from localStorage
-    useEffect(() => {
-        const savedScores = JSON.parse(localStorage.getItem('memoryGameScores') || '[]');
-        setScores(savedScores);
-    }, []);
-
-    // Save score to localStorage
-    const saveScore = () => {
-        if (!playerName.trim()) return;
-        
-        const newScore = {
-            name: playerName,
-            moves,
-            date: new Date().toISOString(),
-            mode: gameMode
-        };
-        
-        const updatedScores = [...scores, newScore]
-            .sort((a, b) => a.moves - b.moves)
-            .slice(0, 10);
-        
-        setScores(updatedScores);
-        localStorage.setItem('memoryGameScores', JSON.stringify(updatedScores));
-        setPlayerName('');
-        setShowHallOfFame(true);
-    };
-
+    const [showHall, setShowHall] = useState(false);
+    const [playerName, setPlayerName] = useState('');
+  
+    /* ---------- helpers ---------- */
     const resetGame = (mode = gameMode) => {
-        setLoading(true);
-        setGameMode(mode);
-        setFlipped([]);
-        setMatched([]);
-        setMoves(0);
-        setGameComplete(false);
-        setPlayerName('');
-        setShowHallOfFame(false);
-        setZoomedImage(null); // Reset zoomed image
+      setGameMode(mode);
+      setFlipped([]);
+      setMatched([]);
+      setMoves(0);
+      setShowHall(false);
     };
-
-    const changeGameMode = (mode) => {
-        if (gameMode !== mode) {
-            resetGame(mode);
-        }
-    };
-
+  
+    /* ---------- fetch cards ---------- */
     useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const localeParam = gameMode !== 'latin' ? `&locale=${gameMode}` : '';
-                const response = await fetch(`https://api.inaturalist.org/v1/observations?project_id=the-livada-biotope-monitoring&per_page=12&quality_grade=research&order_by=random${localeParam}`);
-                
-                const data = await response.json();
-                const observations = data.results.filter(obs => obs.photos?.length > 0);
-
-                const gameCards = observations.flatMap(obs => {
-                    const scientificName = obs.taxon?.name || "Unknown";
-                    let displayName;
-
-                    if (gameMode === 'latin') {
-                        displayName = scientificName;
-                    } else {
-                        displayName = obs.taxon?.preferred_common_name || scientificName;
-                    }
-
-                    if (gameMode === 'sl') {
-                        displayName = displayName.toLowerCase();
-                    }
-
-                    return [
-                        { id: `${obs.id}-image`, type: 'image', content: obs.photos[0]?.url.replace('square', 'medium'), organismId: obs.id },
-                        { id: `${obs.id}-name`, type: 'name', content: displayName, organismId: obs.id }
-                    ];
-                });
-
-                setCards(gameCards.sort(() => Math.random() - 0.5));
-            } catch (error) {
-                console.error("Error fetching game data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [gameMode]);
-
-    const handleCardClick = (index) => {
-        if (gameComplete || matched.includes(index) || flipped.length >= 2) return;
-
-        const newFlipped = [...flipped, index];
-        setFlipped(newFlipped);
-
-        if (newFlipped.length === 2) {
-            setMoves(moves + 1);
-            const firstCard = cards[newFlipped[0]];
-            const secondCard = cards[newFlipped[1]];
-
-            if (firstCard.organismId === secondCard.organismId && firstCard.type !== secondCard.type) {
-                setMatched(prev => [...prev, ...newFlipped]);
-                if (matched.length + 2 === cards.length) {
-                    setGameComplete(true);
+      const fetchCards = async () => {
+        setLoading(true);
+        const localeParam = gameMode !== 'latin' ? `&locale=${gameMode}` : '';
+        try {
+          const res = await fetch(
+            `https://api.inaturalist.org/v1/observations?project_id=the-livada-biotope-monitoring&per_page=12&quality_grade=research&order_by=random${localeParam}`
+          );
+          const data = await res.json();
+          const observations = data.results.filter(o => o.photos?.length);
+          const newCards = observations.flatMap(obs => [
+            {
+              id: `${obs.id}-img`,
+              type: 'image',
+              content: obs.photos[0].url.replace('square', 'medium'),
+              organismId: obs.id
+            },
+            {
+              id: `${obs.id}-txt`,
+              type: 'text',
+              content: (() => {
+                switch(gameMode) {
+                  case 'sl':
+                    return (obs.taxon?.preferred_common_name || obs.taxon?.name || 'Unknown').toLowerCase();
+                  case 'latin':
+                    return obs.taxon?.name || 'Unknown'; // Always use scientific name for latin mode
+                  default:
+                    return obs.taxon?.preferred_common_name || obs.taxon?.name || 'Unknown';
                 }
+              })(),
+              organismId: obs.id
             }
-
-            setTimeout(() => setFlipped([]), 1200);
+          ]);
+          setCards(newCards.sort(() => Math.random() - 0.5));
+        } catch {
+          setCards([]);
+        } finally {
+          setLoading(false);
         }
+      };
+      fetchCards();
+    }, [gameMode]);
+  
+    /* ---------- leaderboard ---------- */
+    useEffect(() => {
+      const s = JSON.parse(localStorage.getItem('memoryGameScores') || '[]');
+      setScores(s);
+    }, []);
+  
+    const saveScore = () => {
+      if (!playerName.trim()) return;
+      const newScore = { name: playerName, moves, date: new Date().toISOString(), mode: gameMode };
+      const updated = [...scores, newScore]
+        .sort((a, b) => a.moves - b.moves)
+        .slice(0, 10);
+      setScores(updated);
+      localStorage.setItem('memoryGameScores', JSON.stringify(updated));
+      setPlayerName('');
+      setShowHall(true);
     };
-
-    // New function to handle image zoom
-    const handleImageZoom = (e, imageUrl) => {
-        e.stopPropagation();
-        setZoomedImage(imageUrl);
+  
+    /* ---------- click handler ---------- */
+    const handleCardClick = idx => {
+      // Don't allow clicking already matched or flipped cards
+      if (matched.includes(idx) || flipped.includes(idx) || flipped.length >= 2) return;
+      
+      const newFlipped = [...flipped, idx];
+      setFlipped(newFlipped);
+      
+      // If this is the second card flipped
+      if (newFlipped.length === 2) {
+        setMoves(m => m + 1);
+        const [firstIdx, secondIdx] = newFlipped;
+        const isMatch = cards[firstIdx].organismId === cards[secondIdx].organismId && 
+                       cards[firstIdx].type !== cards[secondIdx].type;
+        
+        if (isMatch) {
+          // Add both cards to matched and clear flipped state
+          setMatched(prev => [...new Set([...prev, ...newFlipped])]);
+          setFlipped([]);
+        } else {
+          // Only reset flip state for non-matches after a delay
+          setTimeout(() => setFlipped([]), 1200);
+        }
+      }
     };
-
-    if (loading) return (
-        <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-8">
-                <h3 className="text-2xl font-mono font-bold text-primary">{t('memoryGameTitle')}</h3>
-                <p className="text-gray-600">{t('moves')}: {moves}</p>
-                 <div className="flex justify-center gap-4 mt-4">
-                     <button className={`px-4 py-2 rounded-lg bg-gray-200 text-gray-700 opacity-50`}>{t('slovenian')}</button>
-                     <button className={`px-4 py-2 rounded-lg bg-gray-200 text-gray-700 opacity-50`}>{t('english')}</button>
-                     <button className={`px-4 py-2 rounded-lg bg-gray-200 text-gray-700 opacity-50`}>{t('latin')}</button>
-                 </div>
-             </div>
-            <div className="text-center py-12">{t('loading')}...</div>
-        </div>
-    );
-    
+  
+    /* ---------- render ---------- */
+    if (loading) return <div className="max-w-6xl mx-auto text-center py-12">{t('loading')}...</div>;
+  
     return (
-        <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-8">
-                <h3 className="text-2xl font-mono font-bold text-primary">{t('memoryGameTitle')}</h3>
-                <p className="text-gray-600">{t('moves')}: {moves}</p>
-                
-                <div className="flex justify-center gap-2 md:gap-4 mt-4">
-                    <button onClick={() => changeGameMode('sl')} className={`px-3 py-2 text-sm md:px-4 md:text-base rounded-lg transition-colors ${gameMode === 'sl' ? 'bg-primary text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>{t('slovenian')}</button>
-                    <button onClick={() => changeGameMode('en')} className={`px-3 py-2 text-sm md:px-4 md:text-base rounded-lg transition-colors ${gameMode === 'en' ? 'bg-primary text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>{t('english')}</button>
-                    <button onClick={() => changeGameMode('latin')} className={`px-3 py-2 text-sm md:px-4 md:text-base rounded-lg transition-colors ${gameMode === 'latin' ? 'bg-primary text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>{t('latin')}</button>
-                </div>
-            </div>
-            
-            {/* Hall of Fame Toggle */}
-            <div className="flex justify-center mb-6">
-                <button 
-                    onClick={() => setShowHallOfFame(!showHallOfFame)}
-                    className="px-4 py-2 bg-primary/10 text-primary font-medium rounded-lg hover:bg-primary/20 transition-colors"
-                >
-                    {showHallOfFame ? t('newGame') : t('hallOfFame')}
-                </button>
-            </div>
-            
-            {showHallOfFame ? (
-                <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-                    <h4 className="text-xl font-mono text-primary mb-4 text-center">{t('hallOfFame')}</h4>
-                    
-                    {scores.length > 0 ? (
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead>
-                                    <tr>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('player')}</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('moves')}</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('date')}</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200">
-                                    {scores.map((score, index) => (
-                                        <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{score.name}</td>
-                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{score.moves}</td>
-                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
-                                                {new Date(score.date).toLocaleDateString()}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (
-                        <p className="text-center text-gray-500 py-4">{t('noScores')}</p>
-                    )}
-                </div>
-            ) : (
-                <>
-                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
-                        {cards.map((card, index) => {
-                            const isFlipped = flipped.includes(index);
-                            const isMatched = matched.includes(index);
-                            const isVisible = isFlipped || isMatched;
-                            
-                            return (
-                                <div 
-                                    key={card.id} 
-                                    className="perspective-1000 cursor-pointer"
-                                    onClick={() => handleCardClick(index)}
-                                >
-                                    <div className={`relative w-full aspect-square transition-transform duration-500 transform-style-3d ${isVisible ? 'rotate-y-180' : ''}`}>
-                                        {/* Card Back */}
-                                        <div className="absolute inset-0 bg-primary/10 rounded-lg shadow-md flex items-center justify-center backface-hidden overflow-hidden">
-                                            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-60">
-                                                <defs>
-                                                    <pattern id="cardPattern" patternUnits="userSpaceOnUse" width="25" height="25" patternTransform="rotate(45)">
-                                                        <circle cx="5" cy="5" r="1.5" fill="#f6ad55" /> 
-                                                        <circle cx="15" cy="15" r="2" fill="#84a98c" /> 
-                                                    </pattern>
-                                                </defs>
-                                                <rect width="100%" height="100%" fill="url(#cardPattern)" />
-                                            </svg>
-                                        </div>
-                                        {/* Card Front */}
-                                        <div className={`absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center p-2 rotate-y-180 backface-hidden ${isMatched ? 'opacity-60' : ''}`}>
-                                            {card.type === 'image' ? ( 
-                                                <div className="relative w-full h-full">
-                                                    <img 
-                                                        src={card.content || "placeholder-image.jpg"} 
-                                                        alt="Organism" 
-                                                        className="w-full h-full object-cover rounded-lg"
-                                                    />
-                                                    <button 
-                                                        onClick={(e) => handleImageZoom(e, card.content)}
-                                                        className="absolute top-1 right-1 bg-white/70 rounded-full p-1 hover:bg-white transition-colors"
-                                                        aria-label={t('zoomImage')}
-                                                    >
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                            ) : ( 
-                                                <p className="text-sm md:text-base font-medium text-center p-1">{card.content}</p> 
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                    
-                    {gameComplete && (
-                        <div className="mt-8 bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg max-w-2xl mx-auto">
-                            <div className="text-center">
-                                <h4 className="text-xl font-mono text-primary mb-2">{t('congratulations')}</h4>
-                                <p className="text-gray-700 mb-4">{t('yourScore')} {moves} {t('moves')}</p>
-                                
-                                <div className="flex flex-col items-center gap-3">
-                                    <input
-                                        type="text"
-                                        value={playerName}
-                                        onChange={(e) => setPlayerName(e.target.value)}
-                                        placeholder={t('enterName')}
-                                        className="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                                    />
-                                    <button 
-                                        onClick={saveScore}
-                                        disabled={!playerName.trim()}
-                                        className="bg-primary/90 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-primary transition-colors disabled:opacity-50"
-                                    >
-                                        {t('submitScore')}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </>
-            )}
-            
-            {/* Game Description */}
-            <div className="mt-12 bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-                <p className="prose max-w-3xl mx-auto text-gray-700 text-center">
-                    {t('memoryGameDescription')}
-                </p>
-            </div>
-            
-            {/* Image Zoom Modal */}
-            {zoomedImage && (
-                <div 
-                    className="fixed inset-0 z-50 bg-black/90 backdrop-blur-lg flex items-center justify-center p-4"
-                    onClick={() => setZoomedImage(null)}
-                >
-                    <div className="relative max-w-4xl w-full">
-                        <button 
-                            className="absolute top-4 right-4 text-white p-2 rounded-full hover:bg-white/10 transition-colors z-10"
-                            onClick={() => setZoomedImage(null)}
-                            aria-label={t('close')}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                        <img 
-                            src={zoomedImage} 
-                            alt="Enlarged view" 
-                            className="max-h-[90vh] w-auto mx-auto object-contain"
-                        />
-                    </div>
-                </div>
-            )}
+      <div className="max-w-6xl mx-auto">
+        {/* header */}
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-mono font-bold text-primary">{t('memoryGameTitle')}</h3>
+          <p className="text-gray-600">{t('moves')}: {moves}</p>
+          <div className="flex justify-center gap-2 md:gap-4 mt-4">
+            {['sl', 'en', 'latin'].map(m => (
+              <button
+                key={m}
+                onClick={() => resetGame(m)}
+                className={`px-3 py-2 rounded-lg transition ${gameMode === m ? 'bg-primary text-white shadow' : 'bg-gray-200'}`}
+              >
+                {t(m === 'sl' ? 'slovenian' : m === 'en' ? 'english' : 'latin')}
+              </button>
+            ))}
+          </div>
         </div>
+  
+        {/* leaderboard toggle */}
+        <div className="flex justify-center mb-6">
+          <button
+            onClick={() => setShowHall(!showHall)}
+            className="px-4 py-2 bg-primary/10 text-primary font-medium rounded-lg hover:bg-primary/20"
+          >
+            {showHall ? t('newGame') : t('hallOfFame')}
+          </button>
+        </div>
+  
+        {showHall ? (
+          <div className="bg-white/80 p-6 rounded shadow text-center">
+            <h4 className="text-xl font-mono mb-4">{t('hallOfFame')}</h4>
+            {scores.length ? (
+              <table className="min-w-full divide-y text-sm">
+                <thead><tr><th>{t('player')}</th><th>{t('moves')}</th><th>{t('date')}</th></tr></thead>
+                <tbody>{scores.map((s,i)=><tr key={i} className={i%2?'bg-gray-50':''}><td>{s.name}</td><td>{s.moves}</td><td>{new Date(s.date).toLocaleDateString()}</td></tr>)}</tbody>
+              </table>
+            ) : <p>{t('noScores')}</p>}
+          </div>
+        ) : (
+          /* ---------- card grid ---------- */
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
+            {cards.map((card, idx) => {
+              const isFlipped = flipped.includes(idx);
+              const isMatched = matched.includes(idx);
+              const showFront = isFlipped || isMatched;
+              
+              // If card is matched, render it in a fixed face-up state with consistent styling
+              if (isMatched) {
+                return (
+                  <div 
+                    key={card.id}
+                    className="relative w-full aspect-square"
+                    style={{
+                      opacity: 0.8,
+                      zIndex: 1,
+                      transform: 'rotateY(180deg) scale(1)',
+                      transformStyle: 'preserve-3d',
+                      WebkitTransformStyle: 'preserve-3d',
+                      position: 'relative',
+                      perspective: '1000px',
+                      transition: 'opacity 0.3s, transform 0.5s',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden'
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-white flex items-center justify-center p-2 rounded-lg overflow-hidden"
+                      style={{
+                        backfaceVisibility: 'hidden',
+                        WebkitBackfaceVisibility: 'hidden',
+                        transform: 'rotateY(180deg)',
+                        transformStyle: 'preserve-3d',
+                        zIndex: 2,
+                        pointerEvents: 'none'
+                      }}
+                    >
+                      {card.type === 'image' ? (
+                        <img
+                          src={card.content}
+                          alt=""
+                          className="w-full h-full object-cover rounded-md"
+                        />
+                      ) : (
+                        <span className="text-sm font-medium text-center">
+                          {card.content}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              }
+              
+              // For non-matched cards, render with flip animation
+              return (
+                <motion.div
+                  key={card.id}
+                  className="relative w-full aspect-square cursor-pointer"
+                  onClick={() => handleCardClick(idx)}
+                  initial={false}
+                  animate={{
+                    rotateY: isFlipped ? 180 : 0,
+                    scale: isFlipped ? 1.6 : 1,
+                    zIndex: isFlipped ? 10 : 1
+                  }}
+                  transition={{
+                    rotateY: { duration: 0.5 },
+                    scale: { duration: 0.3 }
+                  }}
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    WebkitTransformStyle: 'preserve-3d',
+                    position: 'relative',
+                    perspective: '1000px',
+                    transform: 'rotateY(0deg)'
+                  }}
+                >
+                  {/* back */}
+                  <div
+                    className="absolute inset-0 bg-primary/10 rounded-lg shadow-md flex items-center justify-center overflow-hidden"
+                    style={{
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                      transform: 'rotateY(0deg)'
+                    }}
+                  >
+                    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-60">
+                      <defs>
+                        <pattern id="cardPattern" patternUnits="userSpaceOnUse" width="25" height="25" patternTransform="rotate(45)">
+                          <circle cx="5" cy="5" r="1.5" fill="#f6ad55" />
+                          <circle cx="15" cy="15" r="2" fill="#84a98c" />
+                        </pattern>
+                      </defs>
+                      <rect width="100%" height="100%" fill="url(#cardPattern)" />
+                    </svg>
+                  </div>
+  
+                  {/* front (photo or text) */}
+                  <div
+                    className="absolute inset-0 bg-white flex items-center justify-center p-2 rounded-lg overflow-hidden"
+                    style={{
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                      transform: 'rotateY(180deg)',
+                      transformStyle: 'preserve-3d',
+                      zIndex: 2,
+                      pointerEvents: 'none'
+                    }}
+                  >
+                    {card.type === 'image' ? (
+                      <img
+                        src={card.content}
+                        alt=""
+                        className="w-full h-full object-cover rounded-md"
+                      />
+                    ) : (
+                      <span className="text-sm font-medium text-center">
+                        {card.content}
+                      </span>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     );
-}
+  }
 
 function ProjectsPage() {
     const { t, language } = useTranslation();
@@ -976,7 +1100,8 @@ function CalendarPage() {
         <Page title={t('navCalendar')}>
             <Section title={t('calendarTitle')}>
                 <p className="mb-8 text-lg text-gray-600 max-w-3xl mx-auto text-center">{t('calendarDesc')}</p>
-                <CalendarFeed icsUrl="https://calendar.google.com/calendar/ical/c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com/public/basic.ics" />
+                <CalendarFeed icsUrl="https://calendar.google.com/calendar/ical/c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com/public/basic.ics"
+                calendarUrl="https://calendar.google.com/calendar/embed?src=c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com&ctz=Europe%2FBelgrade"/>
             </Section>
         </Page>
     );
@@ -1032,9 +1157,46 @@ function ContentCollectionPage({ t, title, contentPath }) {
                         <div key={item.id} className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md">
                             {item.metadata.date && <p className="text-sm text-gray-500 mb-1">{new Date(item.metadata.date).toLocaleDateString(language)}</p>}
                             <h3 className="text-2xl font-mono text-primary mb-3">{item.metadata.title}</h3>
-                            <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: marked(item.content) }}></div>
-                            {item.metadata.tags && <div className="mt-4">{item.metadata.tags.map(tag => (<span key={tag} className="inline-block bg-primary/10 text-primary text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full">{tag}</span>))}</div>}
-                        </div>
+                            <div
+  className="prose max-w-none"
+  dangerouslySetInnerHTML={{
+    __html: (() => {
+      let html = marked.parse(item.content);
+      html = enhanceHTML(html); // YouTube, Vimeo, accordions
+      return html;
+    })()
+  }}
+  ref={node => {
+    if (node) {
+      // Render mermaid charts
+      node.querySelectorAll('.language-mermaid').forEach(pre => {
+        const graphDefinition = pre.textContent;
+        const id = 'mermaid-' + Math.random().toString(36).substr(2, 9);
+        pre.parentNode.replaceChild(
+          Object.assign(document.createElement('div'), { id, className: 'mermaid mb-4' }),
+          pre
+        );
+        mermaid.render(id, graphDefinition).then(({ svg }) => {
+            document.getElementById(id).innerHTML = svg;
+        });
+      });
+    }
+  }}
+/>
+
+{item.metadata.tags && (
+  <div className="mt-4">
+    {item.metadata.tags.map((tag) => (
+      <span
+        key={tag}
+        className="inline-block bg-primary/10 text-primary text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full"
+      >
+        {tag}
+      </span>
+    ))}
+  </div>
+)}
+</div>
                     )) : <p className="text-center text-gray-500">{t('noMoreObservations')}</p>}
                 </div>
             </Section>
@@ -1047,235 +1209,485 @@ function GalleryPage() {
     const [galleries, setGalleries] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [clickedImage, setClickedImage] = useState(null);
+    const overlayRef = useRef(null);
     
     // Fetch galleries
     useEffect(() => {
-      const fetchGalleries = async () => {
-        setIsLoading(true);
-        try {
-          const manifestResponse = await fetch('/content/galleries/manifest.json');
-          if (!manifestResponse.ok) throw new Error('Gallery manifest not found');
-          const manifest = await manifestResponse.json();
-          const baseFileNames = [...new Set(
-            manifest.files.map(f => f.replace(/\.(sl|en)\.md$/, ''))
-          )];
-  
-          const fetchedGalleries = await Promise.all(
-            baseFileNames.map(async baseName => {
-              const langFile = `${baseName}.${language}.md`;
-              const defaultLangFile = `${baseName}.sl.md`;
-              let fileToFetch = langFile;
-              let res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`);
-              
-              if (!res.ok) { 
-                fileToFetch = defaultLangFile; 
-                res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`); 
-              }
-              if (!res.ok) return null;
-  
-              const text = await res.text();
-              const { metadata } = parseMarkdown(text);
-              return { id: baseName, ...metadata };
-            })
-          );
-          
-          const validGalleries = fetchedGalleries.filter(gallery => 
-            gallery && gallery.images && gallery.images.length > 0
-          ).sort((a, b) => new Date(b.date) - new Date(a.date));
-          
-          setGalleries(validGalleries);
-        } catch (error) {
-          console.error("Failed to load galleries:", error);
-          setGalleries([]);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      
-      fetchGalleries();
+        const fetchGalleries = async () => {
+            setIsLoading(true);
+            try {
+                const manifestResponse = await fetch('/content/galleries/manifest.json');
+                if (!manifestResponse.ok) throw new Error('Gallery manifest not found');
+                const manifest = await manifestResponse.json();
+                const baseFileNames = [...new Set(
+                    manifest.files.map(f => f.replace(/\.(sl|en)\.md$/, ''))
+                )];
+
+                const fetchedGalleries = await Promise.all(
+                    baseFileNames.map(async baseName => {
+                        const langFile = `${baseName}.${language}.md`;
+                        const defaultLangFile = `${baseName}.sl.md`;
+                        let fileToFetch = langFile;
+                        let res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`);
+                        
+                        if (!res.ok) { 
+                            fileToFetch = defaultLangFile; 
+                            res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`); 
+                        }
+                        if (!res.ok) return null;
+
+                        const text = await res.text();
+                        const { metadata } = parseMarkdown(text);
+                        return { id: baseName, ...metadata };
+                    })
+                );
+                
+                const validGalleries = fetchedGalleries.filter(gallery => 
+                    gallery && gallery.images && gallery.images.length > 0
+                ).sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                setGalleries(validGalleries);
+            } catch (error) {
+                console.error("Failed to load galleries:", error);
+                setGalleries([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        
+        fetchGalleries();
     }, [language]);
-  
-    // Modal functions
-    const openImage = (gallery, imageIndex) => {
-      setSelectedImage({ gallery, imageIndex });
-      document.body.style.overflow = 'hidden';
+
+    // Handle image click with animation
+    const openImage = (gallery, imageIndex, event) => {
+        const clickedElement = event.currentTarget;
+        const rect = clickedElement.getBoundingClientRect();
+        
+        setClickedImage({
+            element: clickedElement,
+            rect: {
+                top: rect.top + window.scrollY,
+                left: rect.left + window.scrollX,
+                width: rect.width,
+                height: rect.height
+            }
+        });
+        
+        requestAnimationFrame(() => {
+            setSelectedImage({ gallery, imageIndex });
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
+        });
     };
-  
+
     const closeImage = () => {
-      setSelectedImage(null);
-      document.body.style.overflow = '';
+        setSelectedImage(null);
+        document.body.style.overflow = '';
+        document.documentElement.style.paddingRight = '';
     };
-  
-    // Keyboard navigation
+
     useEffect(() => {
-      const handleKeyDown = (e) => {
+        if (!selectedImage) return;
+
+        const handleKeyDown = (e) => {
+            const { gallery, imageIndex } = selectedImage;
+            const totalImages = gallery.images.length;
+            
+            switch (e.key) {
+                case 'Escape':
+                    closeImage();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    const prevIndex = (imageIndex - 1 + totalImages) % totalImages;
+                    setSelectedImage({ gallery, imageIndex: prevIndex });
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    const nextIndex = (imageIndex + 1) % totalImages;
+                    setSelectedImage({ gallery, imageIndex: nextIndex });
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        const handleClickOutside = (e) => {
+            if (overlayRef.current && !overlayRef.current.contains(e.target)) {
+                closeImage();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [selectedImage]);
+
+    const [touchStart, setTouchStart] = useState(null);
+    const [touchEnd, setTouchEnd] = useState(null);
+    const minSwipeDistance = 50;
+
+    const onTouchStart = (e) => {
+        setTouchEnd(null);
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
+
+    const onTouchEnd = () => {
+        if (!touchStart || !touchEnd || !selectedImage) return;
+        
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+        
+        if (isLeftSwipe || isRightSwipe) {
+            const { gallery, imageIndex } = selectedImage;
+            const totalImages = gallery.images.length;
+            
+            if (isLeftSwipe) {
+                const nextIndex = (imageIndex + 1) % totalImages;
+                setSelectedImage({ gallery, imageIndex: nextIndex });
+            } else {
+                const prevIndex = (imageIndex - 1 + totalImages) % totalImages;
+                setSelectedImage({ gallery, imageIndex: prevIndex });
+            }
+        }
+    };
+
+    useEffect(() => {
         if (!selectedImage) return;
         
         const { gallery, imageIndex } = selectedImage;
         const totalImages = gallery.images.length;
+        const nextIndex = (imageIndex + 1) % totalImages;
+        const prevIndex = (imageIndex - 1 + totalImages) % totalImages;
         
-        if (e.key === 'Escape') {
-          closeImage();
-        } else if (e.key === 'ArrowLeft') {
-          const newIndex = (imageIndex - 1 + totalImages) % totalImages;
-          setSelectedImage({ gallery, imageIndex: newIndex });
-        } else if (e.key === 'ArrowRight') {
-          const newIndex = (imageIndex + 1) % totalImages;
-          setSelectedImage({ gallery, imageIndex: newIndex });
-        }
-      };
-  
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
+        const preloadImage = (url) => {
+            const img = new Image();
+            img.src = url;
+        };
+        
+        preloadImage(gallery.images[nextIndex].image);
+        preloadImage(gallery.images[prevIndex].image);
     }, [selectedImage]);
-  
+
+    if (isLoading) {
+        return (
+            <Page title={t('navGallery')}>
+                <Section title={t('navGallery')}>
+                    <div className="text-center py-10">{t('loading')}...</div>
+                </Section>
+            </Page>
+        );
+    }
+
+    if (!isLoading && galleries.length === 0) {
+        return (
+            <Page title={t('navGallery')}>
+                <Section title={t('navGallery')}>
+                    <p className="text-center text-gray-500">{t('noGalleriesAvailable')}</p>
+                </Section>
+            </Page>
+        );
+    }
+
     return (
-      <Page title={t('navGallery')}>
-        <Section title={t('navGallery')}>
-          {isLoading ? (
-            <div className="text-center py-10">{t('loading')}...</div>
-          ) : galleries.length > 0 ? (
-            <div className="space-y-16">
-              {galleries.map(gallery => (
-                <article key={gallery.id}>
-                  <div className="text-center mb-8">
-                    <h3 className="text-3xl font-mono text-primary">{gallery.title}</h3>
-                    {gallery.date && (
-                      <p className="text-sm text-gray-500 mt-1">
-                        {new Date(gallery.date).toLocaleDateString(language)}
-                      </p>
-                    )}
-                    {gallery.description && (
-                      <p className="prose mt-2 max-w-2xl mx-auto text-gray-600">
-                        {gallery.description}
-                      </p>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {gallery.images.map((image, index) => {
-                      const caption = language === 'sl' 
-                        ? image.caption_sl 
-                        : (image.caption_en || image.caption_sl);
-                      
-                      return (
-                        <div 
-                          key={index} 
-                          className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden group cursor-zoom-in"
-                          onClick={() => openImage(gallery, index)}
-                        >
-                          <div className="relative pb-[100%]">
-                            <img 
-                              src={getOptimizedImageUrl(image.image)} 
-                              srcSet={getResponsiveSrcSet(image.image)}
-                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" 
-                              alt={caption || gallery.title} 
-                              className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-                              loading="lazy" 
-                              onError={(e) => { 
-                                e.target.onerror = null; 
-                                e.target.src = image.image;
-                              }}
-                            />
-                          </div>
-                          {(caption || gallery.author) && (
-                            <div className="p-3 text-sm">
-                              {caption && <p className="text-gray-700">{caption}</p>}
-                              {gallery.author && (
-                                <p className="text-xs text-gray-500 mt-1 flex items-center">
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 opacity-70" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm5 6a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-                                  </svg>
-                                  {t('photoBy')}: {gallery.author}
-                                </p>
-                              )}
+        <Page title={t('navGallery')}>
+            <Section title={t('navGallery')}>
+                <div className="space-y-16">
+                    {galleries.map((gallery) => (
+                        <article key={gallery.id}>
+                            <div className="text-center mb-8">
+                                <h3 className="text-3xl font-mono text-primary">{gallery.title}</h3>
+                                {gallery.date && (
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        {new Date(gallery.date).toLocaleDateString(language, {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric'
+                                        })}
+                                    </p>
+                                )}
+                                {gallery.description && (
+                                    <p className="prose mt-2 max-w-2xl mx-auto text-gray-600">
+                                        {gallery.description}
+                                    </p>
+                                )}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center text-gray-500">{t('noMoreObservations')}</p>
-          )}
-  
-          {/* Image Modal Overlay */}
-          {selectedImage && (
-            <div 
-              className="fixed inset-0 z-50 bg-black/90 backdrop-blur-lg flex items-center justify-center p-4"
-              onClick={closeImage}
-            >
-              <button 
-                className="absolute top-4 right-4 text-white p-2 rounded-full hover:bg-white/10 transition-colors"
-                onClick={closeImage}
-                aria-label={t('close')}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-              
-              <button 
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white p-3 rounded-full hover:bg-white/10 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const newIndex = (selectedImage.imageIndex - 1 + selectedImage.gallery.images.length) % selectedImage.gallery.images.length;
-                  setSelectedImage({...selectedImage, imageIndex: newIndex});
-                }}
-                aria-label={t('previous')}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              
-              <button 
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white p-3 rounded-full hover:bg-white/10 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const newIndex = (selectedImage.imageIndex + 1) % selectedImage.gallery.images.length;
-                  setSelectedImage({...selectedImage, imageIndex: newIndex});
-                }}
-                aria-label={t('next')}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-              
-              <div className="relative max-w-6xl max-h-[90vh] w-full" onClick={e => e.stopPropagation()}>
-                <img 
-                  src={selectedImage.gallery.images[selectedImage.imageIndex].image} 
-                  alt=""
-                  className="max-h-[90vh] w-auto mx-auto object-contain"
-                  loading="eager"
-                />
-                
-                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-4 text-center">
-                  <p className="text-lg">
-                    {language === 'sl' 
-                      ? selectedImage.gallery.images[selectedImage.imageIndex].caption_sl 
-                      : selectedImage.gallery.images[selectedImage.imageIndex].caption_en}
-                  </p>
-                  {selectedImage.gallery.author && (
-                    <p className="text-sm opacity-80 mt-1">
-                      {t('photoBy')}: {selectedImage.gallery.author}
-                    </p>
-                  )}
+
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                                {gallery.images.map((image, index) => {
+                                    const caption = language === 'sl' 
+                                        ? image.caption_sl 
+                                        : (image.caption_en || image.caption_sl);
+                                    
+                                    return (
+                                        <motion.div 
+                                            key={`${gallery.id}-${index}`}
+                                            className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden group cursor-zoom-in relative"
+                                            onClick={(e) => openImage(gallery, index, e)}
+                                            layoutId={`gallery-${gallery.id}-${index}`}
+                                            initial={false}
+                                            whileHover={{ 
+                                                scale: 1.02,
+                                                transition: { type: 'spring', stiffness: 400, damping: 10 }
+                                            }}
+                                            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                                        >
+                                            <div className="relative pb-[100%]">
+                                                <motion.img 
+                                                    src={getOptimizedImageUrl(image.image)} 
+                                                    srcSet={getResponsiveSrcSet(image.image)}
+                                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                                    alt={caption || gallery.title}
+                                                    className="absolute inset-0 w-full h-full object-cover"
+                                                    loading="lazy"
+                                                    onError={(e) => { 
+                                                        e.target.onerror = null; 
+                                                        e.target.src = image.image;
+                                                    }}
+                                                    initial={false}
+                                                    layoutId={`gallery-img-${gallery.id}-${index}`}
+                                                />
+                                            </div>
+                                            
+                                            {(caption || gallery.author) && (
+                                                <div className="p-3 text-sm">
+                                                    {caption && (
+                                                        <p className="text-gray-700 line-clamp-2" title={caption}>
+                                                            {caption}
+                                                        </p>
+                                                    )}
+                                                    {gallery.author && (
+                                                        <p className="text-xs text-gray-500 mt-1 flex items-center">
+                                                            <svg 
+                                                                xmlns="http://www.w3.org/2000/svg" 
+                                                                className="h-4 w-4 mr-1.5 opacity-70" 
+                                                                viewBox="0 0 20 20" 
+                                                                fill="currentColor"
+                                                                aria-hidden="true"
+                                                            >
+                                                                <path 
+                                                                    fillRule="evenodd" 
+                                                                    d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" 
+                                                                    clipRule="evenodd" 
+                                                                />
+                                                            </svg>
+                                                            <span>
+                                                                {t('photoBy')}: {gallery.author}
+                                                            </span>
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    );
+                                })}
+                            </div>
+                        </article>
+                    ))}
                 </div>
-                
-                <div className="absolute top-0 right-0 bg-black/70 text-white px-3 py-1 text-sm">
-                  {selectedImage.imageIndex + 1} / {selectedImage.gallery.images.length}
-                </div>
-              </div>
-            </div>
-          )}
-        </Section>
-      </Page>
+
+                <AnimatePresence>
+                    {selectedImage && (
+                        <motion.div
+                            className="fixed inset-0 z-50 flex items-center justify-center p-4 cursor-zoom-out"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            onClick={closeImage}
+                            onTouchStart={onTouchStart}
+                            onTouchMove={onTouchMove}
+                            onTouchEnd={onTouchEnd}
+                        >
+                            <motion.div 
+                                className="absolute inset-0 bg-black/90 backdrop-blur-md"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                            />
+
+                            <div 
+                                className="relative w-full h-full max-w-6xl max-h-[90vh] flex items-center justify-center"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <motion.button
+                                    className="absolute -top-12 right-0 z-20 p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors focus:outline-none"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        closeImage();
+                                    }}
+                                    aria-label={t('close')}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.1, duration: 0.2 }}
+                                >
+                                    <svg 
+                                        xmlns="http://www.w3.org/2000/svg" 
+                                        className="h-8 w-8" 
+                                        fill="none" 
+                                        viewBox="0 0 24 24" 
+                                        stroke="currentColor"
+                                        aria-hidden="true"
+                                    >
+                                        <path 
+                                            strokeLinecap="round" 
+                                            strokeLinejoin="round" 
+                                            strokeWidth={2} 
+                                            d="M6 18L18 6M6 6l12 12" 
+                                        />
+                                    </svg>
+                                </motion.button>
+
+                                <motion.button
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-black/50 text-white hover:bg-white/20 transition-colors focus:outline-none"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        const newIndex = (selectedImage.imageIndex - 1 + selectedImage.gallery.images.length) % 
+                                                      selectedImage.gallery.images.length;
+                                        setSelectedImage({...selectedImage, imageIndex: newIndex});
+                                    }}
+                                    aria-label={t('previous')}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    initial={{ x: -20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 0.1, duration: 0.2 }}
+                                >
+                                    <svg 
+                                        xmlns="http://www.w3.org/2000/svg" 
+                                        className="h-8 w-8" 
+                                        fill="none" 
+                                        viewBox="0 0 24 24" 
+                                        stroke="currentColor"
+                                        aria-hidden="true"
+                                    >
+                                        <path 
+                                            strokeLinecap="round" 
+                                            strokeLinejoin="round" 
+                                            strokeWidth={2} 
+                                            d="M15 19l-7-7 7-7" 
+                                        />
+                                    </svg>
+                                </motion.button>
+
+                                <motion.button
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-black/50 text-white hover:bg-white/20 transition-colors focus:outline-none"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        const newIndex = (selectedImage.imageIndex + 1) % 
+                                                      selectedImage.gallery.images.length;
+                                        setSelectedImage({...selectedImage, imageIndex: newIndex});
+                                    }}
+                                    aria-label={t('next')}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    initial={{ x: 20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 0.1, duration: 0.2 }}
+                                >
+                                    <svg 
+                                        xmlns="http://www.w3.org/2000/svg" 
+                                        className="h-8 w-8" 
+                                        fill="none" 
+                                        viewBox="0 0 24 24" 
+                                        stroke="currentColor"
+                                        aria-hidden="true"
+                                    >
+                                        <path 
+                                            strokeLinecap="round" 
+                                            strokeLinejoin="round" 
+                                            strokeWidth={2} 
+                                            d="M9 5l7 7-7 7" 
+                                        />
+                                    </svg>
+                                </motion.button>
+
+                                {/* Image Counter */}
+                                <motion.div
+                                    className="absolute -top-10 left-0 z-10 px-3 py-1 rounded-full bg-black/50 text-white text-sm font-medium"
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.1, duration: 0.2 }}
+                                >
+                                    {selectedImage.imageIndex + 1} / {selectedImage.gallery.images.length}
+                                </motion.div>
+
+                                {/* Image Container */}
+                                <motion.div
+                                    className="relative w-full h-full flex items-center justify-center"
+                                    layoutId={`gallery-${selectedImage.gallery.id}-${selectedImage.imageIndex}`}
+                                    initial={false}
+                                    transition={{ 
+                                        type: "spring",
+                                        bounce: 0.2,
+                                        duration: 0.5
+                                    }}
+                                >
+                                    <motion.img
+                                        src={selectedImage.gallery.images[selectedImage.imageIndex].image}
+                                        alt=""
+                                        className="max-h-[85vh] w-auto mx-auto object-contain pointer-events-none"
+                                        loading="eager"
+                                        layoutId={`gallery-img-${selectedImage.gallery.id}-${selectedImage.imageIndex}`}
+                                        initial={false}
+                                        transition={{
+                                            type: "spring",
+                                            bounce: 0.2,
+                                            duration: 0.5
+                                        }}
+                                    />
+
+                                    {/* Caption */}
+                                    <motion.div
+                                        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-6 pt-12 text-white"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.2, duration: 0.3 }}
+                                    >
+                                        <p className="text-lg font-medium">
+                                            {language === 'sl'
+                                                ? selectedImage.gallery.images[selectedImage.imageIndex].caption_sl
+                                                : selectedImage.gallery.images[selectedImage.imageIndex].caption_en ||
+                                                  selectedImage.gallery.images[selectedImage.imageIndex].caption_sl}
+                                        </p>
+                                        {selectedImage.gallery.author && (
+                                            <p className="text-sm opacity-90 mt-1 flex items-center">
+                                                <svg 
+                                                    xmlns="http://www.w3.org/2000/svg" 
+                                                    className="h-4 w-4 mr-1.5" 
+                                                    viewBox="0 0 20 20" 
+                                                    fill="currentColor"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path 
+                                                        fillRule="evenodd" 
+                                                        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" 
+                                                        clipRule="evenodd" 
+                                                    />
+                                                </svg>
+                                                <span>{t('photoBy')}: {selectedImage.gallery.author}</span>
+                                            </p>
+                                        )}
+                                    </motion.div>
+                                </motion.div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </Section>
+        </Page>
     );
-  }
+}
 
 function MemoryGamePage() {
     const { t } = useTranslation();

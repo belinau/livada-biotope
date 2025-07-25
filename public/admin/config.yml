@@ -15,9 +15,6 @@ media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
 
 collections:
-  # --- CORRECTED "Pages" Collection ---
-  # This collection is now a Folder Collection, consistent with Posts and Practices.
-  # It will now manage the separate .sl.md and .en.md files in the pages folder.
   - name: "strani"
     label: "Urejanje Strani"
     folder: "public/content/pages" # Changed from "files" to "folder"
@@ -40,7 +37,7 @@ collections:
       - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true }
       - { label: "Vsebina", name: "body", widget: "markdown", i18n: true }
 
-  - name: "practices"
+   - name: "practices"
     label: "Utelešenja"
     folder: "public/content/practices"
     create: true
@@ -50,15 +47,24 @@ collections:
       - { label: "Naslov", name: "title", widget: "string", i18n: true }
       - { label: "Datum objave", name: "date", widget: "datetime" }
       - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true }
-      - { label: "Vsebina", name: "body", widget: "markdown", i18n: true }
-  
+      - label: "Vsebina"
+        name: "body"
+        widget: "markdown"
+        i18n: true
+        buttons: [bold, italic, link, code, code-block, bulleted-list, numbered-list]
+        editor_components:
+          - mermaid
+          - youtube
+          - vimeo
+          - accordion
+
   # The gallery collection remains special, as requested.
   - name: "galleries"
     label: "Galerije"
-    folder: "public/content/galleries" 
+    folder: "public/content/galleries"
     create: true
     slug: "{{slug}}"
-    i18n: true 
+    i18n: true
     fields:
       - { label: "Naslov Galerije", name: "title", widget: "string", i18n: true }
       - { label: "Datum", name: "date", widget: "datetime" }

@@ -8,5 +8,53 @@
 </head>
 <body>
   <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
+  <script>
+    /* 1️⃣  MERMAID */
+    CMS.registerEditorComponent({
+      id: 'mermaid',
+      label: 'Mermaid diagram',
+      fields: [{ name: 'code', label: 'Koda', widget: 'text' }],
+      pattern: /^```mermaid\n([\s\S]*?)\n```$/m,
+      fromBlock: match => ({ code: match[1] }),
+      toBlock: ({ code }) => '```mermaid\n' + code + '\n```',
+      toPreview: ({ code }) => `<div class="mermaid">${code}</div>`,
+    });
+  
+    /* 2️⃣  YouTube */
+    CMS.registerEditorComponent({
+      id: 'youtube',
+      label: 'YouTube video',
+      fields: [{ name: 'id', label: 'Video ID', widget: 'string' }],
+      pattern: /^{{youtube\s+(.+?)}}$/,
+      fromBlock: match => ({ id: match[1] }),
+      toBlock: ({ id }) => `{{youtube ${id}}}`,
+      toPreview: ({ id }) => `<div class="aspect-video"><iframe src="https://www.youtube.com/embed/${id}" class="w-full h-full" frameborder="0" allowfullscreen></iframe></div>`,
+    });
+  
+    /* 3️⃣  Vimeo (same pattern) */
+    CMS.registerEditorComponent({
+      id: 'vimeo',
+      label: 'Vimeo video',
+      fields: [{ name: 'id', label: 'Video ID', widget: 'string' }],
+      pattern: /^{{vimeo\s+(.+?)}}$/,
+      fromBlock: match => ({ id: match[1] }),
+      toBlock: ({ id }) => `{{vimeo ${id}}}`,
+      toPreview: ({ id }) => `<div class="aspect-video"><iframe src="https://player.vimeo.com/video/${id}" class="w-full h-full" frameborder="0" allowfullscreen></iframe></div>`,
+    });
+  
+    /* 4️⃣  Accordion */
+    CMS.registerEditorComponent({
+      id: 'accordion',
+      label: 'Podrobnosti (razširljivo)',
+      fields: [
+        { name: 'title', label: 'Naslov', widget: 'string' },
+        { name: 'content', label: 'Vsebina', widget: 'markdown' },
+      ],
+      pattern: /^:::details\s+(.+?)\n([\s\S]*?)\n:::$/m,
+      fromBlock: match => ({ title: match[1], content: match[2] }),
+      toBlock: ({ title, content }) => `:::details ${title}\n${content}\n:::`,
+      toPreview: ({ title, content }) => `<details><summary>${title}</summary><div class="mt-2">${marked.parse(content)}</div></details>`,
+    });
+  </script>
 </body>
 </html>
