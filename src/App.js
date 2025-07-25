@@ -156,7 +156,7 @@ const parseMarkdown = (rawContent) => {
 };
 
 // 1️⃣  Mermaid 
-mermaid.initialize({ startOnLoad: false, theme: 'base' });
+mermaid.init({ startOnLoad: false, theme: 'base' });
 
 // 2️⃣  Custom short-code renderer
 function enhanceHTML(html) {
