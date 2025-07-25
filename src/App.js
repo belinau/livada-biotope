@@ -1063,7 +1063,7 @@ const renderMarkdown = (content) => {
     /```mermaid\n([\s\S]*?)\n```/g, 
     (match, diagram) => {
       // Replace with a placeholder that will be processed by renderMermaid
-      const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+      const id = `mermaid-${Math.random().toString(36).substring(2, 11)}`;
       return `<div class="mermaid-placeholder" data-diagram="${encodeURIComponent(diagram)}" id="${id}"></div>`;
     }
   );
@@ -1083,7 +1083,7 @@ const renderMermaid = (container = document) => {
     placeholders.forEach(placeholder => {
       const diagram = decodeURIComponent(placeholder.getAttribute('data-diagram') || '');
       if (diagram) {
-        const id = placeholder.id || `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+        const id = placeholder.id || `mermaid-${Math.random().toString(36).substring(2, 11)}`;
         const container = document.createElement('div');
         container.className = 'mermaid';
         container.textContent = diagram;
@@ -1095,14 +1095,12 @@ const renderMermaid = (container = document) => {
     
     // Then handle any direct mermaid code blocks
     const mermaidElements = container.querySelectorAll('code.language-mermaid');
-    mermaidElements.forEach((element, index) => {
+    mermaidElements.forEach((element) => {
       const graphDefinition = element.textContent;
-      const id = `mermaid-${index}-${Math.random().toString(36).substr(2, 9)}`;
       
       // Create a container for the diagram
       const container = document.createElement('div');
       container.className = 'mermaid';
-      container.id = id;
       container.textContent = graphDefinition;
       
       // Replace the code block with our container
@@ -1113,7 +1111,19 @@ const renderMermaid = (container = document) => {
     });
     
     // Finally, initialize all mermaid diagrams
-    mermaid.init(undefined, container.querySelectorAll('.mermaid'));
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#4a7c59',
+        primaryTextColor: '#333',
+        primaryBorderColor: '#4a7c59',
+        lineColor: '#4a7c59',
+        secondaryColor: '#84a98c',
+        tertiaryColor: '#f8f9fa'
+      }
+    });
+    mermaid.initialize(undefined, container.querySelectorAll('.mermaid'));
     
   } catch (error) {
     console.error('Error initializing Mermaid:', error);
