@@ -1146,29 +1146,20 @@ function ContentCollectionPage({ t, title, contentPath }) {
           <div className="space-y-8 max-w-3xl mx-auto">
             {processedItems.length ? processedItems.map(item => (
               <div key={item.id} className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md">
-                {/* Processed content with Mermaid and video embeds */}
-                <div 
-                  className="prose max-w-none"
-                  dangerouslySetInnerHTML={{ __html: item.processedContent }} 
-                />
                 {item.metadata.date && (
-                  <p className="text-sm text-gray-500 mt-4">
+                  <p className="text-sm text-gray-500 mb-1">
                     {new Date(item.metadata.date).toLocaleDateString(language)}
                   </p>
                 )}
                 <h3 className="text-2xl font-mono text-primary mb-3">{item.metadata.title}</h3>
-  
+                
+                {/* Single content render with Mermaid and video embeds */}
                 <div
                   className="prose max-w-none"
-                  dangerouslySetInnerHTML={{
-                    __html: (() => {
-                      let html = marked.parse(item.content);
-                      html = enhanceHTML(html);
-                      return html;
-                    })()
-                  }}
+                  dangerouslySetInnerHTML={{ __html: item.processedContent }}
                   ref={node => {
                     if (!node) return;
+                    // Handle Mermaid diagrams
                     node.querySelectorAll('.language-mermaid').forEach(pre => {
                       const graph = pre.textContent;
                       const id = 'mermaid-' + Math.random().toString(36).substr(2, 9);
