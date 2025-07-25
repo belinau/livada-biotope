@@ -4,7 +4,7 @@ import { ResponsiveLine } from '@nivo/line';
 import { marked } from 'marked';
 import { parse } from 'yaml';
 import { motion, AnimatePresence } from 'framer-motion';
-import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+import mermaid from 'mermaid';
 
 // --- Animated Background Component ---
 
