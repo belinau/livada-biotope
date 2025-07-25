@@ -818,24 +818,6 @@ function MemoryGame() {
       fetchCards();
     }, [gameMode]);
   
-    /* ---------- leaderboard ---------- */
-    useEffect(() => {
-      const s = JSON.parse(localStorage.getItem('memoryGameScores') || '[]');
-      setScores(s);
-    }, []);
-  
-    const saveScore = () => {
-      if (!playerName.trim()) return;
-      const newScore = { name: playerName, moves, date: new Date().toISOString(), mode: gameMode };
-      const updated = [...scores, newScore]
-        .sort((a, b) => a.moves - b.moves)
-        .slice(0, 10);
-      setScores(updated);
-      localStorage.setItem('memoryGameScores', JSON.stringify(updated));
-      setPlayerName('');
-      setShowHall(true);
-    };
-  
     /* ---------- click handler ---------- */
     const handleCardClick = idx => {
       // Don't allow clicking already matched or flipped cards
@@ -883,28 +865,6 @@ function MemoryGame() {
             ))}
           </div>
         </div>
-  
-        {/* leaderboard toggle */}
-        <div className="flex justify-center mb-6">
-          <button
-            onClick={() => setShowHall(!showHall)}
-            className="px-4 py-2 bg-primary/10 text-primary font-medium rounded-lg hover:bg-primary/20"
-          >
-            {showHall ? t('newGame') : t('hallOfFame')}
-          </button>
-        </div>
-  
-        {showHall ? (
-          <div className="bg-white/80 p-6 rounded shadow text-center">
-            <h4 className="text-xl font-mono mb-4">{t('hallOfFame')}</h4>
-            {scores.length ? (
-              <table className="min-w-full divide-y text-sm">
-                <thead><tr><th>{t('player')}</th><th>{t('moves')}</th><th>{t('date')}</th></tr></thead>
-                <tbody>{scores.map((s,i)=><tr key={i} className={i%2?'bg-gray-50':''}><td>{s.name}</td><td>{s.moves}</td><td>{new Date(s.date).toLocaleDateString()}</td></tr>)}</tbody>
-              </table>
-            ) : <p>{t('noScores')}</p>}
-          </div>
-        ) : (
           /* ---------- card grid ---------- */
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
             {cards.map((card, idx) => {
@@ -1029,7 +989,6 @@ function MemoryGame() {
               );
             })}
           </div>
-        )}
       </div>
     );
   }
