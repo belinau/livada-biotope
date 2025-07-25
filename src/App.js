@@ -760,25 +760,18 @@ function Section({ title, children, className = '' }) {
 
 function MemoryGame() {
     const { t } = useTranslation();
-  
-    /* ---------- state ---------- */
     const [cards, setCards] = useState([]);
     const [flipped, setFlipped] = useState([]);
     const [matched, setMatched] = useState([]);
     const [moves, setMoves] = useState(0);
     const [loading, setLoading] = useState(true);
     const [gameMode, setGameMode] = useState('sl');
-    const [scores, setScores] = useState([]);
-    const [showHall, setShowHall] = useState(false);
-    const [playerName, setPlayerName] = useState('');
   
-    /* ---------- helpers ---------- */
     const resetGame = (mode = gameMode) => {
       setGameMode(mode);
       setFlipped([]);
       setMatched([]);
       setMoves(0);
-      setShowHall(false);
     };
   
     /* ---------- fetch cards ---------- */
@@ -1227,7 +1220,6 @@ function GalleryPage() {
     const [galleries, setGalleries] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(null);
-    const [clickedImage, setClickedImage] = useState(null);
     const overlayRef = useRef(null);
     
     // Fetch galleries
