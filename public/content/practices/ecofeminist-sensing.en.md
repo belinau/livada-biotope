@@ -23,9 +23,9 @@ graph TD
 
 Find a physical compost heap or bin in your garden or a community garden, or alternatively, use a flowerpot with soil. You will also need paper and a pen. To deepen your reflection, you can prepare by watching recommended videos beforehand.
 
-{{youtube https://youtu.be/wvpFyuHpxgQ?si=I_gMhaZQPsJg9s0S}}
+{{youtube wvpFyuHpxgQ}}
 
-{{vimeo https://youtu.be/wvpFyuHpxgQ?si=I_gMhaZQPsJg9s0S}}
+{{vimeo 1099398335}}
 
 ## 1.2. What will you compost?
 

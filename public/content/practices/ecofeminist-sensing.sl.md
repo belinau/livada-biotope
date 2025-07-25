@@ -20,9 +20,9 @@ graph TD
 
 **Poišči fizično kompostno gomilo ali posodo** na dvorišču, v skupnostnem vrtu ali pa uporabi kot nadomestek cvetlični lonec s prstjo. Potrebuješ še papir in pisalo. Za poglobitev refleksije se lahko predhodno pripraviš z ogledom priporočenih posnetkov.
 
-{{youtube https://youtu.be/wvpFyuHpxgQ?si=I_gMhaZQPsJg9s0S}}
+{{youtube wvpFyuHpxgQ}}
 
-{{vimeo https://vimeo.com/1099398335}}
+{{vimeo 1099398335}}
 
 ## 1.2. Kaj boš kompostirala_?
 
