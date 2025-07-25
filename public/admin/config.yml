@@ -51,7 +51,6 @@ collections:
         name: "body"
         widget: "markdown"
         i18n: true
-        buttons: ["bold", "italic", "link", "code", "code-block", "bulleted-list", "numbered-list"]
         editor_components:
           - mermaid
           - youtube
