@@ -1057,18 +1057,66 @@ function CalendarPage() {
 // Function to render markdown with Mermaid and custom shortcodes
 const renderMarkdown = (content) => {
   if (!content) return '';
-  // Process markdown to HTML
-  const html = marked(content);
+  
+  // First, process any Mermaid code blocks to prevent markdown processing
+  let processedContent = content.replace(
+    /```mermaid\n([\s\S]*?)\n```/g, 
+    (match, diagram) => {
+      // Replace with a placeholder that will be processed by renderMermaid
+      const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+      return `<div class="mermaid-placeholder" data-diagram="${encodeURIComponent(diagram)}" id="${id}"></div>`;
+    }
+  );
+  
+  // Process the remaining markdown to HTML
+  const html = marked(processedContent);
+  
   // Apply custom shortcodes
   return enhanceHTML(html);
 };
 
 // Function to render Mermaid diagrams
-const renderMermaid = () => {
+const renderMermaid = (container = document) => {
   try {
-    mermaid.init(undefined, '.language-mermaid');
+    // First, handle mermaid placeholders
+    const placeholders = container.querySelectorAll('.mermaid-placeholder');
+    placeholders.forEach(placeholder => {
+      const diagram = decodeURIComponent(placeholder.getAttribute('data-diagram') || '');
+      if (diagram) {
+        const id = placeholder.id || `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+        const container = document.createElement('div');
+        container.className = 'mermaid';
+        container.textContent = diagram;
+        
+        // Replace the placeholder with our container
+        placeholder.parentNode.replaceChild(container, placeholder);
+      }
+    });
+    
+    // Then handle any direct mermaid code blocks
+    const mermaidElements = container.querySelectorAll('code.language-mermaid');
+    mermaidElements.forEach((element, index) => {
+      const graphDefinition = element.textContent;
+      const id = `mermaid-${index}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Create a container for the diagram
+      const container = document.createElement('div');
+      container.className = 'mermaid';
+      container.id = id;
+      container.textContent = graphDefinition;
+      
+      // Replace the code block with our container
+      const parent = element.parentElement;
+      if (parent) {
+        parent.parentNode.replaceChild(container, parent);
+      }
+    });
+    
+    // Finally, initialize all mermaid diagrams
+    mermaid.init(undefined, container.querySelectorAll('.mermaid'));
+    
   } catch (error) {
-    console.error('Error rendering Mermaid diagrams:', error);
+    console.error('Error initializing Mermaid:', error);
   }
 };
 
@@ -1123,14 +1171,30 @@ function ContentCollectionPage({ t, title, contentPath }) {
       fetchContent();
     }, [contentPath, language]);
 
-    // Render Mermaid diagrams after component updates
+    // Initialize Mermaid and render diagrams when items change
     useEffect(() => {
-      renderMermaid();
-    });
-  
-    useEffect(() => {
-      if (items.length) mermaid.initialize({ startOnLoad: false, theme: 'base' });
-    }, [items]);
+      // Initialize Mermaid with default config
+      mermaid.initialize({ 
+        startOnLoad: false, 
+        theme: 'base',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#4a7c59',
+          primaryTextColor: '#333',
+          primaryBorderColor: '#4a7c59',
+          lineColor: '#4a7c59',
+          secondaryColor: '#84a98c',
+          tertiaryColor: '#f8f9fa'
+        }
+      });
+      
+      // Render Mermaid diagrams after a short delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        renderMermaid();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }, [items, language]);
   
     if (isLoading) {
       return (
