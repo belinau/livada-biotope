@@ -267,7 +267,7 @@ const HistoricalSensorProvider = ({ children, startDate, endDate }) => {
     const fetchLongTermHistory = useCallback(async () => {
         setStatus({ key: 'loading', type: 'connecting' });
         try {
-            const data = await livadaApiClient.getHistoryTelemetry();
+            const data = await livadaApiClient.getHistoryTelemetry(startDate, endDate);
             const transformedData = transformApiData(data.data);
             
             const processedHistory = {};
@@ -465,7 +465,7 @@ const BedCard = ({ bed, reading, t }) => {
 };
 
 export const ChartWrapper = ({ title, children }) => (
-    <div className="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-inner h-[400px] flex flex-col">
+    <div className="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-inner flex flex-col">
         <h4 className="font-semibold text-gray-700 mb-2 text-center">{title}</h4>
         <div className="flex-grow">{children}</div>
     </div>
@@ -1944,11 +1944,9 @@ export default function WrappedApp() {
     return (
         <LanguageProvider>
             <SensorProvider>
-                <HistoricalSensorProvider>
-                    <BrowserRouter>
-                        <App />
-                    </BrowserRouter>
-                </HistoricalSensorProvider>
+                <BrowserRouter>
+                    <App />
+                </BrowserRouter>
             </SensorProvider>
         </LanguageProvider>
     );

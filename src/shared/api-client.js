@@ -30,8 +30,19 @@ class LivadaAPIClient {
         return this._fetch('/telemetry/live');
     }
 
-    getHistoryTelemetry() {
-        return this._fetch('/telemetry/history');
+    getHistoryTelemetry(startDate, endDate) {
+        let endpoint = '/telemetry/history';
+        const params = new URLSearchParams();
+        if (startDate) {
+            params.append('start_date', startDate.toISOString());
+        }
+        if (endDate) {
+            params.append('end_date', endDate.toISOString());
+        }
+        if (params.toString()) {
+            endpoint += `?${params.toString()}`;
+        }
+        return this._fetch(endpoint);
     }
 
     // --- WebSocket Connection Management ---
