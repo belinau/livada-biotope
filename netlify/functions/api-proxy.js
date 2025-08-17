@@ -42,7 +42,9 @@ exports.handler = async (event, context) => {
         const cleanedPiApiUrl = PI_API_URL.endsWith('/') ? PI_API_URL.slice(0, -1) : PI_API_URL;
 
         // Construct the final URL without double slashes
-        const targetUrl = `${cleanedPiApiUrl}${apiEndpoint}`;
+        // Prepend '/api' to apiEndpoint to match FastAPI routes
+        const targetUrl = `${cleanedPiApiUrl}/api${apiEndpoint}`;
+        console.log(`[api-proxy] Attempting to fetch from: ${targetUrl}`);
 
         const response = await fetch(targetUrl, {
             signal: controller.signal,
