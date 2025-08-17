@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, createContext, useContext, useCallback, useRef } from 'react';
 import { BrowserRouter, Routes, Route, NavLink, Link } from 'react-router-dom';
+import LivadaLogo from './livada-logo.svg';
 import { ResponsiveLine } from '@nivo/line';
 import { marked } from 'marked';
 import { parse } from 'yaml';
@@ -1881,7 +1882,7 @@ function App() {
                 <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-lg border-b border-white/20">
                     <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
                         <div className="flex items-center">
-                            <Link to="/" className="text-xl font-bold cursor-pointer text-primary">livada.bio</Link>
+                            <Link to="/" className="text-xl font-bold cursor-pointer text-primary"><img src={LivadaLogo} alt="Livada.bio Logo" className="h-8" /></Link>
                         </div>
                         
                         {/* Desktop Menu */}
