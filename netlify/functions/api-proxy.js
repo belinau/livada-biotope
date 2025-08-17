@@ -4,7 +4,13 @@ const PI_API_URL = process.env.PI_API_URL; // Your Tailscale Pi URL
 const FALLBACK_TIMEOUT = 5000; // 5 second timeout
 
 exports.handler = async (event, context) => {
-    const { path = '/telemetry/live' } = event.queryStringParameters || {};
+        const fullPath = event.path;
+    const functionBase = '/.netlify/functions/api-proxy';
+    let apiEndpoint = fullPath.substring(functionBase.length);
+
+    if (!apiEndpoint.startsWith('/')) {
+        apiEndpoint = '/' + apiEndpoint;
+    }
     
     const headers = {
         'Access-Control-Allow-Origin': '*',
@@ -32,7 +38,7 @@ exports.handler = async (event, context) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), FALLBACK_TIMEOUT);
         
-        const response = await fetch(`${PI_API_URL}/api${path}`, {
+        const response = await fetch(`${PI_API_URL}/api${apiEndpoint}`, {
             signal: controller.signal,
             headers: { 'Accept': 'application/json' }
         });
