@@ -38,7 +38,13 @@ exports.handler = async (event, context) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), FALLBACK_TIMEOUT);
         
-        const response = await fetch(`${PI_API_URL}/api${apiEndpoint}`, {
+        // Remove trailing slash from PI_API_URL if it exists
+        const cleanedPiApiUrl = PI_API_URL.endsWith('/') ? PI_API_URL.slice(0, -1) : PI_API_URL;
+
+        // Construct the final URL without double slashes
+        const targetUrl = `${cleanedPiApiUrl}${apiEndpoint}`;
+
+        const response = await fetch(targetUrl, {
             signal: controller.signal,
             headers: { 'Accept': 'application/json' }
         });
