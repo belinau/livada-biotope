@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import mermaid from 'mermaid';
 import HistoricalSensorVisualization from './components/HistoricalSensorVisualization';
 import LivadaAPIClient from './shared/api-client';
+import { transformApiData } from './shared/sensor-utils';
 
 // --- Animated Background Component ---
 
@@ -215,8 +216,6 @@ const SensorProvider = ({ children }) => {
     const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
     const [lastUpdated, setLastUpdated] = useState(null);
 
-import { transformApiData } from './shared/sensor-utils';
-
     const livadaApiClient = useMemo(() => new LivadaAPIClient(), []);
 
     const fetchHistory = useCallback(async () => {
@@ -261,8 +260,6 @@ const HistoricalSensorProvider = ({ children, startDate, endDate }) => {
     const [history, setHistory] = useState(null);
     const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
     const [lastUpdated, setLastUpdated] = useState(null);
-
-import { transformApiData } from './shared/sensor-utils';
 
     const livadaApiClient = useMemo(() => new LivadaAPIClient(), []);
 
@@ -1141,6 +1138,7 @@ const renderMermaid = (container = document) => {
         const container = document.createElement('div');
         container.className = 'mermaid';
         container.textContent = diagram;
+        container.id = id;
         
         // Replace the placeholder with our container
         placeholder.parentNode.replaceChild(container, placeholder);
