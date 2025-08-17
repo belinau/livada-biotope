@@ -43,7 +43,7 @@ exports.handler = async (event, context) => {
 
         // Construct the final URL without double slashes
         // Prepend '/api' to apiEndpoint to match FastAPI routes
-        const targetUrl = `${cleanedPiApiUrl}/api${apiEndpoint}`;
+        const targetUrl = `${cleanedPiApiUrl}${apiEndpoint}`;
         console.log(`[api-proxy] Attempting to fetch from: ${targetUrl}`);
 
         const response = await fetch(targetUrl, {
