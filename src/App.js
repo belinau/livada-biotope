@@ -286,6 +286,7 @@ const HistoricalSensorProvider = ({ children, startDate, endDate }) => {
             setStatus({ key: 'fetchError', type: 'error' });
             setHistory({});
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [startDate, endDate, livadaApiClient]); // Add startDate, endDate, and livadaApiClient to dependencies
 
     useEffect(() => {
