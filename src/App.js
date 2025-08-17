@@ -216,7 +216,7 @@ const SensorProvider = ({ children }) => {
     const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
     const [lastUpdated, setLastUpdated] = useState(null);
 
-    const livadaApiClient = useMemo(() => new LivadaAPIClient(), []);
+    const livadaApiClient = useMemo(() => new LivadaAPIClient(process.env.REACT_APP_PI_API_URL), []);
 
     const fetchHistory = useCallback(async () => {
         setStatus({ key: 'loading', type: 'connecting' });
@@ -261,7 +261,7 @@ const HistoricalSensorProvider = ({ children, startDate, endDate }) => {
     const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
     const [lastUpdated, setLastUpdated] = useState(null);
 
-    const livadaApiClient = useMemo(() => new LivadaAPIClient(), []);
+    const livadaApiClient = useMemo(() => new LivadaAPIClient(process.env.REACT_APP_PI_API_URL), []);
 
     const fetchLongTermHistory = useCallback(async () => {
         setStatus({ key: 'loading', type: 'connecting' });
