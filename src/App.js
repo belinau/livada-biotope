@@ -5,6 +5,8 @@ import { marked } from 'marked';
 import { parse } from 'yaml';
 import { motion, AnimatePresence } from 'framer-motion';
 import mermaid from 'mermaid';
+import HistoricalSensorVisualization from './components/HistoricalSensorVisualization';
+import LivadaAPIClient from './shared/api-client';
 
 // --- Animated Background Component ---
 
@@ -75,7 +77,7 @@ const AnimatedBackground = () => {
         };
     }, []);
 
-    return <canvas ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, zIndex: -1, background: '#f7faf9' }} />;
+    return <canvas ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, zIndex: -1, background: '#f7faf9' }} />; 
 };
 
 // --- Config and Helper Functions ---
@@ -182,7 +184,7 @@ const EventRow = ({ event, lang, isPast }) => {
   
     return (
       <li
-        className={`p-3 rounded-lg shadow-sm ${
+        className={`p-3 rounded-lg shadow-sm ${ 
           isPast ? 'bg-gray-100 opacity-70' : 'bg-primary/5'
         }`}
       >
@@ -205,24 +207,28 @@ const EventRow = ({ event, lang, isPast }) => {
 const SensorContext = createContext();
 const useSensorData = () => useContext(SensorContext);
 
+const HistoricalSensorContext = createContext();
+const useHistoricalSensorData = () => useContext(HistoricalSensorContext);
+
 const SensorProvider = ({ children }) => {
     const [history, setHistory] = useState(null);
     const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
     const [lastUpdated, setLastUpdated] = useState(null);
 
+import { transformApiData } from './shared/sensor-utils';
+
+    const livadaApiClient = useMemo(() => new LivadaAPIClient(), []);
+
     const fetchHistory = useCallback(async () => {
         setStatus({ key: 'loading', type: 'connecting' });
         try {
-            const response = await fetch(`/history.json?t=${new Date().getTime()}`);
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.statusText}`);
-            }
-            const data = await response.json();
+            const data = await livadaApiClient.getHistoryTelemetry();
+            const transformedData = transformApiData(data.data);
             
             const processedHistory = {};
-            for (const key in data) {
-                if (Array.isArray(data[key])) {
-                    processedHistory[key] = data[key].map(point => ({
+            for (const key in transformedData) {
+                if (Array.isArray(transformedData[key])) {
+                    processedHistory[key] = transformedData[key].map(point => ({
                         ...point,
                         x: new Date(point.x)
                     }));
@@ -236,7 +242,7 @@ const SensorProvider = ({ children }) => {
             setStatus({ key: 'fetchError', type: 'error' });
             setHistory({});
         }
-    }, []);
+    }, [livadaApiClient]);
 
     useEffect(() => {
         fetchHistory();
@@ -248,6 +254,51 @@ const SensorProvider = ({ children }) => {
         <SensorContext.Provider value={{ history, status, lastUpdated, refreshData: fetchHistory }}>
             {children}
         </SensorContext.Provider>
+    );
+};
+
+const HistoricalSensorProvider = ({ children, startDate, endDate }) => {
+    const [history, setHistory] = useState(null);
+    const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
+    const [lastUpdated, setLastUpdated] = useState(null);
+
+import { transformApiData } from './shared/sensor-utils';
+
+    const livadaApiClient = useMemo(() => new LivadaAPIClient(), []);
+
+    const fetchLongTermHistory = useCallback(async () => {
+        setStatus({ key: 'loading', type: 'connecting' });
+        try {
+            const data = await livadaApiClient.getHistoryTelemetry();
+            const transformedData = transformApiData(data.data);
+            
+            const processedHistory = {};
+            for (const key in transformedData) {
+                if (Array.isArray(transformedData[key])) {
+                    processedHistory[key] = transformedData[key].map(point => ({
+                        ...point,
+                        x: new Date(point.x)
+                    }));
+                }
+            }
+            setHistory(processedHistory);
+            setStatus({ key: 'dataUpdated', type: 'success' });
+            setLastUpdated(new Date());
+        } catch (error) {
+            console.error("Could not fetch long term history:", error);
+            setStatus({ key: 'fetchError', type: 'error' });
+            setHistory({});
+        }
+    }, [startDate, endDate, livadaApiClient]); // Add startDate, endDate, and livadaApiClient to dependencies
+
+    useEffect(() => {
+        fetchLongTermHistory();
+    }, [fetchLongTermHistory]);
+
+    return (
+        <HistoricalSensorContext.Provider value={{ history, status, lastUpdated, refreshData: fetchLongTermHistory }}>
+            {children}
+        </HistoricalSensorContext.Provider>
     );
 };
 
@@ -287,6 +338,7 @@ const translations = {
         soilTemp: 'temperatura prsti',
         airTemp: 'temperatura zraka',
         airHumidity: 'vlaga v zraku',
+        historicalSensorDataTitle: 'Zgodovinski podatki senzorjev',
         footerText: 'Biotop Livada – posebna pobuda v okviru zavoda BOB © 2025',
         photoBy: 'Foto',
         navMemoryGame: 'Spomin',
@@ -343,6 +395,7 @@ const translations = {
         soilTemp: 'soil temperature',
         airTemp: 'Air Temperature',
         airHumidity: 'Air Humidity',
+        historicalSensorDataTitle: 'Historical Sensor Data',
         footerText: 'The Livada Biotope – special initiative within BOB Institute © 2025',
         photoBy: 'Photo',
         navMemoryGame: 'Memory Game',
@@ -412,7 +465,7 @@ const BedCard = ({ bed, reading, t }) => {
     );
 };
 
-const ChartWrapper = ({ title, children }) => (
+export const ChartWrapper = ({ title, children }) => (
     <div className="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-inner h-[400px] flex flex-col">
         <h4 className="font-semibold text-gray-700 mb-2 text-center">{title}</h4>
         <div className="flex-grow">{children}</div>
@@ -635,7 +688,7 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
                 .reduce((a, l) => (/^[\t ]/.test(l) ? a + l.trimStart() : /^[A-Z-]+:/.test(l) ? a + '\0' : a + l), '')
                 .split('\0')[0]
                 .replace(/\\(.)/g, '$1')
-                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<br\s*\/?\?>/gi, '\n')
                 .replace(/<a\b[^>]*>(.*?)<\/a>/gi, '$1')
                 .replace(/\n{3,}/g, '\n\n')
                 .trim();
@@ -739,7 +792,7 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
         </div>
       </div>
     );
-  }; 
+  };
 
 // --- Page Components ---
 function Page({ title, children }) {
@@ -956,7 +1009,7 @@ function MemoryGame() {
                       <rect width="100%" height="100%" fill="url(#cardPattern)" />
                     </svg>
                   </div>
-  
+
                   {/* front (photo or text) */}
                   <div
                     className="absolute inset-0 bg-white flex items-center justify-center p-2 rounded-lg overflow-hidden"
@@ -1024,6 +1077,7 @@ function ProjectsPage() {
                     dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} 
                 />
                 <SensorVisualization />
+                <HistoricalSensorVisualization />
             </Section>
         </Page>
     );
@@ -1033,7 +1087,7 @@ function BiodiversityPage() {
     const { t } = useTranslation();
     return (
         <Page title={t('navBiodiversity')}>
-            <Section title={t('biodiversityTitle')}>
+            <Section title={t('biodiversityTitle')}> 
                 <p className="mb-8 text-lg text-gray-600 max-w-3xl mx-auto text-center">{t('biodiversityDesc')}</p>
                 <INaturalistFeed projectSlug="the-livada-biotope-monitoring" />
             </Section>
@@ -1045,7 +1099,7 @@ function CalendarPage() {
     const { t } = useTranslation();
     return (
         <Page title={t('navCalendar')}>
-            <Section title={t('calendarTitle')}>
+            <Section title={t('calendarTitle')}> 
                 <p className="mb-8 text-lg text-gray-600 max-w-3xl mx-auto text-center">{t('calendarDesc')}</p>
                 <CalendarFeed icsUrl="https://calendar.google.com/calendar/ical/c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com/public/basic.ics"
                 calendarUrl="https://calendar.google.com/calendar/embed?src=c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com&ctz=Europe%2FBelgrade"/>
@@ -1114,6 +1168,7 @@ const renderMermaid = (container = document) => {
     mermaid.initialize({
       startOnLoad: false,
       theme: 'base',
+      securityLevel: 'loose',
       themeVariables: {
         primaryColor: '#4a7c59',
         primaryTextColor: '#333',
@@ -1184,8 +1239,8 @@ function ContentCollectionPage({ t, title, contentPath }) {
     // Initialize Mermaid and render diagrams when items change
     useEffect(() => {
       // Initialize Mermaid with default config
-      mermaid.initialize({ 
-        startOnLoad: false, 
+      mermaid.initialize({
+        startOnLoad: false,
         theme: 'base',
         securityLevel: 'loose',
         themeVariables: {
@@ -1296,10 +1351,7 @@ function GalleryPage() {
                         let fileToFetch = langFile;
                         let res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`);
                         
-                        if (!res.ok) { 
-                            fileToFetch = defaultLangFile; 
-                            res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`); 
-                        }
+                        if (!res.ok) { fileToFetch = defaultLangFile; res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`); }
                         if (!res.ok) return null;
 
                         const text = await res.text();
@@ -1381,8 +1433,8 @@ function GalleryPage() {
     const minSwipeDistance = 50;
 
     const onTouchStart = (e) => {
-        setTouchEnd(null);
         setTouchStart(e.targetTouches[0].clientX);
+        setTouchEnd(null);
     };
 
     const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
@@ -1428,7 +1480,7 @@ function GalleryPage() {
     if (isLoading) {
         return (
             <Page title={t('navGallery')}>
-                <Section title={t('navGallery')}>
+                <Section title={t('navGallery')}> 
                     <div className="text-center py-10">{t('loading')}...</div>
                 </Section>
             </Page>
@@ -1438,7 +1490,7 @@ function GalleryPage() {
     if (!isLoading && galleries.length === 0) {
         return (
             <Page title={t('navGallery')}>
-                <Section title={t('navGallery')}>
+                <Section title={t('navGallery')}> 
                     <p className="text-center text-gray-500">{t('noGalleriesAvailable')}</p>
                 </Section>
             </Page>
@@ -1447,7 +1499,7 @@ function GalleryPage() {
 
     return (
         <Page title={t('navGallery')}>
-            <Section title={t('navGallery')}>
+            <Section title={t('navGallery')}> 
                 <div className="space-y-16">
                     {galleries.map((gallery) => (
                         <article key={gallery.id}>
@@ -1482,7 +1534,7 @@ function GalleryPage() {
                                             onClick={(e) => openImage(gallery, index, e)}
                                             layoutId={`gallery-${gallery.id}-${index}`}
                                             initial={false}
-                                            whileHover={{ 
+                                            whileHover={{
                                                 scale: 1.02,
                                                 transition: { type: 'spring', stiffness: 400, damping: 10 }
                                             }}
@@ -1516,7 +1568,7 @@ function GalleryPage() {
                                                         <p className="text-xs text-gray-500 mt-1 flex items-center">
                                                             <svg 
                                                                 xmlns="http://www.w3.org/2000/svg" 
-                                                                className="h-4 w-4 mr-1.5 opacity-70" 
+                                                                className="h-4 w-4 mr-1.5 opacity-70"
                                                                 viewBox="0 0 20 20" 
                                                                 fill="currentColor"
                                                                 aria-hidden="true"
@@ -1582,9 +1634,9 @@ function GalleryPage() {
                                 >
                                     <svg 
                                         xmlns="http://www.w3.org/2000/svg" 
-                                        className="h-8 w-8" 
-                                        fill="none" 
-                                        viewBox="0 0 24 24" 
+                                        className="h-8 w-8"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
                                         stroke="currentColor"
                                         aria-hidden="true"
                                     >
@@ -1614,9 +1666,9 @@ function GalleryPage() {
                                 >
                                     <svg 
                                         xmlns="http://www.w3.org/2000/svg" 
-                                        className="h-8 w-8" 
-                                        fill="none" 
-                                        viewBox="0 0 24 24" 
+                                        className="h-8 w-8"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
                                         stroke="currentColor"
                                         aria-hidden="true"
                                     >
@@ -1646,9 +1698,9 @@ function GalleryPage() {
                                 >
                                     <svg 
                                         xmlns="http://www.w3.org/2000/svg" 
-                                        className="h-8 w-8" 
-                                        fill="none" 
-                                        viewBox="0 0 24 24" 
+                                        className="h-8 w-8"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
                                         stroke="currentColor"
                                         aria-hidden="true"
                                     >
@@ -1676,7 +1728,7 @@ function GalleryPage() {
                                     className="relative w-full h-full flex items-center justify-center"
                                     layoutId={`gallery-${selectedImage.gallery.id}-${selectedImage.imageIndex}`}
                                     initial={false}
-                                    transition={{ 
+                                    transition={{
                                         type: "spring",
                                         bounce: 0.2,
                                         duration: 0.5
@@ -1684,7 +1736,11 @@ function GalleryPage() {
                                 >
                                     <motion.img
                                         src={selectedImage.gallery.images[selectedImage.imageIndex].image}
-                                        alt=""
+                                        alt={language === 'sl'
+                                            ? selectedImage.gallery.images[selectedImage.imageIndex].caption_sl
+                                            : selectedImage.gallery.images[selectedImage.imageIndex].caption_en ||
+                                              selectedImage.gallery.images[selectedImage.imageIndex].caption_sl ||
+                                              selectedImage.gallery.title}
                                         className="max-h-[85vh] w-auto mx-auto object-contain pointer-events-none"
                                         loading="eager"
                                         layoutId={`gallery-img-${selectedImage.gallery.id}-${selectedImage.imageIndex}`}
@@ -1713,8 +1769,8 @@ function GalleryPage() {
                                             <p className="text-sm opacity-90 mt-1 flex items-center">
                                                 <svg 
                                                     xmlns="http://www.w3.org/2000/svg" 
-                                                    className="h-4 w-4 mr-1.5" 
-                                                    viewBox="0 0 20 20" 
+                                                    className="h-4 w-4 mr-1.5"
+                                                    viewBox="0 0 20 20"
                                                     fill="currentColor"
                                                     aria-hidden="true"
                                                 >
@@ -1742,7 +1798,7 @@ function MemoryGamePage() {
     const { t } = useTranslation();
     return (
       <Page title={t('navMemoryGame')}>
-        <Section title={t('memoryGameTitle')}>
+        <Section title={t('memoryGameTitle')}> 
           <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
             <MemoryGame />
           </div>
@@ -1796,7 +1852,7 @@ function HomePage() {
             <div className="bg-[#f7faf9]/95 backdrop-blur-sm rounded-t-2xl shadow-lg -mt-16 pt-16">
                  <div className="container mx-auto px-4 py-12">
                      {isLoading ? ( <div className="text-center prose lg:prose-xl max-w-4xl mx-auto">{t('loading')}...</div> ) 
-                                : ( <div className="prose lg:prose-xl max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} /> )}
+                               : ( <div className="prose lg:prose-xl max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} /> )}
                 </div>
             </div>
         </Page>
@@ -1883,14 +1939,16 @@ function App() {
     );
 }
 
-// Root Wrapper
+export { useHistoricalSensorData, useTranslation, BED_MAPPING };
 export default function WrappedApp() {
     return (
         <LanguageProvider>
             <SensorProvider>
-                <BrowserRouter>
-                    <App />
-                </BrowserRouter>
+                <HistoricalSensorProvider>
+                    <BrowserRouter>
+                        <App />
+                    </BrowserRouter>
+                </HistoricalSensorProvider>
             </SensorProvider>
         </LanguageProvider>
     );
