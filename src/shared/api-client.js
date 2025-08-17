@@ -1,6 +1,6 @@
 class LivadaAPIClient {
     constructor(apiBaseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:8000/api' : '/.netlify/functions/api-proxy', wsUrl) {
-        this.apiBaseUrl = apiBaseUrl;
+        this.apiBaseUrl = apiBaseUrl.endsWith('/') ? apiBaseUrl.slice(0, -1) : apiBaseUrl;
         this.wsUrl = wsUrl;
         this.websocket = null;
         this.onTelemetryUpdate = () => {}; // Callback for real-time updates
