@@ -11,8 +11,6 @@ Projekt se osredotoča na razvoj trajnostnih praks upravljanja z vodo v Biotopu 
 
 Z vključevanjem skupnosti v načrtovanje rešitev in ohranitvena prizadevanja želimo spodbuditi globljo povezanost med ljudmi, več kot človeškimi prebivalci travnika in njihovim lokalnim okoljem v iskanju dejanskega ravnovesja, v katerem so upoštevane potrebe vseh živih bitij, ne samo ljudi.
 
-![](/images/uploads/img_20250703_170157975-1-.jpg)
-
 ### Cilji projekta
 
 * Spremljanje temperature in vlage v realnem časue v prsti in zraku.
@@ -22,15 +20,11 @@ Z vključevanjem skupnosti v načrtovanje rešitev in ohranitvena prizadevanja �
 * Ustvarjanje izobraževalnih virov o mokriščih in njihovi biotski pestrosti in o izdelavi rešitev.
 * Vključevanje lokalne skupnosti, zlasti mladih, v ohranitvena prizadevanja in več kot človeška razmerja.
 
-![](/images/uploads/img_20250708_173652125.jpg)
-
 ### Trenutno stanje
 
 Po celotnem Biotopu Livada smo namestili več senzorjev, ki neprekinjeno spremljajo stanje okolja. Podatki se zbirajo v realnem času in se preko lora radijske zveze pošiljajo v naš sistem za arhiviranje in prikaz.
 
 Vporedno izvajamo tudi redni monitoring vrst oziroma prebivalcev travnika. Do sedaj smo dokumentirali številne rastline in živali, vključno z uvrščenimi na rdeče sezname ogroženosti, ki za svoje preživetje nujno potrebujejo ohranjanje tega zelo specifičnega življenjskega prostora. 
-
-![](/images/uploads/livada-srecanja5.jpg)
 
 ### Kako lahko prispevaš
 
@@ -39,5 +33,7 @@ Vporedno izvajamo tudi redni monitoring vrst oziroma prebivalcev travnika. Do se
 1. **Pridi na monitoring**: pomagaj zbirati podatke o biotski raznovrstnosti v skupini ali samostojno.
 2. **Pridi na srečanje**: v Biotopu Livada redno izvajamo DITO srečanja o permakulturi, z zemljo povezanih praksah, izdelavi predmetov iz lesa in recikliranih materialov, občasno pa potekajo tudi delavnice o ekofeminističnih praksah, medvrstnem sodelovanju in razvoju rešitev za telemetrijo.
 3. **Širjenje informacij**: s pomenom ohranjanja tega urbanega barjanskega travnika lahko seznaniš tudi prijatelje, še raje pa vidimo, če jih kar pripelješ s sabo na naslednje srečanje.
+
+![](/images/uploads/livada-srecanja5.jpg)
 
 *P﻿rojekt izvajamo s podporo Mestne občine Ljubljana*
