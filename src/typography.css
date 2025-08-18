@@ -1,0 +1,224 @@
+/* ----------------- ECOFEMINIST TYPOGRAPHY SYSTEM ------------------ */
+
+/* Display Typography - For heroes, main headings */
+.text-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.text-display-lg {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Accent Typography - For special elements */
+.text-accent {
+  font-family: var(--font-accent);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.text-accent-lg {
+  font-family: var(--font-accent);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+/* Body Typography - Enhanced readability */
+.text-body {
+  font-family: var(--font-body);
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+.text-body-lg {
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.8;
+  font-weight: 400;
+}
+
+/* Organic Headings */
+.heading-organic {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--text-forest);
+}
+
+.heading-playful {
+  font-family: var(--font-accent);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  color: var(--text-sage);
+}
+
+/* Navigation Typography */
+.nav-text {
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
+
+/* Enhanced Monospace */
+.text-mono-modern {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+/* Responsive Typography Utilities */
+@media (max-width: 640px) {
+  .text-display-lg {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+  
+  .text-accent-lg {
+    font-size: clamp(1.25rem, 6vw, 2rem);
+  }
+}
+
+/* Organic spacing and flow */
+.prose-organic {
+  font-family: var(--font-body);
+  line-height: 1.8;
+}
+
+.prose-organic h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+  color: var(--text-forest);
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+}
+
+.prose-organic h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.2;
+  color: var(--text-forest);
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+}
+
+.prose-organic h3 {
+  font-family: var(--font-accent);
+  font-weight: 600;
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  line-height: 1.3;
+  color: var(--text-sage);
+  margin-bottom: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.prose-organic p {
+  margin-bottom: 1.5rem;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--text-main);
+}
+
+.prose-organic strong {
+  font-weight: 600;
+  color: var(--text-forest);
+}
+
+.prose-organic em {
+  font-style: italic;
+  color: var(--text-sage);
+}
+
+/* Typography animations and interactions */
+.text-interactive {
+  transition: all 0.3s ease;
+}
+
+.text-interactive:hover {
+  transform: translateY(-1px);
+  color: var(--primary-light);
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .text-interactive {
+    transition: none;
+  }
+
+  .text-interactive:hover {
+    transform: none;
+  }
+
+  .text-display-lg {
+    animation: none;
+  }
+}
+
+/* Enhanced contrast for better readability */
+@media (prefers-contrast: high) {
+  .text-display-lg {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: var(--text-forest);
+  }
+
+  .heading-organic,
+  .heading-playful {
+    color: var(--text-main);
+  }
+}
+
+/* Improved focus states for accessibility */
+.nav-text:focus-visible,
+.text-interactive:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Better text selection */
+::selection {
+  background-color: var(--primary-light);
+  color: white;
+}
+
+/* Ensure sufficient line height for dyslexia accessibility */
+.text-body,
+.text-body-lg {
+  font-variant-ligatures: common-ligatures;
+  font-feature-settings: "liga", "kern";
+}
+
+/* Responsive font scaling for better mobile readability */
+@media (max-width: 480px) {
+  .text-body {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .text-body-lg {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+
+  .heading-organic,
+  .heading-playful {
+    line-height: 1.3;
+  }
+}

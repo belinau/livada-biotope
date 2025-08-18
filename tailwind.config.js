@@ -8,48 +8,102 @@ module.exports = {
     ],
     theme: {
       extend: {
+        // Ecofeminist Font Family System
+        fontFamily: {
+          'display': ['Comfortaa', 'sans-serif'],
+          'body': ['Inter', 'sans-serif'],
+          'accent': ['Quicksand', 'sans-serif'],
+          'mono': ['JetBrains Mono', 'monospace'],
+        },
+        // Nature-inspired colors
+        colors: {
+          'forest': '#2d5a3d',
+          'sage': '#87a96b',
+          'earth': '#8b7355',
+          'sky': '#5c7cfa',
+          'sunset': '#ff8787',
+        },
         // Extend the default Tailwind typography styles
         typography: ({ theme }) => ({
           DEFAULT: {
             css: {
+              // Enhanced readability with Inter body font
+              fontFamily: theme('fontFamily.body'),
+              lineHeight: '1.8',
+              fontSize: '1.05rem',
+              color: theme('colors.gray.800'),
               // Target paragraph elements within prose content
               p: {
-                // Increase the bottom margin for paragraphs
-                // theme('spacing.6') is typically 1.5rem (24px)
-                // You can change '6' to '8' (2rem/32px) or a custom value like '1.5em'
-                marginBottom: theme('spacing.8'), // Increased spacing
-                marginTop: theme('spacing.8'),   // Added top margin for consistency
+                marginBottom: theme('spacing.6'),
+                marginTop: theme('spacing.2'),
+                lineHeight: '1.8',
               },
-              // You can uncomment and adjust these if you need more control
-              // over other elements within your prose content (e.g., headings, lists).
-              // h1: {
-              //   marginTop: theme('spacing.12'),
-              //   marginBottom: theme('spacing.6'),
-              // },
-              // h2: {
-              //   marginTop: theme('spacing.10'),
-              //   marginBottom: theme('spacing.5'),
-              // },
-              // li: {
-              //   marginBottom: theme('spacing.2'), // Adjust list item spacing
-              // },
-              // ul: {
-              //   marginBottom: theme('spacing.6'), // Adjust unordered list spacing
-              //   marginTop: theme('spacing.6'),
-              // },
-              // ol: {
-              //   marginBottom: theme('spacing.6'), // Adjust ordered list spacing
-              //   marginTop: theme('spacing.6'),
-              // },
+              // Organic heading styles
+              h1: {
+                fontFamily: theme('fontFamily.display'),
+                fontWeight: '700',
+                color: theme('colors.forest'),
+                marginTop: theme('spacing.12'),
+                marginBottom: theme('spacing.6'),
+                lineHeight: '1.1',
+              },
+              h2: {
+                fontFamily: theme('fontFamily.display'),
+                fontWeight: '600',
+                color: theme('colors.forest'),
+                marginTop: theme('spacing.10'),
+                marginBottom: theme('spacing.5'),
+                lineHeight: '1.2',
+              },
+              h3: {
+                fontFamily: theme('fontFamily.accent'),
+                fontWeight: '600',
+                color: theme('colors.sage'),
+                marginTop: theme('spacing.8'),
+                marginBottom: theme('spacing.4'),
+                lineHeight: '1.3',
+              },
+              strong: {
+                fontWeight: '600',
+                color: theme('colors.forest'),
+              },
+              em: {
+                fontStyle: 'italic',
+                color: theme('colors.sage'),
+              },
+              // Better list spacing
+              li: {
+                marginBottom: theme('spacing.1'),
+              },
+              ul: {
+                marginBottom: theme('spacing.6'),
+                marginTop: theme('spacing.4'),
+              },
+              ol: {
+                marginBottom: theme('spacing.6'),
+                marginTop: theme('spacing.4'),
+              },
             },
           },
-          // This targets elements within the 'prose-lg' class, which you use.
-          // It provides even more spacing for larger text sizes.
+          // Enhanced large prose variant for better readability
           lg: {
             css: {
+              fontSize: '1.125rem',
+              lineHeight: '1.8',
               p: {
-                marginBottom: theme('spacing.10'), // More spacing for 'prose-lg'
-                marginTop: theme('spacing.10'),
+                marginBottom: theme('spacing.8'),
+                marginTop: theme('spacing.3'),
+                fontSize: '1.125rem',
+                lineHeight: '1.8',
+              },
+              h1: {
+                fontSize: 'clamp(2rem, 4vw, 3rem)',
+              },
+              h2: {
+                fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+              },
+              h3: {
+                fontSize: 'clamp(1.25rem, 2.5vw, 1.75rem)',
               },
             },
           },
@@ -62,4 +116,3 @@ module.exports = {
       // ... any other Tailwind plugins you might already have
     ],
   };
-  

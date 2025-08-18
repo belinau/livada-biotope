@@ -316,31 +316,41 @@ const MetricCard = ({ label, value, unit = '', decimals = 0 }) => {
     const displayValue = isValid ? value.toFixed(decimals) : '--';
     return (
         <div className="bg-gray-100/70 p-3 rounded-md text-center">
-            <div className="text-2xl font-bold text-primary">{displayValue}<span className="text-base text-gray-500 ml-1">{unit}</span></div>
-            <div className="text-xs text-gray-600 uppercase tracking-wider">{label}</div>
+            <div className="text-display text-2xl text-primary">{displayValue}<span className="text-accent text-base text-gray-500 ml-1">{unit}</span></div>
+            <div className="text-accent text-xs text-gray-600 uppercase tracking-wider">{label}</div>
         </div>
     );
 };
 const BedCard = ({ bed, reading, t }) => {
     const lastHeard = reading ? new Date(reading.timestamp) : null;
     return (
-        <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden flex flex-col">
-            <div className="p-4 flex justify-between items-center" style={{ backgroundColor: bed.color, color: 'white' }}>
-                <h4 className="font-bold text-lg">{bed.name}</h4>
+        <div className="group bg-white/90 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col border border-gray-200/50 hover:border-gray-300/60">
+            <div className="p-4 flex justify-between items-center bg-gradient-to-r" style={{ background: `linear-gradient(135deg, ${bed.color}, ${bed.color}dd)`, color: 'white' }}>
+                <h4 className="heading-organic text-lg group-hover:scale-105 transition-transform duration-200">{bed.name}</h4>
+                <div className="w-3 h-3 rounded-full bg-white/30 group-hover:bg-white/50 transition-colors duration-200"></div>
             </div>
-            <div className="p-4 space-y-4 flex-grow">
+            <div className="p-5 space-y-4 flex-grow bg-gradient-to-b from-white/5 to-transparent">
                 {reading ? (
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <MetricCard label={t('soilMoisture')} value={reading.moisture} unit="%" decimals={1} />
                         <MetricCard label={t('soilTemp')} value={reading.temperature} unit="°C" decimals={1} />
                     </div>
                 ) : (
-                    <div className="flex items-center justify-center h-full text-gray-500">{t('noSensorData')}</div>
+                    <div className="flex items-center justify-center h-24 text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
+                        <div className="text-center">
+                            <div className="text-2xl mb-2">📊</div>
+                            <div className="text-accent text-sm">{t('noSensorData')}</div>
+                        </div>
+                    </div>
                 )}
             </div>
             {lastHeard && (
-                <div className="bg-gray-50/70 p-2 text-xs text-gray-500 flex justify-end items-center">
-                    <span>{t('lastUpdated')}: {lastHeard.toLocaleString(t.language)}</span>
+                <div className="bg-gray-50/80 backdrop-blur-sm p-3 text-xs text-gray-600 flex justify-between items-center border-t border-gray-200/50">
+                    <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                        <span className="text-accent font-medium">Live</span>
+                    </div>
+                    <span className="text-accent">{t('lastUpdated')}: {lastHeard.toLocaleString(t.language)}</span>
                 </div>
             )}
         </div>
@@ -348,9 +358,11 @@ const BedCard = ({ bed, reading, t }) => {
 };
 
 export const ChartWrapper = ({ title, children }) => (
-    <div className="bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-inner flex flex-col">
-        <h4 className="font-semibold text-gray-700 mb-2 text-center">{title}</h4>
-        <div className="flex-grow">{children}</div>
+    <div className="bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200/50 flex flex-col min-h-[400px] hover:shadow-xl transition-shadow duration-300">
+        <div className="flex items-center justify-center mb-4">
+            <h4 className="heading-playful text-lg text-center px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-full border border-gray-200 shadow-sm">{title}</h4>
+        </div>
+        <div className="flex-grow relative overflow-hidden">{children}</div>
     </div>
 );
 
@@ -428,41 +440,139 @@ function SensorVisualization() {
     };
     
     return (
-        <div className="relative p-4 sm:p-6 rounded-lg shadow-lg overflow-hidden border border-gray-200 bg-gray-50/80 backdrop-blur-sm">
-            <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
-                <h3 className="text-2xl font-mono text-primary"> {t('sensorDataTitle')} </h3>
-                <div className="flex items-center gap-4">
-                    <span className={`text-sm ${status.type === 'error' ? 'text-red-600' : 'text-gray-600'}`}>{getStatusMessage()}</span>
-                    <button onClick={refreshData} disabled={isLoading} className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary font-semibold rounded-lg hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        <div className="relative p-4 sm:p-8 rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50 bg-gradient-to-br from-gray-50/90 to-white/80 backdrop-blur-sm">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <h3 className="text-display text-2xl lg:text-3xl text-gray-800 bg-gradient-to-r from-green-700 to-green-600 bg-clip-text text-transparent">{t('sensorDataTitle')}</h3>
+                </div>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <div className="flex items-center gap-2">
+                        <div className={`w-3 h-3 rounded-full ${status.type === 'error' ? 'bg-red-500' : status.type === 'success' ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`}></div>
+                        <span className={`text-accent font-medium ${status.type === 'error' ? 'text-red-600' : 'text-gray-700'}`}>{getStatusMessage()}</span>
+                    </div>
+                    <button
+                        onClick={refreshData}
+                        disabled={isLoading}
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105"
+                    >
                         <svg className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
                         </svg>
-                        <span>{isLoading ? t('loading') : t('refreshData')}</span>
+                        <span className="text-accent font-medium">{isLoading ? t('loading') : t('refreshData')}</span>
                     </button>
                 </div>
             </div>
 
             {isLoading && !history ? (
-                 <div className="text-center py-20 text-gray-500">{t('loading')}...</div>
+                <div className="text-center py-20">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-4 shadow-lg">
+                        <svg className="w-8 h-8 text-white animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
+                        </svg>
+                    </div>
+                    <div className="text-body-lg text-gray-600">{t('loading')}...</div>
+                    <div className="text-accent text-gray-500 mt-2">Pridobivam podatke senzorjev</div>
+                </div>
             ) : (
                 <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                         {Object.entries(BED_MAPPING).map(([bedId, bed]) => (
                             <BedCard key={bedId} bed={bed} reading={latestReadings[bedId]} t={t} />
                         ))}
                     </div>
-                    
-                    <div className="grid grid-cols-1 gap-8 pt-6 border-t">
-                        <ChartWrapper title={t('moistureFlows')}>
-                            {hasMoistureData ? (
-                                <ResponsiveLine tooltip={CustomTooltip} data={chartData.moisture} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 120, left: 70 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: 'Vlaga (%)', legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 80, itemsSpacing: 4, itemWidth: 180, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
-                            ) : ( <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> )}
-                        </ChartWrapper>
-                        <ChartWrapper title={t('temperatureFlows')}>
-                            {hasTemperatureData ? (
-                                <ResponsiveLine tooltip={CustomTooltip} data={chartData.temperature} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 120, left: 70 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 80, itemsSpacing: 4, itemWidth: 180, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
-                            ) : ( <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> )}
-                        </ChartWrapper>
+
+                    <div className="space-y-8 pt-8 border-t-2 border-gray-200">
+                        <div className="text-center">
+                            <h4 className="heading-organic text-xl mb-3">Grafični prikaz podatkov</h4>
+                            <p className="text-body text-gray-600">Spremljanje vlage in temperature skozi čas</p>
+                        </div>
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                            <ChartWrapper title={t('moistureFlows')}>
+                                {hasMoistureData ? (
+                                    <ResponsiveLine
+                                        tooltip={CustomTooltip}
+                                        data={chartData.moisture}
+                                        theme={nivoTheme}
+                                        colors={{ datum: 'color' }}
+                                        margin={{ top: 20, right: 30, bottom: 140, left: 80 }}
+                                        xScale={{ type: 'time', format: 'native' }}
+                                        yScale={{ type: 'linear', min: 'auto', max: 'auto' }}
+                                        axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40, legendPosition: 'middle' }}
+                                        axisLeft={{ legend: 'Vlaga (%)', legendOffset: -60, legendPosition: 'middle' }}
+                                        enablePoints={false}
+                                        useMesh={true}
+                                        curve="monotoneX"
+                                        animate={true}
+                                        motionConfig="wobbly"
+                                        legends={[{
+                                            anchor: 'bottom',
+                                            direction: 'row',
+                                            justify: false,
+                                            translateX: 0,
+                                            translateY: 100,
+                                            itemsSpacing: 8,
+                                            itemWidth: 140,
+                                            itemHeight: 20,
+                                            symbolSize: 14,
+                                            itemTextColor: '#333'
+                                        }]}
+                                    />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
+                                        <div className="text-center p-8">
+                                            <div className="text-4xl mb-3">📈</div>
+                                            <div className="text-body font-medium">{t('noChartData')}</div>
+                                            <div className="text-accent text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
+                                        </div>
+                                    </div>
+                                )}
+                            </ChartWrapper>
+                            <ChartWrapper title={t('temperatureFlows')}>
+                                {hasTemperatureData ? (
+                                    <ResponsiveLine
+                                        tooltip={CustomTooltip}
+                                        data={chartData.temperature}
+                                        theme={nivoTheme}
+                                        colors={{ datum: 'color' }}
+                                        margin={{ top: 20, right: 30, bottom: 140, left: 80 }}
+                                        xScale={{ type: 'time', format: 'native' }}
+                                        yScale={{ type: 'linear', min: 'auto', max: 'auto' }}
+                                        axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40, legendPosition: 'middle' }}
+                                        axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -60, legendPosition: 'middle' }}
+                                        enablePoints={false}
+                                        useMesh={true}
+                                        curve="monotoneX"
+                                        animate={true}
+                                        motionConfig="wobbly"
+                                        legends={[{
+                                            anchor: 'bottom',
+                                            direction: 'row',
+                                            justify: false,
+                                            translateX: 0,
+                                            translateY: 100,
+                                            itemsSpacing: 8,
+                                            itemWidth: 140,
+                                            itemHeight: 20,
+                                            symbolSize: 14,
+                                            itemTextColor: '#333'
+                                        }]}
+                                    />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
+                                        <div className="text-center p-8">
+                                            <div className="text-4xl mb-3">🌡️</div>
+                                            <div className="text-body font-medium">{t('noChartData')}</div>
+                                            <div className="text-accent text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
+                                        </div>
+                                    </div>
+                                )}
+                            </ChartWrapper>
+                        </div>
                     </div>
                 </>
             )}
@@ -614,7 +724,7 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
       );
     }, [events, viewYear, viewMonth]);
   
-    if (isLoading) return <div className="text-center">{t('loading')}...</div>;
+    if (isLoading) return <div className="text-body text-center text-gray-500">{t('loading')}...</div>;
   
     const monthName = new Date(viewYear, viewMonth).toLocaleString(language, {
       month: 'long',
@@ -685,7 +795,7 @@ function Page({ title, children }) {
 function Section({ title, children, className = '' }) {
     return (
         <section className={`container mx-auto px-4 py-12 ${className}`}>
-            <h2 className="text-3xl font-mono mb-8 text-center text-primary">{title}</h2>
+            <h2 className="text-display text-3xl mb-8 text-center text-primary">{title}</h2>
             <div className="relative z-10">{children}</div>
         </section>
     );
@@ -778,7 +888,7 @@ function MemoryGame() {
     };
   
     /* ---------- render ---------- */
-    if (loading) return <div className="max-w-6xl mx-auto text-center py-12">{t('loading')}...</div>;
+    if (loading) return <div className="text-body max-w-6xl mx-auto text-center py-12 text-gray-500">{t('loading')}...</div>;
   
     return (
       <div className="max-w-6xl mx-auto">
@@ -970,7 +1080,7 @@ function BiodiversityPage() {
     return (
         <Page title={t('navBiodiversity')}>
             <Section title={t('biodiversityTitle')}> 
-                <p className="mb-8 text-lg text-gray-600 max-w-3xl mx-auto text-center">{t('biodiversityDesc')}</p>
+                <p className="text-body-lg mb-8 text-gray-600 max-w-3xl mx-auto text-center">{t('biodiversityDesc')}</p>
                 <INaturalistFeed projectSlug="the-livada-biotope-monitoring" />
             </Section>
         </Page>
@@ -982,7 +1092,7 @@ function CalendarPage() {
     return (
         <Page title={t('navCalendar')}>
             <Section title={t('calendarTitle')}> 
-                <p className="mb-8 text-lg text-gray-600 max-w-3xl mx-auto text-center">{t('calendarDesc')}</p>
+                <p className="text-body-lg mb-8 text-gray-600 max-w-3xl mx-auto text-center">{t('calendarDesc')}</p>
                 <CalendarFeed icsUrl="https://calendar.google.com/calendar/ical/c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com/public/basic.ics"
                 calendarUrl="https://calendar.google.com/calendar/embed?src=c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com&ctz=Europe%2FBelgrade"/>
             </Section>
@@ -1147,7 +1257,7 @@ function ContentCollectionPage({ t, title, contentPath }) {
     if (isLoading) {
       return (
         <Section title={title}>
-          <div className="text-center">{t('loading')}…</div>
+          <div className="text-body text-center text-gray-500">{t('loading')}…</div>
         </Section>
       );
     }
@@ -1159,15 +1269,15 @@ function ContentCollectionPage({ t, title, contentPath }) {
             {processedItems.length ? processedItems.map(item => (
               <div key={item.id} className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md">
                 {item.metadata.date && (
-                  <p className="text-sm text-gray-500 mb-1">
+                  <p className="text-accent text-sm text-gray-500 mb-1">
                     {new Date(item.metadata.date).toLocaleDateString(language)}
                   </p>
                 )}
-                <h3 className="text-2xl font-mono text-primary mb-3">{item.metadata.title}</h3>
+                <h3 className="heading-organic text-2xl text-primary mb-3">{item.metadata.title}</h3>
                 
                 {/* Single content render with Mermaid and video embeds */}
                 <div
-                  className="prose max-w-none"
+                  className="prose-organic max-w-none"
                   dangerouslySetInnerHTML={{ __html: item.processedContent }}
                   ref={node => {
                     if (!node) return;
@@ -1364,7 +1474,7 @@ function GalleryPage() {
         return (
             <Page title={t('navGallery')}>
                 <Section title={t('navGallery')}> 
-                    <div className="text-center py-10">{t('loading')}...</div>
+                    <div className="text-body text-center py-10 text-gray-500">{t('loading')}...</div>
                 </Section>
             </Page>
         );
@@ -1374,7 +1484,7 @@ function GalleryPage() {
         return (
             <Page title={t('navGallery')}>
                 <Section title={t('navGallery')}> 
-                    <p className="text-center text-gray-500">{t('noGalleriesAvailable')}</p>
+                    <p className="text-body text-center text-gray-500">{t('noGalleriesAvailable')}</p>
                 </Section>
             </Page>
         );
@@ -1729,13 +1839,13 @@ function HomePage() {
     return (
         <Page title={title}>
             <div style={{ minHeight: '60vh' }} className="flex flex-col items-center justify-center text-center p-4">
-                <h1 className="text-4xl md:text-6xl font-mono text-primary drop-shadow-lg">{heroTitle}</h1>
-                <p className="mt-4 text-lg md:text-xl text-gray-700 max-w-2xl">{heroSubtitle}</p>
+                <h1 className="text-display-lg mb-4 animate-pulse">{heroTitle}</h1>
+                <p className="text-accent-lg text-gray-700 max-w-2xl">{heroSubtitle}</p>
             </div>
-            <div className="bg-[#f7faf9]/95 backdrop-blur-sm rounded-t-2xl shadow-lg -mt-16 pt-16">
+            <div className="bg-gradient-to-t from-white/95 to-[#f7faf9]/95 backdrop-blur-sm rounded-t-3xl shadow-2xl -mt-16 pt-16 border-t border-white/50">
                  <div className="container mx-auto px-4 py-12">
-                     {isLoading ? ( <div className="text-center prose lg:prose-xl max-w-4xl mx-auto">{t('loading')}...</div> ) 
-                               : ( <div className="prose lg:prose-xl max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} /> )}
+                     {isLoading ? ( <div className="text-center text-body-lg max-w-4xl mx-auto text-gray-500">{t('loading')}...</div> )
+                               : ( <div className="prose-organic max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} /> )}
                 </div>
             </div>
         </Page>
@@ -1770,15 +1880,15 @@ function App() {
                         {/* Desktop Menu */}
                         <div className="hidden md:flex flex-wrap gap-1">
                             {pages.map(page => (
-                                <NavLink key={page.path} to={page.path} className={({ isActive }) => `relative px-3 py-2 font-medium text-gray-700 transition-colors duration-300 group ${isActive ? 'text-primary' : 'hover:text-primary'}`}>
-                                    {({ isActive }) => (<> {page.label} <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transform transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0'} group-hover:scale-x-100`}/> </>)}
+                                <NavLink key={page.path} to={page.path} className={({ isActive }) => `nav-text relative px-4 py-2 text-gray-700 transition-all duration-300 group text-interactive hover:transform hover:scale-105 ${isActive ? 'text-primary font-semibold' : 'hover:text-primary'}`}>
+                                    {({ isActive }) => (<> {page.label} <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-primary-light transform transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0'} group-hover:scale-x-100 rounded-full`}/> </>)}
                                 </NavLink>
                             ))}
                         </div>
                         
-                        <div className="hidden md:flex items-center space-x-2">
-                            <button onClick={() => setLanguage('sl')} className={`px-2 py-1 font-semibold transition-colors ${language === 'sl' ? 'text-primary' : 'text-gray-500 hover:text-primary'}`}>SL</button>
-                            <button onClick={() => setLanguage('en')} className={`px-2 py-1 font-semibold transition-colors ${language === 'en' ? 'text-primary' : 'text-gray-500 hover:text-primary'}`}>EN</button>
+                        <div className="hidden md:flex items-center space-x-1">
+                            <button onClick={() => setLanguage('sl')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'sl' ? 'text-primary bg-primary/5 shadow-sm' : 'text-gray-500 hover:text-primary'}`}>SL</button>
+                            <button onClick={() => setLanguage('en')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'en' ? 'text-primary bg-primary/5 shadow-sm' : 'text-gray-500 hover:text-primary'}`}>EN</button>
                         </div>
 
                         {/* Mobile Menu Button */}
@@ -1796,13 +1906,13 @@ function App() {
                         <div className="md:hidden bg-white/95 backdrop-blur-md">
                             <div className="flex flex-col px-4 pt-2 pb-4 space-y-2">
                                 {pages.map(page => (
-                                    <NavLink key={page.path} to={page.path} onClick={() => setIsMenuOpen(false)} className={({ isActive }) => `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-100'}`}>
+                                    <NavLink key={page.path} to={page.path} onClick={() => setIsMenuOpen(false)} className={({ isActive }) => `nav-text block px-4 py-3 rounded-lg text-base transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-primary/10 to-primary-light/10 text-primary font-semibold border border-primary/20' : 'text-gray-700 hover:bg-gray-100/80 hover:text-primary'}`}>
                                         {page.label}
                                     </NavLink>
                                 ))}
-                                <div className="flex justify-center space-x-4 pt-4 border-t mt-4">
-                                     <button onClick={() => { setLanguage('sl'); setIsMenuOpen(false); }} className={`px-3 py-1 font-semibold transition-colors ${language === 'sl' ? 'text-primary' : 'text-gray-500'}`}>Slovenščina</button>
-                                     <button onClick={() => { setLanguage('en'); setIsMenuOpen(false); }} className={`px-3 py-1 font-semibold transition-colors ${language === 'en' ? 'text-primary' : 'text-gray-500'}`}>English</button>
+                                <div className="flex justify-center space-x-3 pt-4 border-t border-gray-200/50 mt-4">
+                                     <button onClick={() => { setLanguage('sl'); setIsMenuOpen(false); }} className={`text-accent px-4 py-2 font-semibold transition-all duration-300 rounded-lg ${language === 'sl' ? 'text-primary bg-primary/10 border border-primary/20' : 'text-gray-500 hover:text-primary hover:bg-gray-100/80'}`}>Slovenščina</button>
+                                     <button onClick={() => { setLanguage('en'); setIsMenuOpen(false); }} className={`text-accent px-4 py-2 font-semibold transition-all duration-300 rounded-lg ${language === 'en' ? 'text-primary bg-primary/10 border border-primary/20' : 'text-gray-500 hover:text-primary hover:bg-gray-100/80'}`}>English</button>
                                 </div>
                             </div>
                         </div>
@@ -1813,8 +1923,8 @@ function App() {
                         {pages.map(page => ( <Route key={page.path} path={page.path} element={page.element} /> ))}
                     </Routes>
                 </main>
-                <footer className="py-6 text-center bg-gray-100/80 backdrop-blur-sm">
-                    <div className="container mx-auto text-gray-600">{t('footerText')}</div>
+                <footer className="py-8 text-center bg-gradient-to-t from-gray-100/90 to-transparent backdrop-blur-sm border-t border-gray-200/30">
+                    <div className="container mx-auto text-body text-gray-600">{t('footerText')}</div>
                 </footer>
             </div>
         </div>

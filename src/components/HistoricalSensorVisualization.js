@@ -144,106 +144,158 @@ const HistoricalSensorContent = () => {
     };
     
     return (
-        <div className="relative p-4 sm:p-6 rounded-lg shadow-lg overflow-hidden border border-gray-200 bg-gray-50/80 backdrop-blur-sm mt-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 flex-wrap">
-                <h3 className="text-2xl font-mono text-primary"> {t('historicalSensorDataTitle')} </h3>
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <div className="flex items-center gap-2">
-                        <label htmlFor="startDate" className="text-sm text-gray-600">From:</label>
-                        <input
-                            type="date"
-                            id="startDate"
-                            value={startDate.toISOString().split('T')[0]}
-                            onChange={(e) => handleStartDateChange(new Date(e.target.value))}
-                            className="p-2 border border-gray-300 rounded-md text-sm"
-                        />
-                        <label htmlFor="endDate" className="text-sm text-gray-600">To:</label>
-                        <input
-                            type="date"
-                            id="endDate"
-                            value={endDate.toISOString().split('T')[0]}
-                            onChange={(e) => handleEndDateChange(new Date(e.target.value))}
-                            className="p-2 border border-gray-300 rounded-md text-sm"
-                        />
-                        <span className="text-xs text-gray-500">({dateDiff} days)</span>
-                    </div>
-                    <span className={`text-sm ${status.type === 'error' ? 'text-red-600' : 'text-gray-600'}`}>{getStatusMessage()}</span>
-                    <button onClick={refreshData} disabled={isLoading} className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary font-semibold rounded-lg hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        <svg className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
+        <div className="relative p-4 sm:p-8 rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50 bg-gradient-to-br from-blue-50/90 to-white/80 backdrop-blur-sm mt-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>{isLoading ? t('loading') : t('refreshData')}</span>
-                    </button>
+                    </div>
+                    <h3 className="text-display text-2xl lg:text-3xl text-gray-800 bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">{t('historicalSensorDataTitle')}</h3>
+                </div>
+                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
+                    <div className="flex flex-col sm:flex-row gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-sm">
+                        <div className="flex items-center gap-2">
+                            <label htmlFor="startDate" className="text-accent font-medium text-gray-700">Od:</label>
+                            <input
+                                type="date"
+                                id="startDate"
+                                value={startDate.toISOString().split('T')[0]}
+                                onChange={(e) => handleStartDateChange(new Date(e.target.value))}
+                                className="p-2 border border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label htmlFor="endDate" className="text-accent font-medium text-gray-700">Do:</label>
+                            <input
+                                type="date"
+                                id="endDate"
+                                value={endDate.toISOString().split('T')[0]}
+                                onChange={(e) => handleEndDateChange(new Date(e.target.value))}
+                                className="p-2 border border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-accent font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">({dateDiff} dni)</span>
+                        </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            <div className={`w-3 h-3 rounded-full ${status.type === 'error' ? 'bg-red-500' : status.type === 'success' ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`}></div>
+                            <span className={`text-accent font-medium ${status.type === 'error' ? 'text-red-600' : 'text-gray-700'}`}>{getStatusMessage()}</span>
+                        </div>
+                        <button
+                            onClick={refreshData}
+                            disabled={isLoading}
+                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105"
+                        >
+                            <svg className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
+                            </svg>
+                            <span className="text-accent font-medium">{isLoading ? t('loading') : t('refreshData')}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-            {isLoading && !history ? ( 
-                <div className="text-center py-20 text-gray-500">{t('loading')}...</div>
+            {isLoading && !history ? (
+                <div className="text-center py-20">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-4 shadow-lg">
+                        <svg className="w-8 h-8 text-white animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
+                        </svg>
+                    </div>
+                    <div className="text-body-lg text-gray-600">{t('loading')}...</div>
+                    <div className="text-accent text-gray-500 mt-2">Pridobivam zgodovinske podatke</div>
+                </div>
             ) : (
-                <div className="grid grid-cols-1 gap-8 pt-6 border-t">
-                    <ChartWrapper title={t('moistureFlows')}>
-                        {hasMoistureData ? (
-                            <ResponsiveLine 
-                                tooltip={CustomTooltip} 
-                                data={chartData.moisture} 
-                                theme={nivoTheme} 
-                                colors={{ datum: 'color' }} 
-                                margin={{ top: 10, right: 20, bottom: 120, left: 70 }} 
-                                xScale={{ type: 'time', format: 'native' }} 
-                                yScale={{ type: 'linear', min: 'auto', max: 'auto' }} 
-                                axisBottom={{ format: '%b %d', tickValues: tickValues, legend: t('time'), legendOffset: 40 }} 
-                                axisLeft={{ legend: 'Vlaga (%)', legendOffset: -50 }} 
-                                enablePoints={false} 
-                                useMesh={true} 
-                                curve="monotoneX" 
-                                legends={[{ 
-                                    anchor: 'bottom', 
-                                    direction: 'row', 
-                                    justify: false, 
-                                    translateX: 0, 
-                                    translateY: 80, 
-                                    itemsSpacing: 4, 
-                                    itemWidth: 180, 
-                                    itemHeight: 20, 
-                                    symbolSize: 12, 
-                                    itemTextColor: '#333' 
-                                }]} 
-                            />
-                        ) : ( 
-                            <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> 
-                        )}
-                    </ChartWrapper>
-                    <ChartWrapper title={t('temperatureFlows')}>
-                        {hasTemperatureData ? (
-                            <ResponsiveLine 
-                                tooltip={CustomTooltip} 
-                                data={chartData.temperature} 
-                                theme={nivoTheme} 
-                                colors={{ datum: 'color' }} 
-                                margin={{ top: 10, right: 20, bottom: 120, left: 70 }} 
-                                xScale={{ type: 'time', format: 'native' }} 
-                                yScale={{ type: 'linear', min: 'auto', max: 'auto' }} 
-                                axisBottom={{ format: '%b %d', tickValues: tickValues, legend: t('time'), legendOffset: 40 }} 
-                                axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -50 }} 
-                                enablePoints={false} 
-                                useMesh={true} 
-                                curve="monotoneX" 
-                                legends={[{ 
-                                    anchor: 'bottom', 
-                                    direction: 'row', 
-                                    justify: false, 
-                                    translateX: 0, 
-                                    translateY: 80, 
-                                    itemsSpacing: 4, 
-                                    itemWidth: 180, 
-                                    itemHeight: 20, 
-                                    symbolSize: 12, 
-                                    itemTextColor: '#333' 
-                                }]} 
-                            />
-                        ) : ( 
-                            <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> 
-                        )}
-                    </ChartWrapper>
+                <div className="space-y-8 pt-8 border-t-2 border-gray-200">
+                    <div className="text-center">
+                        <h4 className="heading-organic text-xl mb-2">Zgodovinski grafični prikaz</h4>
+                        <p className="text-body text-gray-600">Dolžji pregled podatkov senzorjev za izbrano obdobje</p>
+                    </div>
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        <ChartWrapper title={t('moistureFlows')}>
+                            {hasMoistureData ? (
+                                <ResponsiveLine
+                                    tooltip={CustomTooltip}
+                                    data={chartData.moisture}
+                                    theme={nivoTheme}
+                                    colors={{ datum: 'color' }}
+                                    margin={{ top: 20, right: 30, bottom: 140, left: 80 }}
+                                    xScale={{ type: 'time', format: 'native' }}
+                                    yScale={{ type: 'linear', min: 'auto', max: 'auto' }}
+                                    axisBottom={{ format: '%b %d', tickValues: tickValues, legend: t('time'), legendOffset: 40, legendPosition: 'middle' }}
+                                    axisLeft={{ legend: 'Vlaga (%)', legendOffset: -60, legendPosition: 'middle' }}
+                                    enablePoints={false}
+                                    useMesh={true}
+                                    curve="monotoneX"
+                                    animate={true}
+                                    motionConfig="wobbly"
+                                    legends={[{
+                                        anchor: 'bottom',
+                                        direction: 'row',
+                                        justify: false,
+                                        translateX: 0,
+                                        translateY: 100,
+                                        itemsSpacing: 8,
+                                        itemWidth: 140,
+                                        itemHeight: 20,
+                                        symbolSize: 14,
+                                        itemTextColor: '#333'
+                                    }]}
+                                />
+                            ) : (
+                                <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
+                                    <div className="text-center p-8">
+                                        <div className="text-4xl mb-3">📈</div>
+                                        <div className="text-body font-medium">{t('noChartData')}</div>
+                                        <div className="text-accent text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
+                                    </div>
+                                </div>
+                            )}
+                        </ChartWrapper>
+                        <ChartWrapper title={t('temperatureFlows')}>
+                            {hasTemperatureData ? (
+                                <ResponsiveLine
+                                    tooltip={CustomTooltip}
+                                    data={chartData.temperature}
+                                    theme={nivoTheme}
+                                    colors={{ datum: 'color' }}
+                                    margin={{ top: 20, right: 30, bottom: 140, left: 80 }}
+                                    xScale={{ type: 'time', format: 'native' }}
+                                    yScale={{ type: 'linear', min: 'auto', max: 'auto' }}
+                                    axisBottom={{ format: '%b %d', tickValues: tickValues, legend: t('time'), legendOffset: 40, legendPosition: 'middle' }}
+                                    axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -60, legendPosition: 'middle' }}
+                                    enablePoints={false}
+                                    useMesh={true}
+                                    curve="monotoneX"
+                                    animate={true}
+                                    motionConfig="wobbly"
+                                    legends={[{
+                                        anchor: 'bottom',
+                                        direction: 'row',
+                                        justify: false,
+                                        translateX: 0,
+                                        translateY: 100,
+                                        itemsSpacing: 8,
+                                        itemWidth: 140,
+                                        itemHeight: 20,
+                                        symbolSize: 14,
+                                        itemTextColor: '#333'
+                                    }]}
+                                />
+                            ) : (
+                                <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
+                                    <div className="text-center p-8">
+                                        <div className="text-4xl mb-3">🌡️</div>
+                                        <div className="text-body font-medium">{t('noChartData')}</div>
+                                        <div className="text-accent text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
+                                    </div>
+                                </div>
+                            )}
+                        </ChartWrapper>
+                    </div>
                 </div>
             )} 
         </div>
