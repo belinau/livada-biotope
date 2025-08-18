@@ -1080,7 +1080,7 @@ function BiodiversityPage() {
     return (
         <Page title={t('navBiodiversity')}>
             <Section title={t('biodiversityTitle')}> 
-                <p className="mb-8 text-lg text-gray-600 max-w-3xl mx-auto text-center">{t('biodiversityDesc')}</p>
+                <p className="text-body-lg mb-8 text-gray-600 max-w-3xl mx-auto text-center">{t('biodiversityDesc')}</p>
                 <INaturalistFeed projectSlug="the-livada-biotope-monitoring" />
             </Section>
         </Page>
@@ -1092,7 +1092,7 @@ function CalendarPage() {
     return (
         <Page title={t('navCalendar')}>
             <Section title={t('calendarTitle')}> 
-                <p className="mb-8 text-lg text-gray-600 max-w-3xl mx-auto text-center">{t('calendarDesc')}</p>
+                <p className="text-body-lg mb-8 text-gray-600 max-w-3xl mx-auto text-center">{t('calendarDesc')}</p>
                 <CalendarFeed icsUrl="https://calendar.google.com/calendar/ical/c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com/public/basic.ics"
                 calendarUrl="https://calendar.google.com/calendar/embed?src=c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com&ctz=Europe%2FBelgrade"/>
             </Section>
@@ -1474,7 +1474,7 @@ function GalleryPage() {
         return (
             <Page title={t('navGallery')}>
                 <Section title={t('navGallery')}> 
-                    <div className="text-center py-10">{t('loading')}...</div>
+                    <div className="text-body text-center py-10 text-gray-500">{t('loading')}...</div>
                 </Section>
             </Page>
         );
@@ -1484,7 +1484,7 @@ function GalleryPage() {
         return (
             <Page title={t('navGallery')}>
                 <Section title={t('navGallery')}> 
-                    <p className="text-center text-gray-500">{t('noGalleriesAvailable')}</p>
+                    <p className="text-body text-center text-gray-500">{t('noGalleriesAvailable')}</p>
                 </Section>
             </Page>
         );
