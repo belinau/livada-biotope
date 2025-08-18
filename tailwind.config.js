@@ -8,6 +8,21 @@ module.exports = {
     ],
     theme: {
       extend: {
+        // Ecofeminist Font Family System
+        fontFamily: {
+          'display': ['Comfortaa', 'sans-serif'],
+          'body': ['Inter', 'sans-serif'],
+          'accent': ['Quicksand', 'sans-serif'],
+          'mono': ['JetBrains Mono', 'monospace'],
+        },
+        // Nature-inspired colors
+        colors: {
+          'forest': '#2d5a3d',
+          'sage': '#87a96b',
+          'earth': '#8b7355',
+          'sky': '#5c7cfa',
+          'sunset': '#ff8787',
+        },
         // Extend the default Tailwind typography styles
         typography: ({ theme }) => ({
           DEFAULT: {
@@ -62,4 +77,3 @@ module.exports = {
       // ... any other Tailwind plugins you might already have
     ],
   };
-  
