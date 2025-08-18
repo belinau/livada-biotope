@@ -795,7 +795,7 @@ function Page({ title, children }) {
 function Section({ title, children, className = '' }) {
     return (
         <section className={`container mx-auto px-4 py-12 ${className}`}>
-            <h2 className="text-3xl font-mono mb-8 text-center text-primary">{title}</h2>
+            <h2 className="text-display text-3xl mb-8 text-center text-primary">{title}</h2>
             <div className="relative z-10">{children}</div>
         </section>
     );
