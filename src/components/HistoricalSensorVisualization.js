@@ -212,7 +212,7 @@ const HistoricalSensorContent = () => {
                 <div className="space-y-8 pt-8 border-t-2 border-gray-200">
                     <div className="text-center">
                         <h4 className="heading-organic text-xl mb-2">Zgodovinski grafični prikaz</h4>
-                        <p className="text-gray-600 text-sm">Dolžji pregled podatkov senzorjev za izbrano obdobje</p>
+                        <p className="text-body text-gray-600">Dolžji pregled podatkov senzorjev za izbrano obdobje</p>
                     </div>
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                         <ChartWrapper title={t('moistureFlows')}>
