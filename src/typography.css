@@ -160,8 +160,65 @@
   .text-interactive {
     transition: none;
   }
-  
+
   .text-interactive:hover {
     transform: none;
+  }
+
+  .text-display-lg {
+    animation: none;
+  }
+}
+
+/* Enhanced contrast for better readability */
+@media (prefers-contrast: high) {
+  .text-display-lg {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: var(--text-forest);
+  }
+
+  .heading-organic,
+  .heading-playful {
+    color: var(--text-main);
+  }
+}
+
+/* Improved focus states for accessibility */
+.nav-text:focus-visible,
+.text-interactive:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Better text selection */
+::selection {
+  background-color: var(--primary-light);
+  color: white;
+}
+
+/* Ensure sufficient line height for dyslexia accessibility */
+.text-body,
+.text-body-lg {
+  font-variant-ligatures: common-ligatures;
+  font-feature-settings: "liga", "kern";
+}
+
+/* Responsive font scaling for better mobile readability */
+@media (max-width: 480px) {
+  .text-body {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .text-body-lg {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+
+  .heading-organic,
+  .heading-playful {
+    line-height: 1.3;
   }
 }
