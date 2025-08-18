@@ -448,12 +448,12 @@ function SensorVisualization() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
                     </div>
-                    <h3 className="text-2xl lg:text-3xl font-bold text-gray-800 bg-gradient-to-r from-green-700 to-green-600 bg-clip-text text-transparent">{t('sensorDataTitle')}</h3>
+                    <h3 className="text-display text-2xl lg:text-3xl text-gray-800 bg-gradient-to-r from-green-700 to-green-600 bg-clip-text text-transparent">{t('sensorDataTitle')}</h3>
                 </div>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                     <div className="flex items-center gap-2">
                         <div className={`w-3 h-3 rounded-full ${status.type === 'error' ? 'bg-red-500' : status.type === 'success' ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`}></div>
-                        <span className={`text-sm font-medium ${status.type === 'error' ? 'text-red-600' : 'text-gray-700'}`}>{getStatusMessage()}</span>
+                        <span className={`text-accent font-medium ${status.type === 'error' ? 'text-red-600' : 'text-gray-700'}`}>{getStatusMessage()}</span>
                     </div>
                     <button
                         onClick={refreshData}
@@ -463,7 +463,7 @@ function SensorVisualization() {
                         <svg className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
                         </svg>
-                        <span>{isLoading ? t('loading') : t('refreshData')}</span>
+                        <span className="text-accent font-medium">{isLoading ? t('loading') : t('refreshData')}</span>
                     </button>
                 </div>
             </div>
