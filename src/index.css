@@ -47,13 +47,17 @@ body,
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   color: var(--text-main);
   background: linear-gradient(rgba(224, 242, 247, 0.7), rgba(232, 245, 233, 0.7)), url('/public/images/uploads/livada-kresnicna-noc1.jpg'); /* Subtle gradient overlay + background image */
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.1); /* Subtle text shadow for readability */
+  font-feature-settings: 'liga', 'kern';
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ----------------- HEADER / FOOTER ------------------ */
