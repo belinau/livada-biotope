@@ -1839,13 +1839,13 @@ function HomePage() {
     return (
         <Page title={title}>
             <div style={{ minHeight: '60vh' }} className="flex flex-col items-center justify-center text-center p-4">
-                <h1 className="text-4xl md:text-6xl font-mono text-primary drop-shadow-lg">{heroTitle}</h1>
-                <p className="mt-4 text-lg md:text-xl text-gray-700 max-w-2xl">{heroSubtitle}</p>
+                <h1 className="text-display-lg mb-4 animate-pulse">{heroTitle}</h1>
+                <p className="text-accent-lg text-gray-700 max-w-2xl">{heroSubtitle}</p>
             </div>
-            <div className="bg-[#f7faf9]/95 backdrop-blur-sm rounded-t-2xl shadow-lg -mt-16 pt-16">
+            <div className="bg-gradient-to-t from-white/95 to-[#f7faf9]/95 backdrop-blur-sm rounded-t-3xl shadow-2xl -mt-16 pt-16 border-t border-white/50">
                  <div className="container mx-auto px-4 py-12">
-                     {isLoading ? ( <div className="text-center prose lg:prose-xl max-w-4xl mx-auto">{t('loading')}...</div> ) 
-                               : ( <div className="prose lg:prose-xl max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} /> )}
+                     {isLoading ? ( <div className="text-center text-body-lg max-w-4xl mx-auto text-gray-500">{t('loading')}...</div> )
+                               : ( <div className="prose-organic max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} /> )}
                 </div>
             </div>
         </Page>
