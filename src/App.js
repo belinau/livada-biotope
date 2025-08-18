@@ -1880,15 +1880,15 @@ function App() {
                         {/* Desktop Menu */}
                         <div className="hidden md:flex flex-wrap gap-1">
                             {pages.map(page => (
-                                <NavLink key={page.path} to={page.path} className={({ isActive }) => `relative px-3 py-2 font-medium text-gray-700 transition-colors duration-300 group ${isActive ? 'text-primary' : 'hover:text-primary'}`}>
-                                    {({ isActive }) => (<> {page.label} <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transform transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0'} group-hover:scale-x-100`}/> </>)}
+                                <NavLink key={page.path} to={page.path} className={({ isActive }) => `nav-text relative px-4 py-2 text-gray-700 transition-all duration-300 group text-interactive hover:transform hover:scale-105 ${isActive ? 'text-primary font-semibold' : 'hover:text-primary'}`}>
+                                    {({ isActive }) => (<> {page.label} <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-primary-light transform transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0'} group-hover:scale-x-100 rounded-full`}/> </>)}
                                 </NavLink>
                             ))}
                         </div>
                         
-                        <div className="hidden md:flex items-center space-x-2">
-                            <button onClick={() => setLanguage('sl')} className={`px-2 py-1 font-semibold transition-colors ${language === 'sl' ? 'text-primary' : 'text-gray-500 hover:text-primary'}`}>SL</button>
-                            <button onClick={() => setLanguage('en')} className={`px-2 py-1 font-semibold transition-colors ${language === 'en' ? 'text-primary' : 'text-gray-500 hover:text-primary'}`}>EN</button>
+                        <div className="hidden md:flex items-center space-x-1">
+                            <button onClick={() => setLanguage('sl')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'sl' ? 'text-primary bg-primary/5 shadow-sm' : 'text-gray-500 hover:text-primary'}`}>SL</button>
+                            <button onClick={() => setLanguage('en')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'en' ? 'text-primary bg-primary/5 shadow-sm' : 'text-gray-500 hover:text-primary'}`}>EN</button>
                         </div>
 
                         {/* Mobile Menu Button */}
@@ -1906,13 +1906,13 @@ function App() {
                         <div className="md:hidden bg-white/95 backdrop-blur-md">
                             <div className="flex flex-col px-4 pt-2 pb-4 space-y-2">
                                 {pages.map(page => (
-                                    <NavLink key={page.path} to={page.path} onClick={() => setIsMenuOpen(false)} className={({ isActive }) => `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-100'}`}>
+                                    <NavLink key={page.path} to={page.path} onClick={() => setIsMenuOpen(false)} className={({ isActive }) => `nav-text block px-4 py-3 rounded-lg text-base transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-primary/10 to-primary-light/10 text-primary font-semibold border border-primary/20' : 'text-gray-700 hover:bg-gray-100/80 hover:text-primary'}`}>
                                         {page.label}
                                     </NavLink>
                                 ))}
-                                <div className="flex justify-center space-x-4 pt-4 border-t mt-4">
-                                     <button onClick={() => { setLanguage('sl'); setIsMenuOpen(false); }} className={`px-3 py-1 font-semibold transition-colors ${language === 'sl' ? 'text-primary' : 'text-gray-500'}`}>Slovenščina</button>
-                                     <button onClick={() => { setLanguage('en'); setIsMenuOpen(false); }} className={`px-3 py-1 font-semibold transition-colors ${language === 'en' ? 'text-primary' : 'text-gray-500'}`}>English</button>
+                                <div className="flex justify-center space-x-3 pt-4 border-t border-gray-200/50 mt-4">
+                                     <button onClick={() => { setLanguage('sl'); setIsMenuOpen(false); }} className={`text-accent px-4 py-2 font-semibold transition-all duration-300 rounded-lg ${language === 'sl' ? 'text-primary bg-primary/10 border border-primary/20' : 'text-gray-500 hover:text-primary hover:bg-gray-100/80'}`}>Slovenščina</button>
+                                     <button onClick={() => { setLanguage('en'); setIsMenuOpen(false); }} className={`text-accent px-4 py-2 font-semibold transition-all duration-300 rounded-lg ${language === 'en' ? 'text-primary bg-primary/10 border border-primary/20' : 'text-gray-500 hover:text-primary hover:bg-gray-100/80'}`}>English</button>
                                 </div>
                             </div>
                         </div>
@@ -1923,8 +1923,8 @@ function App() {
                         {pages.map(page => ( <Route key={page.path} path={page.path} element={page.element} /> ))}
                     </Routes>
                 </main>
-                <footer className="py-6 text-center bg-gray-100/80 backdrop-blur-sm">
-                    <div className="container mx-auto text-gray-600">{t('footerText')}</div>
+                <footer className="py-8 text-center bg-gradient-to-t from-gray-100/90 to-transparent backdrop-blur-sm border-t border-gray-200/30">
+                    <div className="container mx-auto text-body text-gray-600">{t('footerText')}</div>
                 </footer>
             </div>
         </div>
