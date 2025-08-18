@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import Ecofeminist Typography System */
+@import './typography.css';
+
 /* ----------------- CSS VARIABLES ------------------ */
 :root {
   --primary: #4a7c59;
