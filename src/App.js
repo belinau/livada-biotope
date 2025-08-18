@@ -10,78 +10,6 @@ import HistoricalSensorVisualization from './components/HistoricalSensorVisualiz
 import LivadaAPIClient from './shared/api-client';
 import { transformApiData } from './shared/sensor-utils';
 
-// --- Animated Background Component ---
-
-const AnimatedBackground = () => {
-    const canvasRef = useRef(null);
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        let animationFrameId;
-        let time = 0;
-        const waves = [
-            { amplitude: 25, frequency: 0.02, speed: 0.001, yOffset: 0.45, color: 'rgba(74, 124, 89, 0.15)' },
-            { amplitude: 30, frequency: 0.015, speed: -0.0015, yOffset: 0.5, color: 'rgba(74, 124, 89, 0.1)' },
-            { amplitude: 25, frequency: 0.01, speed: 0.0008, yOffset: 0.55, color: 'rgba(74, 124, 89, 0.05)' },
-        ];
-
-        const resizeCanvas = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        };
-        
-        const animate = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            time += 1;
-            const gradientAlpha = 0.1 + Math.sin(time * 0.005) * 0.06;
-            const skyGradient = ctx.createLinearGradient(0, canvas.height * 0.3, 0, canvas.height);
-            
-            skyGradient.addColorStop(0, `rgba(74, 124, 89, ${gradientAlpha})`); // Top color (greenish)
-            skyGradient.addColorStop(1, `rgba(247, 146, 5, 0.69)`); // Bottom color (subtle orange accent)        
-            waves.forEach((wave) => {
-                ctx.fillStyle = wave.color; 
-                ctx.beginPath();
-                ctx.moveTo(0, canvas.height);
-                for (let x = 0; x < canvas.width; x++) {
-                    const y = Math.sin(x * wave.frequency + time * wave.speed) * wave.amplitude + canvas.height * wave.yOffset;
-                    ctx.lineTo(x, y);
-                }
-                ctx.lineTo(canvas.width, canvas.height);
-                ctx.closePath();
-                ctx.fill();
-            });
-
-            const topWave = waves[1];
-            ctx.fillStyle = skyGradient; 
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height);
-            for (let x = 0; x < canvas.width; x++) {
-                    const y = Math.sin(x * topWave.frequency + time * topWave.speed) * topWave.amplitude + canvas.height * topWave.yOffset;
-                    ctx.lineTo(x, y);
-            }
-            ctx.lineTo(canvas.width, canvas.height);
-            ctx.closePath();
-            ctx.fill();
-
-
-            animationFrameId = requestAnimationFrame(animate);
-        };
-        
-        resizeCanvas();
-        animate();
-        
-        window.addEventListener('resize', resizeCanvas);
-
-        return () => {
-            window.removeEventListener('resize', resizeCanvas);
-            cancelAnimationFrame(animationFrameId);
-        };
-    }, []);
-
-    return <canvas ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, zIndex: -1, background: '#f7faf9' }} />; 
-};
-
 // --- Config and Helper Functions ---
 /**
  * Generates optimized image URL using Netlify's CDN
@@ -1877,7 +1805,6 @@ function App() {
       
     return (
         <div className="app-container relative z-0">
-            <AnimatedBackground />
             <div className="relative z-10 flex flex-col min-h-screen">
                 <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-lg border-b border-white/20">
                     <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
