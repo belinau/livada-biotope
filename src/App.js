@@ -316,8 +316,8 @@ const MetricCard = ({ label, value, unit = '', decimals = 0 }) => {
     const displayValue = isValid ? value.toFixed(decimals) : '--';
     return (
         <div className="bg-gray-100/70 p-3 rounded-md text-center">
-            <div className="text-2xl font-bold text-primary">{displayValue}<span className="text-base text-gray-500 ml-1">{unit}</span></div>
-            <div className="text-xs text-gray-600 uppercase tracking-wider">{label}</div>
+            <div className="text-display text-2xl text-primary">{displayValue}<span className="text-accent text-base text-gray-500 ml-1">{unit}</span></div>
+            <div className="text-accent text-xs text-gray-600 uppercase tracking-wider">{label}</div>
         </div>
     );
 };
@@ -326,7 +326,7 @@ const BedCard = ({ bed, reading, t }) => {
     return (
         <div className="group bg-white/90 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col border border-gray-200/50 hover:border-gray-300/60">
             <div className="p-4 flex justify-between items-center bg-gradient-to-r" style={{ background: `linear-gradient(135deg, ${bed.color}, ${bed.color}dd)`, color: 'white' }}>
-                <h4 className="font-bold text-lg group-hover:scale-105 transition-transform duration-200">{bed.name}</h4>
+                <h4 className="heading-organic text-lg group-hover:scale-105 transition-transform duration-200">{bed.name}</h4>
                 <div className="w-3 h-3 rounded-full bg-white/30 group-hover:bg-white/50 transition-colors duration-200"></div>
             </div>
             <div className="p-5 space-y-4 flex-grow bg-gradient-to-b from-white/5 to-transparent">
@@ -339,7 +339,7 @@ const BedCard = ({ bed, reading, t }) => {
                     <div className="flex items-center justify-center h-24 text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
                         <div className="text-center">
                             <div className="text-2xl mb-2">📊</div>
-                            <div className="text-sm">{t('noSensorData')}</div>
+                            <div className="text-accent text-sm">{t('noSensorData')}</div>
                         </div>
                     </div>
                 )}
@@ -348,9 +348,9 @@ const BedCard = ({ bed, reading, t }) => {
                 <div className="bg-gray-50/80 backdrop-blur-sm p-3 text-xs text-gray-600 flex justify-between items-center border-t border-gray-200/50">
                     <div className="flex items-center gap-1">
                         <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                        <span className="font-medium">Live</span>
+                        <span className="text-accent font-medium">Live</span>
                     </div>
-                    <span>{t('lastUpdated')}: {lastHeard.toLocaleString(t.language)}</span>
+                    <span className="text-accent">{t('lastUpdated')}: {lastHeard.toLocaleString(t.language)}</span>
                 </div>
             )}
         </div>
