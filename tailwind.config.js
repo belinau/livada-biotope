@@ -85,13 +85,25 @@ module.exports = {
               },
             },
           },
-          // This targets elements within the 'prose-lg' class, which you use.
-          // It provides even more spacing for larger text sizes.
+          // Enhanced large prose variant for better readability
           lg: {
             css: {
+              fontSize: '1.125rem',
+              lineHeight: '1.8',
               p: {
-                marginBottom: theme('spacing.10'), // More spacing for 'prose-lg'
-                marginTop: theme('spacing.10'),
+                marginBottom: theme('spacing.8'),
+                marginTop: theme('spacing.3'),
+                fontSize: '1.125rem',
+                lineHeight: '1.8',
+              },
+              h1: {
+                fontSize: 'clamp(2rem, 4vw, 3rem)',
+              },
+              h2: {
+                fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+              },
+              h3: {
+                fontSize: 'clamp(1.25rem, 2.5vw, 1.75rem)',
               },
             },
           },
