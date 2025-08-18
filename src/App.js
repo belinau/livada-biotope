@@ -1269,15 +1269,15 @@ function ContentCollectionPage({ t, title, contentPath }) {
             {processedItems.length ? processedItems.map(item => (
               <div key={item.id} className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md">
                 {item.metadata.date && (
-                  <p className="text-sm text-gray-500 mb-1">
+                  <p className="text-accent text-sm text-gray-500 mb-1">
                     {new Date(item.metadata.date).toLocaleDateString(language)}
                   </p>
                 )}
-                <h3 className="text-2xl font-mono text-primary mb-3">{item.metadata.title}</h3>
+                <h3 className="heading-organic text-2xl text-primary mb-3">{item.metadata.title}</h3>
                 
                 {/* Single content render with Mermaid and video embeds */}
                 <div
-                  className="prose max-w-none"
+                  className="prose-organic max-w-none"
                   dangerouslySetInnerHTML={{ __html: item.processedContent }}
                   ref={node => {
                     if (!node) return;
