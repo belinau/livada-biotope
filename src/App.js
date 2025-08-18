@@ -488,8 +488,8 @@ function SensorVisualization() {
 
                     <div className="space-y-8 pt-8 border-t-2 border-gray-200">
                         <div className="text-center">
-                            <h4 className="text-xl font-bold text-gray-800 mb-2">Grafični prikaz podatkov</h4>
-                            <p className="text-gray-600 text-sm">Spremljanje vlage in temperature skozi čas</p>
+                            <h4 className="heading-organic text-xl mb-3">Grafični prikaz podatkov</h4>
+                            <p className="text-body text-gray-600">Spremljanje vlage in temperature skozi čas</p>
                         </div>
                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                             <ChartWrapper title={t('moistureFlows')}>
@@ -526,8 +526,8 @@ function SensorVisualization() {
                                     <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
                                         <div className="text-center p-8">
                                             <div className="text-4xl mb-3">📈</div>
-                                            <div className="font-medium">{t('noChartData')}</div>
-                                            <div className="text-sm text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
+                                            <div className="text-body font-medium">{t('noChartData')}</div>
+                                            <div className="text-accent text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
                                         </div>
                                     </div>
                                 )}
@@ -566,8 +566,8 @@ function SensorVisualization() {
                                     <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
                                         <div className="text-center p-8">
                                             <div className="text-4xl mb-3">🌡️</div>
-                                            <div className="font-medium">{t('noChartData')}</div>
-                                            <div className="text-sm text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
+                                            <div className="text-body font-medium">{t('noChartData')}</div>
+                                            <div className="text-accent text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
                                         </div>
                                     </div>
                                 )}
