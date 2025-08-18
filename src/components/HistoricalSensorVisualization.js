@@ -152,12 +152,12 @@ const HistoricalSensorContent = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
-                    <h3 className="text-2xl lg:text-3xl font-bold text-gray-800 bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">{t('historicalSensorDataTitle')}</h3>
+                    <h3 className="text-display text-2xl lg:text-3xl text-gray-800 bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">{t('historicalSensorDataTitle')}</h3>
                 </div>
                 <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
                     <div className="flex flex-col sm:flex-row gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-sm">
                         <div className="flex items-center gap-2">
-                            <label htmlFor="startDate" className="text-sm font-medium text-gray-700">Od:</label>
+                            <label htmlFor="startDate" className="text-accent font-medium text-gray-700">Od:</label>
                             <input
                                 type="date"
                                 id="startDate"
@@ -167,7 +167,7 @@ const HistoricalSensorContent = () => {
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <label htmlFor="endDate" className="text-sm font-medium text-gray-700">Do:</label>
+                            <label htmlFor="endDate" className="text-accent font-medium text-gray-700">Do:</label>
                             <input
                                 type="date"
                                 id="endDate"
@@ -177,13 +177,13 @@ const HistoricalSensorContent = () => {
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">({dateDiff} dni)</span>
+                            <span className="text-accent font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">({dateDiff} dni)</span>
                         </div>
                     </div>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                         <div className="flex items-center gap-2">
                             <div className={`w-3 h-3 rounded-full ${status.type === 'error' ? 'bg-red-500' : status.type === 'success' ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`}></div>
-                            <span className={`text-sm font-medium ${status.type === 'error' ? 'text-red-600' : 'text-gray-700'}`}>{getStatusMessage()}</span>
+                            <span className={`text-accent font-medium ${status.type === 'error' ? 'text-red-600' : 'text-gray-700'}`}>{getStatusMessage()}</span>
                         </div>
                         <button
                             onClick={refreshData}
@@ -193,7 +193,7 @@ const HistoricalSensorContent = () => {
                             <svg className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
                             </svg>
-                            <span>{isLoading ? t('loading') : t('refreshData')}</span>
+                            <span className="text-accent font-medium">{isLoading ? t('loading') : t('refreshData')}</span>
                         </button>
                     </div>
                 </div>
@@ -205,8 +205,8 @@ const HistoricalSensorContent = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
                         </svg>
                     </div>
-                    <div className="text-lg font-medium text-gray-600">{t('loading')}...</div>
-                    <div className="text-sm text-gray-500 mt-2">Pridobivam zgodovinske podatke</div>
+                    <div className="text-body-lg text-gray-600">{t('loading')}...</div>
+                    <div className="text-accent text-gray-500 mt-2">Pridobivam zgodovinske podatke</div>
                 </div>
             ) : (
                 <div className="space-y-8 pt-8 border-t-2 border-gray-200">
