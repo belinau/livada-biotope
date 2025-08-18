@@ -475,8 +475,8 @@ function SensorVisualization() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
                         </svg>
                     </div>
-                    <div className="text-lg font-medium text-gray-600">{t('loading')}...</div>
-                    <div className="text-sm text-gray-500 mt-2">Pridobivam podatke senzorjev</div>
+                    <div className="text-body-lg text-gray-600">{t('loading')}...</div>
+                    <div className="text-accent text-gray-500 mt-2">Pridobivam podatke senzorjev</div>
                 </div>
             ) : (
                 <>
@@ -724,7 +724,7 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
       );
     }, [events, viewYear, viewMonth]);
   
-    if (isLoading) return <div className="text-center">{t('loading')}...</div>;
+    if (isLoading) return <div className="text-body text-center text-gray-500">{t('loading')}...</div>;
   
     const monthName = new Date(viewYear, viewMonth).toLocaleString(language, {
       month: 'long',
@@ -888,7 +888,7 @@ function MemoryGame() {
     };
   
     /* ---------- render ---------- */
-    if (loading) return <div className="max-w-6xl mx-auto text-center py-12">{t('loading')}...</div>;
+    if (loading) return <div className="text-body max-w-6xl mx-auto text-center py-12 text-gray-500">{t('loading')}...</div>;
   
     return (
       <div className="max-w-6xl mx-auto">
@@ -1257,7 +1257,7 @@ function ContentCollectionPage({ t, title, contentPath }) {
     if (isLoading) {
       return (
         <Section title={title}>
-          <div className="text-center">{t('loading')}…</div>
+          <div className="text-body text-center text-gray-500">{t('loading')}…</div>
         </Section>
       );
     }
