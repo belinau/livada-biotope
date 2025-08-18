@@ -12,7 +12,31 @@
   --text-muted: #5a6c5f;
   --border-color: #b8ccc2;
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --font-sans: 'Lato', sans-serif;
+
+  /* Ecofeminist Typography System */
+  --font-display: 'Comfortaa', sans-serif;  /* Organic, rounded display font */
+  --font-body: 'Inter', sans-serif;         /* Clean, readable body text */
+  --font-accent: 'Quicksand', sans-serif;   /* Light, airy accent font */
+  --font-mono: 'JetBrains Mono', monospace; /* Modern monospace */
+
+  /* Typography Scales */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+  --text-6xl: 3.75rem;    /* 60px */
+
+  /* Nature-inspired text colors */
+  --text-forest: #2d5a3d;
+  --text-sage: #87a96b;
+  --text-earth: #8b7355;
+  --text-sky: #5c7cfa;
+  --text-sunset: #ff8787;
 }
 
 /* ----------------- RESET ------------------ */
