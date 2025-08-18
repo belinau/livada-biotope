@@ -7,7 +7,7 @@ import { transformApiData } from '../shared/sensor-utils';
 // Define HistoricalSensorContext and HistoricalSensorProvider here
 const HistoricalSensorContext = createContext();
 
-const HistoricalSensorProvider = ({ children, startDate, endDate }) => {
+const HistoricalSensorProvider = ({ children, startDate, endDate, onDateChange }) => {
     const [history, setHistory] = useState(null);
     const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
     const [lastUpdated, setLastUpdated] = useState(null);
@@ -44,7 +44,15 @@ const HistoricalSensorProvider = ({ children, startDate, endDate }) => {
     }, [fetchLongTermHistory]);
 
     return (
-        <HistoricalSensorContext.Provider value={{ history, status, lastUpdated, refreshData: fetchLongTermHistory }}>
+        <HistoricalSensorContext.Provider value={{ 
+            history, 
+            status, 
+            lastUpdated, 
+            refreshData: fetchLongTermHistory,
+            startDate,
+            endDate,
+            onDateChange
+        }}>
             {children}
         </HistoricalSensorContext.Provider>
     );
@@ -52,18 +60,13 @@ const HistoricalSensorProvider = ({ children, startDate, endDate }) => {
 
 const HistoricalSensorContent = () => {
     const { t, language } = useTranslation();
-    const { history, status, lastUpdated, refreshData } = useContext(HistoricalSensorContext);
+    const { history, status, lastUpdated, refreshData, startDate, endDate, onDateChange } = useContext(HistoricalSensorContext);
     const [chartData, setChartData] = useState({ moisture: [], temperature: [] });
 
-    // Initialize startDate to 30 days ago and endDate to today
-    const initialEndDate = new Date();
-    const initialStartDate = new Date();
-    initialStartDate.setDate(initialEndDate.getDate() - 30);
-
-    const [startDate, setStartDate] = useState(initialStartDate);
-    const [endDate, setEndDate] = useState(initialEndDate);
-
-    const dateDiff = Math.ceil(Math.abs(endDate - startDate) / (1000 * 60 * 60 * 24));
+    // Calculate the actual date difference
+    const dateDiff = useMemo(() => {
+        return Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+    }, [startDate, endDate]);
 
     const tickValues = useMemo(() => {
         if (dateDiff <= 7) return 'every 12 hours';
@@ -93,6 +96,15 @@ const HistoricalSensorContent = () => {
                 <div>{`${point.data.yFormatted}`}</div>
             </div>
         );
+    };
+
+    // Handle date changes
+    const handleStartDateChange = (newDate) => {
+        onDateChange(newDate, endDate);
+    };
+
+    const handleEndDateChange = (newDate) => {
+        onDateChange(startDate, newDate);
     };
 
     useEffect(() => {
@@ -142,7 +154,7 @@ const HistoricalSensorContent = () => {
                             type="date"
                             id="startDate"
                             value={startDate.toISOString().split('T')[0]}
-                            onChange={(e) => setStartDate(new Date(e.target.value))}
+                            onChange={(e) => handleStartDateChange(new Date(e.target.value))}
                             className="p-2 border border-gray-300 rounded-md text-sm"
                         />
                         <label htmlFor="endDate" className="text-sm text-gray-600">To:</label>
@@ -150,9 +162,10 @@ const HistoricalSensorContent = () => {
                             type="date"
                             id="endDate"
                             value={endDate.toISOString().split('T')[0]}
-                            onChange={(e) => setEndDate(new Date(e.target.value))}
+                            onChange={(e) => handleEndDateChange(new Date(e.target.value))}
                             className="p-2 border border-gray-300 rounded-md text-sm"
                         />
+                        <span className="text-xs text-gray-500">({dateDiff} days)</span>
                     </div>
                     <span className={`text-sm ${status.type === 'error' ? 'text-red-600' : 'text-gray-600'}`}>{getStatusMessage()}</span>
                     <button onClick={refreshData} disabled={isLoading} className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary font-semibold rounded-lg hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
@@ -169,14 +182,64 @@ const HistoricalSensorContent = () => {
                 <div className="grid grid-cols-1 gap-8 pt-6 border-t">
                     <ChartWrapper title={t('moistureFlows')}>
                         {hasMoistureData ? (
-                            <ResponsiveLine tooltip={CustomTooltip} data={chartData.moisture} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 120, left: 70 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%b %d', tickValues: tickValues, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: 'Vlaga (%)', legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 80, itemsSpacing: 4, itemWidth: 180, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
+                            <ResponsiveLine 
+                                tooltip={CustomTooltip} 
+                                data={chartData.moisture} 
+                                theme={nivoTheme} 
+                                colors={{ datum: 'color' }} 
+                                margin={{ top: 10, right: 20, bottom: 120, left: 70 }} 
+                                xScale={{ type: 'time', format: 'native' }} 
+                                yScale={{ type: 'linear', min: 'auto', max: 'auto' }} 
+                                axisBottom={{ format: '%b %d', tickValues: tickValues, legend: t('time'), legendOffset: 40 }} 
+                                axisLeft={{ legend: 'Vlaga (%)', legendOffset: -50 }} 
+                                enablePoints={false} 
+                                useMesh={true} 
+                                curve="monotoneX" 
+                                legends={[{ 
+                                    anchor: 'bottom', 
+                                    direction: 'row', 
+                                    justify: false, 
+                                    translateX: 0, 
+                                    translateY: 80, 
+                                    itemsSpacing: 4, 
+                                    itemWidth: 180, 
+                                    itemHeight: 20, 
+                                    symbolSize: 12, 
+                                    itemTextColor: '#333' 
+                                }]} 
+                            />
                         ) : ( 
                             <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> 
                         )}
                     </ChartWrapper>
                     <ChartWrapper title={t('temperatureFlows')}>
                         {hasTemperatureData ? (
-                            <ResponsiveLine tooltip={CustomTooltip} data={chartData.temperature} theme={nivoTheme} colors={{ datum: 'color' }} margin={{ top: 10, right: 20, bottom: 120, left: 70 }} xScale={{ type: 'time', format: 'native' }} yScale={{ type: 'linear', min: 'auto', max: 'auto' }} axisBottom={{ format: '%b %d', tickValues: tickValues, legend: t('time'), legendOffset: 40 }} axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -50 }} enablePoints={false} useMesh={true} curve="monotoneX" legends={[{ anchor: 'bottom', direction: 'row', justify: false, translateX: 0, translateY: 80, itemsSpacing: 4, itemWidth: 180, itemHeight: 20, symbolSize: 12, itemTextColor: '#333' }]} />
+                            <ResponsiveLine 
+                                tooltip={CustomTooltip} 
+                                data={chartData.temperature} 
+                                theme={nivoTheme} 
+                                colors={{ datum: 'color' }} 
+                                margin={{ top: 10, right: 20, bottom: 120, left: 70 }} 
+                                xScale={{ type: 'time', format: 'native' }} 
+                                yScale={{ type: 'linear', min: 'auto', max: 'auto' }} 
+                                axisBottom={{ format: '%b %d', tickValues: tickValues, legend: t('time'), legendOffset: 40 }} 
+                                axisLeft={{ legend: `${t('temperature')} (°C)`, legendOffset: -50 }} 
+                                enablePoints={false} 
+                                useMesh={true} 
+                                curve="monotoneX" 
+                                legends={[{ 
+                                    anchor: 'bottom', 
+                                    direction: 'row', 
+                                    justify: false, 
+                                    translateX: 0, 
+                                    translateY: 80, 
+                                    itemsSpacing: 4, 
+                                    itemWidth: 180, 
+                                    itemHeight: 20, 
+                                    symbolSize: 12, 
+                                    itemTextColor: '#333' 
+                                }]} 
+                            />
                         ) : ( 
                             <div className="flex items-center justify-center h-full text-gray-500">{t('noChartData')}</div> 
                         )}
@@ -196,8 +259,18 @@ export default function HistoricalSensorVisualization() {
     const [startDate, setStartDate] = useState(initialStartDate);
     const [endDate, setEndDate] = useState(initialEndDate);
 
+    // Handle date changes from child components
+    const handleDateChange = (newStartDate, newEndDate) => {
+        setStartDate(newStartDate);
+        setEndDate(newEndDate);
+    };
+
     return (
-        <HistoricalSensorProvider startDate={startDate} endDate={endDate}>
+        <HistoricalSensorProvider 
+            startDate={startDate} 
+            endDate={endDate} 
+            onDateChange={handleDateChange}
+        >
             <HistoricalSensorContent />
         </HistoricalSensorProvider>
     );

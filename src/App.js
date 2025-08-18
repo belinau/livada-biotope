@@ -185,51 +185,6 @@ const SensorProvider = ({ children }) => {
     );
 };
 
-const HistoricalSensorProvider = ({ children, startDate, endDate }) => {
-    const [history, setHistory] = useState(null);
-    const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
-    const [lastUpdated, setLastUpdated] = useState(null);
-
-    const livadaApiClient = useMemo(() => new LivadaAPIClient(process.env.REACT_APP_PI_API_URL), []);
-
-    const fetchLongTermHistory = useCallback(async () => {
-        setStatus({ key: 'loading', type: 'connecting' });
-        try {
-            const data = await livadaApiClient.getHistoryTelemetry(startDate, endDate);
-            const transformedData = transformApiData(data.data);
-            
-            const processedHistory = {};
-            for (const key in transformedData) {
-                if (Array.isArray(transformedData[key])) {
-                    processedHistory[key] = transformedData[key].map(point => ({
-                        ...point,
-                        x: new Date(point.x)
-                    }));
-                }
-            }
-            setHistory(processedHistory);
-            setStatus({ key: 'dataUpdated', type: 'success' });
-            setLastUpdated(new Date());
-        } catch (error) {
-            console.error("Could not fetch long term history:", error);
-            setStatus({ key: 'fetchError', type: 'error' });
-            setHistory({});
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [startDate, endDate, livadaApiClient]); // Add startDate, endDate, and livadaApiClient to dependencies
-
-    useEffect(() => {
-        fetchLongTermHistory();
-    }, [fetchLongTermHistory]);
-
-    return (
-        <HistoricalSensorContext.Provider value={{ history, status, lastUpdated, refreshData: fetchLongTermHistory }}>
-            {children}
-        </HistoricalSensorContext.Provider>
-    );
-};
-
-
 const LanguageContext = createContext();
 const translations = {
     sl: {
