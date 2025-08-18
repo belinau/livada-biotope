@@ -250,7 +250,7 @@ const HistoricalSensorContent = () => {
                                     <div className="text-center p-8">
                                         <div className="text-4xl mb-3">📈</div>
                                         <div className="text-body font-medium">{t('noChartData')}</div>
-                                        <div className="text-sm text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
+                                        <div className="text-accent text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
                                     </div>
                                 </div>
                             )}
@@ -290,7 +290,7 @@ const HistoricalSensorContent = () => {
                                     <div className="text-center p-8">
                                         <div className="text-4xl mb-3">🌡️</div>
                                         <div className="text-body font-medium">{t('noChartData')}</div>
-                                        <div className="text-sm text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
+                                        <div className="text-accent text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
                                     </div>
                                 </div>
                             )}
