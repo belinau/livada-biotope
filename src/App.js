@@ -691,12 +691,12 @@ const INaturalistFeed = ({ projectSlug }) => {
                             onMouseEnter={() => handleMouseEnter(obs)}
                             onMouseLeave={handleMouseLeave}
                         >
-                            <div className="flex flex-col w-[240px] h-[200px]">
-                                <div className="relative w-full h-[140px] rounded-lg overflow-hidden mb-3 group-hover/pin:overflow-visible">
+                            <div className="flex flex-col w-[240px] h-[200px] group-hover/pin:preserve-3d">
+                                <div className="relative w-full h-[140px] rounded-lg overflow-hidden mb-3 group-hover/pin:overflow-visible transition-transform duration-700 group-hover/pin:translate-z-[100px]">
                                     <img
                                         src={imageUrl}
                                         alt={displayName}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover/pin:scale-130 group-hover/pin:translate-y-[-15px] group-hover/pin:translate-z-[20px]"
+                                        className="w-full h-full object-cover transition-all duration-700 group-hover/pin:scale-110 group-hover/pin:shadow-2xl rounded-lg"
                                         loading="lazy"
                                         onError={(e) => {
                                             e.target.onerror = null;
@@ -705,14 +705,14 @@ const INaturalistFeed = ({ projectSlug }) => {
                                     />
                                 </div>
                                 <div className="flex-1 px-3">
-                                    <h3 className="font-semibold text-base text-slate-800 mb-2 line-clamp-2" title={displayName}>
+                                    <h3 className="font-semibold text-base text-slate-800 mb-2 line-clamp-2 transition-transform duration-700 group-hover/pin:translate-z-[50px]" title={displayName}>
                                         {displayName}
                                     </h3>
-                                    <p className="text-sm text-slate-600 mb-1">
+                                    <p className="text-sm text-slate-600 mb-1 transition-transform duration-700 group-hover/pin:translate-z-[25px]">
                                         {new Date(obs.observed_on_string).toLocaleDateString(language)}
                                     </p>
                                     {description && (
-                                        <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">
+                                        <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed transition-transform duration-700 group-hover/pin:translate-z-[25px]">
                                             {description}
                                         </p>
                                     )}
