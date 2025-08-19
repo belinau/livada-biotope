@@ -719,7 +719,7 @@ const INaturalistFeed = ({ projectSlug }) => {
                                         {new Date(obs.observed_on_string).toLocaleDateString(language)}
                                     </p>
                                 </div>
-                                {description && (
+                                {(description || true) && (
                                     <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/95 via-black/85 to-transparent backdrop-blur-sm p-4 transform translate-y-full opacity-0 group-hover/pin:translate-y-0 group-hover/pin:opacity-100 transition-all duration-600 ease-out rounded-b-lg">
                                         <div className="flex items-start justify-between h-full">
                                             <p className="text-sm leading-relaxed line-clamp-3 text-white font-medium flex-1 pr-3 transform translate-y-3 group-hover/pin:translate-y-0 transition-all duration-400 delay-150 ease-out" style={{textShadow: '1px 1px 2px rgba(0,0,0,0.8)'}}>
