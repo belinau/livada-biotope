@@ -22,6 +22,10 @@
   transform: scale(2.5);
 }
 
+.scale-\[3\] {
+  transform: scale(3);
+}
+
 /* Custom translateZ utilities for 3D layering */
 .translate-z-\[25px\] {
   transform: translateZ(25px);
