@@ -671,7 +671,7 @@ const INaturalistFeed = ({ projectSlug }) => {
 
     return (
         <div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 justify-items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
                 {observations.map(obs => {
                     let displayName = obs.taxon?.preferred_common_name || obs.taxon?.name || "Unknown";
                     if (language === 'sl') {
@@ -691,12 +691,12 @@ const INaturalistFeed = ({ projectSlug }) => {
                             onMouseEnter={() => handleMouseEnter(obs)}
                             onMouseLeave={handleMouseLeave}
                         >
-                            <div className="flex flex-col w-[170px] h-[150px]">
-                                <div className="relative w-full h-[90px] rounded-lg overflow-hidden mb-2">
+                            <div className="flex flex-col w-[240px] h-[200px]">
+                                <div className="relative w-full h-[140px] rounded-lg overflow-hidden mb-3 group-hover/pin:overflow-visible">
                                     <img
                                         src={imageUrl}
                                         alt={displayName}
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover/pin:scale-130 group-hover/pin:translate-y-[-15px] group-hover/pin:translate-z-[20px]"
                                         loading="lazy"
                                         onError={(e) => {
                                             e.target.onerror = null;
