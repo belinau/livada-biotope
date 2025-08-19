@@ -9,6 +9,7 @@ import mermaid from 'mermaid';
 import HistoricalSensorVisualization from './components/HistoricalSensorVisualization';
 import LivadaAPIClient from './shared/api-client';
 import { transformApiData } from './shared/sensor-utils';
+import ObservationOverlay from './components/ObservationOverlay';
 
 // --- Config and Helper Functions ---
 /**
@@ -592,15 +593,58 @@ const INaturalistFeed = ({ projectSlug }) => {
     const [canLoadMore, setCanLoadMore] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
     const { t, language } = useTranslation();
+    const [hoveredObservation, setHoveredObservation] = useState(null);
+    const [observationDataCache, setObservationDataCache] = useState({});
+
+    const handleMouseEnter = async (observation) => {
+        if (observationDataCache[observation.id]) {
+            setHoveredObservation({ ...observation, ...observationDataCache[observation.id] });
+            return;
+        }
+
+        setHoveredObservation(observation); // Show basic info immediately
+
+        try {
+            const fetchDescription = async (lang, taxonName) => {
+                const response = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(taxonName.replace(/ /g, '_'))}`);
+                if (!response.ok) {
+                    return `No description found on ${lang} Wikipedia.`;
+                }
+                const data = await response.json();
+                return data.extract;
+            };
+
+            const taxonName = observation.taxon.name;
+            const [enDescription, slDescription] = await Promise.all([
+                fetchDescription('en', taxonName),
+                fetchDescription('sl', taxonName)
+            ]);
+
+            const newData = {
+                en: { description: enDescription },
+                sl: { description: slDescription }
+            };
+
+            setObservationDataCache(prevCache => ({ ...prevCache, [observation.id]: newData }));
+            setHoveredObservation(prevObservation => ({ ...prevObservation, ...newData }));
+
+        } catch (error) {
+            console.error("Error fetching observation data:", error);
+        }
+    };
+
+    const handleMouseLeave = () => {
+        setHoveredObservation(null);
+    };
 
     const fetchObservations = useCallback(async (pageNum) => {
         setIsLoading(true);
         try {
-            const response = await fetch(`https://api.inaturalist.org/v1/observations?project_id=${projectSlug}&per_page=18&page=${pageNum}&order_by=observed_on&order=desc&locale=${language}`);
+            const response = await fetch(`https://api.inaturalist.org/v1/observations?project_id=${projectSlug}&per_page=12&page=${pageNum}&order_by=observed_on&order=desc&locale=${language}`);
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             setObservations(prev => pageNum === 1 ? data.results : [...prev, ...data.results]);
-            if (data.results.length < 18) {
+            if (data.results.length < 12) {
                 setCanLoadMore(false);
             }
         } catch (err) {
@@ -622,19 +666,49 @@ const INaturalistFeed = ({ projectSlug }) => {
 
     return (
         <div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {observations.map(obs => {
-                    const displayName = obs.taxon?.preferred_common_name || obs.taxon?.name || "Unknown";
+                    let displayName = obs.taxon?.preferred_common_name || obs.taxon?.name || "Unknown";
+                    if (language === 'sl') {
+                        displayName = displayName.toLowerCase();
+                    }
+                    const imageUrl = obs.photos[0]?.url.replace('square', 'large');
+
                     return (
-                        <a href={obs.uri} key={obs.id} target="_blank" rel="noopener noreferrer" className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden group block">
-                            <div className="relative aspect-square bg-bg-main">
-                                <img src={obs.photos[0]?.url.replace('square', 'medium')} alt={displayName} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy" onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/400x400/2d3748/a0aec0?text=Ni+slike`; }}/>
+                        <motion.div 
+                            key={obs.id} 
+                            className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden group block relative"
+                            onMouseEnter={() => handleMouseEnter(obs)}
+                            onMouseLeave={handleMouseLeave}
+                            whileHover={{
+                                scale: 1.02,
+                                transition: { type: 'spring', stiffness: 400, damping: 10 }
+                            }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                        >
+                            <div className="relative pb-[100%]">
+                                <img 
+                                    src={imageUrl} 
+                                    alt={displayName} 
+                                    className="absolute inset-0 w-full h-full object-cover" 
+                                    loading="lazy" 
+                                    onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/500x500/2d3748/a0aec0?text=Ni+slike`; }}
+                                />
                             </div>
                             <div className="p-3">
                                 <h3 className="font-semibold text-sm text-primary truncate" title={displayName}>{displayName}</h3>
-                                <p className="text-xs text-text-muted">{new Date(obs.observed_on_string).toLocaleDateString(language)}</p>
+                                <p className="text-xs text-text-muted">
+                                    {new Date(obs.observed_on_string).toLocaleDateString(language)}
+                                </p>
                             </div>
-                        </a>
+                            {hoveredObservation && hoveredObservation.id === obs.id && (
+                                <ObservationOverlay
+                                    observation={hoveredObservation}
+                                    description={hoveredObservation[language]?.description}
+                                    lang={language}
+                                />
+                            )}
+                        </motion.div>
                     )
                 })}
             </div>
@@ -643,6 +717,9 @@ const INaturalistFeed = ({ projectSlug }) => {
                     <button onClick={handleLoadMore} disabled={isLoading} className="bg-primary/90 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-primary transition-colors disabled:bg-text-muted">
                         {isLoading ? t('loading') : t('loadMore')}
                     </button>
+                )}
+                {!canLoadMore && observations.length > 0 && (
+                    <p className="text-text-muted mt-4">{t('noMoreObservations')}</p>
                 )}
             </div>
         </div>
@@ -674,7 +751,7 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
       
           for (const block of blocks) {
             const summary  = (block.match(/^SUMMARY:(.*)/m)?.[1] ?? '').trim();
-            const location = (block.match(/^LOCATION:(.*)/m)?.[1] ?? '').trim().replace(/\\,/g, ',');
+            const location = (block.match(/^LOCATION:(.*)/m)?.[1] ?? '').trim().replace(/\,/g, ',');
             const uid      = (block.match(/^UID:(.*)/m)?.[1] ?? '').trim();
       
             let description = '';
@@ -683,9 +760,9 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
               description = block
                 .slice(descStart + 12)               // +12 skips "DESCRIPTION:" + the colon
                 .split(/\r?\n/)
-                .reduce((a, l) => (/^[\t ]/.test(l) ? a + l.trimStart() : /^[A-Z-]+:/.test(l) ? a + '\0' : a + l), '')
+                .reduce((a, l) => (/^[	 ]/.test(l) ? a + l.trimStart() : /^[A-Z-]+:/.test(l) ? a + '\0' : a + l), '')
                 .split('\0')[0]
-                .replace(/\\(.)/g, '$1')
+                .replace(/\((.)\)/g, '$1')
                 .replace(/<br\s*\/?\?>/gi, '\n')
                 .replace(/<a\b[^>]*>(.*?)<\/a>/gi, '$1')
                 .replace(/\n{3,}/g, '\n\n')

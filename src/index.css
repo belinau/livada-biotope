@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+.slide-up-overlay {
+  transform: translateY(100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.group:hover .slide-up-overlay {
+  transform: translateY(0);
+}
+
 /* Import Ecofeminist Typography System */
 @import './typography.css';
 
