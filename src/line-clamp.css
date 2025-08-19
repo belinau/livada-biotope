@@ -1,0 +1,45 @@
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Custom scale utilities */
+.scale-130 {
+  transform: scale(1.3);
+}
+
+.scale-\[2\.5\] {
+  transform: scale(2.5);
+}
+
+.scale-\[3\] {
+  transform: scale(3);
+}
+
+/* Custom translateZ utilities for 3D layering */
+.translate-z-\[25px\] {
+  transform: translateZ(25px);
+}
+
+.translate-z-\[50px\] {
+  transform: translateZ(50px);
+}
+
+.translate-z-\[100px\] {
+  transform: translateZ(100px);
+}
+
+/* Preserve 3D transforms */
+.preserve-3d {
+  transform-style: preserve-3d;
+}

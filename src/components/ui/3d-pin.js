@@ -9,41 +9,45 @@ export const PinContainer = ({
   href,
   className,
   containerClassName,
+  onMouseEnter: externalOnMouseEnter,
+  onMouseLeave: externalOnMouseLeave,
 }) => {
   const [transform, setTransform] = useState(
-    "translate(-50%,-50%) rotateX(0deg)"
+    "translate(-50%,-50%) rotateX(0deg) scale(1)"
   );
 
-  const onMouseEnter = () => {
-    setTransform("translate(-50%,-50%) rotateX(40deg) scale(0.8)");
+  const handleMouseEnter = () => {
+    setTransform("translate(-50%,-50%) rotateX(40deg) scale(1.05)");
+    if (externalOnMouseEnter) externalOnMouseEnter();
   };
-  const onMouseLeave = () => {
+  const handleMouseLeave = () => {
     setTransform("translate(-50%,-50%) rotateX(0deg) scale(1)");
+    if (externalOnMouseLeave) externalOnMouseLeave();
   };
 
   return (
     <div
       className={cn(
-        "relative group/pin z-50 cursor-pointer",
+        "relative group/pin z-50 cursor-pointer h-[240px] w-[260px]",
         containerClassName
       )}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div
         style={{
           perspective: "1000px",
-          transform: "rotateX(70deg) translateZ(0)",
+          transform: "rotateX(35deg) translateZ(0)",
         }}
-        className="absolute left-1/2 top-1/2 ml-[--mouse-x] mt-[--mouse-y]"
+        className="absolute left-1/2 top-[35%] ml-[--mouse-x] mt-[--mouse-y]"
       >
         <div
           style={{
             transform: transform,
           }}
-          className="absolute left-1/2 p-4 top-1/2  flex justify-start items-start  rounded-2xl  shadow-[0_8px_16px_rgb(0_0_0/0.4)] bg-bg-main/80 backdrop-blur-sm border border-white/[0.1] group-hover/pin:border-white/[0.2] transition duration-700 overflow-hidden"
+          className="absolute left-1/2 p-4 top-1/2  flex justify-start items-start  rounded-2xl  shadow-[0_8px_16px_rgb(0_0_0/0.4)] bg-bg-main/80 backdrop-blur-sm border border-white/[0.1] group-hover/pin:border-white/[0.2] transition duration-700 overflow-hidden group-hover/pin:preserve-3d"
         >
-          <div className={cn(" relative z-50 ", className)}>{children}</div>
+          <div className={cn(" relative z-50 group-hover/pin:preserve-3d", className)}>{children}</div>
         </div>
       </div>
       <PinPerspective title={title} href={href} />
@@ -53,7 +57,7 @@ export const PinContainer = ({
 
 export const PinPerspective = ({ title, href }) => {
   return (
-    <motion.div className="pointer-events-none w-full h-80 flex items-center justify-center opacity-0 group-hover/pin:opacity-100 z-50 transition duration-500">
+    <motion.div className="pointer-events-none w-full h-[120px] flex items-center justify-center opacity-0 group-hover/pin:opacity-100 z-50 transition duration-500">
       <div className="w-full h-full -mt-7 flex-none  inset-0">
         <div className="absolute top-0 inset-x-0  flex justify-center">
           <a
@@ -73,7 +77,7 @@ export const PinPerspective = ({ title, href }) => {
         <div
           style={{
             perspective: "1000px",
-            transform: "rotateX(70deg) translateZ(0)",
+            transform: "rotateX(30deg) translateZ(0)",
           }}
           className="absolute left-1/2 top-1/2 ml-[--mouse-x] mt-[--mouse-y]"
         >

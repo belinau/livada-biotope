@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import './line-clamp.css';
+
 .slide-up-overlay {
   transform: translateY(100%);
   transition: transform 0.3s ease-in-out;

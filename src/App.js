@@ -671,17 +671,22 @@ const INaturalistFeed = ({ projectSlug }) => {
 
     return (
         <div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {observations.map(obs => {
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
+                {observations.map((obs, index) => {
                     let displayName = obs.taxon?.preferred_common_name || obs.taxon?.name || "Unknown";
                     if (language === 'sl') {
                         displayName = displayName.toLowerCase();
                     }
-                    const imageUrl = obs.photos[0]?.url.replace('square', 'large');
+                    const imageUrl = obs.photos[0]?.url?.replace('square', 'medium') || `https://placehold.co/500x500/2d3748/a0aec0?text=No+Image`;
                     const observationUrl = obs.uri;
 
                     const currentObservationData = hoveredObservation && hoveredObservation.id === obs.id ? hoveredObservation : obs;
                     const description = currentObservationData[language]?.description;
+
+                    // Create varied animation patterns
+                    const isEven = index % 2 === 0;
+                    const rotateClass = isEven ? 'group-hover/pin:rotate-2' : 'group-hover/pin:-rotate-2';
+                    const translateClass = isEven ? 'group-hover/pin:-translate-x-1 group-hover/pin:-translate-y-2' : 'group-hover/pin:translate-x-1 group-hover/pin:-translate-y-1';
 
                     return (
                         <PinContainer
@@ -691,33 +696,76 @@ const INaturalistFeed = ({ projectSlug }) => {
                             onMouseEnter={() => handleMouseEnter(obs)}
                             onMouseLeave={handleMouseLeave}
                         >
-                            <div className="flex flex-col p-4 tracking-tight text-slate-100/50 w-full h-full">
-                                <div className="relative flex-grow rounded-lg overflow-hidden"> {/* Removed pb-[100%], added flex-grow */}
-                                    <img 
-                                        src={imageUrl} 
-                                        alt={displayName} 
-                                        className="absolute inset-0 w-full h-full object-cover" 
-                                        loading="lazy" 
-                                        onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/500x500/2d3748/a0aec0?text=Ni+slike`; }}
+                            <div className="flex flex-col w-[240px] h-[200px] group-hover/pin:preserve-3d relative overflow-visible group-hover/pin:z-30">
+                                <div className="relative w-full h-[140px] rounded-lg mb-3 overflow-visible transition-all duration-700 ease-out group-hover/pin:translate-z-[150px] group-hover/pin:-translate-y-12 group-hover/pin:z-50">
+                                    {/* Backdrop effect */}
+                                    <div className="absolute inset-0 opacity-0 group-hover/pin:opacity-100 transition-opacity duration-700 ease-out group-hover/pin:fixed group-hover/pin:top-0 group-hover/pin:left-0 group-hover/pin:w-screen group-hover/pin:h-screen group-hover/pin:bg-black/30 group-hover/pin:backdrop-blur-sm group-hover/pin:z-40 pointer-events-none"></div>
+                                    <img
+                                        src={imageUrl}
+                                        alt={displayName}
+                                        className={`w-full h-full object-cover transition-all duration-700 ease-out group-hover/pin:scale-[3] ${rotateClass} ${translateClass} group-hover/pin:shadow-[0_25px_50px_rgba(0,0,0,0.7)] rounded-lg group-hover/pin:rounded-xl group-hover/pin:ring-4 group-hover/pin:ring-white/30 group-hover/pin:z-50`}
+                                        loading="lazy"
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = `https://placehold.co/500x500/2d3748/a0aec0?text=No+Image`;
+                                        }}
                                     />
                                 </div>
-                                <div className="p-3">
-                                    <h3 className="font-semibold text-sm text-primary truncate" title={displayName}>{displayName}</h3>
-                                    <p className="text-xs text-text-muted">
+                                <div className="flex-1 px-3">
+                                    <h3 className="font-semibold text-base text-slate-800 mb-2 line-clamp-2 transition-all duration-700 group-hover/pin:translate-z-[50px] group-hover/pin:opacity-0" title={displayName}>
+                                        {displayName}
+                                    </h3>
+                                    <p className="text-sm text-slate-600 mb-1 transition-all duration-700 group-hover/pin:translate-z-[25px] group-hover/pin:opacity-0">
                                         {new Date(obs.observed_on_string).toLocaleDateString(language)}
                                     </p>
-                                    {description && (
-                                        <p className="text-xs text-text-muted mt-2 line-clamp-3">
-                                            {description}
-                                        </p>
-                                    )}
                                 </div>
+                                {(description || true) && (
+                                    <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/95 via-black/85 to-transparent backdrop-blur-sm p-4 transform translate-y-full opacity-0 group-hover/pin:translate-y-0 group-hover/pin:opacity-100 transition-all duration-600 ease-out rounded-b-lg">
+                                        <div className="flex items-start justify-between h-full">
+                                            <p className="text-sm leading-relaxed line-clamp-3 text-white font-medium flex-1 pr-3 transform translate-y-3 group-hover/pin:translate-y-0 transition-all duration-400 delay-150 ease-out" style={{textShadow: '1px 1px 2px rgba(0,0,0,0.8)'}}>
+                                                {description || "Hover to see more information about this species..."}
+                                            </p>
+                                            <div className="flex gap-2 transform translate-y-3 group-hover/pin:translate-y-0 transition-all duration-400 delay-250 ease-out">
+                                                <a
+                                                    href={`https://${language}.wikipedia.org/wiki/${encodeURIComponent(obs.taxon?.name?.replace(/ /g, '_') || '')}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="w-7 h-7 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
+                                                    title={`${language === 'sl' ? 'Odpri v Wikipediji' : 'Open in Wikipedia'}`}
+                                                >
+                                                    <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.624 5.367 11.99 11.988 11.99s11.99-5.366 11.99-11.99C24.007 5.367 18.641.001 12.017.001zM1.522 12.263h4.34c.022 1.739.112 3.43.267 5.046h-3.3c-.835-1.539-1.29-3.273-1.307-5.046zm.178-1.05c.017-1.773.472-3.507 1.307-5.046h3.3c-.155 1.616-.245 3.307-.267 5.046H1.7zM11.267 2.047c-.483.72-.908 1.717-1.25 2.922-.396 1.397-.681 2.938-.83 4.544H6.328c.485-3.425 2.539-6.337 5.939-7.466zM5.328 10.56H8.187c.149 1.606.434 3.147.83 4.544.342 1.205.767 2.202 1.25 2.922-3.4-1.129-5.454-4.041-5.939-7.466zm.178 8.558h3.3c.845 1.539 1.8 2.732 2.789 3.466-2.506-.577-4.734-1.957-6.089-3.466zm5.961 3.427c-.989-.734-1.944-1.927-2.789-3.466h5.578c-.845 1.539-1.8 2.732-2.789 3.466zm4.042-4.515H12.75c-.396-1.397-.681-2.938-.83-4.544H15.509c-.149 1.606-.434 3.147-.83 4.544z"/>
+                                                    </svg>
+                                                </a>
+                                                <a
+                                                    href={observationUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="w-7 h-7 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
+                                                    title={`${language === 'sl' ? 'Odpri v iNaturalist' : 'Open in iNaturalist'}`}
+                                                >
+                                                    <img
+                                                        src="https://www.inaturalist.org/favicon.ico"
+                                                        alt="iNaturalist"
+                                                        className="w-3.5 h-3.5"
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                            e.target.nextSibling.style.display = 'block';
+                                                        }}
+                                                    />
+                                                    <svg className="w-3.5 h-3.5 text-white hidden" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M18.75 12c0 .7-.1 1.4-.4 2l1.8 1.8c.6-1.2 1-2.5 1-3.8 0-4.4-3.6-8-8-8s-8 3.6-8 8 3.6 8 8 8c1.3 0 2.6-.4 3.8-1l-1.8-1.8c-.6.3-1.3.4-2 .4-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6z"/>
+                                                        <path d="M12 7c-2.8 0-5 2.2-5 5s2.2 5 5 5c1.1 0 2.1-.3 2.9-.9l-2.1-2.1c-.3.1-.5.1-.8.1-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3c0 .3 0 .5-.1.8l2.1 2.1c.6-.8.9-1.8.9-2.9 0-2.8-2.2-5-5-5z"/>
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </PinContainer>
                     )
                 })}
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             </div>
             <div className="text-center mt-8">
                 {canLoadMore && (
