@@ -696,7 +696,7 @@ const INaturalistFeed = ({ projectSlug }) => {
                             onMouseEnter={() => handleMouseEnter(obs)}
                             onMouseLeave={handleMouseLeave}
                         >
-                            <div className="flex flex-col w-[240px] h-[200px] group-hover/pin:preserve-3d relative overflow-hidden group-hover/pin:overflow-visible">
+                            <div className="flex flex-col w-[240px] h-[200px] group-hover/pin:preserve-3d relative overflow-hidden group-hover/pin:overflow-visible group-hover/pin:z-40">
                                 <div className="relative w-full h-[140px] rounded-lg overflow-hidden mb-3 group-hover/pin:overflow-visible transition-all duration-700 ease-out group-hover/pin:translate-z-[200px] group-hover/pin:-translate-y-16 group-hover/pin:scale-[2.5] group-hover/pin:z-50">
                                     <img
                                         src={imageUrl}
