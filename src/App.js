@@ -718,7 +718,7 @@ const INaturalistFeed = ({ projectSlug }) => {
                                     </p>
                                 </div>
                                 {description && (
-                                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary-dark/95 to-primary/90 backdrop-blur-sm p-4 transform translate-y-full scale-95 opacity-0 group-hover/pin:translate-y-0 group-hover/pin:scale-100 group-hover/pin:opacity-100 transition-all duration-600 ease-out rounded-b-lg shadow-lg border-t border-primary-light/30">
+                                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900/98 to-slate-800/95 backdrop-blur-sm p-4 transform translate-y-full scale-95 opacity-0 group-hover/pin:translate-y-0 group-hover/pin:scale-100 group-hover/pin:opacity-100 transition-all duration-600 ease-out rounded-b-lg shadow-lg border-t border-primary-light/30">
                                         <p className="text-sm leading-relaxed line-clamp-3 text-white transform translate-y-4 group-hover/pin:translate-y-0 transition-all duration-400 delay-100 ease-out mb-3">
                                             {description}
                                         </p>
@@ -741,7 +741,16 @@ const INaturalistFeed = ({ projectSlug }) => {
                                                 className="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
                                                 title={`${language === 'sl' ? 'Odpri v iNaturalist' : 'Open in iNaturalist'}`}
                                             >
-                                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                <img
+                                                    src="https://www.inaturalist.org/favicon.ico"
+                                                    alt="iNaturalist"
+                                                    className="w-4 h-4"
+                                                    onError={(e) => {
+                                                        e.target.style.display = 'none';
+                                                        e.target.nextSibling.style.display = 'block';
+                                                    }}
+                                                />
+                                                <svg className="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M18.75 12c0 .7-.1 1.4-.4 2l1.8 1.8c.6-1.2 1-2.5 1-3.8 0-4.4-3.6-8-8-8s-8 3.6-8 8 3.6 8 8 8c1.3 0 2.6-.4 3.8-1l-1.8-1.8c-.6.3-1.3.4-2 .4-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6z"/>
                                                     <path d="M12 7c-2.8 0-5 2.2-5 5s2.2 5 5 5c1.1 0 2.1-.3 2.9-.9l-2.1-2.1c-.3.1-.5.1-.8.1-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3c0 .3 0 .5-.1.8l2.1 2.1c.6-.8.9-1.8.9-2.9 0-2.8-2.2-5-5-5z"/>
                                                 </svg>
