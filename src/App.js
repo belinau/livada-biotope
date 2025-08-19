@@ -718,43 +718,45 @@ const INaturalistFeed = ({ projectSlug }) => {
                                     </p>
                                 </div>
                                 {description && (
-                                    <div className="absolute bottom-0 left-0 right-0 bg-black/90 backdrop-blur-md p-4 transform translate-y-full scale-95 opacity-0 group-hover/pin:translate-y-0 group-hover/pin:scale-100 group-hover/pin:opacity-100 transition-all duration-600 ease-out rounded-b-lg shadow-xl border-t border-white/20">
-                                        <p className="text-sm leading-relaxed line-clamp-3 text-white font-medium transform translate-y-4 group-hover/pin:translate-y-0 transition-all duration-400 delay-100 ease-out mb-3" style={{textShadow: '1px 1px 2px rgba(0,0,0,0.8)'}}>
-                                            {description}
-                                        </p>
-                                        <div className="flex justify-end gap-2 transform translate-y-4 group-hover/pin:translate-y-0 transition-all duration-400 delay-200 ease-out">
-                                            <a
-                                                href={`https://${language}.wikipedia.org/wiki/${encodeURIComponent(obs.taxon?.name?.replace(/ /g, '_') || '')}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
-                                                title={`${language === 'sl' ? 'Odpri v Wikipediji' : 'Open in Wikipedia'}`}
-                                            >
-                                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.624 5.367 11.99 11.988 11.99s11.99-5.366 11.99-11.99C24.007 5.367 18.641.001 12.017.001zM1.522 12.263h4.34c.022 1.739.112 3.43.267 5.046h-3.3c-.835-1.539-1.29-3.273-1.307-5.046zm.178-1.05c.017-1.773.472-3.507 1.307-5.046h3.3c-.155 1.616-.245 3.307-.267 5.046H1.7zM11.267 2.047c-.483.72-.908 1.717-1.25 2.922-.396 1.397-.681 2.938-.83 4.544H6.328c.485-3.425 2.539-6.337 5.939-7.466zM5.328 10.56H8.187c.149 1.606.434 3.147.83 4.544.342 1.205.767 2.202 1.25 2.922-3.4-1.129-5.454-4.041-5.939-7.466zm.178 8.558h3.3c.845 1.539 1.8 2.732 2.789 3.466-2.506-.577-4.734-1.957-6.089-3.466zm5.961 3.427c-.989-.734-1.944-1.927-2.789-3.466h5.578c-.845 1.539-1.8 2.732-2.789 3.466zm4.042-4.515H12.75c-.396-1.397-.681-2.938-.83-4.544H15.509c-.149 1.606-.434 3.147-.83 4.544z"/>
-                                                </svg>
-                                            </a>
-                                            <a
-                                                href={observationUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
-                                                title={`${language === 'sl' ? 'Odpri v iNaturalist' : 'Open in iNaturalist'}`}
-                                            >
-                                                <img
-                                                    src="https://www.inaturalist.org/favicon.ico"
-                                                    alt="iNaturalist"
-                                                    className="w-4 h-4"
-                                                    onError={(e) => {
-                                                        e.target.style.display = 'none';
-                                                        e.target.nextSibling.style.display = 'block';
-                                                    }}
-                                                />
-                                                <svg className="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M18.75 12c0 .7-.1 1.4-.4 2l1.8 1.8c.6-1.2 1-2.5 1-3.8 0-4.4-3.6-8-8-8s-8 3.6-8 8 3.6 8 8 8c1.3 0 2.6-.4 3.8-1l-1.8-1.8c-.6.3-1.3.4-2 .4-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6z"/>
-                                                    <path d="M12 7c-2.8 0-5 2.2-5 5s2.2 5 5 5c1.1 0 2.1-.3 2.9-.9l-2.1-2.1c-.3.1-.5.1-.8.1-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3c0 .3 0 .5-.1.8l2.1 2.1c.6-.8.9-1.8.9-2.9 0-2.8-2.2-5-5-5z"/>
-                                                </svg>
-                                            </a>
+                                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/95 via-black/85 to-transparent backdrop-blur-sm p-3 transform translate-y-full opacity-0 group-hover/pin:translate-y-0 group-hover/pin:opacity-100 transition-all duration-500 ease-out rounded-b-lg">
+                                        <div className="flex items-start justify-between h-full">
+                                            <p className="text-xs leading-tight line-clamp-2 text-white font-medium flex-1 pr-3 transform translate-y-2 group-hover/pin:translate-y-0 transition-all duration-300 delay-100 ease-out" style={{textShadow: '1px 1px 2px rgba(0,0,0,0.8)'}}>
+                                                {description}
+                                            </p>
+                                            <div className="flex gap-1.5 transform translate-y-2 group-hover/pin:translate-y-0 transition-all duration-300 delay-200 ease-out">
+                                                <a
+                                                    href={`https://${language}.wikipedia.org/wiki/${encodeURIComponent(obs.taxon?.name?.replace(/ /g, '_') || '')}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="w-6 h-6 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
+                                                    title={`${language === 'sl' ? 'Odpri v Wikipediji' : 'Open in Wikipedia'}`}
+                                                >
+                                                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.624 5.367 11.99 11.988 11.99s11.99-5.366 11.99-11.99C24.007 5.367 18.641.001 12.017.001zM1.522 12.263h4.34c.022 1.739.112 3.43.267 5.046h-3.3c-.835-1.539-1.29-3.273-1.307-5.046zm.178-1.05c.017-1.773.472-3.507 1.307-5.046h3.3c-.155 1.616-.245 3.307-.267 5.046H1.7zM11.267 2.047c-.483.72-.908 1.717-1.25 2.922-.396 1.397-.681 2.938-.83 4.544H6.328c.485-3.425 2.539-6.337 5.939-7.466zM5.328 10.56H8.187c.149 1.606.434 3.147.83 4.544.342 1.205.767 2.202 1.25 2.922-3.4-1.129-5.454-4.041-5.939-7.466zm.178 8.558h3.3c.845 1.539 1.8 2.732 2.789 3.466-2.506-.577-4.734-1.957-6.089-3.466zm5.961 3.427c-.989-.734-1.944-1.927-2.789-3.466h5.578c-.845 1.539-1.8 2.732-2.789 3.466zm4.042-4.515H12.75c-.396-1.397-.681-2.938-.83-4.544H15.509c-.149 1.606-.434 3.147-.83 4.544z"/>
+                                                    </svg>
+                                                </a>
+                                                <a
+                                                    href={observationUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="w-6 h-6 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
+                                                    title={`${language === 'sl' ? 'Odpri v iNaturalist' : 'Open in iNaturalist'}`}
+                                                >
+                                                    <img
+                                                        src="https://www.inaturalist.org/favicon.ico"
+                                                        alt="iNaturalist"
+                                                        className="w-3 h-3"
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                            e.target.nextSibling.style.display = 'block';
+                                                        }}
+                                                    />
+                                                    <svg className="w-3 h-3 text-white hidden" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M18.75 12c0 .7-.1 1.4-.4 2l1.8 1.8c.6-1.2 1-2.5 1-3.8 0-4.4-3.6-8-8-8s-8 3.6-8 8 3.6 8 8 8c1.3 0 2.6-.4 3.8-1l-1.8-1.8c-.6.3-1.3.4-2 .4-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6z"/>
+                                                        <path d="M12 7c-2.8 0-5 2.2-5 5s2.2 5 5 5c1.1 0 2.1-.3 2.9-.9l-2.1-2.1c-.3.1-.5.1-.8.1-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3c0 .3 0 .5-.1.8l2.1 2.1c.6-.8.9-1.8.9-2.9 0-2.8-2.2-5-5-5z"/>
+                                                    </svg>
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
