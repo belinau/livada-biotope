@@ -671,7 +671,7 @@ const INaturalistFeed = ({ projectSlug }) => {
 
     return (
         <div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 justify-items-center">
                 {observations.map(obs => {
                     let displayName = obs.taxon?.preferred_common_name || obs.taxon?.name || "Unknown";
                     if (language === 'sl') {
@@ -691,8 +691,8 @@ const INaturalistFeed = ({ projectSlug }) => {
                             onMouseEnter={() => handleMouseEnter(obs)}
                             onMouseLeave={handleMouseLeave}
                         >
-                            <div className="flex flex-col w-[180px] h-[200px]">
-                                <div className="relative w-full h-[120px] rounded-lg overflow-hidden mb-2">
+                            <div className="flex flex-col w-[170px] h-[150px]">
+                                <div className="relative w-full h-[90px] rounded-lg overflow-hidden mb-2">
                                     <img
                                         src={imageUrl}
                                         alt={displayName}
@@ -704,15 +704,15 @@ const INaturalistFeed = ({ projectSlug }) => {
                                         }}
                                     />
                                 </div>
-                                <div className="flex-1 px-1">
-                                    <h3 className="font-semibold text-sm text-primary mb-1 line-clamp-2" title={displayName}>
+                                <div className="flex-1 px-2">
+                                    <h3 className="font-semibold text-sm text-slate-800 mb-1 line-clamp-1" title={displayName}>
                                         {displayName}
                                     </h3>
-                                    <p className="text-xs text-text-muted mb-1">
+                                    <p className="text-xs text-slate-600 mb-1">
                                         {new Date(obs.observed_on_string).toLocaleDateString(language)}
                                     </p>
                                     {description && (
-                                        <p className="text-xs text-text-muted line-clamp-2 leading-tight">
+                                        <p className="text-xs text-slate-600 line-clamp-1 leading-tight">
                                             {description}
                                         </p>
                                     )}
