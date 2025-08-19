@@ -677,7 +677,7 @@ const INaturalistFeed = ({ projectSlug }) => {
                     if (language === 'sl') {
                         displayName = displayName.toLowerCase();
                     }
-                    const imageUrl = obs.photos[0]?.url.replace('square', 'large');
+                    const imageUrl = obs.photos[0]?.url?.replace('square', 'medium') || `https://placehold.co/500x500/2d3748/a0aec0?text=No+Image`;
                     const observationUrl = obs.uri;
 
                     const currentObservationData = hoveredObservation && hoveredObservation.id === obs.id ? hoveredObservation : obs;
