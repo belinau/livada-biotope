@@ -697,7 +697,7 @@ const INaturalistFeed = ({ projectSlug }) => {
                             onMouseLeave={handleMouseLeave}
                         >
                             <div className="flex flex-col w-[240px] h-[200px] group-hover/pin:preserve-3d relative overflow-hidden group-hover/pin:overflow-visible">
-                                <div className="relative w-full h-[140px] rounded-lg overflow-hidden mb-3 group-hover/pin:overflow-visible transition-transform duration-700 group-hover/pin:translate-z-[100px]">
+                                <div className="relative w-full h-[140px] rounded-lg overflow-hidden mb-3 group-hover/pin:overflow-visible transition-all duration-700 ease-out group-hover/pin:translate-z-[100px] group-hover/pin:-translate-y-8 group-hover/pin:scale-105">
                                     <img
                                         src={imageUrl}
                                         alt={displayName}
@@ -718,9 +718,9 @@ const INaturalistFeed = ({ projectSlug }) => {
                                     </p>
                                 </div>
                                 {description && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/95 via-black/85 to-transparent backdrop-blur-sm p-3 transform translate-y-full opacity-0 group-hover/pin:translate-y-0 group-hover/pin:opacity-100 transition-all duration-500 ease-out rounded-b-lg">
+                                    <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/95 via-black/85 to-transparent backdrop-blur-sm p-4 transform translate-y-full opacity-0 group-hover/pin:translate-y-0 group-hover/pin:opacity-100 transition-all duration-600 ease-out rounded-b-lg">
                                         <div className="flex items-start justify-between h-full">
-                                            <p className="text-xs leading-tight line-clamp-2 text-white font-medium flex-1 pr-3 transform translate-y-2 group-hover/pin:translate-y-0 transition-all duration-300 delay-100 ease-out" style={{textShadow: '1px 1px 2px rgba(0,0,0,0.8)'}}>
+                                            <p className="text-sm leading-relaxed line-clamp-3 text-white font-medium flex-1 pr-3 transform translate-y-3 group-hover/pin:translate-y-0 transition-all duration-400 delay-150 ease-out" style={{textShadow: '1px 1px 2px rgba(0,0,0,0.8)'}}>
                                                 {description}
                                             </p>
                                             <div className="flex gap-1.5 transform translate-y-2 group-hover/pin:translate-y-0 transition-all duration-300 delay-200 ease-out">
