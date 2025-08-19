@@ -696,14 +696,14 @@ const INaturalistFeed = ({ projectSlug }) => {
                             onMouseEnter={() => handleMouseEnter(obs)}
                             onMouseLeave={handleMouseLeave}
                         >
-                            <div className="flex flex-col w-[240px] h-[200px] group-hover/pin:preserve-3d relative overflow-hidden group-hover/pin:overflow-visible group-hover/pin:z-40">
-                                <div className="relative w-full h-[140px] rounded-lg overflow-hidden mb-3 group-hover/pin:overflow-visible transition-all duration-700 ease-out group-hover/pin:translate-z-[200px] group-hover/pin:-translate-y-16 group-hover/pin:scale-[2.5] group-hover/pin:z-50">
+                            <div className="flex flex-col w-[240px] h-[200px] group-hover/pin:preserve-3d relative overflow-visible group-hover/pin:z-30">
+                                <div className="relative w-full h-[140px] rounded-lg mb-3 overflow-visible transition-all duration-700 ease-out group-hover/pin:translate-z-[150px] group-hover/pin:-translate-y-12 group-hover/pin:z-50">
                                     {/* Backdrop effect */}
-                                    <div className="absolute inset-0 opacity-0 group-hover/pin:opacity-100 transition-opacity duration-700 ease-out group-hover/pin:fixed group-hover/pin:top-0 group-hover/pin:left-0 group-hover/pin:w-screen group-hover/pin:h-screen group-hover/pin:bg-black/20 group-hover/pin:backdrop-blur-sm group-hover/pin:z-30 pointer-events-none"></div>
+                                    <div className="absolute inset-0 opacity-0 group-hover/pin:opacity-100 transition-opacity duration-700 ease-out group-hover/pin:fixed group-hover/pin:top-0 group-hover/pin:left-0 group-hover/pin:w-screen group-hover/pin:h-screen group-hover/pin:bg-black/30 group-hover/pin:backdrop-blur-sm group-hover/pin:z-40 pointer-events-none"></div>
                                     <img
                                         src={imageUrl}
                                         alt={displayName}
-                                        className={`w-full h-full object-cover transition-all duration-700 ease-out group-hover/pin:scale-150 ${rotateClass} ${translateClass} group-hover/pin:shadow-[0_25px_50px_rgba(0,0,0,0.6)] rounded-lg group-hover/pin:rounded-xl group-hover/pin:ring-4 group-hover/pin:ring-white/20`}
+                                        className={`w-full h-full object-cover transition-all duration-700 ease-out group-hover/pin:scale-[3] ${rotateClass} ${translateClass} group-hover/pin:shadow-[0_25px_50px_rgba(0,0,0,0.7)] rounded-lg group-hover/pin:rounded-xl group-hover/pin:ring-4 group-hover/pin:ring-white/30 group-hover/pin:z-50`}
                                         loading="lazy"
                                         onError={(e) => {
                                             e.target.onerror = null;
