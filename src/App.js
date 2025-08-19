@@ -672,7 +672,7 @@ const INaturalistFeed = ({ projectSlug }) => {
     return (
         <div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
-                {observations.map(obs => {
+                {observations.map((obs, index) => {
                     let displayName = obs.taxon?.preferred_common_name || obs.taxon?.name || "Unknown";
                     if (language === 'sl') {
                         displayName = displayName.toLowerCase();
@@ -682,6 +682,11 @@ const INaturalistFeed = ({ projectSlug }) => {
 
                     const currentObservationData = hoveredObservation && hoveredObservation.id === obs.id ? hoveredObservation : obs;
                     const description = currentObservationData[language]?.description;
+
+                    // Create varied animation patterns
+                    const isEven = index % 2 === 0;
+                    const rotateClass = isEven ? 'group-hover/pin:rotate-2' : 'group-hover/pin:-rotate-2';
+                    const translateClass = isEven ? 'group-hover/pin:-translate-x-1 group-hover/pin:-translate-y-2' : 'group-hover/pin:translate-x-1 group-hover/pin:-translate-y-1';
 
                     return (
                         <PinContainer
