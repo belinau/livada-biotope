@@ -691,7 +691,7 @@ const INaturalistFeed = ({ projectSlug }) => {
                             onMouseEnter={() => handleMouseEnter(obs)}
                             onMouseLeave={handleMouseLeave}
                         >
-                            <div className="flex flex-col w-[240px] h-[200px] group-hover/pin:preserve-3d">
+                            <div className="flex flex-col w-[240px] h-[200px] group-hover/pin:preserve-3d relative overflow-hidden">
                                 <div className="relative w-full h-[140px] rounded-lg overflow-hidden mb-3 group-hover/pin:overflow-visible transition-transform duration-700 group-hover/pin:translate-z-[100px]">
                                     <img
                                         src={imageUrl}
@@ -711,12 +711,14 @@ const INaturalistFeed = ({ projectSlug }) => {
                                     <p className="text-sm text-slate-600 mb-1 transition-transform duration-700 group-hover/pin:translate-z-[25px]">
                                         {new Date(obs.observed_on_string).toLocaleDateString(language)}
                                     </p>
-                                    {description && (
-                                        <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed transition-transform duration-700 group-hover/pin:translate-z-[25px]">
+                                </div>
+                                {description && (
+                                    <div className="absolute bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-sm text-white p-3 transform translate-y-full group-hover/pin:translate-y-0 transition-transform duration-500 ease-out rounded-b-lg">
+                                        <p className="text-sm leading-relaxed line-clamp-3">
                                             {description}
                                         </p>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
                         </PinContainer>
                     )
