@@ -63,14 +63,14 @@ const getResponsiveSrcSet = (imagePath) => {
 };
 
 const BED_MAPPING = {
-    '!35c2d45c-0': { name: 'travni sestoj', color: '#52796f' },
-    '!35c2d45c-1': { name: 'sivka in melisa', color: '#84a98c' },
+    '!35c2d45c-0': { name: 'travni sestoj', color: 'var(--primary)' },
+    '!35c2d45c-1': { name: 'sivka in melisa', color: 'var(--text-sage)' },
     
-    '!04c5ad60-0': { name: 'barjansko rastje', color: '#354f52' },
-    '!04c5ad60-1': { name: 'cvetlice za opraševalce', color: '#cad2c5' },
+    '!04c5ad60-0': { name: 'barjansko rastje', color: 'var(--primary-dark)' },
+    '!04c5ad60-1': { name: 'cvetlice za opraševalce', color: 'var(--border-color)' },
 
-    '!76208ba5-0': { name: 'majaron in melisa', color: '#90a955' },
-    '!76208ba5-1': { name: 'tolščak in slezenovec', color: '#606c38' },
+    '!76208ba5-0': { name: 'majaron in melisa', color: 'var(--text-sage)' },
+    '!76208ba5-1': { name: 'tolščak in slezenovec', color: 'var(--primary-dark)' },
 };
 
 const parseMarkdown = (rawContent) => {
@@ -87,8 +87,7 @@ const parseMarkdown = (rawContent) => {
     }
 };
 
-// 1️⃣  Mermaid 
-mermaid.initialize({ startOnLoad: false, theme: 'base' });
+ 
 
 // 2️⃣  Custom short-code renderer
 function enhanceHTML(html) {
@@ -115,16 +114,16 @@ const EventRow = ({ event, lang, isPast }) => {
     return (
       <li
         className={`p-3 rounded-lg shadow-sm ${ 
-          isPast ? 'bg-gray-100 opacity-70' : 'bg-primary/5'
+          isPast ? 'bg-bg-main opacity-70' : 'bg-primary/5'
         }`}
       >
         <div className="font-semibold text-sm">{event.summary}</div>
-        <div className="text-xs text-gray-500 mt-1">{fmt(event.startDate)}</div>
+        <div className="text-xs text-text-muted mt-1">{fmt(event.startDate)}</div>
         {event.location && (
-          <div className="text-xs text-gray-500 mt-1">📍 {event.location}</div>
+          <div className="text-xs text-text-muted mt-1">📍 {event.location}</div>
         )}
         {event.description && (
-          <div className="text-xs text-gray-700 mt-2 whitespace-pre-wrap break-words">
+          <div className="text-xs text-text-main mt-2 whitespace-pre-wrap break-words">
             {event.description}
           </div>
         )}
@@ -315,16 +314,16 @@ const MetricCard = ({ label, value, unit = '', decimals = 0 }) => {
     const isValid = typeof value === 'number' && !isNaN(value);
     const displayValue = isValid ? value.toFixed(decimals) : '--';
     return (
-        <div className="bg-gray-100/70 p-3 rounded-md text-center">
-            <div className="text-display text-2xl text-primary">{displayValue}<span className="text-accent text-base text-gray-500 ml-1">{unit}</span></div>
-            <div className="text-accent text-xs text-gray-600 uppercase tracking-wider">{label}</div>
+        <div className="bg-bg-main/70 p-3 rounded-md text-center">
+            <div className="text-display text-2xl text-primary">{displayValue}<span className="text-accent text-base text-text-muted ml-1">{unit}</span></div>
+            <div className="text-accent text-xs text-text-muted uppercase tracking-wider">{label}</div>
         </div>
     );
 };
 const BedCard = ({ bed, reading, t }) => {
     const lastHeard = reading ? new Date(reading.timestamp) : null;
     return (
-        <div className="group bg-white/90 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col border border-gray-200/50 hover:border-gray-300/60">
+        <div className="group bg-white/90 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col border border-border-color/50 hover:border-border-color/60">
             <div className="p-4 flex justify-between items-center bg-gradient-to-r" style={{ background: `linear-gradient(135deg, ${bed.color}, ${bed.color}dd)`, color: 'white' }}>
                 <h4 className="heading-organic text-lg group-hover:scale-105 transition-transform duration-200">{bed.name}</h4>
                 <div className="w-3 h-3 rounded-full bg-white/30 group-hover:bg-white/50 transition-colors duration-200"></div>
@@ -336,7 +335,7 @@ const BedCard = ({ bed, reading, t }) => {
                         <MetricCard label={t('soilTemp')} value={reading.temperature} unit="°C" decimals={1} />
                     </div>
                 ) : (
-                    <div className="flex items-center justify-center h-24 text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
+                    <div className="flex items-center justify-center h-24 text-text-muted bg-bg-main/50 rounded-lg border-2 border-dashed border-border-color">
                         <div className="text-center">
                             <div className="text-2xl mb-2">📊</div>
                             <div className="text-accent text-sm">{t('noSensorData')}</div>
@@ -345,9 +344,9 @@ const BedCard = ({ bed, reading, t }) => {
                 )}
             </div>
             {lastHeard && (
-                <div className="bg-gray-50/80 backdrop-blur-sm p-3 text-xs text-gray-600 flex justify-between items-center border-t border-gray-200/50">
+                <div className="bg-bg-main/80 backdrop-blur-sm p-3 text-xs text-text-muted flex justify-between items-center border-t border-border-color/50">
                     <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                        <div className="w-2 h-2 rounded-full bg-primary-light animate-pulse"></div>
                         <span className="text-accent font-medium">Live</span>
                     </div>
                     <span className="text-accent">{t('lastUpdated')}: {lastHeard.toLocaleString(t.language)}</span>
@@ -358,9 +357,9 @@ const BedCard = ({ bed, reading, t }) => {
 };
 
 export const ChartWrapper = ({ title, children }) => (
-    <div className="bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-lg border border-gray-200/50 flex flex-col min-h-[400px] hover:shadow-xl transition-shadow duration-300">
+    <div className="bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-lg border border-border-color/50 flex flex-col min-h-[400px] hover:shadow-xl transition-shadow duration-300">
         <div className="flex items-center justify-center mb-4">
-            <h4 className="heading-playful text-lg text-center px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-full border border-gray-200 shadow-sm">{title}</h4>
+            <h4 className="heading-playful text-lg text-center px-4 py-2 bg-gradient-to-r from-bg-main to-bg-main rounded-full border border-border-color shadow-sm">{title}</h4>
         </div>
         <div className="flex-grow relative overflow-hidden">{children}</div>
     </div>
@@ -372,11 +371,18 @@ function SensorVisualization() {
     const [chartData, setChartData] = useState({ moisture: [], temperature: [] });
     const [latestReadings, setLatestReadings] = useState({});
 
-    const nivoTheme = {
-        axis: { ticks: { text: { fill: '#333' } }, legend: { text: { fill: '#333', fontSize: 14 } } },
-        grid: { line: { stroke: '#e0e0e0', strokeDasharray: '2 2' } },
-        tooltip: { container: { background: 'white', color: '#333', border: '1px solid #ccc' } },
-    };
+    const nivoTheme = useMemo(() => {
+        if (typeof window === 'undefined') return {};
+        const style = getComputedStyle(document.documentElement);
+        return {
+            axis: {
+                ticks: { text: { fill: style.getPropertyValue('--text-muted') } },
+                legend: { text: { fill: style.getPropertyValue('--text-main'), fontSize: 'var(--text-sm)' } }
+            },
+            grid: { line: { stroke: style.getPropertyValue('--border-color'), strokeDasharray: '2 2' } },
+            tooltip: { container: { background: style.getPropertyValue('--bg-main'), color: style.getPropertyValue('--text-main'), border: `1px solid ${style.getPropertyValue('--border-color')}` } },
+        };
+    }, []);
 
     const CustomTooltip = ({ point }) => {
         const date = new Date(point.data.x);
@@ -385,13 +391,13 @@ function SensorVisualization() {
             timeStyle: 'short',
         });
         return (
-            <div style={{ background: 'white', padding: '9px 12px', border: '1px solid #ccc', borderRadius: '2px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className="bg-bg-main p-3 border border-border-color rounded-sm shadow-lg">
+                <div className="flex items-center">
                     <span style={{ display: 'block', width: '12px', height: '12px', background: point.serieColor, marginRight: '8px' }}></span>
-                    <strong>{point.serieId}</strong>
+                    <strong className="text-text-main">{point.serieId}</strong>
                 </div>
-                <div>{formattedDate}</div>
-                <div>{`${point.data.yFormatted}`}</div>
+                <div className="text-text-muted">{formattedDate}</div>
+                <div className="text-text-main">{`${point.data.yFormatted}`}</div>
             </div>
         );
     };
@@ -410,7 +416,7 @@ function SensorVisualization() {
                 const bedId = historyKey.substring(0, historyKey.lastIndexOf('-'));
                 const metricType = historyKey.substring(historyKey.lastIndexOf('-') + 1);
 
-                if (!newLatestReadings[bedId]) { newLatestReadings[bedId] = {}; }
+                if (!newLatestReadings[bedId]) { newLatestReadings[bedId] = {}; } 
                 newLatestReadings[bedId][metricType] = lastPoint.y;
                 newLatestReadings[bedId].timestamp = lastPoint.x;
 
@@ -440,25 +446,25 @@ function SensorVisualization() {
     };
     
     return (
-        <div className="relative p-4 sm:p-8 rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50 bg-gradient-to-br from-gray-50/90 to-white/80 backdrop-blur-sm">
+        <div className="relative p-4 sm:p-8 rounded-2xl shadow-2xl overflow-hidden border border-border-color/50 bg-gradient-to-br from-bg-main/90 to-white/80 backdrop-blur-sm">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg">
+                    <div className="p-2 bg-gradient-to-br from-primary to-primary-dark rounded-xl shadow-lg">
                         <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
                     </div>
-                    <h3 className="text-display text-2xl lg:text-3xl text-gray-800 bg-gradient-to-r from-green-700 to-green-600 bg-clip-text text-transparent">{t('sensorDataTitle')}</h3>
+                    <h3 className="text-display text-2xl lg:text-3xl text-text-main bg-gradient-to-r from-primary-dark to-primary-dark bg-clip-text text-transparent">{t('sensorDataTitle')}</h3>
                 </div>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                     <div className="flex items-center gap-2">
-                        <div className={`w-3 h-3 rounded-full ${status.type === 'error' ? 'bg-red-500' : status.type === 'success' ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`}></div>
-                        <span className={`text-accent font-medium ${status.type === 'error' ? 'text-red-600' : 'text-gray-700'}`}>{getStatusMessage()}</span>
+                        <div className={`w-3 h-3 rounded-full ${status.type === 'error' ? 'bg-sunset' : status.type === 'success' ? 'bg-primary animate-pulse' : 'bg-sunset'}`}></div>
+                        <span className={`text-accent font-medium ${status.type === 'error' ? 'text-sunset' : 'text-text-main'}`}>{getStatusMessage()}</span>
                     </div>
                     <button
                         onClick={refreshData}
                         disabled={isLoading}
-                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105"
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-lg hover:from-primary-dark hover:to-primary-dark transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105"
                     >
                         <svg className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
@@ -470,13 +476,13 @@ function SensorVisualization() {
 
             {isLoading && !history ? (
                 <div className="text-center py-20">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-4 shadow-lg">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary-dark rounded-full mb-4 shadow-lg">
                         <svg className="w-8 h-8 text-white animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
                         </svg>
                     </div>
-                    <div className="text-body-lg text-gray-600">{t('loading')}...</div>
-                    <div className="text-accent text-gray-500 mt-2">Pridobivam podatke senzorjev</div>
+                    <div className="text-body-lg text-text-muted">{t('loading')}...</div>
+                    <div className="text-accent text-text-muted mt-2">Pridobivam podatke senzorjev</div>
                 </div>
             ) : (
                 <>
@@ -486,13 +492,13 @@ function SensorVisualization() {
                         ))}
                     </div>
 
-                    <div className="space-y-8 pt-8 border-t-2 border-gray-200">
+                    <div className="space-y-8 pt-8 border-t-2 border-border-color">
                         <div className="text-center">
                             <h4 className="heading-organic text-xl mb-3">Grafični prikaz podatkov</h4>
-                            <p className="text-body text-gray-600">Spremljanje vlage in temperature skozi čas</p>
+                            <p className="text-body text-text-muted">Spremljanje vlage in temperature skozi čas</p>
                         </div>
                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                            <ChartWrapper title={t('moistureFlows')}>
+                            <ChartWrapper title={t('moistureFlows')}> 
                                 {hasMoistureData ? (
                                     <ResponsiveLine
                                         tooltip={CustomTooltip}
@@ -509,7 +515,7 @@ function SensorVisualization() {
                                         curve="monotoneX"
                                         animate={true}
                                         motionConfig="wobbly"
-                                        legends={[{
+                                        legends={[{ 
                                             anchor: 'bottom',
                                             direction: 'row',
                                             justify: false,
@@ -519,20 +525,20 @@ function SensorVisualization() {
                                             itemWidth: 140,
                                             itemHeight: 20,
                                             symbolSize: 14,
-                                            itemTextColor: '#333'
+                                            itemTextColor: 'var(--text-main)'
                                         }]}
                                     />
                                 ) : (
-                                    <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
+                                    <div className="flex items-center justify-center h-full text-text-muted bg-bg-main/50 rounded-lg border-2 border-dashed border-border-color">
                                         <div className="text-center p-8">
                                             <div className="text-4xl mb-3">📈</div>
                                             <div className="text-body font-medium">{t('noChartData')}</div>
-                                            <div className="text-accent text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
+                                            <div className="text-accent text-text-muted mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
                                         </div>
                                     </div>
                                 )}
                             </ChartWrapper>
-                            <ChartWrapper title={t('temperatureFlows')}>
+                            <ChartWrapper title={t('temperatureFlows')}> 
                                 {hasTemperatureData ? (
                                     <ResponsiveLine
                                         tooltip={CustomTooltip}
@@ -549,7 +555,7 @@ function SensorVisualization() {
                                         curve="monotoneX"
                                         animate={true}
                                         motionConfig="wobbly"
-                                        legends={[{
+                                        legends={[{ 
                                             anchor: 'bottom',
                                             direction: 'row',
                                             justify: false,
@@ -559,15 +565,15 @@ function SensorVisualization() {
                                             itemWidth: 140,
                                             itemHeight: 20,
                                             symbolSize: 14,
-                                            itemTextColor: '#333'
+                                            itemTextColor: 'var(--text-main)'
                                         }]}
                                     />
                                 ) : (
-                                    <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
+                                    <div className="flex items-center justify-center h-full text-text-muted bg-bg-main/50 rounded-lg border-2 border-dashed border-border-color">
                                         <div className="text-center p-8">
                                             <div className="text-4xl mb-3">🌡️</div>
                                             <div className="text-body font-medium">{t('noChartData')}</div>
-                                            <div className="text-accent text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
+                                            <div className="text-accent text-text-muted mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
                                         </div>
                                     </div>
                                 )}
@@ -621,12 +627,12 @@ const INaturalistFeed = ({ projectSlug }) => {
                     const displayName = obs.taxon?.preferred_common_name || obs.taxon?.name || "Unknown";
                     return (
                         <a href={obs.uri} key={obs.id} target="_blank" rel="noopener noreferrer" className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden group block">
-                            <div className="relative aspect-square bg-gray-200">
+                            <div className="relative aspect-square bg-bg-main">
                                 <img src={obs.photos[0]?.url.replace('square', 'medium')} alt={displayName} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" loading="lazy" onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/400x400/2d3748/a0aec0?text=Ni+slike`; }}/>
                             </div>
                             <div className="p-3">
                                 <h3 className="font-semibold text-sm text-primary truncate" title={displayName}>{displayName}</h3>
-                                <p className="text-xs text-gray-500">{new Date(obs.observed_on_string).toLocaleDateString(language)}</p>
+                                <p className="text-xs text-text-muted">{new Date(obs.observed_on_string).toLocaleDateString(language)}</p>
                             </div>
                         </a>
                     )
@@ -634,7 +640,7 @@ const INaturalistFeed = ({ projectSlug }) => {
             </div>
             <div className="text-center mt-8">
                 {canLoadMore && (
-                    <button onClick={handleLoadMore} disabled={isLoading} className="bg-primary/90 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-primary transition-colors disabled:bg-gray-400">
+                    <button onClick={handleLoadMore} disabled={isLoading} className="bg-primary/90 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-primary transition-colors disabled:bg-text-muted">
                         {isLoading ? t('loading') : t('loadMore')}
                     </button>
                 )}
@@ -724,7 +730,7 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
       );
     }, [events, viewYear, viewMonth]);
   
-    if (isLoading) return <div className="text-body text-center text-gray-500">{t('loading')}...</div>;
+    if (isLoading) return <div className="text-body text-center text-text-muted">{t('loading')}...</div>;
   
     const monthName = new Date(viewYear, viewMonth).toLocaleString(language, {
       month: 'long',
@@ -754,7 +760,7 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
             <EventRow key={e.uid} event={e} lang={language} />
           ))}
           {currentMonthEvents.length === 0 && (
-            <p className="text-center text-gray-500">{t('noUpcomingEvents')}</p>
+            <p className="text-center text-text-muted">{t('noUpcomingEvents')}</p>
           )}
         </ul>
   
@@ -888,20 +894,20 @@ function MemoryGame() {
     };
   
     /* ---------- render ---------- */
-    if (loading) return <div className="text-body max-w-6xl mx-auto text-center py-12 text-gray-500">{t('loading')}...</div>;
+    if (loading) return <div className="text-body max-w-6xl mx-auto text-center py-12 text-text-muted">{t('loading')}...</div>;
   
     return (
       <div className="max-w-6xl mx-auto">
         {/* header */}
         <div className="text-center mb-8">
-          <h3 className="text-2xl font-mono font-bold text-primary">{t('memoryGameTitle')}</h3>
-          <p className="text-gray-600">{t('moves')}: {moves}</p>
+          <h3 className="text-xl sm:text-2xl font-mono font-bold text-primary">{t('memoryGameTitle')}</h3>
+          <p className="text-text-muted">{t('moves')}: {moves}</p>
           <div className="flex justify-center gap-2 md:gap-4 mt-4">
             {['sl', 'en', 'latin'].map(m => (
               <button
                 key={m}
                 onClick={() => resetGame(m)}
-                className={`px-3 py-2 rounded-lg transition ${gameMode === m ? 'bg-primary text-white shadow' : 'bg-gray-200'}`}
+                className={`px-3 py-2 rounded-lg transition ${gameMode === m ? 'bg-primary text-white shadow' : 'bg-bg-main'}`}
               >
                 {t(m === 'sl' ? 'slovenian' : m === 'en' ? 'english' : 'latin')}
               </button>
@@ -909,52 +915,52 @@ function MemoryGame() {
           </div>
         </div>
           {/* ---------- card grid ---------- */}
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
             {cards.map((card, idx) => {
               const isFlipped = flipped.includes(idx);
               const isMatched = matched.includes(idx);
               
               if (isMatched) {
                 return (
-                  <div 
-                    key={card.id}
-                    className="relative w-full aspect-square"
-                    style={{
-                      opacity: 0.8,
-                      zIndex: 1,
-                      transform: 'rotateY(180deg) scale(1)',
-                      transformStyle: 'preserve-3d',
-                      WebkitTransformStyle: 'preserve-3d',
-                      position: 'relative',
-                      perspective: '1000px',
-                      transition: 'opacity 0.3s, transform 0.5s',
-                      backfaceVisibility: 'hidden',
-                      WebkitBackfaceVisibility: 'hidden'
-                    }}
-                  >
-                    <div className="absolute inset-0 bg-white flex items-center justify-center p-2 rounded-lg overflow-hidden"
+                  <AnimatePresence key={card.id}>
+                    <motion.div
+                      className="relative w-full aspect-square"
+                      initial={{ opacity: 1, scale: 1 }}
+                      animate={{ opacity: 0.8, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.3 } }}
+                      transition={{ duration: 0.5 }}
                       style={{
-                        backfaceVisibility: 'hidden',
-                        WebkitBackfaceVisibility: 'hidden',
-                        transform: 'rotateY(180deg)',
                         transformStyle: 'preserve-3d',
-                        zIndex: 2,
-                        pointerEvents: 'none'
+                        WebkitTransformStyle: 'preserve-3d',
+                        position: 'relative',
+                        perspective: '1000px',
+                        zIndex: 1,
                       }}
                     >
-                      {card.type === 'image' ? (
-                        <img
-                          src={card.content}
-                          alt=""
-                          className="w-full h-full object-cover rounded-md"
-                        />
-                      ) : (
-                        <span className="text-sm font-medium text-center">
-                          {card.content}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                      <div className="absolute inset-0 bg-white flex items-center justify-center p-2 rounded-lg overflow-hidden"
+                        style={{
+                          backfaceVisibility: 'hidden',
+                          WebkitBackfaceVisibility: 'hidden',
+                          transform: 'rotateY(180deg)',
+                          transformStyle: 'preserve-3d',
+                          zIndex: 2,
+                          pointerEvents: 'none'
+                        }}
+                      >
+                        {card.type === 'image' ? (
+                          <img
+                            src={card.content}
+                            alt=""
+                            className="w-full h-full object-cover rounded-md"
+                          />
+                        ) : (
+                          <span className="text-sm md:text-base font-medium text-center">
+                            {card.content}
+                          </span>
+                        )}
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
                 );
               }
               
@@ -994,8 +1000,8 @@ function MemoryGame() {
                     <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-60">
                       <defs>
                         <pattern id="cardPattern" patternUnits="userSpaceOnUse" width="25" height="25" patternTransform="rotate(45)">
-                          <circle cx="5" cy="5" r="1.5" fill="#f6ad55" />
-                          <circle cx="15" cy="15" r="2" fill="#84a98c" />
+                          <circle cx="5" cy="5" r="1.5" fill="var(--text-sunset)" />
+                          <circle cx="15" cy="15" r="2" fill="var(--text-sage)" />
                         </pattern>
                       </defs>
                       <rect width="100%" height="100%" fill="url(#cardPattern)" />
@@ -1021,7 +1027,7 @@ function MemoryGame() {
                         className="w-full h-full object-cover rounded-md"
                       />
                     ) : (
-                      <span className="text-sm font-medium text-center">
+                      <span className="text-sm md:text-base font-medium text-center">
                         {card.content}
                       </span>
                     )}
@@ -1061,9 +1067,9 @@ function ProjectsPage() {
 
     return (
         <Page title={pageData.title}>
-            <Section title={pageData.title}>
+            <Section title={pageData.title}> 
                 <div 
-                    className="prose max-w-3xl mx-auto text-gray-700 
+                    className="prose max-w-3xl mx-auto text-text-main 
                                [&_h2]:text-2xl [&_h2]:font-mono [&_h2]:text-primary 
                                prose-li:[&_li::before]:bg-primary"
                     dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} 
@@ -1078,9 +1084,9 @@ function ProjectsPage() {
 function BiodiversityPage() {
     const { t } = useTranslation();
     return (
-        <Page title={t('navBiodiversity')}>
+        <Page title={t('navBiodiversity')}> 
             <Section title={t('biodiversityTitle')}> 
-                <p className="text-body-lg mb-8 text-gray-600 max-w-3xl mx-auto text-center">{t('biodiversityDesc')}</p>
+                <p className="text-body-lg mb-8 text-text-muted max-w-3xl mx-auto text-center">{t('biodiversityDesc')}</p>
                 <INaturalistFeed projectSlug="the-livada-biotope-monitoring" />
             </Section>
         </Page>
@@ -1090,9 +1096,9 @@ function BiodiversityPage() {
 function CalendarPage() {
     const { t } = useTranslation();
     return (
-        <Page title={t('navCalendar')}>
+        <Page title={t('navCalendar')}> 
             <Section title={t('calendarTitle')}> 
-                <p className="text-body-lg mb-8 text-gray-600 max-w-3xl mx-auto text-center">{t('calendarDesc')}</p>
+                <p className="text-body-lg mb-8 text-text-muted max-w-3xl mx-auto text-center">{t('calendarDesc')}</p>
                 <CalendarFeed icsUrl="https://calendar.google.com/calendar/ical/c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com/public/basic.ics"
                 calendarUrl="https://calendar.google.com/calendar/embed?src=c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com&ctz=Europe%2FBelgrade"/>
             </Section>
@@ -1121,8 +1127,10 @@ const renderMarkdown = (content) => {
   return enhanceHTML(html);
 };
 
-// Function to render Mermaid diagrams
-const renderMermaid = (container = document) => {
+// Function to render Mermaid diagrams within a given container
+const renderMermaid = (container) => {
+  if (!container) return;
+
   try {
     // First, handle mermaid placeholders
     const placeholders = container.querySelectorAll('.mermaid-placeholder');
@@ -1130,13 +1138,13 @@ const renderMermaid = (container = document) => {
       const diagram = decodeURIComponent(placeholder.getAttribute('data-diagram') || '');
       if (diagram) {
         const id = placeholder.id || `mermaid-${Math.random().toString(36).substring(2, 11)}`;
-        const container = document.createElement('div');
-        container.className = 'mermaid';
-        container.textContent = diagram;
-        container.id = id;
+        const div = document.createElement('div');
+        div.className = 'mermaid';
+        div.textContent = diagram;
+        div.id = id;
         
-        // Replace the placeholder with our container
-        placeholder.parentNode.replaceChild(container, placeholder);
+        // Replace the placeholder with our div
+        placeholder.parentNode.replaceChild(div, placeholder);
       }
     });
     
@@ -1145,36 +1153,25 @@ const renderMermaid = (container = document) => {
     mermaidElements.forEach((element) => {
       const graphDefinition = element.textContent;
       
-      // Create a container for the diagram
-      const container = document.createElement('div');
-      container.className = 'mermaid';
-      container.textContent = graphDefinition;
+      // Create a div for the diagram
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = graphDefinition;
       
-      // Replace the code block with our container
+      // Replace the code block with our div
       const parent = element.parentElement;
       if (parent) {
-        parent.parentNode.replaceChild(container, parent);
+        parent.parentNode.replaceChild(div, parent);
       }
     });
     
-    // Finally, initialize all mermaid diagrams
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: 'base',
-      securityLevel: 'loose',
-      themeVariables: {
-        primaryColor: '#4a7c59',
-        primaryTextColor: '#333',
-        primaryBorderColor: '#4a7c59',
-        lineColor: '#4a7c59',
-        secondaryColor: '#84a98c',
-        tertiaryColor: '#f8f9fa'
-      }
+    // Render all mermaid diagrams found in the container
+    mermaid.run({
+      nodes: container.querySelectorAll('.mermaid'),
     });
-    mermaid.initialize(undefined, container.querySelectorAll('.mermaid'));
     
   } catch (error) {
-    console.error('Error initializing Mermaid:', error);
+    console.error('Error rendering Mermaid diagrams:', error);
   }
 };
 
@@ -1208,7 +1205,7 @@ function ContentCollectionPage({ t, title, contentPath }) {
               const defaultFile = `${baseName}.sl.md`;
               let file = langFile;
               let res = await fetch(`/${contentPath}/${file}`);
-              if (!res.ok) { file = defaultFile; res = await fetch(`/${contentPath}/${file}`); }
+              if (!res.ok) { file = defaultFile; res = await fetch(`/${contentPath}/${file}`); } 
               if (!res.ok) return null;
   
               const text = await res.text();
@@ -1229,47 +1226,24 @@ function ContentCollectionPage({ t, title, contentPath }) {
       fetchContent();
     }, [contentPath, language]);
 
-    // Initialize Mermaid and render diagrams when items change
-    useEffect(() => {
-      // Initialize Mermaid with default config
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: 'base',
-        securityLevel: 'loose',
-        themeVariables: {
-          primaryColor: '#4a7c59',
-          primaryTextColor: '#333',
-          primaryBorderColor: '#4a7c59',
-          lineColor: '#4a7c59',
-          secondaryColor: '#84a98c',
-          tertiaryColor: '#f8f9fa'
-        }
-      });
-      
-      // Render Mermaid diagrams after a short delay to ensure DOM is ready
-      const timer = setTimeout(() => {
-        renderMermaid();
-      }, 100);
-      
-      return () => clearTimeout(timer);
-    }, [items, language]);
+// Removed Mermaid initialization and rendering useEffect from ContentCollectionPage
   
     if (isLoading) {
       return (
-        <Section title={title}>
-          <div className="text-body text-center text-gray-500">{t('loading')}…</div>
+        <Section title={title}> 
+          <div className="text-body text-center text-text-muted">{t('loading')}…</div>
         </Section>
       );
     }
   
     return (
-      <Page title={title}>
-        <Section title={title}>
+      <Page title={title}> 
+        <Section title={title}> 
           <div className="space-y-8 max-w-3xl mx-auto">
             {processedItems.length ? processedItems.map(item => (
               <div key={item.id} className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md">
                 {item.metadata.date && (
-                  <p className="text-accent text-sm text-gray-500 mb-1">
+                  <p className="text-accent text-sm text-text-muted mb-1">
                     {new Date(item.metadata.date).toLocaleDateString(language)}
                   </p>
                 )}
@@ -1281,18 +1255,7 @@ function ContentCollectionPage({ t, title, contentPath }) {
                   dangerouslySetInnerHTML={{ __html: item.processedContent }}
                   ref={node => {
                     if (!node) return;
-                    // Handle Mermaid diagrams
-                    node.querySelectorAll('.language-mermaid').forEach(pre => {
-                      const graph = pre.textContent;
-                      const id = 'mermaid-' + Math.random().toString(36).substr(2, 9);
-                      pre.parentNode.replaceChild(
-                        Object.assign(document.createElement('div'), { id, className: 'mermaid mb-4' }),
-                        pre
-                      );
-                      mermaid.render(id, graph).then(({ svg }) => {
-                        document.getElementById(id).innerHTML = svg;
-                      });
-                    });
+                    renderMermaid(node);
                   }}
                 />
   
@@ -1310,7 +1273,7 @@ function ContentCollectionPage({ t, title, contentPath }) {
                 )}
               </div>
             )) : (
-              <p className="text-center text-gray-500">{t('noMoreObservations')}</p>
+              <p className="text-center text-text-muted">{t('noMoreObservations')}</p>
             )}
           </div>
         </Section>
@@ -1344,7 +1307,7 @@ function GalleryPage() {
                         let fileToFetch = langFile;
                         let res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`);
                         
-                        if (!res.ok) { fileToFetch = defaultLangFile; res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`); }
+                        if (!res.ok) { fileToFetch = defaultLangFile; res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`); } 
                         if (!res.ok) return null;
 
                         const text = await res.text();
@@ -1415,9 +1378,11 @@ function GalleryPage() {
 
         window.addEventListener('keydown', handleKeyDown);
         document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchend', handleClickOutside); // Add touchend listener
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchend', handleClickOutside); // Clean up touchend listener
         };
     }, [selectedImage]);
 
@@ -1472,9 +1437,9 @@ function GalleryPage() {
 
     if (isLoading) {
         return (
-            <Page title={t('navGallery')}>
+            <Page title={t('navGallery')}> 
                 <Section title={t('navGallery')}> 
-                    <div className="text-body text-center py-10 text-gray-500">{t('loading')}...</div>
+                    <div className="text-body text-center py-10 text-text-muted">{t('loading')}...</div>
                 </Section>
             </Page>
         );
@@ -1482,16 +1447,16 @@ function GalleryPage() {
 
     if (!isLoading && galleries.length === 0) {
         return (
-            <Page title={t('navGallery')}>
+            <Page title={t('navGallery')}> 
                 <Section title={t('navGallery')}> 
-                    <p className="text-body text-center text-gray-500">{t('noGalleriesAvailable')}</p>
+                    <p className="text-body text-center text-text-muted">{t('noGalleriesAvailable')}</p>
                 </Section>
             </Page>
         );
     }
 
     return (
-        <Page title={t('navGallery')}>
+        <Page title={t('navGallery')}> 
             <Section title={t('navGallery')}> 
                 <div className="space-y-16">
                     {galleries.map((gallery) => (
@@ -1499,7 +1464,7 @@ function GalleryPage() {
                             <div className="text-center mb-8">
                                 <h3 className="text-3xl font-mono text-primary">{gallery.title}</h3>
                                 {gallery.date && (
-                                    <p className="text-sm text-gray-500 mt-1">
+                                    <p className="text-sm text-text-muted mt-1">
                                         {new Date(gallery.date).toLocaleDateString(language, {
                                             year: 'numeric',
                                             month: 'long',
@@ -1508,7 +1473,7 @@ function GalleryPage() {
                                     </p>
                                 )}
                                 {gallery.description && (
-                                    <p className="prose mt-2 max-w-2xl mx-auto text-gray-600">
+                                    <p className="prose mt-2 max-w-2xl mx-auto text-text-muted">
                                         {gallery.description}
                                     </p>
                                 )}
@@ -1553,12 +1518,12 @@ function GalleryPage() {
                                             {(caption || gallery.author) && (
                                                 <div className="p-3 text-sm">
                                                     {caption && (
-                                                        <p className="text-gray-700 line-clamp-2" title={caption}>
+                                                        <p className="text-text-main line-clamp-2" title={caption}>
                                                             {caption}
                                                         </p>
                                                     )}
                                                     {gallery.author && (
-                                                        <p className="text-xs text-gray-500 mt-1 flex items-center">
+                                                        <p className="text-xs text-text-muted mt-1 flex items-center">
                                                             <svg 
                                                                 xmlns="http://www.w3.org/2000/svg" 
                                                                 className="h-4 w-4 mr-1.5 opacity-70"
@@ -1590,7 +1555,8 @@ function GalleryPage() {
                 <AnimatePresence>
                     {selectedImage && (
                         <motion.div
-                            className="fixed inset-0 z-50 flex items-center justify-center p-4 cursor-zoom-out"
+                            ref={overlayRef}
+                            className="fixed inset-0 z-50 flex items-center justify-center p-8 cursor-zoom-out"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -1609,11 +1575,10 @@ function GalleryPage() {
                             />
 
                             <div 
-                                className="relative w-full h-full max-w-6xl max-h-[90vh] flex items-center justify-center"
-                                onClick={e => e.stopPropagation()}
+                                className="relative w-full h-full max-w-6xl max-h-[75vh] flex items-center justify-center"
                             >
                                 <motion.button
-                                    className="absolute -top-12 right-0 z-20 p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors focus:outline-none"
+                                    className="absolute top-4 right-4 z-20 p-4 rounded-full bg-primary/70 text-white hover:bg-primary transition-colors focus:outline-none"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         closeImage();
@@ -1627,7 +1592,7 @@ function GalleryPage() {
                                 >
                                     <svg 
                                         xmlns="http://www.w3.org/2000/svg" 
-                                        className="h-8 w-8"
+                                        className="h-12 w-12"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -1674,41 +1639,27 @@ function GalleryPage() {
                                     </svg>
                                 </motion.button>
 
-                                <motion.button
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-black/50 text-white hover:bg-white/20 transition-colors focus:outline-none"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        const newIndex = (selectedImage.imageIndex + 1) % 
-                                                      selectedImage.gallery.images.length;
-                                        setSelectedImage({...selectedImage, imageIndex: newIndex});
-                                    }}
-                                    aria-label={t('next')}
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    initial={{ x: 20, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    transition={{ delay: 0.1, duration: 0.2 }}
+                                {/* Close Instruction */}
+                                <motion.div
+                                    className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-1 rounded-full bg-black/50 text-white text-sm font-medium"
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3, duration: 0.2 }}
                                 >
-                                    <svg 
-                                        xmlns="http://www.w3.org/2000/svg" 
-                                        className="h-8 w-8"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        aria-hidden="true"
-                                    >
-                                        <path 
-                                            strokeLinecap="round" 
-                                            strokeLinejoin="round" 
-                                            strokeWidth={2} 
-                                            d="M9 5l7 7-7 7" 
-                                        />
-                                    </svg>
-                                </motion.button>
+                                    {t('tapOutsideToClose')}
+                                </motion.div>
+
+                                <div 
+                                className="relative w-full h-full max-w-6xl max-h-[75vh] flex items-center justify-center p-8"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                
+
+                                
 
                                 {/* Image Counter */}
                                 <motion.div
-                                    className="absolute -top-10 left-0 z-10 px-3 py-1 rounded-full bg-black/50 text-white text-sm font-medium"
+                                    className="absolute -top-10 left-0 z-10 px-3 py-1 rounded-full bg-primary-dark/50 text-white text-sm font-medium"
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.1, duration: 0.2 }}
@@ -1747,7 +1698,7 @@ function GalleryPage() {
 
                                     {/* Caption */}
                                     <motion.div
-                                        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-6 pt-12 text-white"
+                                        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary-dark/90 via-primary-dark/70 to-transparent p-6 pt-12 text-white"
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.2, duration: 0.3 }}
@@ -1779,6 +1730,7 @@ function GalleryPage() {
                                     </motion.div>
                                 </motion.div>
                             </div>
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -1790,7 +1742,7 @@ function GalleryPage() {
 function MemoryGamePage() {
     const { t } = useTranslation();
     return (
-      <Page title={t('navMemoryGame')}>
+      <Page title={t('navMemoryGame')}> 
         <Section title={t('memoryGameTitle')}> 
           <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
             <MemoryGame />
@@ -1840,11 +1792,11 @@ function HomePage() {
         <Page title={title}>
             <div style={{ minHeight: '60vh' }} className="flex flex-col items-center justify-center text-center p-4">
                 <h1 className="text-display-lg mb-4 animate-pulse">{heroTitle}</h1>
-                <p className="text-accent-lg text-gray-700 max-w-2xl">{heroSubtitle}</p>
+                <p className="text-accent-lg text-text-main max-w-2xl">{heroSubtitle}</p>
             </div>
             <div className="bg-gradient-to-t from-white/95 to-[#f7faf9]/95 backdrop-blur-sm rounded-t-3xl shadow-2xl -mt-16 pt-16 border-t border-white/50">
                  <div className="container mx-auto px-4 py-12">
-                     {isLoading ? ( <div className="text-center text-body-lg max-w-4xl mx-auto text-gray-500">{t('loading')}...</div> )
+                     {isLoading ? ( <div className="text-center text-body-lg max-w-4xl mx-auto text-text-muted">{t('loading')}...</div> ) 
                                : ( <div className="prose-organic max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} /> )}
                 </div>
             </div>
@@ -1856,6 +1808,22 @@ function HomePage() {
 function App() {
     const { t, setLanguage, language } = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    useEffect(() => {
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'base',
+            securityLevel: 'loose',
+            themeVariables: {
+                primaryColor: '#4a7c59',
+                primaryTextColor: '#1a1f1a',
+                primaryBorderColor: '#4a7c59',
+                lineColor: '#4a7c59',
+                secondaryColor: '#6aa87a',
+                tertiaryColor: '#e8f5e9'
+            }
+        });
+    }, []); // Empty dependency array means it runs once on mount
 
     const pages = [
         { path: '/', label: t('navHome'), element: <HomePage /> },
@@ -1880,20 +1848,20 @@ function App() {
                         {/* Desktop Menu */}
                         <div className="hidden md:flex flex-wrap gap-1">
                             {pages.map(page => (
-                                <NavLink key={page.path} to={page.path} className={({ isActive }) => `nav-text relative px-4 py-2 text-gray-700 transition-all duration-300 group text-interactive hover:transform hover:scale-105 ${isActive ? 'text-primary font-semibold' : 'hover:text-primary'}`}>
+                                <NavLink key={page.path} to={page.path} className={({ isActive }) => `nav-text relative px-4 py-2 text-text-main transition-all duration-300 group text-interactive hover:transform hover:scale-105 ${isActive ? 'text-primary font-semibold' : 'hover:text-primary'}`}>
                                     {({ isActive }) => (<> {page.label} <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-primary-light transform transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0'} group-hover:scale-x-100 rounded-full`}/> </>)}
                                 </NavLink>
                             ))}
                         </div>
                         
                         <div className="hidden md:flex items-center space-x-1">
-                            <button onClick={() => setLanguage('sl')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'sl' ? 'text-primary bg-primary/5 shadow-sm' : 'text-gray-500 hover:text-primary'}`}>SL</button>
-                            <button onClick={() => setLanguage('en')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'en' ? 'text-primary bg-primary/5 shadow-sm' : 'text-gray-500 hover:text-primary'}`}>EN</button>
+                            <button onClick={() => setLanguage('sl')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'sl' ? 'text-primary bg-primary/5 shadow-sm' : 'text-text-muted hover:text-primary'}`}>SL</button>
+                            <button onClick={() => setLanguage('en')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'en' ? 'text-primary bg-primary/5 shadow-sm' : 'text-text-muted hover:text-primary'}`}>EN</button>
                         </div>
 
                         {/* Mobile Menu Button */}
                         <div className="md:hidden flex items-center">
-                             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-700 hover:text-primary focus:outline-none">
+                             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-text-main hover:text-primary focus:outline-none">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}></path>
                                 </svg>
@@ -1906,13 +1874,13 @@ function App() {
                         <div className="md:hidden bg-white/95 backdrop-blur-md">
                             <div className="flex flex-col px-4 pt-2 pb-4 space-y-2">
                                 {pages.map(page => (
-                                    <NavLink key={page.path} to={page.path} onClick={() => setIsMenuOpen(false)} className={({ isActive }) => `nav-text block px-4 py-3 rounded-lg text-base transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-primary/10 to-primary-light/10 text-primary font-semibold border border-primary/20' : 'text-gray-700 hover:bg-gray-100/80 hover:text-primary'}`}>
+                                    <NavLink key={page.path} to={page.path} onClick={() => setIsMenuOpen(false)} className={({ isActive }) => `nav-text block px-4 py-3 rounded-lg text-base transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-primary/10 to-primary-light/10 text-primary font-semibold border border-primary/20' : 'text-text-muted hover:bg-bg-main/80 hover:text-primary'}`}>
                                         {page.label}
                                     </NavLink>
                                 ))}
-                                <div className="flex justify-center space-x-3 pt-4 border-t border-gray-200/50 mt-4">
-                                     <button onClick={() => { setLanguage('sl'); setIsMenuOpen(false); }} className={`text-accent px-4 py-2 font-semibold transition-all duration-300 rounded-lg ${language === 'sl' ? 'text-primary bg-primary/10 border border-primary/20' : 'text-gray-500 hover:text-primary hover:bg-gray-100/80'}`}>Slovenščina</button>
-                                     <button onClick={() => { setLanguage('en'); setIsMenuOpen(false); }} className={`text-accent px-4 py-2 font-semibold transition-all duration-300 rounded-lg ${language === 'en' ? 'text-primary bg-primary/10 border border-primary/20' : 'text-gray-500 hover:text-primary hover:bg-gray-100/80'}`}>English</button>
+                                <div className="flex justify-center space-x-3 pt-4 border-t border-border-color/50 mt-4">
+                                     <button onClick={() => { setLanguage('sl'); setIsMenuOpen(false); }} className={`text-accent px-4 py-2 font-semibold transition-all duration-300 rounded-lg ${language === 'sl' ? 'text-primary bg-primary/10 border border-primary/20' : 'text-text-muted hover:text-primary hover:bg-bg-main/80'}`}>Slovenščina</button>
+                                     <button onClick={() => { setLanguage('en'); setIsMenuOpen(false); }} className={`text-accent px-4 py-2 font-semibold transition-all duration-300 rounded-lg ${language === 'en' ? 'text-primary bg-primary/10 border border-primary/20' : 'text-text-muted hover:text-primary hover:bg-bg-main/80'}`}>English</button>
                                 </div>
                             </div>
                         </div>
@@ -1923,8 +1891,8 @@ function App() {
                         {pages.map(page => ( <Route key={page.path} path={page.path} element={page.element} /> ))}
                     </Routes>
                 </main>
-                <footer className="py-8 text-center bg-gradient-to-t from-gray-100/90 to-transparent backdrop-blur-sm border-t border-gray-200/30">
-                    <div className="container mx-auto text-body text-gray-600">{t('footerText')}</div>
+                <footer className="py-8 text-center bg-gradient-to-t from-bg-main/90 to-transparent backdrop-blur-sm border-t border-border-color/30">
+                    <div className="container mx-auto text-body text-text-muted">{t('footerText')}</div>
                 </footer>
             </div>
         </div>

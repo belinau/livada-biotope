@@ -10,18 +10,37 @@ module.exports = {
       extend: {
         // Ecofeminist Font Family System
         fontFamily: {
-          'display': ['Comfortaa', 'sans-serif'],
-          'body': ['Inter', 'sans-serif'],
-          'accent': ['Quicksand', 'sans-serif'],
-          'mono': ['JetBrains Mono', 'monospace'],
+          display: 'var(--font-display)',
+          body: 'var(--font-body)',
+          accent: 'var(--font-accent)',
+          mono: 'var(--font-mono)',
+        },
+        // Ecofeminist Typography System
+        fontSize: {
+          'xs': 'var(--text-xs)',
+          'sm': 'var(--text-sm)',
+          'base': 'var(--text-base)',
+          'lg': 'var(--text-lg)',
+          'xl': 'var(--text-xl)',
+          '2xl': 'var(--text-2xl)',
+          '3xl': 'var(--text-3xl)',
+          '4xl': 'var(--text-4xl)',
+          '5xl': 'var(--text-5xl)',
+          '6xl': 'var(--text-6xl)',
         },
         // Nature-inspired colors
         colors: {
-          'forest': '#2d5a3d',
-          'sage': '#87a96b',
-          'earth': '#8b7355',
-          'sky': '#5c7cfa',
-          'sunset': '#ff8787',
+          forest: 'var(--text-forest)',
+          sage: 'var(--text-sage)',
+          earth: 'var(--text-earth)',
+          sky: 'var(--text-sky)',
+          sunset: 'var(--text-sunset)',
+          primary: 'var(--primary)',
+          'primary-light': 'var(--primary-light)',
+          'primary-dark': 'var(--primary-dark)',
+          'bg-main': 'var(--bg-main)',
+          'text-main': 'var(--text-main)',
+          'text-muted': 'var(--text-muted)',
         },
         // Extend the default Tailwind typography styles
         typography: ({ theme }) => ({

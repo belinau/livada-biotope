@@ -74,11 +74,18 @@ const HistoricalSensorContent = () => {
         return 'every 7 days';
     }, [dateDiff]);
 
-    const nivoTheme = {
-        axis: { ticks: { text: { fill: '#333' } }, legend: { text: { fill: '#333', fontSize: 14 } } },
-        grid: { line: { stroke: '#e0e0e0', strokeDasharray: '2 2' } },
-        tooltip: { container: { background: 'white', color: '#333', border: '1px solid #ccc' } },
-    };
+    const nivoTheme = useMemo(() => {
+        if (typeof window === 'undefined') return {};
+        const style = getComputedStyle(document.documentElement);
+        return {
+            axis: {
+                ticks: { text: { fill: style.getPropertyValue('--text-muted') } },
+                legend: { text: { fill: style.getPropertyValue('--text-main'), fontSize: 'var(--text-sm)' } }
+            },
+            grid: { line: { stroke: style.getPropertyValue('--border-color'), strokeDasharray: '2 2' } },
+            tooltip: { container: { background: style.getPropertyValue('--bg-main'), color: style.getPropertyValue('--text-main'), border: `1px solid ${style.getPropertyValue('--border-color')}` } },
+        };
+    }, []);
 
     const CustomTooltip = ({ point }) => {
         const date = new Date(point.data.x);
@@ -87,13 +94,13 @@ const HistoricalSensorContent = () => {
             timeStyle: 'short',
         });
         return (
-            <div style={{ background: 'white', padding: '9px 12px', border: '1px solid #ccc', borderRadius: '2px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className="bg-bg-main p-3 border border-border-color rounded-sm shadow-lg">
+                <div className="flex items-center">
                     <span style={{ display: 'block', width: '12px', height: '12px', background: point.serieColor, marginRight: '8px' }}></span>
-                    <strong>{point.serieId}</strong>
+                    <strong className="text-text-main">{point.serieId}</strong>
                 </div>
-                <div>{formattedDate}</div>
-                <div>{`${point.data.yFormatted}`}</div>
+                <div className="text-text-muted">{formattedDate}</div>
+                <div className="text-text-main">{`${point.data.yFormatted}`}</div>
             </div>
         );
     };
@@ -242,7 +249,7 @@ const HistoricalSensorContent = () => {
                                         itemWidth: 140,
                                         itemHeight: 20,
                                         symbolSize: 14,
-                                        itemTextColor: '#333'
+                                        itemTextColor: 'var(--text-main)'
                                     }]}
                                 />
                             ) : (
@@ -282,7 +289,7 @@ const HistoricalSensorContent = () => {
                                         itemWidth: 140,
                                         itemHeight: 20,
                                         symbolSize: 14,
-                                        itemTextColor: '#333'
+                                        itemTextColor: 'var(--text-main)'
                                     }]}
                                 />
                             ) : (
