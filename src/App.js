@@ -722,8 +722,6 @@ const INaturalistFeed = ({ projectSlug }) => {
                     )
                 })}
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-            </div>
             <div className="text-center mt-8">
                 {canLoadMore && (
                     <button onClick={handleLoadMore} disabled={isLoading} className="bg-primary/90 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-primary transition-colors disabled:bg-text-muted">
