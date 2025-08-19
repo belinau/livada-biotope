@@ -710,10 +710,10 @@ const INaturalistFeed = ({ projectSlug }) => {
                                     />
                                 </div>
                                 <div className="flex-1 px-3">
-                                    <h3 className="font-semibold text-base text-slate-800 mb-2 line-clamp-2 transition-transform duration-700 group-hover/pin:translate-z-[50px]" title={displayName}>
+                                    <h3 className="font-semibold text-base text-slate-800 mb-2 line-clamp-2 transition-all duration-700 group-hover/pin:translate-z-[50px] group-hover/pin:opacity-0" title={displayName}>
                                         {displayName}
                                     </h3>
-                                    <p className="text-sm text-slate-600 mb-1 transition-transform duration-700 group-hover/pin:translate-z-[25px]">
+                                    <p className="text-sm text-slate-600 mb-1 transition-all duration-700 group-hover/pin:translate-z-[25px] group-hover/pin:opacity-0">
                                         {new Date(obs.observed_on_string).toLocaleDateString(language)}
                                     </p>
                                 </div>
