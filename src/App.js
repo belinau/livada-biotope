@@ -701,7 +701,7 @@ const INaturalistFeed = ({ projectSlug }) => {
                                     <img
                                         src={imageUrl}
                                         alt={displayName}
-                                        className="w-full h-full object-cover transition-all duration-700 ease-out group-hover/pin:scale-110 group-hover/pin:rotate-2 group-hover/pin:-translate-x-1 group-hover/pin:-translate-y-2 group-hover/pin:shadow-2xl rounded-lg"
+                                        className={`w-full h-full object-cover transition-all duration-700 ease-out group-hover/pin:scale-110 ${rotateClass} ${translateClass} group-hover/pin:shadow-2xl rounded-lg`}
                                         loading="lazy"
                                         onError={(e) => {
                                             e.target.onerror = null;
