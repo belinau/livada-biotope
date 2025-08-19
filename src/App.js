@@ -691,23 +691,28 @@ const INaturalistFeed = ({ projectSlug }) => {
                             onMouseEnter={() => handleMouseEnter(obs)}
                             onMouseLeave={handleMouseLeave}
                         >
-                            <div className="flex flex-col p-4 tracking-tight text-slate-100/50 w-full h-full">
-                                <div className="relative flex-grow rounded-lg overflow-hidden"> {/* Removed pb-[100%], added flex-grow */}
-                                    <img 
-                                        src={imageUrl} 
-                                        alt={displayName} 
-                                        className="absolute inset-0 w-full h-full object-cover" 
-                                        loading="lazy" 
-                                        onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/500x500/2d3748/a0aec0?text=Ni+slike`; }}
+                            <div className="flex flex-col w-[200px] h-[220px]">
+                                <div className="relative w-full h-[140px] rounded-lg overflow-hidden mb-3">
+                                    <img
+                                        src={imageUrl}
+                                        alt={displayName}
+                                        className="w-full h-full object-cover"
+                                        loading="lazy"
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = `https://placehold.co/500x500/2d3748/a0aec0?text=No+Image`;
+                                        }}
                                     />
                                 </div>
-                                <div className="p-3">
-                                    <h3 className="font-semibold text-sm text-primary truncate" title={displayName}>{displayName}</h3>
-                                    <p className="text-xs text-text-muted">
+                                <div className="flex-1 px-1">
+                                    <h3 className="font-semibold text-sm text-primary mb-1 line-clamp-2" title={displayName}>
+                                        {displayName}
+                                    </h3>
+                                    <p className="text-xs text-text-muted mb-1">
                                         {new Date(obs.observed_on_string).toLocaleDateString(language)}
                                     </p>
                                     {description && (
-                                        <p className="text-xs text-text-muted mt-2 line-clamp-3">
+                                        <p className="text-xs text-text-muted line-clamp-2 leading-tight">
                                             {description}
                                         </p>
                                     )}
