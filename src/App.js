@@ -698,6 +698,8 @@ const INaturalistFeed = ({ projectSlug }) => {
                         >
                             <div className="flex flex-col w-[240px] h-[200px] group-hover/pin:preserve-3d relative overflow-hidden group-hover/pin:overflow-visible group-hover/pin:z-40">
                                 <div className="relative w-full h-[140px] rounded-lg overflow-hidden mb-3 group-hover/pin:overflow-visible transition-all duration-700 ease-out group-hover/pin:translate-z-[200px] group-hover/pin:-translate-y-16 group-hover/pin:scale-[2.5] group-hover/pin:z-50">
+                                    {/* Backdrop effect */}
+                                    <div className="absolute inset-0 opacity-0 group-hover/pin:opacity-100 transition-opacity duration-700 ease-out group-hover/pin:fixed group-hover/pin:top-0 group-hover/pin:left-0 group-hover/pin:w-screen group-hover/pin:h-screen group-hover/pin:bg-black/20 group-hover/pin:backdrop-blur-sm group-hover/pin:z-30 pointer-events-none"></div>
                                     <img
                                         src={imageUrl}
                                         alt={displayName}
