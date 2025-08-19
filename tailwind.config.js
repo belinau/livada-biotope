@@ -127,6 +127,31 @@ module.exports = {
             },
           },
         }),
+        animation: {
+          "comet-lightspeed-sm": "comet-lightspeed-sm 1s linear infinite",
+          "comet-lightspeed-md": "comet-lightspeed-md 1s linear infinite",
+          "comet-lightspeed-lg": "comet-lightspeed-lg 1s linear infinite",
+        },
+        keyframes: {
+          "comet-lightspeed-sm": {
+            "0%": { transform: "translate(0, -100px)", opacity: "0" },
+            "10%": { transform: "translate(100px, -90px)", opacity: "1" },
+            "90%": { transform: "translate(900px, 90px)", opacity: "1" },
+            "100%": { transform: "translate(1000px, 100px)", opacity: "0" },
+          },
+          "comet-lightspeed-md": {
+            "0%": { transform: "translate(0, -100px)", opacity: "0" },
+            "10%": { transform: "translate(200px, -80px)", opacity: "1" },
+            "90%": { transform: "translate(1800px, 160px)", opacity: "1" },
+            "100%": { transform: "translate(2000px, 200px)", opacity: "0" },
+          },
+          "comet-lightspeed-lg": {
+            "0%": { transform: "translate(0, -200px)", opacity: "0" },
+            "10%": { transform: "translate(400px, -160px)", opacity: "1" },
+            "90%": { transform: "translate(3600px, 320px)", opacity: "1" },
+            "100%": { transform: "translate(4000px, 400px)", opacity: "0" },
+          },
+        },
       },
     },
     plugins: [

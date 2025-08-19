@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, createContext, useContext, useCallback, useRef } from 'react';
-import { BrowserRouter, Routes, Route, NavLink, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, NavLink, Link, useLocation } from 'react-router-dom';
 
 import { ResponsiveLine } from '@nivo/line';
 import { marked } from 'marked';
@@ -9,7 +9,7 @@ import mermaid from 'mermaid';
 import HistoricalSensorVisualization from './components/HistoricalSensorVisualization';
 import LivadaAPIClient from './shared/api-client';
 import { transformApiData } from './shared/sensor-utils';
-import ObservationOverlay from './components/ObservationOverlay';
+import { PinContainer } from './components/ui/3d-pin';
 
 // --- Config and Helper Functions ---
 /**
@@ -315,10 +315,15 @@ const MetricCard = ({ label, value, unit = '', decimals = 0 }) => {
     const isValid = typeof value === 'number' && !isNaN(value);
     const displayValue = isValid ? value.toFixed(decimals) : '--';
     return (
-        <div className="bg-bg-main/70 p-3 rounded-md text-center">
+        <motion.div
+            className="bg-bg-main/70 p-3 rounded-md text-center"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+        >
             <div className="text-display text-2xl text-primary">{displayValue}<span className="text-accent text-base text-text-muted ml-1">{unit}</span></div>
             <div className="text-accent text-xs text-text-muted uppercase tracking-wider">{label}</div>
-        </div>
+        </motion.div>
     );
 };
 const BedCard = ({ bed, reading, t }) => {
@@ -673,44 +678,46 @@ const INaturalistFeed = ({ projectSlug }) => {
                         displayName = displayName.toLowerCase();
                     }
                     const imageUrl = obs.photos[0]?.url.replace('square', 'large');
+                    const observationUrl = obs.uri;
+
+                    const currentObservationData = hoveredObservation && hoveredObservation.id === obs.id ? hoveredObservation : obs;
+                    const description = currentObservationData[language]?.description;
 
                     return (
-                        <motion.div 
-                            key={obs.id} 
-                            className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden group block relative"
+                        <PinContainer
+                            key={obs.id}
+                            title={displayName}
+                            href={observationUrl}
                             onMouseEnter={() => handleMouseEnter(obs)}
                             onMouseLeave={handleMouseLeave}
-                            whileHover={{
-                                scale: 1.02,
-                                transition: { type: 'spring', stiffness: 400, damping: 10 }
-                            }}
-                            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                         >
-                            <div className="relative pb-[100%]">
-                                <img 
-                                    src={imageUrl} 
-                                    alt={displayName} 
-                                    className="absolute inset-0 w-full h-full object-cover" 
-                                    loading="lazy" 
-                                    onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/500x500/2d3748/a0aec0?text=Ni+slike`; }}
-                                />
+                            <div className="flex flex-col p-4 tracking-tight text-slate-100/50 w-full h-full">
+                                <div className="relative flex-grow rounded-lg overflow-hidden"> {/* Removed pb-[100%], added flex-grow */}
+                                    <img 
+                                        src={imageUrl} 
+                                        alt={displayName} 
+                                        className="absolute inset-0 w-full h-full object-cover" 
+                                        loading="lazy" 
+                                        onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/500x500/2d3748/a0aec0?text=Ni+slike`; }}
+                                    />
+                                </div>
+                                <div className="p-3">
+                                    <h3 className="font-semibold text-sm text-primary truncate" title={displayName}>{displayName}</h3>
+                                    <p className="text-xs text-text-muted">
+                                        {new Date(obs.observed_on_string).toLocaleDateString(language)}
+                                    </p>
+                                    {description && (
+                                        <p className="text-xs text-text-muted mt-2 line-clamp-3">
+                                            {description}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
-                            <div className="p-3">
-                                <h3 className="font-semibold text-sm text-primary truncate" title={displayName}>{displayName}</h3>
-                                <p className="text-xs text-text-muted">
-                                    {new Date(obs.observed_on_string).toLocaleDateString(language)}
-                                </p>
-                            </div>
-                            {hoveredObservation && hoveredObservation.id === obs.id && (
-                                <ObservationOverlay
-                                    observation={hoveredObservation}
-                                    description={hoveredObservation[language]?.description}
-                                    lang={language}
-                                />
-                            )}
-                        </motion.div>
+                        </PinContainer>
                     )
                 })}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             </div>
             <div className="text-center mt-8">
                 {canLoadMore && (
@@ -1885,6 +1892,7 @@ function HomePage() {
 function App() {
     const { t, setLanguage, language } = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const location = useLocation();
 
     useEffect(() => {
         mermaid.initialize({
@@ -1925,9 +1933,11 @@ function App() {
                         {/* Desktop Menu */}
                         <div className="hidden md:flex flex-wrap gap-1">
                             {pages.map(page => (
-                                <NavLink key={page.path} to={page.path} className={({ isActive }) => `nav-text relative px-4 py-2 text-text-main transition-all duration-300 group text-interactive hover:transform hover:scale-105 ${isActive ? 'text-primary font-semibold' : 'hover:text-primary'}`}>
-                                    {({ isActive }) => (<> {page.label} <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-primary-light transform transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0'} group-hover:scale-x-100 rounded-full`}/> </>)}
-                                </NavLink>
+                                <motion.div key={page.path} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                    <NavLink to={page.path} className={({ isActive }) => `nav-text relative px-4 py-2 text-text-main transition-all duration-300 group text-interactive ${isActive ? 'text-primary font-semibold' : 'hover:text-primary'}`}>
+                                        {({ isActive }) => (<> {page.label} <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-primary-light transform transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0'} group-hover:scale-x-100 rounded-full`}/> </>)}
+                                    </NavLink>
+                                </motion.div>
                             ))}
                         </div>
                         
@@ -1964,9 +1974,19 @@ function App() {
                     )}
                 </header>
                 <main className="flex-grow">
-                    <Routes>
-                        {pages.map(page => ( <Route key={page.path} path={page.path} element={page.element} /> ))}
-                    </Routes>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={location.pathname}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <Routes location={location}>
+                                {pages.map(page => ( <Route key={page.path} path={page.path} element={page.element} /> ))}
+                            </Routes>
+                        </motion.div>
+                    </AnimatePresence>
                 </main>
                 <footer className="py-8 text-center bg-gradient-to-t from-bg-main/90 to-transparent backdrop-blur-sm border-t border-border-color/30">
                     <div className="container mx-auto text-body text-text-muted">{t('footerText')}</div>
