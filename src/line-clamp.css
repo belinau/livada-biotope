@@ -12,3 +12,8 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Custom scale utility */
+.scale-130 {
+  transform: scale(1.3);
+}
