@@ -739,13 +739,13 @@ const INaturalistFeed = ({ projectSlug }) => {
                                                     href={observationUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="w-6 h-6 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
+                                                    className="w-7 h-7 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
                                                     title={`${language === 'sl' ? 'Odpri v iNaturalist' : 'Open in iNaturalist'}`}
                                                 >
                                                     <img
                                                         src="https://www.inaturalist.org/favicon.ico"
                                                         alt="iNaturalist"
-                                                        className="w-3 h-3"
+                                                        className="w-3.5 h-3.5"
                                                         onError={(e) => {
                                                             e.target.style.display = 'none';
                                                             e.target.nextSibling.style.display = 'block';
