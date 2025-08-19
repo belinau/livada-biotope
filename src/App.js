@@ -71,7 +71,7 @@ const BED_MAPPING = {
     '!04c5ad60-1': { name: 'cvetlice za opraševalce', color: 'var(--border-color)' },
 
     '!76208ba5-0': { name: 'majaron in melisa', color: 'var(--text-sage)' },
-    '!76208ba5-1': { name: 'tolščak in slezenovec', color: 'var(--primary-dark)' },
+    '!76208ba5-1': { name: 'tolš��ak in slezenovec', color: 'var(--primary-dark)' },
 };
 
 const parseMarkdown = (rawContent) => {
@@ -723,7 +723,7 @@ const INaturalistFeed = ({ projectSlug }) => {
                                             <p className="text-sm leading-relaxed line-clamp-3 text-white font-medium flex-1 pr-3 transform translate-y-3 group-hover/pin:translate-y-0 transition-all duration-400 delay-150 ease-out" style={{textShadow: '1px 1px 2px rgba(0,0,0,0.8)'}}>
                                                 {description}
                                             </p>
-                                            <div className="flex gap-1.5 transform translate-y-2 group-hover/pin:translate-y-0 transition-all duration-300 delay-200 ease-out">
+                                            <div className="flex gap-2 transform translate-y-3 group-hover/pin:translate-y-0 transition-all duration-400 delay-250 ease-out">
                                                 <a
                                                     href={`https://${language}.wikipedia.org/wiki/${encodeURIComponent(obs.taxon?.name?.replace(/ /g, '_') || '')}`}
                                                     target="_blank"
