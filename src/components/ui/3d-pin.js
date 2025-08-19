@@ -16,11 +16,13 @@ export const PinContainer = ({
     "translate(-50%,-50%) rotateX(0deg) scale(1)"
   );
 
-  const onMouseEnter = () => {
+  const handleMouseEnter = () => {
     setTransform("translate(-50%,-50%) rotateX(40deg) scale(1.05)");
+    if (externalOnMouseEnter) externalOnMouseEnter();
   };
-  const onMouseLeave = () => {
+  const handleMouseLeave = () => {
     setTransform("translate(-50%,-50%) rotateX(0deg) scale(1)");
+    if (externalOnMouseLeave) externalOnMouseLeave();
   };
 
   return (
