@@ -751,7 +751,7 @@ const INaturalistFeed = ({ projectSlug }) => {
                                                             e.target.nextSibling.style.display = 'block';
                                                         }}
                                                     />
-                                                    <svg className="w-3 h-3 text-white hidden" fill="currentColor" viewBox="0 0 24 24">
+                                                    <svg className="w-3.5 h-3.5 text-white hidden" fill="currentColor" viewBox="0 0 24 24">
                                                         <path d="M18.75 12c0 .7-.1 1.4-.4 2l1.8 1.8c.6-1.2 1-2.5 1-3.8 0-4.4-3.6-8-8-8s-8 3.6-8 8 3.6 8 8 8c1.3 0 2.6-.4 3.8-1l-1.8-1.8c-.6.3-1.3.4-2 .4-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6z"/>
                                                         <path d="M12 7c-2.8 0-5 2.2-5 5s2.2 5 5 5c1.1 0 2.1-.3 2.9-.9l-2.1-2.1c-.3.1-.5.1-.8.1-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3c0 .3 0 .5-.1.8l2.1 2.1c.6-.8.9-1.8.9-2.9 0-2.8-2.2-5-5-5z"/>
                                                     </svg>
