@@ -43,7 +43,7 @@ export const PinContainer = ({
           }}
           className="absolute left-1/2 p-4 top-1/2  flex justify-start items-start  rounded-2xl  shadow-[0_8px_16px_rgb(0_0_0/0.4)] bg-bg-main/80 backdrop-blur-sm border border-white/[0.1] group-hover/pin:border-white/[0.2] transition duration-700 overflow-hidden group-hover/pin:preserve-3d"
         >
-          <div className={cn(" relative z-50 ", className)}>{children}</div>
+          <div className={cn(" relative z-50 group-hover/pin:preserve-3d", className)}>{children}</div>
         </div>
       </div>
       <PinPerspective title={title} href={href} />
