@@ -713,8 +713,8 @@ const INaturalistFeed = ({ projectSlug }) => {
                                     </p>
                                 </div>
                                 {description && (
-                                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary-dark/95 to-primary/90 backdrop-blur-sm text-white p-4 transform translate-y-full group-hover/pin:translate-y-0 transition-all duration-500 ease-out rounded-b-lg shadow-lg border-t border-primary-light/30">
-                                        <p className="text-sm leading-relaxed line-clamp-4 opacity-0 group-hover/pin:opacity-100 transition-opacity duration-300 delay-200 text-bg-main">
+                                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary-dark/95 to-primary/90 backdrop-blur-sm p-4 transform translate-y-full scale-95 opacity-0 group-hover/pin:translate-y-0 group-hover/pin:scale-100 group-hover/pin:opacity-100 transition-all duration-600 ease-out rounded-b-lg shadow-lg border-t border-primary-light/30">
+                                        <p className="text-sm leading-relaxed line-clamp-4 text-white transform translate-y-4 group-hover/pin:translate-y-0 transition-all duration-400 delay-100 ease-out">
                                             {description}
                                         </p>
                                     </div>
