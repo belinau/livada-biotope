@@ -233,7 +233,7 @@ const translations = {
         close: 'Zapri',
         previous: 'Prejšnja',
         next: 'Naslednja',
-        memoryGameDescription: 'V igri Spomin so uporabljeni posnetki, zbrani med rednimi monitoringi v Biotopu Livada, celotno zbirko lahko pogledaš na odseku Biodiverziteta. Če bi v igri rad_a videl_a tudi tvoje fotografije, se nam lahko pridružiš na monitoringu na Livadi in prispevaš svoja opažanja preko platforme iNaturalist. Vsa opažanja na tej mikrolokaciji (opremljena z geokoordinatami LivadaLAB ali bližnje okolice) se samodejno vpi��ejo v naš namenski projekt na omenjeni plaformi.',
+        memoryGameDescription: 'V igri Spomin so uporabljeni posnetki, zbrani med rednimi monitoringi v Biotopu Livada, celotno zbirko lahko pogledaš na odseku Biodiverziteta. Če bi v igri rad_a videl_a tudi tvoje fotografije, se nam lahko pridružiš na monitoringu na Livadi in prispevaš svoja opažanja preko platforme iNaturalist. Vsa opažanja na tej mikrolokaciji (opremljena z geokoordinatami LivadaLAB ali bližnje okolice) se samodejno vpišejo v naš namenski projekt na omenjeni plaformi.',
         congratulations: 'Čestitamo!',
         yourScore: 'Tvoj rezultat:',
         enterName: 'Vpiši ime za lestvico:',
@@ -692,7 +692,7 @@ const INaturalistFeed = ({ projectSlug }) => {
                             onMouseLeave={handleMouseLeave}
                         >
                             <div className="flex flex-col w-[180px] h-[200px]">
-                                <div className="relative w-full h-[140px] rounded-lg overflow-hidden mb-3">
+                                <div className="relative w-full h-[120px] rounded-lg overflow-hidden mb-2">
                                     <img
                                         src={imageUrl}
                                         alt={displayName}
