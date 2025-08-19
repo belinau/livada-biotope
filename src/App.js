@@ -71,7 +71,7 @@ const BED_MAPPING = {
     '!04c5ad60-1': { name: 'cvetlice za opraševalce', color: 'var(--border-color)' },
 
     '!76208ba5-0': { name: 'majaron in melisa', color: 'var(--text-sage)' },
-    '!76208ba5-1': { name: 'tolš��ak in slezenovec', color: 'var(--primary-dark)' },
+    '!76208ba5-1': { name: 'tolščak in slezenovec', color: 'var(--primary-dark)' },
 };
 
 const parseMarkdown = (rawContent) => {
@@ -728,10 +728,10 @@ const INaturalistFeed = ({ projectSlug }) => {
                                                     href={`https://${language}.wikipedia.org/wiki/${encodeURIComponent(obs.taxon?.name?.replace(/ /g, '_') || '')}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="w-6 h-6 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
+                                                    className="w-7 h-7 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
                                                     title={`${language === 'sl' ? 'Odpri v Wikipediji' : 'Open in Wikipedia'}`}
                                                 >
-                                                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                    <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24">
                                                         <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.624 5.367 11.99 11.988 11.99s11.99-5.366 11.99-11.99C24.007 5.367 18.641.001 12.017.001zM1.522 12.263h4.34c.022 1.739.112 3.43.267 5.046h-3.3c-.835-1.539-1.29-3.273-1.307-5.046zm.178-1.05c.017-1.773.472-3.507 1.307-5.046h3.3c-.155 1.616-.245 3.307-.267 5.046H1.7zM11.267 2.047c-.483.72-.908 1.717-1.25 2.922-.396 1.397-.681 2.938-.83 4.544H6.328c.485-3.425 2.539-6.337 5.939-7.466zM5.328 10.56H8.187c.149 1.606.434 3.147.83 4.544.342 1.205.767 2.202 1.25 2.922-3.4-1.129-5.454-4.041-5.939-7.466zm.178 8.558h3.3c.845 1.539 1.8 2.732 2.789 3.466-2.506-.577-4.734-1.957-6.089-3.466zm5.961 3.427c-.989-.734-1.944-1.927-2.789-3.466h5.578c-.845 1.539-1.8 2.732-2.789 3.466zm4.042-4.515H12.75c-.396-1.397-.681-2.938-.83-4.544H15.509c-.149 1.606-.434 3.147-.83 4.544z"/>
                                                     </svg>
                                                 </a>
