@@ -31,8 +31,8 @@ export const PinContainer = ({
         "relative group/pin z-50 cursor-pointer h-[240px] w-[260px]",
         containerClassName
       )}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div
         style={{
