@@ -704,15 +704,15 @@ const INaturalistFeed = ({ projectSlug }) => {
                                         }}
                                     />
                                 </div>
-                                <div className="flex-1 px-2">
-                                    <h3 className="font-semibold text-sm text-slate-800 mb-1 line-clamp-1" title={displayName}>
+                                <div className="flex-1 px-3">
+                                    <h3 className="font-semibold text-base text-slate-800 mb-2 line-clamp-2" title={displayName}>
                                         {displayName}
                                     </h3>
-                                    <p className="text-xs text-slate-600 mb-1">
+                                    <p className="text-sm text-slate-600 mb-1">
                                         {new Date(obs.observed_on_string).toLocaleDateString(language)}
                                     </p>
                                     {description && (
-                                        <p className="text-xs text-slate-600 line-clamp-1 leading-tight">
+                                        <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">
                                             {description}
                                         </p>
                                     )}
