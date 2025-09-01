@@ -7,7 +7,7 @@ const path = require('path');
 const contentDirectories = [
   'public/content/posts',
   'public/content/practices',
-  'public/content/galleries' // Corrected from 'gallery' to 'galleries'
+  'public/content/galleries'
 ];
 
 console.log('Generating content manifests...');
@@ -48,5 +48,46 @@ contentDirectories.forEach(dir => {
     fs.writeFileSync(manifestPath, JSON.stringify({ files: [] }, null, 2));
   }
 });
+
+// --- New section for images manifest ---
+const uploadsDir = path.join(process.cwd(), 'public', 'images', 'uploads');
+const uploadsManifestPath = path.join(uploadsDir, 'manifest.json');
+
+console.log('Generating images manifest...');
+
+if (!fs.existsSync(uploadsDir)) {
+  console.log(`Uploads directory ${uploadsDir} not found, creating it.`);
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+try {
+  const files = fs.readdirSync(uploadsDir);
+  const imageFiles = files.filter(file => {
+    const ext = path.extname(file).toLowerCase();
+    return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+  });
+
+  const imagesWithStats = imageFiles.map(file => {
+    const filePath = path.join(uploadsDir, file);
+    const stats = fs.statSync(filePath);
+    return {
+      name: file,
+      mtime: stats.mtime.getTime() // Get timestamp for sorting
+    };
+  });
+
+  imagesWithStats.sort((a, b) => b.mtime - a.mtime); // Newest first
+
+  const imageManifest = {
+    files: imagesWithStats.map(img => `/images/uploads/${img.name}`)
+  };
+
+  fs.writeFileSync(uploadsManifestPath, JSON.stringify(imageManifest, null, 2));
+  console.log(`Successfully generated images manifest with ${imageManifest.files.length} items.`);
+
+} catch (error) {
+  console.error('Error generating images manifest:', error);
+  fs.writeFileSync(uploadsManifestPath, JSON.stringify({ files: [] }, null, 2));
+}
 
 console.log('Manifest generation complete.');
