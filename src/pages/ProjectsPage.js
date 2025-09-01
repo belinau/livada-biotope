@@ -8,6 +8,7 @@ import Page from '../components/layout/Page';
 import Section from '../components/layout/Section';
 import RecentSensorChart from '../components/RecentSensorChart';
 import HistoricalSensorVisualization from '../components/HistoricalSensorVisualization';
+import JoinHero from '../components/JoinHero';
 
 const limit = pLimit(2);
 
@@ -68,11 +69,18 @@ function ProjectsPage() {
                                prose-li:[&_li::before]:bg-primary"
                     dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked(pageData.content || '')) }} 
                 />
-                <div className="max-w-3xl mx-auto">
-                    <RecentSensorChart />
-                    <HistoricalSensorVisualization />
+                <div className="max-w-3xl mx-auto space-y-8">
+                    <div className="relative p-4 sm:p-6 rounded-2xl shadow-2xl overflow-hidden border border-[var(--glass-border)] bg-gradient-to-br from-[var(--glass-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm">
+                        <RecentSensorChart />
+                    </div>
+                    <div className="relative p-4 sm:p-6 rounded-2xl shadow-2xl overflow-hidden border border-[var(--glass-border)] bg-gradient-to-br from-[var(--glass-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm">
+                        <HistoricalSensorVisualization />
+                    </div>
                 </div>
             </Section>
+            <div className="w-full mt-8">
+                <JoinHero language={language} />
+            </div>
         </Page>
     );
 }

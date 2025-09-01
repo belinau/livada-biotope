@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ResponsiveLine } from '@nivo/line';
-import { motion } from 'framer-motion';
 import { useTranslation } from '../context/LanguageContext';
 import { useSensorData } from '../context/SensorContext';
+import BedCard from './BedCard';
+import { GlassCard } from './ui/GlassCard';
 
 const BED_MAPPING = {
     '!35c2d45c-0': { name: 'travni sestoj', color: 'var(--primary)' },
@@ -15,65 +16,15 @@ const BED_MAPPING = {
     '!76208ba5-1': { name: 'tolščak in slezenovec', color: 'var(--primary-dark)' },
 };
 
-const MetricCard = ({ label, value, unit = '', decimals = 0 }) => {
-    const isValid = typeof value === 'number' && !isNaN(value);
-    const displayValue = isValid ? value.toFixed(decimals) : '--';
-    return (
-        <motion.div
-            className="bg-bg-main/70 p-3 rounded-md text-center"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-        >
-            <div className="text-display text-2xl text-primary">{displayValue}<span className="text-accent text-base text-text-muted ml-1">{unit}</span></div>
-            <div className="text-accent text-xs text-text-muted uppercase tracking-wider">{label}</div>
-        </motion.div>
-    );
-};
 
-const BedCard = ({ bed, reading, t }) => {
-    const lastHeard = reading ? new Date(reading.timestamp) : null;
-    return (
-        <div className="group bg-white/90 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col border border-border-color/50 hover:border-border-color/60">
-            <div className="p-4 flex justify-between items-center bg-gradient-to-r" style={{ background: `linear-gradient(135deg, ${bed.color}, ${bed.color}dd)`, color: 'white' }}>
-                <h4 className="heading-organic text-lg group-hover:scale-105 transition-transform duration-200">{bed.name}</h4>
-                <div className="w-3 h-3 rounded-full bg-white/30 group-hover:bg-white/50 transition-colors duration-200"></div>
-            </div>
-            <div className="p-5 space-y-4 flex-grow bg-gradient-to-b from-white/5 to-transparent">
-                {reading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <MetricCard label={t('soilMoisture')} value={reading.moisture} unit="%" decimals={1} />
-                        <MetricCard label={t('soilTemp')} value={reading.temperature} unit="°C" decimals={1} />
-                    </div>
-                ) : (
-                    <div className="flex items-center justify-center h-24 text-text-muted bg-bg-main/50 rounded-lg border-2 border-dashed border-border-color">
-                        <div className="text-center">
-                            <div className="text-2xl mb-2">📊</div>
-                            <div className="text-accent text-sm">{t('noSensorData')}</div>
-                        </div>
-                    </div>
-                )}
-            </div>
-            {lastHeard && (
-                <div className="bg-bg-main/80 backdrop-blur-sm p-3 text-xs text-text-muted flex justify-between items-center border-t border-border-color/50">
-                    <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-primary-light animate-pulse"></div>
-                        <span className="text-accent font-medium">Live</span>
-                    </div>
-                    <span className="text-accent">{t('lastUpdated')}: {lastHeard.toLocaleString(t.language)}</span>
-                </div>
-            )}
-        </div>
-    );
-};
 
 export const ChartWrapper = ({ title, children }) => (
-    <div className="bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-lg border border-border-color/50 flex flex-col min-h-[400px] hover:shadow-xl transition-shadow duration-300">
+    <GlassCard className="flex flex-col min-h-[400px]" padding="p-4 sm:p-6" rounded="xl">
         <div className="flex items-center justify-center mb-4">
             <h4 className="heading-playful text-lg text-center px-4 py-2 bg-gradient-to-r from-bg-main to-bg-main rounded-full border border-border-color shadow-sm">{title}</h4>
         </div>
         <div className="flex-grow relative overflow-hidden">{children}</div>
-    </div>
+    </GlassCard>
 );
 
 function RecentSensorChart() {
@@ -157,7 +108,7 @@ function RecentSensorChart() {
     };
     
     return (
-        <div className="relative p-4 sm:p-8 rounded-2xl shadow-2xl overflow-hidden border border-[var(--glass-border)] bg-gradient-to-br from-[var(--glass-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm">
+        <div className="relative">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-gradient-to-br from-primary to-primary-dark rounded-xl shadow-lg">

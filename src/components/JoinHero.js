@@ -64,8 +64,8 @@ const JoinHero = ({ language = 'sl' }) => {
     {
       title: language === 'sl' ? 'Pridi na srečanje' : 'Come to our gatherings',
       description: language === 'sl'
-        ? 'V Biotopu Livada redno izvajamo DITO srečanja o permakulturi, z zemljo povezanih praksah, izdelavi predmetov iz lesa in recikliranih materialov, občasno pa potekajo tudi delavnice o ekofeminističnih praksah, medvrstnem sodelovanju in rešitev za telemetrijo.'
-        : 'At Livada Biotope we regularly hold DITO gatherings on permaculture, land-connected practices, crafting objects from wood and recycled materials, and occasionally workshops on ecofeminist practices, interspecies collaboration and telemetry solutions development.',
+        ? 'V Biotopu Livada redno izvajamo DITO srečanja o permakulturi, z zemljo povezanih praksah, izdelavi predmetov iz lesa in recikliranih materialov, občasno pa potekajo tudi delavnice o ekofeminističnih praksah, medvrstnem sodelovanju in rešitvah za telemetrijo in okoljske meritve.'
+        : 'At Livada Biotope we regularly hold DITO gatherings on permaculture, land-connected practices, crafting objects from wood and recycled materials, and occasionally workshops on ecofeminist practices, interspecies collaboration and development of solutions for telemetry and environmental monitoring.',
       link: '/koledar'
     },
     {

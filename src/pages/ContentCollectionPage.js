@@ -240,11 +240,18 @@ function ContentCollectionPage({ t, title, contentPath }) {
           <div className="space-y-8 max-w-3xl mx-auto">
                         {processedItems.length ? processedItems.map(item => (
               <GlassCard key={item.id}> 
-                {item.metadata.date && (
-                  <p className="text-accent text-sm text-text-muted mb-1">
-                    {new Date(item.metadata.date).toLocaleDateString(language)}
-                  </p>
-                )}
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  {item.metadata.date && (
+                    <p className="text-accent text-sm text-text-muted">
+                      {new Date(item.metadata.date).toLocaleDateString(language)}
+                    </p>
+                  )}
+                  {item.metadata.author && (
+                    <p className="text-accent text-sm text-text-muted">
+                      {language === 'sl' ? 'Avtor: ' : 'by '}{item.metadata.author}
+                    </p>
+                  )}
+                </div>
                 <h3 className="heading-organic text-2xl text-primary mb-3">{item.metadata.title}</h3>
                 
                 <div

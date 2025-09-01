@@ -108,12 +108,18 @@ const HistoricalSensorContent = () => {
     };
 
     // Handle date changes
-    const handleStartDateChange = (newDate) => {
-        onDateChange(newDate, endDate);
+    const handleStartDateChange = (dateString) => {
+        // Parse the date string from input (YYYY-MM-DD) and create a date at local midnight
+        const [year, month, day] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day, 0, 0, 0, 0); // month is 0-indexed
+        onDateChange(date, endDate);
     };
 
-    const handleEndDateChange = (newDate) => {
-        onDateChange(startDate, newDate);
+    const handleEndDateChange = (dateString) => {
+        // Parse the date string from input (YYYY-MM-DD) and create a date at end of day
+        const [year, month, day] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day, 23, 59, 59, 999); // month is 0-indexed
+        onDateChange(startDate, date);
     };
 
     useEffect(() => {
@@ -153,51 +159,51 @@ const HistoricalSensorContent = () => {
     };
     
     return (
-        <div className="relative p-4 sm:p-8 rounded-2xl shadow-2xl overflow-hidden border border-[var(--glass-border)] bg-gradient-to-br from-[var(--glass-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm mt-8">
+        <div className="relative p-4 sm:p-6 rounded-2xl shadow-2xl overflow-hidden border border-[var(--glass-border)] bg-gradient-to-br from-[var(--glass-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm mt-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
+                    <div className="p-2 bg-gradient-to-br from-primary to-primary-dark rounded-xl shadow-lg">
                         <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
-                    <h3 className="text-display text-2xl lg:text-3xl text-gray-800 bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">{t('historicalSensorDataTitle')}</h3>
+                    <h3 className="text-display text-2xl lg:text-3xl text-text-main bg-gradient-to-r from-primary-dark to-primary-dark bg-clip-text text-transparent">{t('historicalSensorDataTitle')}</h3>
                 </div>
                 <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
-                    <div className="flex flex-col sm:flex-row gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-glass-border shadow-sm">
+                    <div className="flex flex-col sm:flex-row gap-3 p-4 bg-bg-main/70 backdrop-blur-sm rounded-xl border border-border-color/50 shadow-sm">
                         <div className="flex items-center gap-2">
-                            <label htmlFor="startDate" className="text-accent font-medium text-gray-700">Od:</label>
+                            <label htmlFor="startDate" className="text-accent font-medium text-text-main">Od:</label>
                             <input
                                 type="date"
                                 id="startDate"
                                 value={startDate.toISOString().split('T')[0]}
-                                onChange={(e) => handleStartDateChange(new Date(e.target.value))}
-                                className="p-2 border border-glass-border rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                onChange={(e) => handleStartDateChange(e.target.value)}
+                                className="p-2 border border-border-color rounded-lg text-sm font-medium focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <label htmlFor="endDate" className="text-accent font-medium text-gray-700">Do:</label>
+                            <label htmlFor="endDate" className="text-accent font-medium text-text-main">Do:</label>
                             <input
                                 type="date"
                                 id="endDate"
                                 value={endDate.toISOString().split('T')[0]}
-                                onChange={(e) => handleEndDateChange(new Date(e.target.value))}
-                                className="p-2 border border-glass-border rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                onChange={(e) => handleEndDateChange(e.target.value)}
+                                className="p-2 border border-border-color rounded-lg text-sm font-medium focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="text-accent font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">({dateDiff} dni)</span>
+                            <span className="text-accent font-medium text-text-main bg-bg-main/50 px-2 py-1 rounded-full">({dateDiff} dni)</span>
                         </div>
                     </div>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                         <div className="flex items-center gap-2">
-                            <div className={`w-3 h-3 rounded-full ${status.type === 'error' ? 'bg-red-500' : status.type === 'success' ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`}></div>
-                            <span className={`text-accent font-medium ${status.type === 'error' ? 'text-red-600' : 'text-gray-700'}`}>{getStatusMessage()}</span>
+                            <div className={`w-3 h-3 rounded-full ${status.type === 'error' ? 'bg-sunset' : status.type === 'success' ? 'bg-primary animate-pulse' : 'bg-sunset'}`}></div>
+                            <span className={`text-accent font-medium ${status.type === 'error' ? 'text-sunset' : 'text-text-main'}`}>{getStatusMessage()}</span>
                         </div>
                         <button
                             onClick={refreshData}
                             disabled={isLoading}
-                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105"
+                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-lg hover:from-primary-dark hover:to-primary-dark transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105"
                         >
                             <svg className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
@@ -209,13 +215,13 @@ const HistoricalSensorContent = () => {
             </div>
             {isLoading && !history ? (
                 <div className="text-center py-20">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-4 shadow-lg">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary-dark rounded-full mb-4 shadow-lg">
                         <svg className="w-8 h-8 text-white animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
                         </svg>
                     </div>
-                    <div className="text-body-lg text-gray-600">{t('loading')}...</div>
-                    <div className="text-accent text-gray-500 mt-2">Pridobivam zgodovinske podatke</div>
+                    <div className="text-body-lg text-text-muted">{t('loading')}...</div>
+                    <div className="text-accent text-text-muted mt-2">Pridobivam zgodovinske podatke</div>
                 </div>
             ) : (
                 <div className="space-y-8 pt-8 border-t-2 border-glass-border">
@@ -255,11 +261,11 @@ const HistoricalSensorContent = () => {
                                     }]}
                                 />
                             ) : (
-                                <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-glass-border">
+                                <div className="flex items-center justify-center h-full text-text-muted bg-bg-main/50 rounded-lg border-2 border-dashed border-border-color">
                                     <div className="text-center p-8">
                                         <div className="text-4xl mb-3">📈</div>
                                         <div className="text-body font-medium">{t('noChartData')}</div>
-                                        <div className="text-accent text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
+                                        <div className="text-accent text-text-muted mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
                                     </div>
                                 </div>
                             )}
@@ -295,11 +301,11 @@ const HistoricalSensorContent = () => {
                                     }]}
                                 />
                             ) : (
-                                <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-glass-border">
+                                <div className="flex items-center justify-center h-full text-text-muted bg-bg-main/50 rounded-lg border-2 border-dashed border-border-color">
                                     <div className="text-center p-8">
                                         <div className="text-4xl mb-3">🌡️</div>
                                         <div className="text-body font-medium">{t('noChartData')}</div>
-                                        <div className="text-accent text-gray-400 mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
+                                        <div className="text-accent text-text-muted mt-2">Podatki se bodo prikazali, ko bodo na voljo</div>
                                     </div>
                                 </div>
                             )}

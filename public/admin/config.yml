@@ -46,6 +46,7 @@ collections:
     fields:
       - { label: "Naslov", name: "title", widget: "string", i18n: true }
       - { label: "Datum objave", name: "date", widget: "datetime" }
+      - { label: "Avtor", name: "author", widget: "string", required: false }
       - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true }
       - label: "Vsebina"
         name: "body"

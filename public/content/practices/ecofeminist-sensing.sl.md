@@ -1,6 +1,7 @@
 ---
 title: Ekofeministično kompostiranje
 date: 2025-06-26T10:00:00.000Z
+author: Urban Belina
 tags:
   - ekofeminizem
 ---

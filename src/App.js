@@ -11,6 +11,7 @@ import BiodiversityPage from './pages/BiodiversityPage';
 import GalleryPage from './pages/GalleryPage';
 import CalendarPage from './pages/CalendarPage';
 import MemoryGamePage from './pages/MemoryGamePage';
+import FundingLogos from './components/FundingLogos';
 import { Navbar } from "./components/ui/resizable-navbar/Navbar";
 import { NavBody } from "./components/ui/resizable-navbar/NavBody";
 import { NavItems } from "./components/ui/resizable-navbar/NavItems";
@@ -105,6 +106,7 @@ function App() {
                         </motion.div>
                     </AnimatePresence>
                 </main>
+                <FundingLogos />
                 <footer className="py-8 text-center bg-gradient-to-t from-bg-main/90 to-transparent backdrop-blur-sm border-t border-border-color/30">
                     <div className="container mx-auto text-body text-text-muted">{t('footerText')}</div>
                 </footer>
