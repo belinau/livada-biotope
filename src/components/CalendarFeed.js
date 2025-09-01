@@ -107,7 +107,7 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
           }
       };
     
-      const proxy = 'https://api.allorigins.win/raw?url=';
+      const proxy = '/.netlify/functions/calendar-proxy?url=';
       limit(() => fetch(proxy + encodeURIComponent(icsUrl), { signal }))
         .then(r => {
           if (!r.ok) {
