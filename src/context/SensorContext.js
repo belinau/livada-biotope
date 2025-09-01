@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useMemo, createContext, useContext, useCallback } from 'react';
-import pLimit from 'p-limit';
 import LivadaAPIClient from '../shared/api-client';
 import { transformApiData } from '../shared/sensor-utils';
-
-const limit = pLimit(2); // Limit to 2 concurrent requests
 
 const SensorContext = createContext();
 export const useSensorData = () => useContext(SensorContext);

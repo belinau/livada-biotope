@@ -76,13 +76,14 @@ const LazyImage = ({ src, srcSet, sizes, alt, className, layoutId }) => {
             });
         });
 
-        if (ref.current) {
-            observer.observe(ref.current);
+        const currentRef = ref.current;
+        if (currentRef) {
+            observer.observe(currentRef);
         }
 
         return () => {
-            if (ref.current) {
-                observer.unobserve(ref.current);
+            if (currentRef) {
+                observer.unobserve(currentRef);
             }
         };
     }, []);
@@ -258,7 +259,7 @@ function GalleryPage() {
                                         : (image.caption_en || image.caption_sl);
                                     
                                     return (
-                                        <a
+                                        <button
                                             key={`${gallery.id}-${index}`}
                                             className="relative group block p-2 h-full w-full"
                                             onMouseEnter={() => setHoveredGalleryItem(`${gallery.id}-${index}`)}
@@ -324,7 +325,7 @@ function GalleryPage() {
                                                     </div>
                                                 )}
                                             </motion.div>
-                                        </a>
+                                        </button>
                                     );
                                 })}
                             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useId, useState, useCallback } from "react";
+import React, { useId, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { HoverEffect } from "../components/ui/HoverEffect";
 import ExpandableCard from "./ExpandableCard";

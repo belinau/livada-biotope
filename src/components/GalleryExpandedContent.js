@@ -1,6 +1,5 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { useTranslation } from "../App";
 
 const GalleryExpandedContent = ({ gallery, imageIndex, goToPrev, goToNext, currentIndex, totalImages, t, language }) => {
   const currentImage = gallery.images[currentIndex];
