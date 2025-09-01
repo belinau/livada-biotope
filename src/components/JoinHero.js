@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ImagesSlider } from './ui/images-slider';
-import { getOptimizedImageUrl } from '../App';
+import { getOptimizedImageUrl } from '../shared/image-utils';
 import { fetchRecentImages } from '../shared/image-utils';
+import { useNavigate } from 'react-router-dom';
 
 const JoinHero = ({ language = 'sl' }) => {
+  const navigate = useNavigate();
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -62,7 +64,7 @@ const JoinHero = ({ language = 'sl' }) => {
     {
       title: language === 'sl' ? 'Pridi na srečanje' : 'Come to our gatherings',
       description: language === 'sl'
-        ? 'V Biotopu Livada redno izvajamo DITO srečanja o permakulturi, z zemljo povezanih praksah, izdelavi predmetov iz lesa in recikliranih materialov, občasno pa potekajo tudi delavnice o ekofeminističnih praksah, medvrstnem sodelovanju in razvoju rešitev za telemetrijo.'
+        ? 'V Biotopu Livada redno izvajamo DITO srečanja o permakulturi, z zemljo povezanih praksah, izdelavi predmetov iz lesa in recikliranih materialov, občasno pa potekajo tudi delavnice o ekofeminističnih praksah, medvrstnem sodelovanju in rešitev za telemetrijo.'
         : 'At Livada Biotope we regularly hold DITO gatherings on permaculture, land-connected practices, crafting objects from wood and recycled materials, and occasionally workshops on ecofeminist practices, interspecies collaboration and telemetry solutions development.',
       link: '/koledar'
     },
@@ -117,7 +119,7 @@ const JoinHero = ({ language = 'sl' }) => {
               <p className="text-white/90 mb-4">{action.description}</p>
               <button
                 className="px-4 py-2 backdrop-blur-sm border bg-primary/20 border-primary/30 text-white text-center rounded-full relative hover:bg-primary/30 transition-all duration-300"
-                onClick={() => window.location.hash = action.link}
+                onClick={() => navigate(action.link)}
               >
                 <span className="text-sm font-medium">
                   {language === 'sl' ? 'Več o tem' : 'Learn more'} →
@@ -131,5 +133,6 @@ const JoinHero = ({ language = 'sl' }) => {
     </ImagesSlider>
   );
 };
+
 
 export default JoinHero;

@@ -95,3 +95,47 @@ const getStaticImageList = (count) => {
   // Return the most recent images (first 'count' images)
   return allImages.slice(0, count).map(file => `/images/uploads/${file}`);
 };
+
+const isLocalDevelopment = process.env.NODE_ENV === 'development';
+
+export const getOptimizedImageUrl = (imagePath) => {
+  if (!imagePath) return '';
+  
+  // In local development, return the path directly without Netlify CDN
+  if (isLocalDevelopment) {
+    // Handle both relative and absolute paths
+    if (imagePath.startsWith('http') || imagePath.startsWith('//')) {
+      return imagePath;
+    }
+    // Ensure the path is correctly formatted for local development
+    return imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  }
+
+  // Production: Use Netlify CDN
+  const url = new URL('https://livada.bio');
+  url.pathname = `/.netlify/images`;
+  url.searchParams.append('url', imagePath);
+  url.searchParams.append('w', '1200');
+  url.searchParams.append('q', '80');
+  return url.toString();
+};
+
+export const getResponsiveSrcSet = (imagePath) => {
+  if (!imagePath || isLocalDevelopment) {
+    // In local development, just return the image path as is
+    return imagePath;
+  }
+
+  // Production: Generate responsive srcset
+  const widths = [400, 600, 800, 1000, 1200, 1600, 2000];
+  const url = new URL('https://livada.bio');
+  
+  return widths.map(width => {
+    url.pathname = `/.netlify/images`;
+    const params = new URLSearchParams();
+    params.append('url', imagePath);
+    params.append('w', width.toString());
+    params.append('q', '80');
+    return `${url.toString()}?${params.toString()} ${width}w`;
+  }).join(', ');
+};

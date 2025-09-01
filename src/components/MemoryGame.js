@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import pLimit from 'p-limit';
-import { useTranslation } from '../App';
+import { useTranslation } from '../context/LanguageContext';
 import MemoryCard from './MemoryCard';
 import FlippedCardView from './FlippedCardView';
 

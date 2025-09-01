@@ -4,6 +4,9 @@ import { CometCard } from './ui/comet-card';
 import { getGlassClasses } from './glass-theme';
 
 const MemoryCard = ({ card, isFlipped, isMatched, isMismatched, onClick }) => {
+  const randomDuration = `${10 + Math.random() * 10}s`; // 10s to 20s
+  const randomDelay = `-${Math.random() * 15}s`; // -0s to -15s
+
   const cardVariants = {
     flipped: {
       rotateY: 180,
@@ -42,10 +45,10 @@ const MemoryCard = ({ card, isFlipped, isMatched, isMismatched, onClick }) => {
     >
       {/* Card Back */}
       <div
-        className={`absolute inset-0 ${getGlassClasses({ rounded: 'lg' })}`}
+        className={`absolute inset-0 ${getGlassClasses({ rounded: 'lg', background: false })}`}
         style={{ backfaceVisibility: 'hidden' }}
       >
-        <CometCard />
+        <CometCard animationDuration={randomDuration} animationDelay={randomDelay} />
       </div>
 
       {/* Card Front */}

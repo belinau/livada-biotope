@@ -1,89 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { getOptimizedImageUrl } from '../App';
+import { getOptimizedImageUrl } from '../shared/image-utils';
 import { marked } from 'marked';
 import { ImagesSlider } from './ui/images-slider';
+import { useNavigate } from 'react-router-dom';
 
 const PracticesHero = ({ language = 'sl' }) => {
+  const navigate = useNavigate();
   const [practices, setPractices] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchPractices = async () => {
-      try {
-        const manifestResponse = await fetch('/content/practices/manifest.json');
-        if (!manifestResponse.ok) throw new Error('Practices manifest not found');
-        const manifest = await manifestResponse.json();
-        
-        const baseFileNames = [...new Set(
-          manifest.files.map(f => f.replace(/\.(sl|en)\.md$/, ''))
-        )];
-
-        const fetchedPractices = await Promise.all(
-          baseFileNames.map(async baseName => {
-            const langFile = `${baseName}.${language}.md`;
-            const defaultLangFile = `${baseName}.sl.md`;
-            let fileToFetch = langFile;
-            let res = await fetch(`/content/practices/${fileToFetch}`);
-            
-            if (!res.ok) { 
-              fileToFetch = defaultLangFile; 
-              res = await fetch(`/content/practices/${fileToFetch}`); 
-            } 
-            
-            if (!res.ok) return null;
-
-            const text = await res.text();
-            const { metadata, content } = parseMarkdown(text);
-            
-            // Extract first image from content if available
-            const imageRegex = /!\[.*?\]\((.*?)\)/;
-            const imageMatch = content.match(imageRegex);
-            const firstImage = imageMatch ? imageMatch[1] : null;
-            
-            return { 
-              id: baseName, 
-              ...metadata,
-              content,
-              firstImage,
-              date: metadata.date ? new Date(metadata.date) : new Date(0)
-            };
-          })
-        );
-        
-        const validPractices = fetchedPractices
-          .filter(practice => practice)
-          .sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        setPractices(validPractices);
-        setLoading(false);
-      } catch (error) {
-        console.error("Failed to load practices:", error);
-        setPractices([]);
-        setLoading(false);
-      }
-    };
-
-    fetchPractices();
-  }, [language]);
-
-  // Parse markdown frontmatter and content
-  const parseMarkdown = (rawContent) => {
-    try {
-      const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
-      const match = frontmatterRegex.exec(rawContent);
-      if (!match) return { metadata: {}, content: rawContent };
-      const metadata = parseYAML(match[1]) || {};
-      const content = rawContent.slice(match[0].length);
-      return { metadata, content };
-    } catch (e) {
-      console.error("Error parsing markdown frontmatter:", e);
-      return { metadata: {}, content: rawContent };
-    }
-  };
-
   // Simple YAML parser for frontmatter
-  const parseYAML = (yamlString) => {
+  const parseYAML = useCallback((yamlString) => {
     try {
       const obj = {};
       const lines = yamlString.split('\n').filter(line => line.trim() !== '');
@@ -148,7 +76,81 @@ const PracticesHero = ({ language = 'sl' }) => {
       console.error("Error parsing YAML:", e);
       return {};
     }
-  };
+  }, []);
+
+  // Parse markdown frontmatter and content
+  const parseMarkdown = useCallback((rawContent) => {
+    try {
+      const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
+      const match = frontmatterRegex.exec(rawContent);
+      if (!match) return { metadata: {}, content: rawContent };
+      const metadata = parseYAML(match[1]) || {};
+      const content = rawContent.slice(match[0].length);
+      return { metadata, content };
+    } catch (e) {
+      console.error("Error parsing markdown frontmatter:", e);
+      return { metadata: {}, content: rawContent };
+    }
+  }, [parseYAML]);
+
+  useEffect(() => {
+    const fetchPractices = async () => {
+      try {
+        const manifestResponse = await fetch('/content/practices/manifest.json');
+        if (!manifestResponse.ok) throw new Error('Practices manifest not found');
+        const manifest = await manifestResponse.json();
+        
+        const baseFileNames = [...new Set(
+          manifest.files.map(f => f.replace(/\.(sl|en)\.md$/, ''))
+        )];
+
+        const fetchedPractices = await Promise.all(
+          baseFileNames.map(async baseName => {
+            const langFile = `${baseName}.${language}.md`;
+            const defaultLangFile = `${baseName}.sl.md`;
+            let fileToFetch = langFile;
+            let res = await fetch(`/content/practices/${fileToFetch}`);
+            
+            if (!res.ok) { 
+              fileToFetch = defaultLangFile; 
+              res = await fetch(`/content/practices/${fileToFetch}`); 
+            } 
+            
+            if (!res.ok) return null;
+
+            const text = await res.text();
+            const { metadata, content } = parseMarkdown(text);
+            
+            // Extract first image from content if available
+            const imageRegex = /!\\[.*?\\]\((.*?)\\(.*)/;
+            const imageMatch = content.match(imageRegex);
+            const firstImage = imageMatch ? imageMatch[1] : null;
+            
+            return { 
+              id: baseName, 
+              ...metadata,
+              content,
+              firstImage,
+              date: metadata.date ? new Date(metadata.date) : new Date(0)
+            };
+          })
+        );
+        
+        const validPractices = fetchedPractices
+          .filter(practice => practice)
+          .sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        setPractices(validPractices);
+        setLoading(false);
+      } catch (error) {
+        console.error("Failed to load practices:", error);
+        setPractices([]);
+        setLoading(false);
+      }
+    };
+
+    fetchPractices();
+  }, [language, parseMarkdown]);
 
   if (loading) {
     return (
@@ -232,7 +234,7 @@ const PracticesHero = ({ language = 'sl' }) => {
         <div className="flex flex-col sm:flex-row gap-4 mt-12">
           <button
             className="px-8 py-4 backdrop-blur-sm border bg-primary/20 border-primary/30 text-white mx-auto text-center rounded-full relative hover:bg-primary/30 transition-all duration-300 transform hover:scale-105"
-            onClick={() => window.location.hash = '/utelesenja'}
+            onClick={() => navigate('/utelesenja')}
           >
             <span className="text-lg font-medium">
               {language === 'sl' ? 'Preberi več' : 'Read more'} →
@@ -241,7 +243,7 @@ const PracticesHero = ({ language = 'sl' }) => {
           </button>
           <button
             className="px-8 py-4 backdrop-blur-sm border bg-secondary/20 border-secondary/30 text-white mx-auto text-center rounded-full relative hover:bg-secondary/30 transition-all duration-300 transform hover:scale-105"
-            onClick={() => window.location.hash = '/utelesenja'}
+            onClick={() => navigate('/utelesenja')}
           >
             <span className="text-lg font-medium">
               {language === 'sl' ? 'Vse prakse' : 'All practices'} →
@@ -253,5 +255,6 @@ const PracticesHero = ({ language = 'sl' }) => {
     </ImagesSlider>
   );
 };
+
 
 export default PracticesHero;

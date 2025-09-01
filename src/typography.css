@@ -103,7 +103,7 @@
   font-weight: 700;
   font-size: clamp(2rem, 4vw, 3rem);
   line-height: 1.1;
-  color: var(--text-forest);
+  color: var(--text-main);
   margin-bottom: 1.5rem;
   margin-top: 2rem;
 }
@@ -113,7 +113,7 @@
   font-weight: 600;
   font-size: clamp(1.5rem, 3vw, 2.25rem);
   line-height: 1.2;
-  color: var(--text-forest);
+  color: var(--text-main);
   margin-bottom: 1rem;
   margin-top: 2rem;
 }
@@ -123,26 +123,32 @@
   font-weight: 600;
   font-size: clamp(1.25rem, 2.5vw, 1.75rem);
   line-height: 1.3;
-  color: var(--text-sage);
+  color: var(--text-main);
   margin-bottom: 0.75rem;
   margin-top: 1.5rem;
 }
 
 .prose-organic p {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   font-size: 1.05rem;
   line-height: 1.8;
   color: var(--text-main);
 }
 
+.prose-organic p:empty {
+  margin: 0;
+  padding: 0;
+  display: none;
+}
+
 .prose-organic strong {
   font-weight: 600;
-  color: var(--text-forest);
+  color: var(--text-main);
 }
 
 .prose-organic em {
   font-style: italic;
-  color: var(--text-sage);
+  color: var(--text-muted);
 }
 
 /* Typography animations and interactions */

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const BiodiversityHero = ({ language = 'sl', heroTitle, heroSubtitle }) => {
+  const navigate = useNavigate();
   const [observations, setObservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -157,7 +159,7 @@ const BiodiversityHero = ({ language = 'sl', heroTitle, heroSubtitle }) => {
             <div className="flex flex-col sm:flex-row gap-4 mt-12">
               <button
                 className="px-8 py-4 backdrop-blur-sm border bg-primary/20 border-primary/30 text-white mx-auto text-center rounded-full relative hover:bg-primary/30 transition-all duration-300 transform hover:scale-105"
-                onClick={() => window.location.hash = '/biodiverziteta'}
+                onClick={() => navigate('/biodiverziteta')}
               >
                 <span className="text-lg font-medium">
                   {language === 'sl' ? 'Razišči biodiverziteto' : 'Explore Biodiversity'} →
@@ -166,7 +168,7 @@ const BiodiversityHero = ({ language = 'sl', heroTitle, heroSubtitle }) => {
               </button>
               <button
                 className="px-8 py-4 backdrop-blur-sm border bg-secondary/20 border-secondary/30 text-white mx-auto text-center rounded-full relative hover:bg-secondary/30 transition-all duration-300 transform hover:scale-105"
-                onClick={() => window.location.hash = '/spomin'}
+                onClick={() => navigate('/spomin')}
               >
                 <span className="text-lg font-medium">
                   {language === 'sl' ? 'Biodiverzitetni spomin' : 'Biodiversity Memory'} →

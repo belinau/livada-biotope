@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, createContext, useContext, useCallback } from 'react';
 import { ResponsiveLine } from '@nivo/line';
-import { useTranslation, BED_MAPPING, ChartWrapper } from '../App';
+import { useTranslation } from '../context/LanguageContext';
+import { BED_MAPPING } from '../lib/constants';
+import ChartWrapper from '../components/ChartWrapper';
 import LivadaAPIClient from '../shared/api-client';
 import { transformApiData } from '../shared/sensor-utils';
 

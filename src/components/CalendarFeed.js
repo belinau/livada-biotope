@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ICAL from 'ical.js';
 import pLimit from 'p-limit';
-import { useTranslation } from '../App';
+import { useTranslation } from '../context/LanguageContext';
 
 const limit = pLimit(2); // Limit to 2 concurrent requests
 
