@@ -13,21 +13,31 @@
   transform: translateY(0);
 }
 
-/* Import Ecofeminist Typography System */
+/* Import Typography System */
 @import './typography.css';
 
 /* ----------------- CSS VARIABLES ------------------ */
 :root {
-  --primary: #4a7c59;
-  --primary-light: #6aa87a;
-  --primary-dark: #2d5a3d;
-  --bg-main: #e8f5e9;
-  --text-main: #1a1f1a;
-  --text-muted: #5a6c5f;
-  --border-color: #b8ccc2;
+  --bg-main: #2a241e;
+  --bg-secondary: #4a3f35;
+  --primary: #d4691a; /* Burnt orange */
+  --primary-light: #e89547; /* Amber orange */
+  --primary-dark: #a85216;
+  --accent-green: #87a96b;
+  --accent-cream: #f2c49b;
+  --text-main: #f4f0ea;
+  --text-muted: #d1c7b8;
+  --text-orange: #ebc8ae; /* Light orange instead of muted */
+  --text-sage: #87a96b;
+
+  --border-color: rgba(212, 105, 26, 0.4);
+  --glass-bg: rgba(74, 63, 53, 0.6);
+  --glass-bg-nav: rgba(121, 104, 88, 0.6);
+  --glass-border: rgba(33, 17, 6, 0.7);
+  --ch-border: rgba(212, 100, 26, 0.082);
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
-  /* Ecofeminist Typography System */
+  /* Typography System */
   --font-display: 'Comfortaa', sans-serif;  /* Organic, rounded display font */
   --font-body: 'Inter', sans-serif;         /* Clean, readable body text */
   --font-accent: 'Quicksand', sans-serif;   /* Light, airy accent font */
@@ -45,9 +55,8 @@
   --text-5xl: 3rem;       /* 48px */
   --text-6xl: 3.75rem;    /* 60px */
 
-  /* Nature-inspired text colors */
-  --text-forest: #2d5a3d;
-  --text-sage: #87a96b;
+  /* Nature-inspired text colors need redesign */
+  --text-forest: rgba(45, 90, 61, 0.2);
   --text-earth: #8b7355;
   --text-sky: #5c7cfa;
   --text-sunset: #ff8787;
@@ -63,7 +72,8 @@ body,
   min-height: 100vh;
   font-family: var(--font-body);
   color: var(--text-main);
-  background: linear-gradient(rgba(224, 242, 247, 0.7), rgba(232, 245, 233, 0.7)), url('/public/images/uploads/livada-kresnicna-noc1.jpg'); /* Subtle gradient overlay + background image */
+  background-color: var(--bg-main);
+  
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -72,6 +82,8 @@ body,
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Ensure scrolling is always enabled */
+  overflow: auto !important;
 }
 
 /* ----------------- HEADER / FOOTER ------------------ */
@@ -82,7 +94,7 @@ header {
   background-color: rgba(255, 255, 255, 0.1); /* Lighter, more transparent */
   backdrop-filter: blur(8px);
   box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.1); /* Add subtle inner shadow */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Add a subtle border */
+  border-bottom: 1px solid var(--glass-border); /* Add a subtle border */
 }
 
 footer {
@@ -138,16 +150,14 @@ footer {
   height: 100%;
   background-color: rgba(255, 255, 255, 0.15); /* Glass background */
   backdrop-filter: blur(10px); /* Frosted glass effect */
-  border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+  border: 1px solid var(--glass-border); /* Subtle border */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.1); /* Soft shadow + inner shadow */
 }
 
 .memory-card-front {
-  /* background-color: #f3f4f6; */ /* Removed as it's now handled by the common rule */
 }
 
 .memory-card-back {
-  /* background-color: white; */ /* Removed as it's now handled by the common rule */
   transform: rotateY(180deg);
 }
 
@@ -177,7 +187,7 @@ footer {
   border-radius: 0.5rem;
 }
 
-/* ----------------- MASONRY (Gallery) ------------------ */
+/* ----------------- MASONRY (Gallery check if used) ------------------ */
 .my-masonry-grid {
   display: flex;
   margin-left: -1rem;
@@ -201,29 +211,13 @@ footer {
   background-color: rgba(255, 255, 255, 0.2); /* More transparent on hover */
   backdrop-filter: blur(12px); /* Stronger blur on hover */
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.2); /* More prominent shadow + inner shadow */
-  border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border on hover */
+  border: 1px solid var(--glass-border); /* Subtle border on hover */
 }
 
 @media (min-width: 640px)  { .my-masonry-grid_column { width: 50% !important; } }
 @media (min-width: 1024px) { .my-masonry-grid_column { width: 33.333% !important; } }
 @media (min-width: 1280px) { .my-masonry-grid_column { width: 25% !important; } }
 @media (min-width: 1920px) { .my-masonry-grid_column { width: 20% !important; } }
-
-/* ----------------- UTILITIES ------------------ */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-/* makes embeds responsive */
-.aspect-video {
-  aspect-ratio: 16 / 9;
-}
-details summary {
-  cursor: pointer;
-  font-weight: 600;
-}
 
 /* ----------------- SENSOR VISUALIZATION ------------------ */
 /* Ensure chart containers are properly sized on mobile */
@@ -269,3 +263,4 @@ details summary {
   cursor: pointer;
   font-weight: 600;
 }
+

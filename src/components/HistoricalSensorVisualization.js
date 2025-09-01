@@ -33,7 +33,7 @@ const HistoricalSensorProvider = ({ children, startDate, endDate, onDateChange }
             setStatus({ key: 'dataUpdated', type: 'success' });
             setLastUpdated(new Date());
         } catch (error) {
-            console.error("Could not fetch long term history:", error);
+            console.error("Could not fetch long term history:", error.message || error);
             setStatus({ key: 'fetchError', type: 'error' });
             setHistory({});
         }
@@ -151,7 +151,7 @@ const HistoricalSensorContent = () => {
     };
     
     return (
-        <div className="relative p-4 sm:p-8 rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50 bg-gradient-to-br from-blue-50/90 to-white/80 backdrop-blur-sm mt-8">
+        <div className="relative p-4 sm:p-8 rounded-2xl shadow-2xl overflow-hidden border border-[var(--glass-border)] bg-gradient-to-br from-[var(--glass-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm mt-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
@@ -162,7 +162,7 @@ const HistoricalSensorContent = () => {
                     <h3 className="text-display text-2xl lg:text-3xl text-gray-800 bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">{t('historicalSensorDataTitle')}</h3>
                 </div>
                 <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
-                    <div className="flex flex-col sm:flex-row gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-sm">
+                    <div className="flex flex-col sm:flex-row gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-glass-border shadow-sm">
                         <div className="flex items-center gap-2">
                             <label htmlFor="startDate" className="text-accent font-medium text-gray-700">Od:</label>
                             <input
@@ -170,7 +170,7 @@ const HistoricalSensorContent = () => {
                                 id="startDate"
                                 value={startDate.toISOString().split('T')[0]}
                                 onChange={(e) => handleStartDateChange(new Date(e.target.value))}
-                                className="p-2 border border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                className="p-2 border border-glass-border rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                             />
                         </div>
                         <div className="flex items-center gap-2">
@@ -180,7 +180,7 @@ const HistoricalSensorContent = () => {
                                 id="endDate"
                                 value={endDate.toISOString().split('T')[0]}
                                 onChange={(e) => handleEndDateChange(new Date(e.target.value))}
-                                className="p-2 border border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                className="p-2 border border-glass-border rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                             />
                         </div>
                         <div className="flex items-center gap-2">
@@ -216,7 +216,7 @@ const HistoricalSensorContent = () => {
                     <div className="text-accent text-gray-500 mt-2">Pridobivam zgodovinske podatke</div>
                 </div>
             ) : (
-                <div className="space-y-8 pt-8 border-t-2 border-gray-200">
+                <div className="space-y-8 pt-8 border-t-2 border-glass-border">
                     <div className="text-center">
                         <h4 className="heading-organic text-xl mb-2">Zgodovinski grafični prikaz</h4>
                         <p className="text-body text-gray-600">Dolžji pregled podatkov senzorjev za izbrano obdobje</p>
@@ -253,7 +253,7 @@ const HistoricalSensorContent = () => {
                                     }]}
                                 />
                             ) : (
-                                <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
+                                <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-glass-border">
                                     <div className="text-center p-8">
                                         <div className="text-4xl mb-3">📈</div>
                                         <div className="text-body font-medium">{t('noChartData')}</div>
@@ -293,7 +293,7 @@ const HistoricalSensorContent = () => {
                                     }]}
                                 />
                             ) : (
-                                <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-gray-200">
+                                <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50/50 rounded-lg border-2 border-dashed border-glass-border">
                                     <div className="text-center p-8">
                                         <div className="text-4xl mb-3">🌡️</div>
                                         <div className="text-body font-medium">{t('noChartData')}</div>

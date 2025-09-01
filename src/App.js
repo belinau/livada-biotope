@@ -1,15 +1,39 @@
 import React, { useState, useEffect, useMemo, createContext, useContext, useCallback, useRef } from 'react';
-import { BrowserRouter, Routes, Route, NavLink, Link, useLocation } from 'react-router-dom';
-
+import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import { ResponsiveLine } from '@nivo/line';
 import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 import { parse } from 'yaml';
 import { motion, AnimatePresence } from 'framer-motion';
 import mermaid from 'mermaid';
+import pLimit from 'p-limit';
 import HistoricalSensorVisualization from './components/HistoricalSensorVisualization';
 import LivadaAPIClient from './shared/api-client';
 import { transformApiData } from './shared/sensor-utils';
-import { PinContainer } from './components/ui/3d-pin';
+import { ExpandableBiodiversityCard } from './components/ExpandableBiodiversityCard';
+import { HoverEffect } from './components/ui/HoverEffect';
+import { GlassCard } from './components/ui/GlassCard';
+import { GlassSection } from './components/ui/GlassSection';
+
+import CalendarFeed from './components/CalendarFeed';
+import MemoryGame from './components/MemoryGame';
+import ExpandableCard from './components/ExpandableCard';
+import GalleryExpandedContent from './components/GalleryExpandedContent';
+import BiodiversityHero from './components/BiodiversityHero';
+import PracticesHero from './components/PracticesHero';
+import JoinHero from './components/JoinHero';
+import ScatterText from './components/ui/scramble-text';
+import { Navbar } from "./components/ui/resizable-navbar/Navbar";
+import { NavBody } from "./components/ui/resizable-navbar/NavBody";
+import { NavItems } from "./components/ui/resizable-navbar/NavItems";
+import { MobileNav } from "./components/ui/resizable-navbar/MobileNav";
+import { NavbarLogo } from "./components/ui/resizable-navbar/NavbarLogo";
+import { NavbarButton } from "./components/ui/resizable-navbar/NavbarButton";
+import { MobileNavHeader } from "./components/ui/resizable-navbar/MobileNavHeader";
+import { MobileNavToggle } from "./components/ui/resizable-navbar/MobileNavToggle";
+import { MobileNavMenu } from "./components/ui/resizable-navbar/MobileNavMenu";
+
+const limit = pLimit(2); // Limit to 2 concurrent requests
 
 // --- Config and Helper Functions ---
 /**
@@ -93,7 +117,9 @@ const parseMarkdown = (rawContent) => {
 // 2️⃣  Custom short-code renderer
 function enhanceHTML(html) {
   return html
-    // :::details Title↵↵content↵:::
+    // :::details Title
+    // content
+    // :::
     .replace(/:::details\s+(.+?)\n([\s\S]*?)\n:::/g, '<details><summary>$1</summary><div class="mt-2">$2</div></details>')
     // {{youtube ID}}
     .replace(/{{youtube\s+(.+?)}}/g, `<div class="aspect-video"><iframe class="w-full h-full" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe></div>`)
@@ -101,36 +127,6 @@ function enhanceHTML(html) {
     .replace(/{{vimeo\s+(.+?)}}/g, `<div class="aspect-video"><iframe class="w-full h-full" src="https://player.vimeo.com/video/$1" frameborder="0" allowfullscreen></iframe></div>`);
 }
 
-/* ---------- Calendar helper component ---------- */
-const EventRow = ({ event, lang, isPast }) => {
-    const fmt = (d) =>
-      d.toLocaleString(lang, {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-  
-    return (
-      <li
-        className={`p-3 rounded-lg shadow-sm ${ 
-          isPast ? 'bg-bg-main opacity-70' : 'bg-primary/5'
-        }`}
-      >
-        <div className="font-semibold text-sm">{event.summary}</div>
-        <div className="text-xs text-text-muted mt-1">{fmt(event.startDate)}</div>
-        {event.location && (
-          <div className="text-xs text-text-muted mt-1">📍 {event.location}</div>
-        )}
-        {event.description && (
-          <div className="text-xs text-text-main mt-2 whitespace-pre-wrap break-words">
-            {event.description}
-          </div>
-        )}
-      </li>
-    );
-  };
   
 // --- Contexts ---
 
@@ -166,7 +162,7 @@ const SensorProvider = ({ children }) => {
             setStatus({ key: 'dataUpdated', type: 'success' });
             setLastUpdated(new Date());
         } catch (error) {
-            console.error("Could not fetch history:", error);
+            console.error("Could not fetch history:", error.message || error);
             setStatus({ key: 'fetchError', type: 'error' });
             setHistory({});
         }
@@ -212,6 +208,7 @@ const translations = {
         noChartData: 'Ni dovolj podatkov za prikaz grafa.',
         noSensorData: 'Ni podatkov o senzorjih',
         noUpcomingEvents: 'Trenutno ni napovedanih dogodkov.',
+        noEventsFound: 'Ni najdenih dogodkov v koledarju.',
         moistureFlows: 'Vlaga v zraku in prsti',
         temperatureFlows: 'Temperatura zraka in prsti',
         time: 'Čas',
@@ -243,6 +240,10 @@ const translations = {
         score: 'Točke',
         newGame: 'Nova igra',
         noScores: 'Ni še rezultatov',
+        openInINaturalist: 'Odpri v iNaturalistu',
+        openInWikipedia: 'Odpri v Wikipediji',
+        loadingDescription: 'Nalagam opis...',
+
     },
     en: {
         navHome: 'Home',
@@ -269,6 +270,7 @@ const translations = {
         noChartData: 'Not enough data to display the chart.',
         noSensorData: 'No sensor data available',
         noUpcomingEvents: 'No upcoming events scheduled at this time.',
+        noEventsFound: 'No events found in the calendar.',
         moistureFlows: 'Moisture Flows',
         temperatureFlows: 'Temperature Flows',
         time: 'Time',
@@ -296,10 +298,13 @@ const translations = {
         enterName: 'Enter name for leaderboard:',
         submitScore: 'Save Score',
         hallOfFame: 'Hall of Fame',
-        player: 'Player',
-        score: 'Score',
+        player: 'Bitje',
+        score: 'Točke',
         newGame: 'New Game',
-        noScores: 'No scores yet',
+        noScores: 'Ni še rezultatov',
+        openInINaturalist: 'Odpri v iNaturalistu',
+        openInWikipedia: 'Odpri v Wikipediji',
+        loadingDescription: 'Nalagam opis...',
     }
 };
 const LanguageProvider = ({ children }) => {
@@ -452,7 +457,7 @@ function SensorVisualization() {
     };
     
     return (
-        <div className="relative p-4 sm:p-8 rounded-2xl shadow-2xl overflow-hidden border border-border-color/50 bg-gradient-to-br from-bg-main/90 to-white/80 backdrop-blur-sm">
+        <div className="relative p-4 sm:p-8 rounded-2xl shadow-2xl overflow-hidden border border-[var(--glass-border)] bg-gradient-to-br from-[var(--glass-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-gradient-to-br from-primary to-primary-dark rounded-xl shadow-lg">
@@ -592,60 +597,138 @@ function SensorVisualization() {
     );
 }
 
-const INaturalistFeed = ({ projectSlug }) => {
+// --- Page Components ---
+function Page({ title, children }) {
+    useEffect(() => { document.title = `${title} | Biotop Livada`; }, [title]);
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+        >
+            {children}
+        </motion.div>
+    );
+}
+
+function Section({ title, children, className = '' }) {
+    return (
+        <section className={`container mx-auto px-4 py-12 ${className}`}>
+            <h2 className="text-display text-3xl mb-8 text-center text-primary">{title}</h2>
+            <div className="relative z-10">
+                <GlassSection>
+                    {children}
+                </GlassSection>
+            </div>
+        </section>
+    );
+}
+
+
+
+function ProjectsPage() {
+    const { t, language } = useTranslation();
+    const [pageData, setPageData] = useState({ title: '', content: '' });
+
+    useEffect(() => {
+      const controller = new AbortController();
+      const signal = controller.signal;
+
+      const fetchContent = async () => {
+          const langFile = `/content/pages/intertwinings.${language}.md?v=${new Date().getTime()}`;
+          const defaultLangFile = `/content/pages/intertwinings.sl.md?v=${new Date().getTime()}`;
+          
+          try {
+              let response = await limit(() => fetch(langFile, { signal }));
+              if (!response.ok) { response = await limit(() => fetch(defaultLangFile, { signal })); }
+              if (!response.ok) { throw new Error('Intertwinings content file not found'); }
+              const text = await response.text();
+              const { metadata, content } = parseMarkdown(text);
+              setPageData({ title: metadata.title || t('navProjects'), content: content });
+          } catch (error) {
+            if (error.name !== 'AbortError') {
+              console.error("Failed to fetch page content, using fallback:", error);
+              setPageData({ title: t('navProjects'), content: t('projectFutureDesc') });
+            }
+          }
+      };
+
+      fetchContent();
+
+      return () => {
+        controller.abort();
+      };
+    }, [t, language]);
+
+    return (
+        <Page title={pageData.title}> 
+            <Section title={pageData.title}> 
+                <div 
+                    className="prose max-w-3xl mx-auto text-text-main mb-8
+                               [&_h2]:text-2xl [&_h2]:font-mono [&_h2]:text-primary 
+                               prose-li:[&_li::before]:bg-primary"
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked(pageData.content || '')) }} 
+                />
+                <div className="max-w-3xl mx-auto">
+                    <SensorVisualization />
+                    <HistoricalSensorVisualization />
+                </div>
+            </Section>
+        </Page>
+    );
+}
+
+function BiodiversityPage() {
+    const { t, language } = useTranslation();
+    const projectSlug = "the-livada-biotope-monitoring"; // Define projectSlug here
     const [observations, setObservations] = useState([]);
     const [page, setPage] = useState(1);
     const [canLoadMore, setCanLoadMore] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
-    const { t, language } = useTranslation();
-    const [hoveredObservation, setHoveredObservation] = useState(null);
     const [observationDataCache, setObservationDataCache] = useState({});
 
-    const handleMouseEnter = async (observation) => {
+    const fetchDescription = useCallback(async (lang, taxonName, signal) => {
+        const response = await limit(() => fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(taxonName.replace(/ /g, '_'))}`, { signal }));
+        if (!response.ok) {
+            return `No description found on ${lang} Wikipedia.`;
+        }
+        const data = await response.json();
+        return data.extract;
+    }, []);
+
+    const fetchObservationDetails = useCallback(async (observation, signal) => {
         if (observationDataCache[observation.id]) {
-            setHoveredObservation({ ...observation, ...observationDataCache[observation.id] });
-            return;
+            return { ...observation, ...observationDataCache[observation.id] };
         }
 
-        setHoveredObservation(observation); // Show basic info immediately
-
         try {
-            const fetchDescription = async (lang, taxonName) => {
-                const response = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(taxonName.replace(/ /g, '_'))}`);
-                if (!response.ok) {
-                    return `No description found on ${lang} Wikipedia.`;
-                }
-                const data = await response.json();
-                return data.extract;
-            };
-
             const taxonName = observation.taxon.name;
             const [enDescription, slDescription] = await Promise.all([
-                fetchDescription('en', taxonName),
-                fetchDescription('sl', taxonName)
+                fetchDescription('en', taxonName, signal),
+                fetchDescription('sl', taxonName, signal)
             ]);
 
-            const newData = {
+            const newData = { 
                 en: { description: enDescription },
                 sl: { description: slDescription }
             };
 
             setObservationDataCache(prevCache => ({ ...prevCache, [observation.id]: newData }));
-            setHoveredObservation(prevObservation => ({ ...prevObservation, ...newData }));
+            return { ...observation, ...newData };
 
         } catch (error) {
-            console.error("Error fetching observation data:", error);
+            if (error.name !== 'AbortError') {
+              console.error("Error fetching observation data:", error);
+            }
+            return observation;
         }
-    };
+    }, [observationDataCache, fetchDescription]);
 
-    const handleMouseLeave = () => {
-        setHoveredObservation(null);
-    };
-
-    const fetchObservations = useCallback(async (pageNum) => {
+    const fetchObservations = useCallback(async (pageNum, signal) => {
         setIsLoading(true);
         try {
-            const response = await fetch(`https://api.inaturalist.org/v1/observations?project_id=${projectSlug}&per_page=12&page=${pageNum}&order_by=observed_on&order=desc&locale=${language}`);
+            const response = await limit(() => fetch(`https://api.inaturalist.org/v1/observations?project_id=${projectSlug}&per_page=12&page=${pageNum}&order_by=observed_on&order=desc&locale=${language}`, { signal }));
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             setObservations(prev => pageNum === 1 ? data.results : [...prev, ...data.results]);
@@ -653,14 +736,21 @@ const INaturalistFeed = ({ projectSlug }) => {
                 setCanLoadMore(false);
             }
         } catch (err) {
-            console.error("iNaturalist fetch error:", err);
+            if (err.name !== 'AbortError') {
+              console.error("iNaturalist fetch error:", err);
+            }
         } finally {
             setIsLoading(false);
         }
     }, [projectSlug, language]);
 
     useEffect(() => {
-        fetchObservations(1);
+      const controller = new AbortController();
+      fetchObservations(1, controller.signal);
+
+      return () => {
+        controller.abort();
+      };
     }, [fetchObservations]);
 
     const handleLoadMore = () => {
@@ -670,556 +760,27 @@ const INaturalistFeed = ({ projectSlug }) => {
     };
 
     return (
-        <div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
-                {observations.map((obs, index) => {
-                    let displayName = obs.taxon?.preferred_common_name || obs.taxon?.name || "Unknown";
-                    if (language === 'sl') {
-                        displayName = displayName.toLowerCase();
-                    }
-                    const imageUrl = obs.photos[0]?.url?.replace('square', 'medium') || `https://placehold.co/500x500/2d3748/a0aec0?text=No+Image`;
-                    const observationUrl = obs.uri;
-
-                    const currentObservationData = hoveredObservation && hoveredObservation.id === obs.id ? hoveredObservation : obs;
-                    const description = currentObservationData[language]?.description;
-
-                    // Create varied animation patterns
-                    const isEven = index % 2 === 0;
-                    const rotateClass = isEven ? 'group-hover/pin:rotate-2' : 'group-hover/pin:-rotate-2';
-                    const translateClass = isEven ? 'group-hover/pin:-translate-x-1 group-hover/pin:-translate-y-2' : 'group-hover/pin:translate-x-1 group-hover/pin:-translate-y-1';
-
-                    return (
-                        <PinContainer
-                            key={obs.id}
-                            title={displayName}
-                            href={observationUrl}
-                            onMouseEnter={() => handleMouseEnter(obs)}
-                            onMouseLeave={handleMouseLeave}
-                        >
-                            <div className="flex flex-col w-[240px] h-[200px] group-hover/pin:preserve-3d relative overflow-visible group-hover/pin:z-30">
-                                <div className="relative w-full h-[140px] rounded-lg mb-3 overflow-visible transition-all duration-700 ease-out group-hover/pin:translate-z-[150px] group-hover/pin:-translate-y-12 group-hover/pin:z-50">
-                                    {/* Backdrop effect */}
-                                    <div className="absolute inset-0 opacity-0 group-hover/pin:opacity-100 transition-opacity duration-700 ease-out group-hover/pin:fixed group-hover/pin:top-0 group-hover/pin:left-0 group-hover/pin:w-screen group-hover/pin:h-screen group-hover/pin:bg-black/30 group-hover/pin:backdrop-blur-sm group-hover/pin:z-40 pointer-events-none"></div>
-                                    <img
-                                        src={imageUrl}
-                                        alt={displayName}
-                                        className={`w-full h-full object-cover transition-all duration-700 ease-out group-hover/pin:scale-[3] ${rotateClass} ${translateClass} group-hover/pin:shadow-[0_25px_50px_rgba(0,0,0,0.7)] rounded-lg group-hover/pin:rounded-xl group-hover/pin:ring-4 group-hover/pin:ring-white/30 group-hover/pin:z-50`}
-                                        loading="lazy"
-                                        onError={(e) => {
-                                            e.target.onerror = null;
-                                            e.target.src = `https://placehold.co/500x500/2d3748/a0aec0?text=No+Image`;
-                                        }}
-                                    />
-                                </div>
-                                <div className="flex-1 px-3">
-                                    <h3 className="font-semibold text-base text-slate-800 mb-2 line-clamp-2 transition-all duration-700 group-hover/pin:translate-z-[50px] group-hover/pin:opacity-0" title={displayName}>
-                                        {displayName}
-                                    </h3>
-                                    <p className="text-sm text-slate-600 mb-1 transition-all duration-700 group-hover/pin:translate-z-[25px] group-hover/pin:opacity-0">
-                                        {new Date(obs.observed_on_string).toLocaleDateString(language)}
-                                    </p>
-                                </div>
-                                {(description || true) && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/95 via-black/85 to-transparent backdrop-blur-sm p-4 transform translate-y-full opacity-0 group-hover/pin:translate-y-0 group-hover/pin:opacity-100 transition-all duration-600 ease-out rounded-b-lg">
-                                        <div className="flex items-start justify-between h-full">
-                                            <p className="text-sm leading-relaxed line-clamp-3 text-white font-medium flex-1 pr-3 transform translate-y-3 group-hover/pin:translate-y-0 transition-all duration-400 delay-150 ease-out" style={{textShadow: '1px 1px 2px rgba(0,0,0,0.8)'}}>
-                                                {description || "Hover to see more information about this species..."}
-                                            </p>
-                                            <div className="flex gap-2 transform translate-y-3 group-hover/pin:translate-y-0 transition-all duration-400 delay-250 ease-out">
-                                                <a
-                                                    href={`https://${language}.wikipedia.org/wiki/${encodeURIComponent(obs.taxon?.name?.replace(/ /g, '_') || '')}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="w-7 h-7 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
-                                                    title={`${language === 'sl' ? 'Odpri v Wikipediji' : 'Open in Wikipedia'}`}
-                                                >
-                                                    <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                                        <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.624 5.367 11.99 11.988 11.99s11.99-5.366 11.99-11.99C24.007 5.367 18.641.001 12.017.001zM1.522 12.263h4.34c.022 1.739.112 3.43.267 5.046h-3.3c-.835-1.539-1.29-3.273-1.307-5.046zm.178-1.05c.017-1.773.472-3.507 1.307-5.046h3.3c-.155 1.616-.245 3.307-.267 5.046H1.7zM11.267 2.047c-.483.72-.908 1.717-1.25 2.922-.396 1.397-.681 2.938-.83 4.544H6.328c.485-3.425 2.539-6.337 5.939-7.466zM5.328 10.56H8.187c.149 1.606.434 3.147.83 4.544.342 1.205.767 2.202 1.25 2.922-3.4-1.129-5.454-4.041-5.939-7.466zm.178 8.558h3.3c.845 1.539 1.8 2.732 2.789 3.466-2.506-.577-4.734-1.957-6.089-3.466zm5.961 3.427c-.989-.734-1.944-1.927-2.789-3.466h5.578c-.845 1.539-1.8 2.732-2.789 3.466zm4.042-4.515H12.75c-.396-1.397-.681-2.938-.83-4.544H15.509c-.149 1.606-.434 3.147-.83 4.544z"/>
-                                                    </svg>
-                                                </a>
-                                                <a
-                                                    href={observationUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="w-7 h-7 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
-                                                    title={`${language === 'sl' ? 'Odpri v iNaturalist' : 'Open in iNaturalist'}`}
-                                                >
-                                                    <img
-                                                        src="https://www.inaturalist.org/favicon.ico"
-                                                        alt="iNaturalist"
-                                                        className="w-3.5 h-3.5"
-                                                        onError={(e) => {
-                                                            e.target.style.display = 'none';
-                                                            e.target.nextSibling.style.display = 'block';
-                                                        }}
-                                                    />
-                                                    <svg className="w-3.5 h-3.5 text-white hidden" fill="currentColor" viewBox="0 0 24 24">
-                                                        <path d="M18.75 12c0 .7-.1 1.4-.4 2l1.8 1.8c.6-1.2 1-2.5 1-3.8 0-4.4-3.6-8-8-8s-8 3.6-8 8 3.6 8 8 8c1.3 0 2.6-.4 3.8-1l-1.8-1.8c-.6.3-1.3.4-2 .4-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6z"/>
-                                                        <path d="M12 7c-2.8 0-5 2.2-5 5s2.2 5 5 5c1.1 0 2.1-.3 2.9-.9l-2.1-2.1c-.3.1-.5.1-.8.1-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3c0 .3 0 .5-.1.8l2.1 2.1c.6-.8.9-1.8.9-2.9 0-2.8-2.2-5-5-5z"/>
-                                                    </svg>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </PinContainer>
-                    )
-                })}
-            </div>
-            <div className="text-center mt-8">
-                {canLoadMore && (
-                    <button onClick={handleLoadMore} disabled={isLoading} className="bg-primary/90 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-primary transition-colors disabled:bg-text-muted">
-                        {isLoading ? t('loading') : t('loadMore')}
-                    </button>
-                )}
-                {!canLoadMore && observations.length > 0 && (
-                    <p className="text-text-muted mt-4">{t('noMoreObservations')}</p>
-                )}
-            </div>
-        </div>
-    );
-}
-
-const CalendarFeed = ({ icsUrl, calendarUrl }) => {
-    const [events, setEvents] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const { t, language } = useTranslation();
-  
-    /* -------- month navigation -------- */
-    const today = new Date();
-    const [viewYear, setViewYear] = useState(today.getFullYear());
-    const [viewMonth, setViewMonth] = useState(today.getMonth());
-  
-    const changeMonth = (delta) => {
-      const d = new Date(viewYear, viewMonth + delta, 1);
-      setViewYear(d.getFullYear());
-      setViewMonth(d.getMonth());
-    };
-  
-    /* -------- fetch & parse -------- */
-    useEffect(() => {
-        const parseICS = (icsText) => {
-          const blocks = icsText.split('BEGIN:VEVENT');
-          blocks.shift();
-          const parsed = [];
-      
-          for (const block of blocks) {
-            const summary  = (block.match(/^SUMMARY:(.*)/m)?.[1] ?? '').trim();
-            const location = (block.match(/^LOCATION:(.*)/m)?.[1] ?? '').trim().replace(/\,/g, ',');
-            const uid      = (block.match(/^UID:(.*)/m)?.[1] ?? '').trim();
-      
-            let description = '';
-            const descStart = block.search(/^DESCRIPTION:/im);
-            if (descStart !== -1) {
-              description = block
-                .slice(descStart + 12)               // +12 skips "DESCRIPTION:" + the colon
-                .split(/\r?\n/)
-                .reduce((a, l) => (/^[	 ]/.test(l) ? a + l.trimStart() : /^[A-Z-]+:/.test(l) ? a + '\0' : a + l), '')
-                .split('\0')[0]
-                .replace(/\((.)\)/g, '$1')
-                .replace(/<br\s*\/?\?>/gi, '\n')
-                .replace(/<a\b[^>]*>(.*?)<\/a>/gi, '$1')
-                .replace(/\n{3,}/g, '\n\n')
-                .trim();
-
-              if (description.length > 200) {
-                description = description.slice(0, 200).split('\n').slice(0, 3).join('\n').replace(/\s+$/, '') + '…';
-              }
-            }
-      
-            const dt = block.match(/DTSTART(?:;TZID=[^:]*)?:(.*)/);
-            if (!dt) continue;
-            const raw = dt[1].trim();
-            const startDate = new Date(Date.UTC(
-              +raw.slice(0, 4),
-              +raw.slice(4, 6) - 1,
-              +raw.slice(6, 8),
-              raw.length > 8 ? +raw.slice(9, 11) : 0,
-              raw.length > 8 ? +raw.slice(11, 13) : 0
-            ));
-            parsed.push({ uid, summary, description, location, startDate });
-          }
-      
-          return parsed.sort((a, b) => +a.startDate - +b.startDate);
-        };
-      
-        const proxy = 'https://api.allorigins.win/raw?url=';
-        fetch(proxy + encodeURIComponent(icsUrl))
-          .then(r => (r.ok ? r.text() : Promise.reject(r.status)))
-          .then(t => setEvents(parseICS(t)))
-          .catch(e => console.error('ICS error:', e))
-          .finally(() => setIsLoading(false));
-      }, [icsUrl]);
-  
-    /* -------- events for the current month -------- */
-    const currentMonthEvents = useMemo(() => {
-      const monthStart = new Date(viewYear, viewMonth, 1);
-      const monthEnd = new Date(viewYear, viewMonth + 1, 1);
-  
-      return events.filter(
-        (e) => e.startDate >= monthStart && e.startDate < monthEnd
-      );
-    }, [events, viewYear, viewMonth]);
-  
-    if (isLoading) return <div className="text-body text-center text-text-muted">{t('loading')}...</div>;
-  
-    const monthName = new Date(viewYear, viewMonth).toLocaleString(language, {
-      month: 'long',
-      year: 'numeric',
-    });
-  
-    return (
-      <div className="max-w-2xl mx-auto bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={() => changeMonth(-1)}
-            className="px-3 py-1 rounded bg-primary/10 hover:bg-primary/20"
-          >
-            &larr;
-          </button>
-          <span className="font-bold text-lg">{monthName}</span>
-          <button
-            onClick={() => changeMonth(1)}
-            className="px-3 py-1 rounded bg-primary/10 hover:bg-primary/20"
-          >
-            &rarr;
-          </button>
-        </div>
-  
-        <ul className="space-y-4">
-          {currentMonthEvents.map((e) => (
-            <EventRow key={e.uid} event={e} lang={language} />
-          ))}
-          {currentMonthEvents.length === 0 && (
-            <p className="text-center text-text-muted">{t('noUpcomingEvents')}</p>
-          )}
-        </ul>
-  
-        <div className="mt-6 text-center">
-          <a
-            href={calendarUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-              />
-            </svg>
-            {t('openInGoogleCalendar')}
-          </a>
-        </div>
-      </div>
-    );
-  };
-
-// --- Page Components ---
-function Page({ title, children }) {
-    useEffect(() => { document.title = `${title} | Biotop Livada`; }, [title]);
-    return <div>{children}</div>;
-}
-
-function Section({ title, children, className = '' }) {
-    return (
-        <section className={`container mx-auto px-4 py-12 ${className}`}>
-            <h2 className="text-display text-3xl mb-8 text-center text-primary">{title}</h2>
-            <div className="relative z-10">{children}</div>
-        </section>
-    );
-}
-
-function MemoryGame() {
-    const { t } = useTranslation();
-    const [cards, setCards] = useState([]);
-    const [flipped, setFlipped] = useState([]);
-    const [matched, setMatched] = useState([]);
-    const [moves, setMoves] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [gameMode, setGameMode] = useState('sl');
-  
-    const resetGame = (mode = gameMode) => {
-      setGameMode(mode);
-      setFlipped([]);
-      setMatched([]);
-      setMoves(0);
-    };
-  
-    /* ---------- fetch cards ---------- */
-    useEffect(() => {
-      const fetchCards = async () => {
-        setLoading(true);
-        const localeParam = gameMode !== 'latin' ? `&locale=${gameMode}` : '';
-        try {
-          const res = await fetch(
-            `https://api.inaturalist.org/v1/observations?project_id=the-livada-biotope-monitoring&per_page=12&quality_grade=research&order_by=random${localeParam}`
-          );
-          const data = await res.json();
-          const observations = data.results.filter(o => o.photos?.length);
-          const newCards = observations.flatMap(obs => [
-            {
-              id: `${obs.id}-img`,
-              type: 'image',
-              content: obs.photos[0].url.replace('square', 'medium'),
-              organismId: obs.id
-            },
-            {
-              id: `${obs.id}-txt`,
-              type: 'text',
-              content: (() => {
-                switch(gameMode) {
-                  case 'sl':
-                    return (obs.taxon?.preferred_common_name || obs.taxon?.name || 'Unknown').toLowerCase();
-                  case 'latin':
-                    return obs.taxon?.name || 'Unknown'; // Always use scientific name for latin mode
-                  default:
-                    return obs.taxon?.preferred_common_name || obs.taxon?.name || 'Unknown';
-                }
-              })(),
-              organismId: obs.id
-            }
-          ]);
-          setCards(newCards.sort(() => Math.random() - 0.5));
-        } catch {
-          setCards([]);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchCards();
-    }, [gameMode]);
-  
-    /* ---------- click handler ---------- */
-    const handleCardClick = idx => {
-      // Don't allow clicking already matched or flipped cards
-      if (matched.includes(idx) || flipped.includes(idx) || flipped.length >= 2) return;
-      
-      const newFlipped = [...flipped, idx];
-      setFlipped(newFlipped);
-      
-      // If this is the second card flipped
-      if (newFlipped.length === 2) {
-        setMoves(m => m + 1);
-        const [firstIdx, secondIdx] = newFlipped;
-        const isMatch = cards[firstIdx].organismId === cards[secondIdx].organismId && 
-                       cards[firstIdx].type !== cards[secondIdx].type;
-        
-        if (isMatch) {
-          // Add both cards to matched and clear flipped state
-          setMatched(prev => [...new Set([...prev, ...newFlipped])]);
-          setFlipped([]);
-        } else {
-          // Only reset flip state for non-matches after a delay
-          setTimeout(() => setFlipped([]), 1200);
-        }
-      }
-    };
-  
-    /* ---------- render ---------- */
-    if (loading) return <div className="text-body max-w-6xl mx-auto text-center py-12 text-text-muted">{t('loading')}...</div>;
-  
-    return (
-      <div className="max-w-6xl mx-auto">
-        {/* header */}
-        <div className="text-center mb-8">
-          <h3 className="text-xl sm:text-2xl font-mono font-bold text-primary">{t('memoryGameTitle')}</h3>
-          <p className="text-text-muted">{t('moves')}: {moves}</p>
-          <div className="flex justify-center gap-2 md:gap-4 mt-4">
-            {['sl', 'en', 'latin'].map(m => (
-              <button
-                key={m}
-                onClick={() => resetGame(m)}
-                className={`px-3 py-2 rounded-lg transition ${gameMode === m ? 'bg-primary text-white shadow' : 'bg-bg-main'}`}
-              >
-                {t(m === 'sl' ? 'slovenian' : m === 'en' ? 'english' : 'latin')}
-              </button>
-            ))}
-          </div>
-        </div>
-          {/* ---------- card grid ---------- */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
-            {cards.map((card, idx) => {
-              const isFlipped = flipped.includes(idx);
-              const isMatched = matched.includes(idx);
-              
-              if (isMatched) {
-                return (
-                  <AnimatePresence key={card.id}>
-                    <motion.div
-                      className="relative w-full aspect-square"
-                      initial={{ opacity: 1, scale: 1 }}
-                      animate={{ opacity: 0.8, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.3 } }}
-                      transition={{ duration: 0.5 }}
-                      style={{
-                        transformStyle: 'preserve-3d',
-                        WebkitTransformStyle: 'preserve-3d',
-                        position: 'relative',
-                        perspective: '1000px',
-                        zIndex: 1,
-                      }}
-                    >
-                      <div className="absolute inset-0 bg-white flex items-center justify-center p-2 rounded-lg overflow-hidden"
-                        style={{
-                          backfaceVisibility: 'hidden',
-                          WebkitBackfaceVisibility: 'hidden',
-                          transform: 'rotateY(180deg)',
-                          transformStyle: 'preserve-3d',
-                          zIndex: 2,
-                          pointerEvents: 'none'
-                        }}
-                      >
-                        {card.type === 'image' ? (
-                          <img
-                            src={card.content}
-                            alt=""
-                            className="w-full h-full object-cover rounded-md"
-                          />
-                        ) : (
-                          <span className="text-sm md:text-base font-medium text-center">
-                            {card.content}
-                          </span>
-                        )}
-                      </div>
-                    </motion.div>
-                  </AnimatePresence>
-                );
-              }
-              
-              // For non-matched cards, render with flip animation
-              return (
-                <motion.div
-                  key={card.id}
-                  className="relative w-full aspect-square cursor-pointer"
-                  onClick={() => handleCardClick(idx)}
-                  initial={false}
-                  animate={{
-                    rotateY: isFlipped ? 180 : 0,
-                    scale: isFlipped ? 1.6 : 1,
-                    zIndex: isFlipped ? 10 : 1
-                  }}
-                  transition={{
-                    rotateY: { duration: 0.5 },
-                    scale: { duration: 0.3 }
-                  }}
-                  style={{
-                    transformStyle: 'preserve-3d',
-                    WebkitTransformStyle: 'preserve-3d',
-                    position: 'relative',
-                    perspective: '1000px',
-                    transform: 'rotateY(0deg)'
-                  }}
-                >
-                  {/* back */}
-                  <div
-                    className="absolute inset-0 bg-primary/10 rounded-lg shadow-md flex items-center justify-center overflow-hidden"
-                    style={{
-                      backfaceVisibility: 'hidden',
-                      WebkitBackfaceVisibility: 'hidden',
-                      transform: 'rotateY(0deg)'
-                    }}
-                  >
-                    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="opacity-60">
-                      <defs>
-                        <pattern id="cardPattern" patternUnits="userSpaceOnUse" width="25" height="25" patternTransform="rotate(45)">
-                          <circle cx="5" cy="5" r="1.5" fill="var(--text-sunset)" />
-                          <circle cx="15" cy="15" r="2" fill="var(--text-sage)" />
-                        </pattern>
-                      </defs>
-                      <rect width="100%" height="100%" fill="url(#cardPattern)" />
-                    </svg>
-                  </div>
-
-                  {/* front (photo or text) */}
-                  <div
-                    className="absolute inset-0 bg-white flex items-center justify-center p-2 rounded-lg overflow-hidden"
-                    style={{
-                      backfaceVisibility: 'hidden',
-                      WebkitBackfaceVisibility: 'hidden',
-                      transform: 'rotateY(180deg)',
-                      transformStyle: 'preserve-3d',
-                      zIndex: 2,
-                      pointerEvents: 'none'
-                    }}
-                  >
-                    {card.type === 'image' ? (
-                      <img
-                        src={card.content}
-                        alt=""
-                        className="w-full h-full object-cover rounded-md"
-                      />
-                    ) : (
-                      <span className="text-sm md:text-base font-medium text-center">
-                        {card.content}
-                      </span>
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-      </div>
-    );
-  }
-
-function ProjectsPage() {
-    const { t, language } = useTranslation();
-    const [pageData, setPageData] = useState({ title: '', content: '' });
-
-    useEffect(() => {
-        const fetchContent = async () => {
-            const langFile = `/content/pages/intertwinings.${language}.md?v=${new Date().getTime()}`;
-            const defaultLangFile = `/content/pages/intertwinings.sl.md?v=${new Date().getTime()}`;
-            
-            try {
-                let response = await fetch(langFile);
-                if (!response.ok) { response = await fetch(defaultLangFile); }
-                if (!response.ok) { throw new Error('Intertwinings content file not found'); }
-                const text = await response.text();
-                const { metadata, content } = parseMarkdown(text);
-                setPageData({ title: metadata.title || t('navProjects'), content: content });
-            } catch (error) {
-                console.error("Failed to fetch page content, using fallback:", error);
-                setPageData({ title: t('navProjects'), content: t('projectFutureDesc') });
-            }
-        };
-
-        fetchContent();
-    }, [t, language]);
-
-    return (
-        <Page title={pageData.title}>
-            <Section title={pageData.title}> 
-                <div 
-                    className="prose max-w-3xl mx-auto text-text-main 
-                               [&_h2]:text-2xl [&_h2]:font-mono [&_h2]:text-primary 
-                               prose-li:[&_li::before]:bg-primary"
-                    dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} 
-                />
-                <SensorVisualization />
-                <HistoricalSensorVisualization />
-            </Section>
-        </Page>
-    );
-}
-
-function BiodiversityPage() {
-    const { t } = useTranslation();
-    return (
         <Page title={t('navBiodiversity')}> 
-            <Section title={t('biodiversityTitle')}> 
+            <Section title={t('biodiversityTitle')}>
                 <p className="text-body-lg mb-8 text-text-muted max-w-3xl mx-auto text-center">{t('biodiversityDesc')}</p>
-                <INaturalistFeed projectSlug="the-livada-biotope-monitoring" />
+                <div className="max-w-3xl mx-auto">
+                    <ExpandableBiodiversityCard
+                        observations={observations}
+                        fetchObservationDetails={fetchObservationDetails}
+                        language={language}
+                        t={t}
+                    />
+                </div>
+                <div className="text-center mt-8">
+                    {canLoadMore && (
+                        <button onClick={handleLoadMore} disabled={isLoading} className="bg-primary/90 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-primary transition-colors disabled:bg-text-muted">
+                            {isLoading ? t('loading') : t('loadMore')}
+                        </button>
+                    )}
+                    {!canLoadMore && observations.length > 0 && (
+                        <p className="text-text-muted mt-4">{t('noMoreObservations')}</p>
+                    )}
+                </div>
             </Section>
         </Page>
     );
@@ -1231,8 +792,12 @@ function CalendarPage() {
         <Page title={t('navCalendar')}> 
             <Section title={t('calendarTitle')}> 
                 <p className="text-body-lg mb-8 text-text-muted max-w-3xl mx-auto text-center">{t('calendarDesc')}</p>
-                <CalendarFeed icsUrl="https://calendar.google.com/calendar/ical/c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com/public/basic.ics"
-                calendarUrl="https://calendar.google.com/calendar/embed?src=c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com&ctz=Europe%2FBelgrade"/>
+                <div className="max-w-3xl mx-auto">
+                    <CalendarFeed 
+                        icsUrl="https://calendar.google.com/calendar/ical/c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com/public/basic.ics"
+                        calendarUrl="https://calendar.google.com/calendar/embed?src=c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com&ctz=Europe%2FBelgrade"
+                    />
+                </div>
             </Section>
         </Page>
     );
@@ -1311,6 +876,7 @@ function ContentCollectionPage({ t, title, contentPath }) {
     const [items, setItems] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const { language } = useTranslation();
+    const contentRef = useRef({});
 
     // Process markdown content when items change
     const processedItems = useMemo(() => {
@@ -1321,10 +887,13 @@ function ContentCollectionPage({ t, title, contentPath }) {
     }, [items]);
   
     useEffect(() => {
+      const controller = new AbortController();
+      const signal = controller.signal;
+
       const fetchContent = async () => {
         setIsLoading(true);
         try {
-          const manifestResponse = await fetch(`/${contentPath}/manifest.json`);
+          const manifestResponse = await limit(() => fetch(`/${contentPath}/manifest.json`, { signal }));
           if (!manifestResponse.ok) throw new Error('Manifest not found');
           const manifest = await manifestResponse.json();
   
@@ -1336,8 +905,8 @@ function ContentCollectionPage({ t, title, contentPath }) {
               const langFile = `${baseName}${langSuffix}`;
               const defaultFile = `${baseName}.sl.md`;
               let file = langFile;
-              let res = await fetch(`/${contentPath}/${file}`);
-              if (!res.ok) { file = defaultFile; res = await fetch(`/${contentPath}/${file}`); } 
+              let res = await limit(() => fetch(`/${contentPath}/${file}`, { signal }));
+              if (!res.ok) { file = defaultFile; res = await limit(() => fetch(`/${contentPath}/${file}`, { signal })); } 
               if (!res.ok) return null;
   
               const text = await res.text();
@@ -1349,16 +918,30 @@ function ContentCollectionPage({ t, title, contentPath }) {
           validItems.sort((a, b) => (a.metadata.date && b.metadata.date) ? new Date(b.metadata.date) - new Date(a.metadata.date) : 0);
           setItems(validItems);
         } catch (err) {
-          console.error(`Error fetching ${contentPath}:`, err);
-          setItems([]);
+          if (err.name !== 'AbortError') {
+            console.error(`Error fetching ${contentPath}:`, err);
+            setItems([]);
+          }
         } finally {
           setIsLoading(false);
         }
       };
       fetchContent();
+
+      return () => {
+        controller.abort();
+      };
     }, [contentPath, language]);
 
-// Removed Mermaid initialization and rendering useEffect from ContentCollectionPage
+    useEffect(() => {
+        if (isLoading) return;
+        processedItems.forEach(item => {
+            if (contentRef.current[item.id] && contentRef.current[item.id].innerHTML !== item.processedContent) {
+                contentRef.current[item.id].innerHTML = item.processedContent;
+                renderMermaid(contentRef.current[item.id]);
+            }
+        });
+    }, [processedItems, isLoading]);
   
     if (isLoading) {
       return (
@@ -1372,8 +955,8 @@ function ContentCollectionPage({ t, title, contentPath }) {
       <Page title={title}> 
         <Section title={title}> 
           <div className="space-y-8 max-w-3xl mx-auto">
-            {processedItems.length ? processedItems.map(item => (
-              <div key={item.id} className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md">
+                        {processedItems.length ? processedItems.map(item => (
+              <GlassCard key={item.id}> 
                 {item.metadata.date && (
                   <p className="text-accent text-sm text-text-muted mb-1">
                     {new Date(item.metadata.date).toLocaleDateString(language)}
@@ -1383,11 +966,13 @@ function ContentCollectionPage({ t, title, contentPath }) {
                 
                 {/* Single content render with Mermaid and video embeds */}
                 <div
-                  className="prose-organic max-w-none"
-                  dangerouslySetInnerHTML={{ __html: item.processedContent }}
+                  className="prose-organic max-w-none mb-4"
                   ref={node => {
-                    if (!node) return;
-                    renderMermaid(node);
+                    if (node && !contentRef.current[item.id]) {
+                        contentRef.current[item.id] = node;
+                        node.innerHTML = item.processedContent;
+                        renderMermaid(node);
+                    }
                   }}
                 />
   
@@ -1403,7 +988,7 @@ function ContentCollectionPage({ t, title, contentPath }) {
                     ))}
                   </div>
                 )}
-              </div>
+              </GlassCard>
             )) : (
               <p className="text-center text-text-muted">{t('noMoreObservations')}</p>
             )}
@@ -1413,168 +998,161 @@ function ContentCollectionPage({ t, title, contentPath }) {
     );
   }
 
+const LazyImage = ({ src, srcSet, sizes, alt, className, layoutId }) => {
+    const [isLoaded, setIsLoaded] = useState(false);
+    const ref = useRef();
+
+    useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setIsLoaded(true);
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+
+        if (ref.current) {
+            observer.observe(ref.current);
+        }
+
+        return () => {
+            if (ref.current) {
+                observer.unobserve(ref.current);
+            }
+        };
+    }, []);
+
+    return (
+        <div ref={ref} className={className} style={{ position: 'relative', paddingBottom: '100%' }}>
+            {isLoaded && (
+                <motion.img
+                    src={src}
+                    srcSet={srcSet}
+                    sizes={sizes}
+                    alt={alt}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    layoutId={layoutId}
+                />
+            )}
+        </div>
+    );
+};
+
 function GalleryPage() {
     const { t, language } = useTranslation();
     const [galleries, setGalleries] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedImage, setSelectedImage] = useState(null);
-    const overlayRef = useRef(null);
+    const [expandedGallery, setExpandedGallery] = useState(null);
+    const [expandedImageIndex, setExpandedImageIndex] = useState(null);
+    const [hoveredGalleryItem, setHoveredGalleryItem] = useState(null);
     
     // Fetch galleries
     useEffect(() => {
-        const fetchGalleries = async () => {
-            setIsLoading(true);
-            try {
-                const manifestResponse = await fetch('/content/galleries/manifest.json');
-                if (!manifestResponse.ok) throw new Error('Gallery manifest not found');
-                const manifest = await manifestResponse.json();
-                const baseFileNames = [...new Set(
-                    manifest.files.map(f => f.replace(/\.(sl|en)\.md$/, ''))
-                )];
+      const controller = new AbortController();
+      const signal = controller.signal;
 
-                const fetchedGalleries = await Promise.all(
-                    baseFileNames.map(async baseName => {
-                        const langFile = `${baseName}.${language}.md`;
-                        const defaultLangFile = `${baseName}.sl.md`;
-                        let fileToFetch = langFile;
-                        let res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`);
-                        
-                        if (!res.ok) { fileToFetch = defaultLangFile; res = await fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`); } 
-                        if (!res.ok) return null;
+      const fetchGalleries = async () => {
+          setIsLoading(true);
+          try {
+              const manifestResponse = await limit(() => fetch('/content/galleries/manifest.json', { signal }));
+              if (!manifestResponse.ok) throw new Error('Gallery manifest not found');
+              const manifest = await manifestResponse.json();
+              const baseFileNames = [...new Set(
+                  manifest.files.map(f => f.replace(/\.(sl|en)\.md$/, ''))
+              )];
 
-                        const text = await res.text();
-                        const { metadata } = parseMarkdown(text);
-                        return { id: baseName, ...metadata };
-                    })
-                );
-                
-                const validGalleries = fetchedGalleries.filter(gallery => 
-                    gallery && gallery.images && gallery.images.length > 0
-                ).sort((a, b) => new Date(b.date) - new Date(a.date));
-                
-                setGalleries(validGalleries);
-            } catch (error) {
+              const fetchedGalleries = await Promise.all(
+                  baseFileNames.map(async baseName => {
+                      const langFile = `${baseName}.${language}.md`;
+                      const defaultLangFile = `${baseName}.sl.md`;
+                      let fileToFetch = langFile;
+                      let res = await limit(() => fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`, { signal }));
+                      
+                      if (!res.ok) { fileToFetch = defaultLangFile; res = await limit(() => fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`, { signal })); } 
+                      if (!res.ok) return null;
+
+                      const text = await res.text();
+                      const { metadata } = parseMarkdown(text);
+                      return { id: baseName, ...metadata };
+                  })
+              );
+              
+              const validGalleries = fetchedGalleries.filter(gallery => 
+                  gallery && gallery.images && gallery.images.length > 0
+              ).sort((a, b) => new Date(b.date) - new Date(a.date));
+              
+              setGalleries(validGalleries);
+          } catch (error) {
+              if (error.name !== 'AbortError') {
                 console.error("Failed to load galleries:", error);
                 setGalleries([]);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        
-        fetchGalleries();
+              }
+          } finally {
+              setIsLoading(false);
+          }
+      };
+      
+      fetchGalleries();
+
+      return () => {
+        controller.abort();
+      };
     }, [language]);
 
-    const openImage = (gallery, imageIndex, event) => {
-        setSelectedImage({ gallery, imageIndex });
-        document.body.style.overflow = 'hidden';
-        document.documentElement.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
-      };
+    const openImage = (gallery, imageIndex) => {
+      setExpandedGallery(gallery);
+      setExpandedImageIndex(imageIndex);
+    };
 
     const closeImage = () => {
-        setSelectedImage(null);
-        document.body.style.overflow = '';
-        document.documentElement.style.paddingRight = '';
+      setExpandedGallery(null);
+      setExpandedImageIndex(null);
     };
 
+    const goToPrev = () => {
+      if (!expandedGallery || expandedImageIndex === null) return;
+      const totalImages = expandedGallery.images.length;
+      const prevIndex = (expandedImageIndex - 1 + totalImages) % totalImages;
+      setExpandedImageIndex(prevIndex);
+    };
+
+    const goToNext = () => {
+      if (!expandedGallery || expandedImageIndex === null) return;
+      const totalImages = expandedGallery.images.length;
+      const nextIndex = (expandedImageIndex + 1) % totalImages;
+      setExpandedImageIndex(nextIndex);
+    };
+
+    // Preload images
     useEffect(() => {
-        if (!selectedImage) return;
-
-        const handleKeyDown = (e) => {
-            const { gallery, imageIndex } = selectedImage;
-            const totalImages = gallery.images.length;
-            
-            switch (e.key) {
-                case 'Escape':
-                    closeImage();
-                    break;
-                case 'ArrowLeft':
-                    e.preventDefault();
-                    const prevIndex = (imageIndex - 1 + totalImages) % totalImages;
-                    setSelectedImage({ gallery, imageIndex: prevIndex });
-                    break;
-                case 'ArrowRight':
-                    e.preventDefault();
-                    const nextIndex = (imageIndex + 1) % totalImages;
-                    setSelectedImage({ gallery, imageIndex: nextIndex });
-                    break;
-                default:
-                    break;
-            }
-        };
-
-        const handleClickOutside = (e) => {
-            if (overlayRef.current && !overlayRef.current.contains(e.target)) {
-                closeImage();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        document.addEventListener('mousedown', handleClickOutside);
-        document.addEventListener('touchend', handleClickOutside); // Add touchend listener
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            document.removeEventListener('mousedown', handleClickOutside);
-            document.removeEventListener('touchend', handleClickOutside); // Clean up touchend listener
-        };
-    }, [selectedImage]);
-
-    const [touchStart, setTouchStart] = useState(null);
-    const [touchEnd, setTouchEnd] = useState(null);
-    const minSwipeDistance = 50;
-
-    const onTouchStart = (e) => {
-        setTouchStart(e.targetTouches[0].clientX);
-        setTouchEnd(null);
-    };
-
-    const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
-
-    const onTouchEnd = () => {
-        if (!touchStart || !touchEnd || !selectedImage) return;
-        
-        const distance = touchStart - touchEnd;
-        const isLeftSwipe = distance > minSwipeDistance;
-        const isRightSwipe = distance < -minSwipeDistance;
-        
-        if (isLeftSwipe || isRightSwipe) {
-            const { gallery, imageIndex } = selectedImage;
-            const totalImages = gallery.images.length;
-            
-            if (isLeftSwipe) {
-                const nextIndex = (imageIndex + 1) % totalImages;
-                setSelectedImage({ gallery, imageIndex: nextIndex });
-            } else {
-                const prevIndex = (imageIndex - 1 + totalImages) % totalImages;
-                setSelectedImage({ gallery, imageIndex: prevIndex });
-            }
-        }
-    };
-
-    useEffect(() => {
-        if (!selectedImage) return;
-        
-        const { gallery, imageIndex } = selectedImage;
-        const totalImages = gallery.images.length;
-        const nextIndex = (imageIndex + 1) % totalImages;
-        const prevIndex = (imageIndex - 1 + totalImages) % totalImages;
-        
-        const preloadImage = (url) => {
-            const img = new Image();
-            img.src = url;
-        };
-        
-        preloadImage(gallery.images[nextIndex].image);
-        preloadImage(gallery.images[prevIndex].image);
-    }, [selectedImage]);
+      if (!expandedGallery || expandedImageIndex === null) return; 
+      
+      const { images } = expandedGallery;
+      const totalImages = images.length;
+      const nextIndex = (expandedImageIndex + 1) % totalImages;
+      const prevIndex = (expandedImageIndex - 1 + totalImages) % totalImages;
+      
+      const preloadImage = (url) => {
+        const img = new Image();
+        img.src = url;
+      };
+      
+      preloadImage(images[nextIndex].image);
+      preloadImage(images[prevIndex].image);
+    }, [expandedGallery, expandedImageIndex]);
 
     if (isLoading) {
-        return (
-            <Page title={t('navGallery')}> 
-                <Section title={t('navGallery')}> 
-                    <div className="text-body text-center py-10 text-text-muted">{t('loading')}...</div>
-                </Section>
-            </Page>
-        );
+      return (
+        <Page title={t('navGallery')}> 
+            <Section title={t('navGallery')}> 
+                <div className="text-body text-center py-10 text-text-muted">{t('loading')}...</div>
+            </Section>
+        </Page>
+      );
     }
 
     if (!isLoading && galleries.length === 0) {
@@ -1590,7 +1168,7 @@ function GalleryPage() {
     return (
         <Page title={t('navGallery')}> 
             <Section title={t('navGallery')}> 
-                <div className="space-y-16">
+                <div className="space-y-16 max-w-3xl mx-auto">
                     {galleries.map((gallery) => (
                         <article key={gallery.id}>
                             <div className="text-center mb-8">
@@ -1611,72 +1189,80 @@ function GalleryPage() {
                                 )}
                             </div>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                 {gallery.images.map((image, index) => {
                                     const caption = language === 'sl' 
                                         ? image.caption_sl 
                                         : (image.caption_en || image.caption_sl);
                                     
                                     return (
-                                        <motion.div 
+                                        <a
                                             key={`${gallery.id}-${index}`}
-                                            className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden group cursor-zoom-in relative"
-                                            onClick={(e) => openImage(gallery, index, e)}
-                                            layoutId={`gallery-${gallery.id}-${index}`}
-                                            initial={false}
-                                            whileHover={{
-                                                scale: 1.02,
-                                                transition: { type: 'spring', stiffness: 400, damping: 10 }
+                                            className="relative group block p-2 h-full w-full"
+                                            onMouseEnter={() => setHoveredGalleryItem(`${gallery.id}-${index}`)}
+                                            onMouseLeave={() => setHoveredGalleryItem(null)}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                openImage(gallery, index);
                                             }}
-                                            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                                            layoutId={`gallery-${gallery.id}-${index}`}
                                         >
-                                            <div className="relative pb-[100%]">
-                                                <motion.img 
-                                                    src={getOptimizedImageUrl(image.image)} 
+                                            <AnimatePresence>
+                                                {hoveredGalleryItem === `${gallery.id}-${index}` && (
+                                                    <motion.span
+                                                        className="absolute inset-0 h-full w-full bg-[var(--ch-border)] block rounded-3xl opacity-70"
+                                                        layoutId="hoverBackground"
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 0.7 }}
+                                                        exit={{ opacity: 0 }}
+                                                        transition={{ duration: 0.15 }}
+                                                    />
+                                                )}
+                                            </AnimatePresence>
+                                            
+                                            <motion.div 
+                                              layoutId={`gallery-img-${gallery.id}-${index}`}
+                                              className="bg-white/90 backdrop-blur-md rounded-lg shadow-lg overflow-hidden group relative text-left w-full h-full border-2 border-transparent group-hover:border-[var(--ch-border)]"
+                                            >
+                                                <LazyImage
+                                                    src={getOptimizedImageUrl(image.image)}
                                                     srcSet={getResponsiveSrcSet(image.image)}
                                                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                                                     alt={caption || gallery.title}
                                                     className="absolute inset-0 w-full h-full object-cover"
-                                                    loading="lazy"
-                                                    onError={(e) => { 
-                                                        e.target.onerror = null; 
-                                                        e.target.src = image.image;
-                                                    }}
-                                                    initial={false}
-                                                    layoutId={`gallery-img-${gallery.id}-${index}`}
                                                 />
-                                            </div>
-                                            
-                                            {(caption || gallery.author) && (
-                                                <div className="p-3 text-sm">
-                                                    {caption && (
-                                                        <p className="text-text-main line-clamp-2" title={caption}>
-                                                            {caption}
-                                                        </p>
-                                                    )}
-                                                    {gallery.author && (
-                                                        <p className="text-xs text-text-muted mt-1 flex items-center">
-                                                            <svg 
-                                                                xmlns="http://www.w3.org/2000/svg" 
-                                                                className="h-4 w-4 mr-1.5 opacity-70"
-                                                                viewBox="0 0 20 20" 
-                                                                fill="currentColor"
-                                                                aria-hidden="true"
-                                                            >
-                                                                <path 
-                                                                    fillRule="evenodd" 
-                                                                    d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" 
-                                                                    clipRule="evenodd" 
-                                                                />
-                                                            </svg>
-                                                            <span>
-                                                                {t('photoBy')}: {gallery.author}
-                                                            </span>
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </motion.div>
+                                                
+                                                {(caption || gallery.author) && (
+                                                    <div className="p-3 text-sm">
+                                                        {caption && (
+                                                            <p className="text-text-main line-clamp-2" title={caption}>
+                                                                {caption}
+                                                            </p>
+                                                        )}
+                                                        {gallery.author && (
+                                                            <p className="text-xs text-text-muted mt-1 flex items-center">
+                                                                <svg 
+                                                                    xmlns="http://www.w3.org/2000/svg" 
+                                                                    className="h-4 w-4 mr-1.5 opacity-70"
+                                                                    viewBox="0 0 20 20" 
+                                                                    fill="currentColor"
+                                                                    aria-hidden="true"
+                                                                >
+                                                                    <path 
+                                                                        fillRule="evenodd" 
+                                                                        d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" 
+                                                                        clipRule="evenodd" 
+                                                                    />
+                                                                </svg>
+                                                                <span>
+                                                                    {t('photoBy')}: {gallery.author}
+                                                                </span>
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        </a>
                                     );
                                 })}
                             </div>
@@ -1684,188 +1270,33 @@ function GalleryPage() {
                     ))}
                 </div>
 
-                <AnimatePresence>
-                    {selectedImage && (
-                        <motion.div
-                            ref={overlayRef}
-                            className="fixed inset-0 z-50 flex items-center justify-center p-8 cursor-zoom-out"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            onClick={closeImage}
-                            onTouchStart={onTouchStart}
-                            onTouchMove={onTouchMove}
-                            onTouchEnd={onTouchEnd}
-                        >
-                            <motion.div 
-                                className="absolute inset-0 bg-black/90 backdrop-blur-md"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                            />
-
-                            <div 
-                                className="relative w-full h-full max-w-6xl max-h-[75vh] flex items-center justify-center"
-                            >
-                                <motion.button
-                                    className="absolute top-4 right-4 z-20 p-4 rounded-full bg-primary/70 text-white hover:bg-primary transition-colors focus:outline-none"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        closeImage();
-                                    }}
-                                    aria-label={t('close')}
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1, duration: 0.2 }}
-                                >
-                                    <svg 
-                                        xmlns="http://www.w3.org/2000/svg" 
-                                        className="h-12 w-12"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        aria-hidden="true"
-                                    >
-                                        <path 
-                                            strokeLinecap="round" 
-                                            strokeLinejoin="round" 
-                                            strokeWidth={2} 
-                                            d="M6 18L18 6M6 6l12 12" 
-                                        />
-                                    </svg>
-                                </motion.button>
-
-                                <motion.button
-                                    className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-black/50 text-white hover:bg-white/20 transition-colors focus:outline-none"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        const newIndex = (selectedImage.imageIndex - 1 + selectedImage.gallery.images.length) % 
-                                                      selectedImage.gallery.images.length;
-                                        setSelectedImage({...selectedImage, imageIndex: newIndex});
-                                    }}
-                                    aria-label={t('previous')}
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    initial={{ x: -20, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    transition={{ delay: 0.1, duration: 0.2 }}
-                                >
-                                    <svg 
-                                        xmlns="http://www.w3.org/2000/svg" 
-                                        className="h-8 w-8"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        aria-hidden="true"
-                                    >
-                                        <path 
-                                            strokeLinecap="round" 
-                                            strokeLinejoin="round" 
-                                            strokeWidth={2} 
-                                            d="M15 19l-7-7 7-7" 
-                                        />
-                                    </svg>
-                                </motion.button>
-
-                                {/* Close Instruction */}
-                                <motion.div
-                                    className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-1 rounded-full bg-black/50 text-white text-sm font-medium"
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3, duration: 0.2 }}
-                                >
-                                    {t('tapOutsideToClose')}
-                                </motion.div>
-
-                                <div 
-                                className="relative w-full h-full max-w-6xl max-h-[75vh] flex items-center justify-center p-8"
-                                onClick={e => e.stopPropagation()}
-                            >
-                                
-
-                                
-
-                                {/* Image Counter */}
-                                <motion.div
-                                    className="absolute -top-10 left-0 z-10 px-3 py-1 rounded-full bg-primary-dark/50 text-white text-sm font-medium"
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1, duration: 0.2 }}
-                                >
-                                    {selectedImage.imageIndex + 1} / {selectedImage.gallery.images.length}
-                                </motion.div>
-
-                                {/* Image Container */}
-                                <motion.div
-                                    className="relative w-full h-full flex items-center justify-center"
-                                    layoutId={`gallery-${selectedImage.gallery.id}-${selectedImage.imageIndex}`}
-                                    initial={false}
-                                    transition={{
-                                        type: "spring",
-                                        bounce: 0.2,
-                                        duration: 0.5
-                                    }}
-                                >
-                                    <motion.img
-                                        src={selectedImage.gallery.images[selectedImage.imageIndex].image}
-                                        alt={language === 'sl'
-                                            ? selectedImage.gallery.images[selectedImage.imageIndex].caption_sl
-                                            : selectedImage.gallery.images[selectedImage.imageIndex].caption_en ||
-                                              selectedImage.gallery.images[selectedImage.imageIndex].caption_sl ||
-                                              selectedImage.gallery.title}
-                                        className="max-h-[85vh] w-auto mx-auto object-contain pointer-events-none"
-                                        loading="eager"
-                                        layoutId={`gallery-img-${selectedImage.gallery.id}-${selectedImage.imageIndex}`}
-                                        initial={false}
-                                        transition={{
-                                            type: "spring",
-                                            bounce: 0.2,
-                                            duration: 0.5
-                                        }}
-                                    />
-
-                                    {/* Caption */}
-                                    <motion.div
-                                        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary-dark/90 via-primary-dark/70 to-transparent p-6 pt-12 text-white"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.2, duration: 0.3 }}
-                                    >
-                                        <p className="text-lg font-medium">
-                                            {language === 'sl'
-                                                ? selectedImage.gallery.images[selectedImage.imageIndex].caption_sl
-                                                : selectedImage.gallery.images[selectedImage.imageIndex].caption_en ||
-                                                  selectedImage.gallery.images[selectedImage.imageIndex].caption_sl}
-                                        </p>
-                                        {selectedImage.gallery.author && (
-                                            <p className="text-sm opacity-90 mt-1 flex items-center">
-                                                <svg 
-                                                    xmlns="http://www.w3.org/2000/svg" 
-                                                    className="h-4 w-4 mr-1.5"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                    aria-hidden="true"
-                                                >
-                                                    <path 
-                                                        fillRule="evenodd" 
-                                                        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" 
-                                                        clipRule="evenodd" 
-                                                    />
-                                                </svg>
-                                                <span>{t('photoBy')}: {selectedImage.gallery.author}</span>
-                                            </p>
-                                        )}
-                                    </motion.div>
-                                </motion.div>
-                            </div>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                {expandedGallery && expandedImageIndex !== null && (
+                  <ExpandableCard
+                    isExpanded={!!expandedGallery}
+                    onToggle={(expanded) => {
+                      if (!expanded) {
+                        closeImage();
+                      }
+                    }}
+                    layoutId={`gallery-${expandedGallery.id}-${expandedImageIndex}`}
+                    expandedContent={
+                      <GalleryExpandedContent
+                        gallery={expandedGallery}
+                        imageIndex={expandedImageIndex}
+                        goToPrev={goToPrev}
+                        goToNext={goToNext}
+                        currentIndex={expandedImageIndex}
+                        totalImages={expandedGallery.images.length}
+                        t={t}
+                        language={language}
+                      />
+                    }
+                    className="relative group block p-2 h-full w-full"
+                    expandedClassName="w-full max-w-4xl max-h-[90vh] flex flex-col bg-[var(--glass-bg)] border-[var(--glass-border)] backdrop-blur-sm sm:rounded-3xl overflow-auto"
+                    closeOnBackdropClick={true}
+                    closeOnEscape={true}
+                  />
+                )}
             </Section>
         </Page>
     );
@@ -1876,9 +1307,9 @@ function MemoryGamePage() {
     return (
       <Page title={t('navMemoryGame')}> 
         <Section title={t('memoryGameTitle')}> 
-          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg">
+          <GlassCard className="max-w-3xl mx-auto">
             <MemoryGame />
-          </div>
+          </GlassCard>
         </Section>
       </Page>
     );
@@ -1890,30 +1321,41 @@ function HomePage() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchContent = async () => {
-            setIsLoading(true);
-            const langFile = `/content/pages/home.${language}.md?v=${new Date().getTime()}`;
-            const defaultLangFile = `/content/pages/home.sl.md?v=${new Date().getTime()}`;
-            
-            try {
-                let response = await fetch(langFile);
-                if (!response.ok) { response = await fetch(defaultLangFile); }
-                if (!response.ok) { throw new Error('Home page content file not found at ' + langFile + ' or ' + defaultLangFile); }
-                const text = await response.text();
-                const { metadata, content } = parseMarkdown(text);
-                setPageData({ content, metadata });
-            } catch (error) {
+      const controller = new AbortController();
+      const signal = controller.signal;
+
+      const fetchContent = async () => {
+          setIsLoading(true);
+          const langFile = `/content/pages/home.${language}.md?v=${new Date().getTime()}`;
+          const defaultLangFile = `/content/pages/home.sl.md?v=${new Date().getTime()}`;
+          
+          try {
+              let response = await limit(() => fetch(langFile, { signal }));
+              if (!response.ok) { response = await limit(() => fetch(defaultLangFile, { signal })); }
+              if (!response.ok) { throw new Error('Home page content file not found at ' + langFile + ' or ' + defaultLangFile); }
+              const text = await response.text();
+              const { metadata, content } = parseMarkdown(text);
+              setPageData({ content, metadata });
+          } catch (error) {
+              if (error.name !== 'AbortError') {
                 console.error("Failed to fetch home page content:", error);
                 const defaultContent = language === 'sl' 
-                    ? '### Dobrodošli na livada.bio\n\nTo je prostor za urejanje vsebine. Uredite datoteko `/content/pages/home.sl.md`.'
-                    : '### Welcome to livada.bio\n\nThis is a placeholder. Edit the file `/content/pages/home.en.md` to change this content.';
+                    ? `### Dobrodošli na livada.bio\n\nTo je prostor za urejanje vsebine. Uredite datoteko 
+/content/pages/home.sl.md.`
+                    : `### Welcome to livada.bio\n\nThis is a placeholder. Edit the file 
+/content/pages/home.en.md to change this content.`;
                 setPageData({ content: defaultContent, metadata: {} });
-            } finally {
-                setIsLoading(false);
-            }
-        };
+              }
+          } finally {
+              setIsLoading(false);
+          }
+      };
 
-        fetchContent();
+      fetchContent();
+
+      return () => {
+        controller.abort();
+      };
     }, [language]);
 
     const title = pageData.metadata.title || t('navHome');
@@ -1921,16 +1363,39 @@ function HomePage() {
     const heroSubtitle = pageData.metadata.hero_subtitle || (language === 'sl' ? 'Gojenje sorodstev v več kot človeškem svetu' : 'Fostering kinship in a more than human world');
 
     return (
-        <Page title={title}>
-            <div style={{ minHeight: '60vh' }} className="flex flex-col items-center justify-center text-center p-4">
-                <h1 className="text-display-lg mb-4 animate-pulse">{heroTitle}</h1>
-                <p className="text-accent-lg text-text-main max-w-2xl">{heroSubtitle}</p>
+        <Page title={title}> 
+            {/* Main Hero Section - Biodiversity */}
+            <div className="w-full">
+                <BiodiversityHero 
+                    language={language} 
+                    heroTitle={heroTitle}
+                    heroSubtitle={heroSubtitle}
+                />
             </div>
-            <div className="bg-gradient-to-t from-white/95 to-[#f7faf9]/95 backdrop-blur-sm rounded-t-3xl shadow-2xl -mt-16 pt-16 border-t border-white/50">
-                 <div className="container mx-auto px-4 py-12">
+            
+            {/* Practices Hero Section */}
+            <div className="w-full mt-12">
+                <PracticesHero language={language} />
+            </div>
+            
+            {/* Main Content */}
+            <div className="bg-[var(--glass-bg)] backdrop-blur-sm rounded-t-3xl shadow-2xl -mt-16 pt-20 pb-16 border-t border-[var(--glass-border)]">
+                 <div className="container mx-auto px-6 py-12">
                      {isLoading ? ( <div className="text-center text-body-lg max-w-4xl mx-auto text-text-muted">{t('loading')}...</div> ) 
-                               : ( <div className="prose-organic max-w-4xl mx-auto" dangerouslySetInnerHTML={{ __html: marked(pageData.content || '') }} /> )}
-                </div>
+                               : ( 
+                                 <div className="max-w-4xl mx-auto px-8 py-10">
+                                   <ScatterText 
+                                     content={pageData.content || ''} 
+                                     className="text-text-main"
+                                   />
+                                 </div>
+                               )}
+                </div> 
+            </div>
+            
+            {/* Join Hero Section */}
+            <div className="w-full mt-12">
+                <JoinHero language={language} />
             </div>
         </Page>
     );
@@ -1939,7 +1404,7 @@ function HomePage() {
 // --- Main App Component ---
 function App() {
     const { t, setLanguage, language } = useTranslation();
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const location = useLocation();
 
     useEffect(() => {
@@ -1970,57 +1435,44 @@ function App() {
       ];
       
     return (
-        <div className="app-container relative z-0">
-            <div className="relative z-10 flex flex-col min-h-screen">
-                <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-lg border-b border-white/20">
-                    <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
-                        <div className="flex items-center">
-                            <Link to="/" className="text-xl font-bold cursor-pointer text-primary"><img src="/images/livada-logo.svg" alt="Livada.bio Logo" className="h-8" /></Link>
-                        </div>
-                        
-                        {/* Desktop Menu */}
-                        <div className="hidden md:flex flex-wrap gap-1">
-                            {pages.map(page => (
-                                <motion.div key={page.path} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                    <NavLink to={page.path} className={({ isActive }) => `nav-text relative px-4 py-2 text-text-main transition-all duration-300 group text-interactive ${isActive ? 'text-primary font-semibold' : 'hover:text-primary'}`}>
-                                        {({ isActive }) => (<> {page.label} <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-primary-light transform transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0'} group-hover:scale-x-100 rounded-full`}/> </>)}
-                                    </NavLink>
-                                </motion.div>
-                            ))}
-                        </div>
-                        
-                        <div className="hidden md:flex items-center space-x-1">
-                            <button onClick={() => setLanguage('sl')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'sl' ? 'text-primary bg-primary/5 shadow-sm' : 'text-text-muted hover:text-primary'}`}>SL</button>
-                            <button onClick={() => setLanguage('en')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'en' ? 'text-primary bg-primary/5 shadow-sm' : 'text-text-muted hover:text-primary'}`}>EN</button>
-                        </div>
+        <div className="relative flex flex-col min-h-screen">
+          <Navbar className="sticky top-0 z-50">
+            {/* Desktop Navigation */}
+            <NavBody>
+              <NavbarLogo />
+              <NavItems items={pages} />
+              <div className="flex items-center space-x-1">
+                <NavbarButton onClick={() => setLanguage('sl')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'sl' ? 'text-primary bg-primary/5 shadow-sm' : 'text-text-muted hover:text-primary'}`}>SL</NavbarButton>
+                <NavbarButton onClick={() => setLanguage('en')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'en' ? 'text-primary bg-primary/5 shadow-sm' : 'text-text-muted hover:text-primary'}`}>EN</NavbarButton>
+              </div>
+            </NavBody>
 
-                        {/* Mobile Menu Button */}
-                        <div className="md:hidden flex items-center">
-                             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-text-main hover:text-primary focus:outline-none">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </nav>
+            {/* Mobile Navigation */}
+            <MobileNav>
+              <MobileNavHeader>
+                <NavbarLogo />
+                <MobileNavToggle
+                  isOpen={isMobileMenuOpen}
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
+              </MobileNavHeader>
 
-                    {/* Mobile Menu Drawer */}
-                    {isMenuOpen && (
-                        <div className="md:hidden bg-white/95 backdrop-blur-md">
-                            <div className="flex flex-col px-4 pt-2 pb-4 space-y-2">
-                                {pages.map(page => (
-                                    <NavLink key={page.path} to={page.path} onClick={() => setIsMenuOpen(false)} className={({ isActive }) => `nav-text block px-4 py-3 rounded-lg text-base transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-primary/10 to-primary-light/10 text-primary font-semibold border border-primary/20' : 'text-text-muted hover:bg-bg-main/80 hover:text-primary'}`}>
-                                        {page.label}
-                                    </NavLink>
-                                ))}
-                                <div className="flex justify-center space-x-3 pt-4 border-t border-border-color/50 mt-4">
-                                     <button onClick={() => { setLanguage('sl'); setIsMenuOpen(false); }} className={`text-accent px-4 py-2 font-semibold transition-all duration-300 rounded-lg ${language === 'sl' ? 'text-primary bg-primary/10 border border-primary/20' : 'text-text-muted hover:text-primary hover:bg-bg-main/80'}`}>Slovenščina</button>
-                                     <button onClick={() => { setLanguage('en'); setIsMenuOpen(false); }} className={`text-accent px-4 py-2 font-semibold transition-all duration-300 rounded-lg ${language === 'en' ? 'text-primary bg-primary/10 border border-primary/20' : 'text-text-muted hover:text-primary hover:bg-bg-main/80'}`}>English</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </header>
+              <MobileNavMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}>
+                {pages.map((item, idx) => (
+                  <NavLink
+                    key={`mobile-link-${idx}`}
+                    to={item.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={({ isActive }) => `nav-text block px-4 py-3 rounded-lg text-base transition-all duration-300 text-sage ${isActive ? 'bg-gradient-to-r from-primary/10 to-primary-light/10 text-primary font-semibold border border-primary/20' : 'hover:bg-bg-main/80 hover:text-primary'}`}>
+                    {item.label}
+                  </NavLink>
+                ))}
+                <div className="flex justify-center space-x-3 pt-4 border-t border-border-color/50 mt-4">
+                  <NavbarButton onClick={() => { setLanguage('sl'); setIsMobileMenuOpen(false); }} className={`text-accent px-4 py-2 font-semibold transition-all duration-300 rounded-lg ${language === 'sl' ? 'text-primary bg-primary/10 border border-primary/20' : 'text-text-muted hover:text-primary hover:bg-bg-main/80'}`}>Slovenščina</NavbarButton>
+                  <NavbarButton onClick={() => { setLanguage('en'); setIsMobileMenuOpen(false); }} className={`text-accent px-4 py-2 font-semibold transition-all duration-300 rounded-lg ${language === 'en' ? 'text-primary bg-primary/10 border border-primary/20' : 'text-text-muted hover:text-primary hover:bg-bg-main/80'}`}>English</NavbarButton>
+                </div>
+              </MobileNavMenu>
+            </MobileNav>
+          </Navbar>
                 <main className="flex-grow">
                     <AnimatePresence mode="wait">
                         <motion.div
@@ -2030,7 +1482,7 @@ function App() {
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.3 }}
                         >
-                            <Routes location={location}>
+                            <Routes location={location}> 
                                 {pages.map(page => ( <Route key={page.path} path={page.path} element={page.element} /> ))}
                             </Routes>
                         </motion.div>
@@ -2039,17 +1491,19 @@ function App() {
                 <footer className="py-8 text-center bg-gradient-to-t from-bg-main/90 to-transparent backdrop-blur-sm border-t border-border-color/30">
                     <div className="container mx-auto text-body text-text-muted">{t('footerText')}</div>
                 </footer>
-            </div>
-        </div>
+            </div> 
     );
 }
 
-export { useHistoricalSensorData, useTranslation, BED_MAPPING };
+export { useHistoricalSensorData, useTranslation, BED_MAPPING, getOptimizedImageUrl };
+
+
 export default function WrappedApp() {
     return (
         <LanguageProvider>
             <SensorProvider>
                 <BrowserRouter>
+                                    
                     <App />
                 </BrowserRouter>
             </SensorProvider>
