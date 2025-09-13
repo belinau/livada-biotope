@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../context/LanguageContext';
-import { translations } from '../lib/translations';
 import pLimit from 'p-limit';
 import Page from '../components/layout/Page';
 import Section from '../components/layout/Section';

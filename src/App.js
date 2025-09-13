@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router
 import { motion, AnimatePresence } from 'framer-motion';
 import mermaid from 'mermaid';
 import { LanguageProvider, useTranslation } from './context/LanguageContext';
-import { translations } from './lib/translations';
+
 import { SensorProvider } from './context/SensorContext';
 import HomePage from './pages/HomePage';
 

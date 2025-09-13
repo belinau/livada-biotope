@@ -1,19 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '../context/LanguageContext';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Page from '../components/layout/Page';
 import { GlassSection } from '../components/ui/GlassSection';
-import { GlassCard } from '../components/ui/GlassCard';
 import { getGlassVariant } from '../components/glass-theme';
 import { HoverEffect } from '../components/ui/HoverEffect';
-import parse from 'html-react-parser';
-import { parse as yamlParse } from 'yaml';
-import DOMPurify from 'dompurify';
 import ExpandableCard from '../components/ExpandableCard';
 import GalleryExpandedContent from '../components/GalleryExpandedContent';
 import pLimit from 'p-limit';
 import FilteredImage from '../components/ui/FilteredImage';
+import { parse as yamlParse } from 'yaml';
 
 const limit = pLimit(2);
 
@@ -37,24 +33,6 @@ const getOptimizedImageUrl = (imagePath) => {
   return url.toString();
 };
 
-const getResponsiveSrcSet = (imagePath) => {
-  if (!imagePath || isLocalDevelopment) {
-    return imagePath;
-  }
-
-  const widths = [400, 600, 800, 1000, 1200, 1600, 2000];
-  const url = new URL('https://livada.bio');
-  
-  return widths.map(width => {
-    url.pathname = `/.netlify/images`;
-    const params = new URLSearchParams();
-    params.append('url', imagePath);
-    params.append('w', width.toString());
-    params.append('q', '80');
-    return `${url.toString()}?${params.toString()} ${width}w`;
-  }).join(', ');
-};
-
 const parseMarkdown = (rawContent) => {
     try {
         const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
@@ -67,59 +45,6 @@ const parseMarkdown = (rawContent) => {
         console.error("Error parsing markdown frontmatter:", e);
         return { metadata: {}, content: rawContent };
     }
-};
-
-const LazyImage = ({ src, srcSet, sizes, alt, className, layoutId, filterType = 'glass' }) => {
-    const [isLoaded, setIsLoaded] = useState(false);
-    const ref = useRef();
-
-    useEffect(() => {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    setIsLoaded(true);
-                    observer.unobserve(entry.target);
-                }
-            });
-        });
-
-        const currentRef = ref.current;
-        if (currentRef) {
-            observer.observe(currentRef);
-        }
-
-        return () => {
-            if (currentRef) {
-                observer.unobserve(currentRef);
-            }
-        };
-    }, []);
-
-    return (
-        <div ref={ref} className={className} style={{ position: 'relative', paddingBottom: '100%' }}>
-            {/* Placeholder to prevent layout shift */}
-            <div className="absolute inset-0 w-full h-full bg-gray-200 dark:bg-gray-700 rounded-lg" />
-            
-            {isLoaded && (
-                <motion.div
-                    className="absolute inset-0 w-full h-full"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                    layoutId={layoutId}
-                >
-                    <FilteredImage
-                        src={src}
-                        srcSet={srcSet}
-                        sizes={sizes}
-                        alt={alt}
-                        className="absolute inset-0 w-full h-full object-cover rounded-lg"
-                        filterType={filterType}
-                    />
-                </motion.div>
-            )}
-        </div>
-    );
 };
 
 function GalleryPage() {
