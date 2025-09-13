@@ -135,7 +135,7 @@ const JoinHero = ({ language = 'sl' }) => {
                     <h3 className="heading-organic text-lg text-primary mb-2">{currentAction.title}</h3>
                     <p className="text-text-muted mb-4 text-sm">{currentAction.description}</p>
                     <button
-                      className="px-4 py-2 backdrop-blur-sm border border-[var(--glass-border)] bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] text-white mx-auto text-center rounded-full relative hover:bg-primary/30 transition-all duration-300 transform hover:scale-105 text-sm"
+                      className="px-4 py-2 backdrop-blur-sm border border-[var(--glass-border)] bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] text-[var(--primary)] mx-auto text-center rounded-full relative hover:bg-primary/30 transition-all duration-300 transform hover:scale-105 text-sm"
                       onClick={() => navigate(currentAction.link)}
                     >
                       <span className="font-medium">
