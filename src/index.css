@@ -37,7 +37,7 @@
   --glass-bg-subtle: rgba(255, 255, 255, 0.062); /* Very subtle glass background */
   --glass-border: rgba(11, 6, 33, 0.227);
   --glass-border-subtle: rgba(255, 255, 255, 0.1); /* Very subtle glass border */
-  --glass-canvas: var(--bg-main); /* Background for the canvas matches theme */
+  --glass-canvas: rgba(222, 3, 3, 0.466); /* Transparent red overlay for blob canvas */
   --glass-icon-bg: rgba(170, 160, 20, 0.423);
   --glass-i-bg: rgba(98, 0, 218, 0.563);
   --glass-icon-outline:#dad30561;
@@ -543,7 +543,7 @@
 
 /* ----------------- CUSTOM CLASSES ------------------ */
 .glass-canvas {
-  background-color: transparent;
+  background-color: var(--glass-canvas);
 }
 
 .glass-subtle {
