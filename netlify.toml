@@ -19,3 +19,7 @@
   to = "/.netlify/functions/calendar-proxy"
   status = 200
 
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

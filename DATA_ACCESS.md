@@ -299,7 +299,7 @@ Create a `.env.development` file in the project root with the following configur
 
 ```env
 # Point to your Raspberry Pi API server via Tailscale
-PI_API_URL=https://biotop.tailbf4c09.ts.net
+PI_API_URL=https://biotop.tailbf4c09.ts.net/api
 REACT_APP_PI_API_URL=/api
 REACT_APP_PI_WS_URL=wss://biotop.tailbf4c09.ts.net:8765
 
