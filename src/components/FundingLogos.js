@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from '../context/LanguageContext';
 import { getTextClasses } from './typography-utils';
-import { getGlassVariant } from './glass-theme';
 import FilteredImage from './ui/FilteredImage';
 
 const FundingLogos = () => {

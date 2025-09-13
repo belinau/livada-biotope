@@ -1,7 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { getOptimizedImageUrl } from '../shared/image-utils';
-import { getGlassVariant } from '../components/glass-theme';
 import { getTextClasses } from '../components/typography-utils';
 
 const GalleryExpandedContent = ({ gallery, imageIndex, goToPrev, goToNext, currentIndex, totalImages, t, language }) => {
