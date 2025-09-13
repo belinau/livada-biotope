@@ -153,8 +153,6 @@ const JoinHero = ({ language = 'sl' }) => {
           </div>
         </div>
         
-        {/* Subtle background */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-l from-primary/5 to-accent-green/5"></div>
       </div>
     </div>
   );
