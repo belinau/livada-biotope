@@ -543,7 +543,7 @@
 
 /* ----------------- CUSTOM CLASSES ------------------ */
 .glass-canvas {
-  background-color: var(--glass-canvas);
+  background-color: transparent;
 }
 
 .glass-subtle {
