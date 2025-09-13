@@ -466,12 +466,12 @@ const BlobBackground = () => {
   }, [location.pathname]);
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', pointerEvents: 'none' }} className="glass-canvas">
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(222, 3, 3, 0.08)', mixBlendMode: 'screen' }} />
+    <div style={{ position: 'fixed', inset: 0, zIndex: -10, overflow: 'hidden', pointerEvents: 'none' }} className="glass-canvas">
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(222, 3, 3, 0.08)', mixBlendMode: 'multiply' }} />
       {blobs.map((blob) => {
         const state = animationStates[blob.id];
         const finalPos = finalPositions[blob.id];
-        const initialStyle = { position: 'absolute', left: blob.x, top: blob.y, width: blob.size, height: blob.size, backgroundColor: blob.color, borderRadius: '50%', filter: `blur(${blob.blur})`, transform: 'translate(-50%, -50%)', opacity: 0.7, mixBlendMode: 'screen' };
+        const initialStyle = { position: 'absolute', left: blob.x, top: blob.y, width: blob.size, height: blob.size, backgroundColor: blob.color, borderRadius: '50%', filter: `blur(${blob.blur})`, transform: 'translate(-50%, -50%)', opacity: 0.7, mixBlendMode: 'normal' };
 
         if (state && state.isAnimating) {
           return <motion.div key={blob.id} style={initialStyle} animate={{ x: state.xPoints, y: state.yPoints, scale: state.scalePoints, opacity: state.opacityPoints }} transition={{ duration: state.duration || 3, ease: "easeInOut" }} />;
