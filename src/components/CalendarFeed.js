@@ -26,7 +26,7 @@ const EventRow = ({ event, lang, isPast }) => {
     return (
       <li
         className={`p-4 rounded-xl transition-all duration-300 ${ 
-          isPast ? 'bg-bg-main/50 opacity-70' : 'bg-white/10 hover:bg-white/20'
+          isPast ? 'bg-bg-main/50 opacity-70' : 'bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] hover:from-[var(--glass-i-bg)] hover:to-[var(--glass-bg-nav)]'
         } backdrop-blur-sm border border-border-color/30 shadow-lg`}
       >
         <div className="font-semibold text-base text-text-main">{event.summary}</div>
@@ -107,11 +107,13 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
           }
       };
     
-      const proxy = '/.netlify/functions/calendar-proxy?url=';
+      const proxy = '/calendar-proxy/?url=';
       limit(() => fetch(proxy + encodeURIComponent(icsUrl), { signal }))
         .then(r => {
           if (!r.ok) {
-            throw new Error(`HTTP ${r.status}`);
+            return r.json().then(errorData => {
+              throw new Error(`HTTP ${r.status}: ${errorData.error || r.statusText}`);
+            });
           }
           return r.text();
         })
@@ -123,7 +125,10 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
         .catch(e => {
           if (e.name !== 'AbortError') {
             console.error('ICS error:', e);
-            setError(t('calendarFetchError') || 'Error fetching events from calendar.');
+            setError({
+              message: t('calendarFetchError') || 'Error fetching events from calendar.',
+              details: e.message
+            });
             setEvents([]);
           }
         })
@@ -173,7 +178,12 @@ const CalendarFeed = ({ icsUrl, calendarUrl }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-body text-text-muted mb-4">{error}</p>
+            <p className="text-body text-text-muted mb-2">{error.message}</p>
+            {error.details && (
+              <p className="text-sm text-text-muted mb-4 bg-black/10 p-3 rounded-lg text-left">
+                <strong>Details:</strong> {error.details}
+              </p>
+            )}
             <button
               onClick={() => {
                 setIsLoading(true);

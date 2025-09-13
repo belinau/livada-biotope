@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useRef, useCallback, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Portal from "./Portal";
 
@@ -61,40 +61,28 @@ const ExpandableCard = ({
     }
   }, [isExpanded, closeOnEscape, disableOverlayClose, onToggle, onClose, onArrowLeft, onArrowRight]);
 
+  // Add event listeners for outside clicks and keydown events
   useEffect(() => {
     if (isExpanded) {
-      document.addEventListener("keydown", handleKeyDown);
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("touchstart", handleClickOutside);
-      // Prevent body scroll when expanded
-      document.body.style.overflow = "hidden";
-      // Adjust for scrollbar width
-      document.documentElement.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
     }
-
+    
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
-      // Always reset body styles when component unmounts
-      document.body.style.overflow = "";
-      document.documentElement.style.paddingRight = "";
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isExpanded, handleKeyDown, handleClickOutside]);
+  }, [isExpanded, handleClickOutside, handleKeyDown]);
 
+  // Touch handlers for swipe gestures
   const onTouchStart = (e) => {
-    setTouchEnd(null); // Reset touch end coordinates
-    setTouchStart({
-      x: e.targetTouches[0].clientX,
-      y: e.targetTouches[0].clientY,
-    });
+    const touch = e.touches[0];
+    setTouchStart({ x: touch.clientX, y: touch.clientY });
   };
 
   const onTouchMove = (e) => {
-    setTouchEnd({
-      x: e.targetTouches[0].clientX,
-      y: e.targetTouches[0].clientY,
-    });
+    const touch = e.touches[0];
+    setTouchEnd({ x: touch.clientX, y: touch.clientY });
   };
 
   const onTouchEnd = () => {
@@ -160,7 +148,7 @@ const ExpandableCard = ({
                 />
               )}
 
-              {/* Vsebina razširjene kartice */}
+              {/* Vsebina razširjene kartice - let GalleryExpandedContent handle its own styling */}
               <motion.div
                 ref={expandedRef}
                 layoutId={layoutId}

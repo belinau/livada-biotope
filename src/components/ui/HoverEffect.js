@@ -3,12 +3,14 @@
 import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "../../lib/cn"; // Adjusted path
+import FilteredImage from "./FilteredImage";
 
 export const HoverEffect = ({
   items,
   className,
   onClickItem,
-  getItemLayoutId // New prop to get layoutId for each item
+  getItemLayoutId, // New prop to get layoutId for each item
+  filterType = 'glass' // Add filterType prop with default value
 }) => {
   let [hoveredIndex, setHoveredIndex] = useState(null);
 
@@ -32,7 +34,7 @@ export const HoverEffect = ({
           <AnimatePresence>
             {hoveredIndex === idx && (
               <motion.span
-                className="absolute inset-0 h-full w-full bg-[var(--ch-border)] block rounded-3xl"
+                className="absolute inset-0 h-full w-full bg-gradient-to-b from-[var(--glass-i-bg)] to-[var(--ch-border)] block rounded-3xl"
                 layoutId="hoverBackground"
                 initial={{ opacity: 0 }}
                 animate={{
@@ -50,9 +52,10 @@ export const HoverEffect = ({
             <CardTitle>{item.title}</CardTitle>
             <CardDescription>{item.description}</CardDescription>
             {item.imageSrc && (
-                <img
+                <FilteredImage
                     src={item.imageSrc}
                     alt={item.title}
+                    filterType={filterType}
                     className="h-60 w-full rounded-lg object-cover object-top mt-4"
                 />
             )}
@@ -72,7 +75,7 @@ export const Card = ({
     <motion.div
       layoutId={layoutId}
       className={cn(
-        "rounded-2xl h-full w-full p-4 overflow-hidden bg-[var(--glass-bg)] border-[var(--glass-border)] border-opacity-50 group-hover:border-[var(--glass-border)] relative z-20",
+        "rounded-2xl h-full w-full p-4 overflow-hidden bg-gradient-to-b from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] border-[var(--glass-border)] border-opacity-50 group-hover:border-[var(--glass-border)] relative z-20 backdrop-blur-sm",
         className
       )}>
       <div className="relative z-50">
@@ -86,7 +89,7 @@ export const CardTitle = ({
   children
 }) => {
   return (
-    <h4 className={cn("text-[var(--text-orange)] font-bold tracking-wide mt-4", className)}>
+    <h4 className={cn("text-[var(--text-muted)] font-bold tracking-wide mt-4", className)}>
       {children}
     </h4>
   );

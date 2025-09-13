@@ -1,5 +1,37 @@
+const slugify = (text) => {
+  if (!text) return '';
+  const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
+  const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrssssssttuuuuuuuuuwxyyzzz------'
+  const p = new RegExp(a.split('').join('|'), 'g')
+
+  return text.toString().toLowerCase()
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
+    .replace(/&/g, '-and-') // Replace & with 'and'
+    .replace(/[^\w-]+/g, '') // Remove all non-word chars
+    .replace(/--+/g, '-') // Replace multiple - with single -
+    .replace(/^-+/, '') // Trim - from start of text
+    .replace(/-+$/, '') // Trim - from end of text
+}
+
+const collectionMapping = {
+    "projects": "projekti",
+    "practices": "prakse",
+    "posts": "zapisi"
+}
+
+export const getSlug = (item, language, collection) => {
+  const slug = item.metadata[`slug_${language}`] || item.metadata.slug || slugify(item.metadata.title);
+  const slovenianCollection = collectionMapping[collection] || collection;
+  return `/${slovenianCollection}/${slug}`;
+};
+
 export const translations = {
     sl: {
+        fundedBy: 'Financirano s strani',
+        molTitle: 'Mestna občina Ljubljana',
+        molDept1: 'Oddelek za varstvo okolja',
+        molDept2: 'Urad za mladino',
         navHome: 'Domov',
         navProjects: 'Prepletanja',
         navPractices: 'Utelešenja',
@@ -9,8 +41,11 @@ export const translations = {
         navPosts: 'Zapisi',
         sensorDataTitle: 'livada.bio občuti zemljo',
         projectFutureDesc: 'V tem prepletanju ne merimo, temveč poslušamo šepet prsti, ki nam pripoveduje o vlagi, temperaturi in življenju pod površjem. Podatki se osvežujejo vsako uro.',
-        biodiversityTitle: 'Barjanski travnik je dom številnih sorodnikov',
-        biodiversityDesc: 'Biodiverziteta ni zgolj seznam vrst, temveč mreža razmerij, ki jih spletamo s travnikom in njegovimi prebivalci.',
+        biodiversityTitle: 'Barjanski travnik',
+        biodiversityDesc: 'Dom številnih sorodnikov.',
+        biodiversityDescription: 'Raziskuj življenje v našem biotopu skozi interaktivne vsebine in podatke o rastlinah ter živalih, ki jih zbiramo med rednim monitoringom. Vsak teden dodajamo nova opažanja in fotografije, ki prikazujejo dinamiko biodiverzitete v Livadi.',
+        practicesTitle: 'Prakse',
+        practicesDesc: 'Skupnost za deljenje raznovrstnih praks.',
         calendarTitle: 'Koledar dogodkov',
         calendarDesc: 'Naši prihajajoči dogodki, delavnice in srečanja. Pridruži se nam!',
         recentObservations: 'Nedavna opazovanja',
@@ -35,7 +70,7 @@ export const translations = {
         soilTemp: 'temperatura prsti',
         airTemp: 'temperatura zraka',
         airHumidity: 'vlaga v zraku',
-        historicalSensorDataTitle: 'Zgodovinski podatki senzorjev',
+        historicalSensorDataTitle: 'Beleženje',
         footerText: 'Biotop Livada – posebna pobuda v okviru zavoda BOB © 2025',
         photoBy: 'Foto',
         navMemoryGame: 'Spomin',
@@ -48,6 +83,7 @@ export const translations = {
         close: 'Zapri',
         previous: 'Prejšnja',
         next: 'Naslednja',
+        backToCollection: 'Nazaj na seznam',
         memoryGameDescription: 'V igri so uporabljeni posnetki, zbrani med rednimi monitoringi v Biotopu Livada, celotno zbirko lahko pogledaš na odseku biodiverziteta. Če bi v igri rada_ videla_ tudi svoje fotografije, se nam lahko pridružiš na monitoringu na Livadi in prispevaš svoja opažanja preko platforme iNaturalist. Vsa opažanja na tej mikrolokaciji (opremljena z geokoordinatami LivadaLAB ali bližnje okolice) se samodejno vpišejo v naš namenski projekt na omenjeni plaformi.',
         congratulations: 'Čestitamo!',
         yourScore: 'Tvoj rezultat:',
@@ -60,8 +96,65 @@ export const translations = {
         noScores: 'Ni še rezultatov',
         openInINaturalist: 'Odpri v iNaturalistu',
         openInWikipedia: 'Odpri v Wikipediji',
-        loadingDescription: 'Nalagam opis...', 
-
+        loadingDescription: 'Nalagam opis...',
+        openPortal: 'Razširi portal',
+        closePortal: 'Zapri portal',
+        noDescriptionFoundOnSlWikipedia: 'Nima opisa na slovenski Wikipediji.',
+        postsTitle: 'Zapisi',
+        postsDesc: 'Naši zapisi o livadi.',
+        steps: 'Koraki',
+        step: 'Korak',
+        allTags: 'vse',
+        victory: 'Zmaga!',
+        victoryMessage: 'Uspešno si končal_ igro!',
+        pridiNaMonitoring: 'Pridi na monitoring',
+        findPair: 'Najdi par',
+        bedTravnatiSestoj: 'travnati sestoj',
+        bedSivkaInMelisa: 'sivka in melisa',
+        bedBarjanskoRastje: 'barjansko rastje',
+        bedCvetliceZaOprasevalce: 'cvetlice za opraševalce',
+        bedMajaronInMelisa: 'majaron in melisa',
+        bedTolscakInSlezenovec: 'tolščak in slezenovec',
+        metrics: 'Metrike',
+        hideAll: 'Skrij vse',
+        showAll: 'Prikaži vse',
+        bedFilters: 'Filtri za postajice',
+        fetchingHistoricalData: 'Pridobivam zgodovinske podatke',
+        // Graph interface translations
+        last7Days: 'Zadnjih 7 dni',
+        last30Days: 'Zadnjih 30 dni',
+        customRange: 'Po meri',
+        startDate: 'Začetni datum',
+        endDate: 'Končni datum',
+        days: 'dni',
+        refresh: 'Osveži',
+        apply: 'Uporabi',
+        cancel: 'Prekliči',
+        zoomIn: 'Približaj',
+        zoomOut: 'Oddalji',
+        panLeft: 'Premakni levo',
+        panRight: 'Premakni desno',
+        resetView: 'Ponastavi pogled',
+        reset: 'Ponastavi',
+        metrics: 'Metrike',
+        values: 'Vrednosti',
+        noDataForSelectedPeriod: 'Ni podatkov za izbrano obdobje',
+        soilMoistureFull: 'Vlaga v prsti',
+        soilTemperatureFull: 'Temperatura prsti',
+        airTemperatureFull: 'Temperatura zraka',
+        airHumidityFull: 'Vlaga v zraku',
+        // Bluesky translations
+        followOnBluesky: 'Sledi nam na Bluesky',
+        routes: {
+            home: '', // Home path is just '/'
+            projects: 'prepletanja',
+            practices: 'utelesenja',
+            biodiversity: 'biodiverziteta',
+            gallery: 'galerija',
+            calendar: 'koledar',
+            posts: 'zapisi',
+            memoryGame: 'spomin',
+        }
     },
     en: {
         navHome: 'Home',
@@ -71,10 +164,17 @@ export const translations = {
         navGallery: 'Gallery',
         navCalendar: 'Calendar',
         navPosts: 'Writings',
+        postsTitle: 'Writings',
+        postsDesc: 'Journaling stories of more than human and soil.',
+        steps: 'Steps',
+        step: 'Step',
+        allTags: 'All',
         sensorDataTitle: 'livada.bio senses the soil',
         projectFutureDesc: 'In this intertwining, we don\'t just measure; we listen to the whisper of the soil, which tells us stories of moisture, temperature, and life beneath the surface. Data is updated hourly.',
-        biodiversityTitle: 'Wetlands meadow is home of our kin',
-        biodiversityDesc: 'Biodiversity is not just a list of species, but a web of relationships we weave with the meadow.',
+        biodiversityTitle: 'Wetlands meadow',
+        biodiversityDesc: 'Home of our kin',
+        practicesTitle: 'Practices',
+        practicesDesc: 'Community for sharing of diverse practices',
         calendarTitle: 'Calendar of Events',
         calendarDesc: 'Our upcoming events, workshops, and gatherings. Join us!',
         recentObservations: 'Recent Observations',
@@ -99,10 +199,10 @@ export const translations = {
         soilTemp: 'soil temperature',
         airTemp: 'Air Temperature',
         airHumidity: 'Air Humidity',
-        historicalSensorDataTitle: 'Historical Sensor Data',
+        historicalSensorDataTitle: 'Data Collection',
         footerText: 'The Livada Biotope – special initiative within BOB Institute © 2025',
         photoBy: 'Photo',
-        navMemoryGame: 'Memory Game',
+        navMemoryGame: 'Game',
         memoryGameTitle: 'Memory Game',
         moves: 'Moves',
         playAgain: 'Play Again',
@@ -112,6 +212,7 @@ export const translations = {
         close: 'Close',
         previous: 'Previous',
         next: 'Next',
+        backToCollection: 'Back to collection',
         memoryGameDescription: 'The Memory game uses images collected during regular monitoring in the Livada Biotope. You can view the entire collection in the biodiversity section. If you would like to see your photos in the game, you can join us in monitoring at Livada and contribute your observations via the iNaturalist platform. All observations in this microlocation (marked with the coordinates of LivadaLAB or its immediate vicinity) are automatically added into our dedicated project on the mentioned platform.',
         congratulations: 'Congratulations!',
         yourScore: 'Your score:',
@@ -125,5 +226,69 @@ export const translations = {
         openInINaturalist: 'Odpri v iNaturalistu',
         openInWikipedia: 'Odpri v Wikipediji',
         loadingDescription: 'Nalagam opis...',
+        openPortal: 'Open Portal',
+        closePortal: 'Close Portal',
+        noDescriptionFoundOnSlWikipedia: 'Ni SL opisa na Wikipediji.',
+        victory: 'Victory!',
+        victoryMessage: 'You have successfully completed the game!',
+        pridiNaMonitoring: 'Join the monitoring',
+        findPair: 'Find a pair',
+        bedTravnatiSestoj: 'grassy stand',
+        bedSivkaInMelisa: 'lavender and lemon balm',
+        bedBarjanskoRastje: 'marsh plants',
+        bedCvetliceZaOprasevalce: 'flowers for pollinators',
+        bedMajaronInMelisa: 'marjoram and lemon balm',
+        bedTolscakInSlezenovec: 'purslane and mallow',
+        metrics: 'Metrics',
+        hideAll: 'Hide all',
+        showAll: 'Show all',
+        bedFilters: 'Bed filters',
+        fetchingHistoricalData: 'Fetching historical data',
+        // Graph interface translations
+        last7Days: 'Last 7 days',
+        last30Days: 'Last 30 days',
+        customRange: 'Custom range',
+        granularity: 'Granularity',
+        startDate: 'Start date',
+        endDate: 'End date',
+        days: 'days',
+        refresh: 'Refresh',
+        hourly: 'Hourly',
+        daily: 'Daily',
+        weekly: 'Weekly',
+        monthly: 'Monthly',
+        apply: 'Apply',
+        cancel: 'Cancel',
+        zoomIn: 'Zoom in',
+        zoomOut: 'Zoom out',
+        panLeft: 'Pan left',
+        panRight: 'Pan right',
+        resetView: 'Reset view',
+        reset: 'Reset',
+        export: 'Export',
+        exportAsPNG: 'Export as PNG',
+        exportAsJPG: 'Export as JPG',
+        exportAsPDF: 'Export as PDF',
+        exportAsCSV: 'Export as CSV',
+        metrics: 'Metrics',
+        values: 'Values',
+        exportingAs: 'Exporting as',
+        noDataForSelectedPeriod: 'No data for selected period',
+        soilMoistureFull: 'Soil moisture',
+        soilTemperatureFull: 'Soil temperature',
+        airTemperatureFull: 'Air temperature',
+        airHumidityFull: 'Air humidity',
+        // Bluesky translations
+        followOnBluesky: 'Follow us on Bluesky',
+        routes: {
+            home: '', // Home path is just '/'
+            projects: 'intertwinings',
+            practices: 'embodiments',
+            biodiversity: 'biodiversity',
+            gallery: 'gallery',
+            calendar: 'calendar',
+            posts: 'writings',
+            memoryGame: 'memory-game',
+        }
     }
 };

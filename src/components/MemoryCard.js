@@ -1,12 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CometCard } from './ui/comet-card';
-import { getGlassClasses } from './glass-theme';
+import { GlassCard } from './ui/GlassCard';
+import FilteredImage from './ui/FilteredImage';
 
 const MemoryCard = ({ card, isFlipped, isMatched, isMismatched, onClick }) => {
-  const randomDuration = `${10 + Math.random() * 10}s`; // 10s to 20s
-  const randomDelay = `-${Math.random() * 15}s`; // -0s to -15s
-
   const cardVariants = {
     flipped: {
       rotateY: 180,
@@ -43,25 +40,23 @@ const MemoryCard = ({ card, isFlipped, isMatched, isMismatched, onClick }) => {
       animate={isMatched ? 'matched' : isFlipped ? (isMismatched ? 'mismatched' : 'flipped') : 'unflipped'}
       style={{ transformStyle: 'preserve-3d' }}
     >
-      {/* Card Back */}
-      <div
-        className={`absolute inset-0 ${getGlassClasses({ rounded: 'lg', background: false })}`}
-        style={{ backfaceVisibility: 'hidden' }}
-      >
-        <CometCard animationDuration={randomDuration} animationDelay={randomDelay} />
-      </div>
+      {/* Card Back - Simplified glassmorphic design with gradient */}
+      <GlassCard className="absolute inset-0 flex items-center justify-center !p-0 rounded-lg bg-gradient-to-t from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)]" variant="card">
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+            <div className="w-4 h-4 rounded-full bg-primary/40"></div>
+          </div>
+        </div>
+      </GlassCard>
 
-      {/* Card Front */}
-      <div
-        className={`absolute inset-0 ${getGlassClasses({ rounded: 'lg' })} flex items-center justify-center p-2`}
-        style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-      >
+      {/* Card Front with gradient */}
+      <GlassCard className="absolute inset-0 flex items-center justify-center p-1 rounded-lg bg-gradient-to-t from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)]" variant="card" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
         {card.type === 'image' ? (
-          <img src={card.content} alt="" className="w-full h-full object-cover rounded-md" />
+          <FilteredImage src={card.content} alt="" className="w-full h-full object-cover rounded-md" filterType="grid" />
         ) : (
-          <span className="text-lg font-bold text-center text-white">{card.content}</span>
+          <span className="text-xs sm:text-sm font-bold text-center text-white px-1">{card.content}</span>
         )}
-      </div>
+      </GlassCard>
     </motion.div>
   );
 };

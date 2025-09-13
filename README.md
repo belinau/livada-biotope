@@ -1,1 +1,1 @@
-The Livada Biotope web app and telemery system for environmental data monitoring. 
+The Livada Biotope web app and telemetry system for environmental data monitoring. 

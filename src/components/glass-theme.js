@@ -2,6 +2,8 @@
 
 export const glassColors = {
   background: "bg-[var(--glass-bg)]",
+  'background-hero': "bg-[var(--glass-bg-hero)]",
+  'background-gradient': "bg-gradient-to-t from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)]",
   border: "border-[var(--glass-border)]",
   text: {
     primary: "text-[var(--text-main)]",
@@ -23,6 +25,52 @@ export const glassEffects = {
   }
 };
 
+// Standardized glass component variants
+export const glassVariants = {
+  card: {
+    background: true,
+    border: true,
+    blur: true,
+    shadow: true,
+    rounded: "lg"
+  },
+  'card-gradient': {
+    background: 'gradient',
+    border: true,
+    blur: true,
+    shadow: true,
+    rounded: "lg"
+  },
+  navbar: {
+    background: true,
+    border: true,
+    blur: true,
+    shadow: false,
+    rounded: false
+  },
+  modal: {
+    background: true,
+    border: true,
+    blur: true,
+    shadow: true,
+    rounded: "2xl"
+  },
+  button: {
+    background: true,
+    border: true,
+    blur: true,
+    shadow: false,
+    rounded: "lg"
+  },
+  'hero-transparent': {
+    background: true,
+    border: true,
+    blur: true,
+    shadow: false,
+    rounded: "lg"
+  }
+};
+
 // Utility function to combine glass styling classes
 export function getGlassClasses(options = {}) {
   const { 
@@ -36,7 +84,14 @@ export function getGlassClasses(options = {}) {
   
   let classes = "";
   
-  if (background) classes += " " + glassColors.background;
+  if (background === 'hero') {
+    classes += " " + glassColors['background-hero'];
+  } else if (background === 'gradient') {
+    classes += " " + glassColors['background-gradient'];
+  } else if (background === true || background === 'default') {
+    classes += " " + glassColors.background;
+  }
+  
   if (border) classes += " border " + glassColors.border;
   if (blur) classes += " " + glassEffects.blur;
   if (shadow) classes += " " + glassEffects.shadow;
@@ -51,4 +106,11 @@ export function getGlassClasses(options = {}) {
   }
   
   return classes.trim();
+}
+
+// Utility function to get standardized glass component classes
+export function getGlassVariant(variant, overrides = {}) {
+  const variantOptions = glassVariants[variant] || {};
+  const mergedOptions = { ...variantOptions, ...overrides };
+  return getGlassClasses(mergedOptions);
 }

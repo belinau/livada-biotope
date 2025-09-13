@@ -1,15 +1,16 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { getGlassClasses } from '../glass-theme';
+import { getGlassVariant } from '../glass-theme';
 
 const GlassSection = ({ 
   children, 
   className = '',
+  variant = 'card',
   padding = 'p-6',
-  rounded = true,
+  rounded = 'lg',
   ...props 
 }) => {
-  const glassClasses = getGlassClasses({ rounded });
+  const glassClasses = getGlassVariant(variant, { rounded });
   
   const paddingClass = padding;
   

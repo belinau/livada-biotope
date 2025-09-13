@@ -1,12 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '../context/LanguageContext';
-import pLimit from 'p-limit';
-import { parse } from 'yaml';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Page from '../components/layout/Page';
-import Section from '../components/layout/Section';
+import { GlassSection } from '../components/ui/GlassSection';
+import { GlassCard } from '../components/ui/GlassCard';
+import { getGlassVariant } from '../components/glass-theme';
+import { HoverEffect } from '../components/ui/HoverEffect';
+import parse from 'html-react-parser';
+import { parse as yamlParse } from 'yaml';
+import DOMPurify from 'dompurify';
 import ExpandableCard from '../components/ExpandableCard';
 import GalleryExpandedContent from '../components/GalleryExpandedContent';
+import pLimit from 'p-limit';
+import FilteredImage from '../components/ui/FilteredImage';
 
 const limit = pLimit(2);
 
@@ -53,7 +60,7 @@ const parseMarkdown = (rawContent) => {
         const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
         const match = frontmatterRegex.exec(rawContent);
         if (!match) return { metadata: {}, content: rawContent };
-        const metadata = parse(match[1]) || {};
+        const metadata = yamlParse(match[1]) || {};
         const content = rawContent.slice(match[0].length);
         return { metadata, content };
     } catch (e) {
@@ -62,7 +69,7 @@ const parseMarkdown = (rawContent) => {
     }
 };
 
-const LazyImage = ({ src, srcSet, sizes, alt, className, layoutId }) => {
+const LazyImage = ({ src, srcSet, sizes, alt, className, layoutId, filterType = 'glass' }) => {
     const [isLoaded, setIsLoaded] = useState(false);
     const ref = useRef();
 
@@ -90,18 +97,26 @@ const LazyImage = ({ src, srcSet, sizes, alt, className, layoutId }) => {
 
     return (
         <div ref={ref} className={className} style={{ position: 'relative', paddingBottom: '100%' }}>
+            {/* Placeholder to prevent layout shift */}
+            <div className="absolute inset-0 w-full h-full bg-gray-200 dark:bg-gray-700 rounded-lg" />
+            
             {isLoaded && (
-                <motion.img
-                    src={src}
-                    srcSet={srcSet}
-                    sizes={sizes}
-                    alt={alt}
-                    className="absolute inset-0 w-full h-full object-cover"
+                <motion.div
+                    className="absolute inset-0 w-full h-full"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.3 }}
                     layoutId={layoutId}
-                />
+                >
+                    <FilteredImage
+                        src={src}
+                        srcSet={srcSet}
+                        sizes={sizes}
+                        alt={alt}
+                        className="absolute inset-0 w-full h-full object-cover rounded-lg"
+                        filterType={filterType}
+                    />
+                </motion.div>
             )}
         </div>
     );
@@ -113,7 +128,6 @@ function GalleryPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [expandedGallery, setExpandedGallery] = useState(null);
     const [expandedImageIndex, setExpandedImageIndex] = useState(null);
-    const [hoveredGalleryItem, setHoveredGalleryItem] = useState(null);
     
     useEffect(() => {
       const controller = new AbortController();
@@ -133,15 +147,41 @@ function GalleryPage() {
                   baseFileNames.map(async baseName => {
                       const langFile = `${baseName}.${language}.md`;
                       const defaultLangFile = `${baseName}.sl.md`;
-                      let fileToFetch = langFile;
-                      let res = await limit(() => fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`, { signal }));
-                      
-                      if (!res.ok) { fileToFetch = defaultLangFile; res = await limit(() => fetch(`/content/galleries/${fileToFetch}?v=${new Date().getTime()}`, { signal })); } 
-                      if (!res.ok) return null;
 
-                      const text = await res.text();
-                      const { metadata } = parseMarkdown(text);
-                      return { id: baseName, ...metadata };
+                      let primaryData = null;
+                      let fallbackData = null;
+
+                      // Fetch preferred language
+                      const primaryRes = await limit(() => fetch(`/content/galleries/${langFile}?v=${new Date().getTime()}`, { signal }));
+                      if (primaryRes.ok) {
+                          const text = await primaryRes.text();
+                          if (text.trim()) {
+                            primaryData = parseMarkdown(text).metadata;
+                          }
+                      }
+
+                      // Fetch default language if needed
+                      if (language !== 'sl') {
+                          const fallbackRes = await limit(() => fetch(`/content/galleries/${defaultLangFile}?v=${new Date().getTime()}`, { signal }));
+                          if (fallbackRes.ok) {
+                              const text = await fallbackRes.text();
+                              if (text.trim()) {
+                                fallbackData = parseMarkdown(text).metadata;
+                              }
+                          }
+                      }
+                      
+                      if (!primaryData && !fallbackData) return null;
+
+                      // Merge data: primaryData (e.g., EN) overrides fallbackData (SL)
+                      const mergedData = { ...(fallbackData || {}), ...(primaryData || {}) };
+
+                      // Ensure essential fields like 'images' are present from fallback if missing in primary
+                      if (fallbackData && fallbackData.images && (!primaryData || !primaryData.images)) {
+                        mergedData.images = fallbackData.images;
+                      }
+
+                      return { id: baseName, ...mergedData };
                   })
               );
               
@@ -211,9 +251,25 @@ function GalleryPage() {
     if (isLoading) {
       return (
         <Page title={t('navGallery')}> 
-            <Section title={t('navGallery')}> 
-                <div className="text-body text-center py-10 text-text-muted">{t('loading')}...</div>
-            </Section>
+            <div className="container mx-auto px-4 pt-8 md:pt-12 pb-8">
+                <div className="relative z-10">
+                    <GlassSection className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-3xl">
+                        <div className="text-center mb-8">
+                            <h2 className="text-display text-3xl bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent">{t('navGallery')}</h2>
+                        </div>
+                        <div className={`text-body text-center py-10 rounded-2xl ${getGlassVariant('card', { rounded: '2xl' })}`}>
+                            <div className="flex justify-center items-center h-64">
+                                <div className="animate-pulse flex space-x-2">
+                                    <div className="w-3 h-3 bg-primary rounded-full"></div>
+                                    <div className="w-3 h-3 bg-primary rounded-full"></div>
+                                    <div className="w-3 h-3 bg-primary rounded-full"></div>
+                                </div>
+                            </div>
+                            <p className="text-text-muted mt-4">{t('loading')}...</p>
+                        </div>
+                    </GlassSection>
+                </div>
+            </div>
         </Page>
       );
     }
@@ -221,146 +277,116 @@ function GalleryPage() {
     if (!isLoading && galleries.length === 0) {
         return (
             <Page title={t('navGallery')}> 
-                <Section title={t('navGallery')}> 
-                    <p className="text-body text-center text-text-muted">{t('noGalleriesAvailable')}</p>
-                </Section>
+                <div className="container mx-auto px-4 pt-8 md:pt-12 pb-8">
+                    <div className="relative z-10">
+                        <GlassSection className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-3xl">
+                            <div className="text-center mb-8">
+                                <h2 className="text-display text-3xl bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent">{t('navGallery')}</h2>
+                            </div>
+                            <div className={`text-body text-center py-10 rounded-2xl ${getGlassVariant('card', { rounded: '2xl' })}`}>
+                                <p className="text-text-muted">{t('noGalleriesAvailable')}</p>
+                            </div>
+                        </GlassSection>
+                    </div>
+                </div>
             </Page>
         );
     }
 
+    // Transform gallery data for HoverEffect component
+    const transformGalleryForHoverEffect = (gallery) => {
+        return gallery.images.map((image, index) => {
+            const caption = language === 'sl' 
+                ? image.caption_sl 
+                : (image.caption_en || image.caption_sl);
+            
+            return {
+                title: caption || gallery.title,
+                description: gallery.author ? `${t('photoBy')}: ${gallery.author}` : '',
+                imageSrc: getOptimizedImageUrl(image.image),
+                link: '#', // We'll handle clicks through onClickItem
+                gallery: gallery,
+                imageIndex: index
+            };
+        });
+    };
+
+    const handleItemClick = (item) => {
+        openImage(item.gallery, item.imageIndex);
+    };
+
+    const getItemLayoutId = (item, index) => {
+        return `gallery-image-${item.gallery.id}-${item.imageIndex}`;
+    };
+
     return (
         <Page title={t('navGallery')}> 
-            <Section title={t('navGallery')}> 
-                <div className="space-y-16 max-w-3xl mx-auto">
-                    {galleries.map((gallery) => (
-                        <article key={gallery.id}>
-                            <div className="text-center mb-8">
-                                <h3 className="text-3xl font-mono text-primary">{gallery.title}</h3>
-                                {gallery.date && (
-                                    <p className="text-sm text-text-muted mt-1">
-                                        {new Date(gallery.date).toLocaleDateString(language, {
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric'
-                                        })}
-                                    </p>
-                                )}
-                                {gallery.description && (
-                                    <p className="prose mt-2 max-w-2xl mx-auto text-text-muted">
-                                        {gallery.description}
-                                    </p>
-                                )}
-                            </div>
+            <div className="container mx-auto px-4 pt-8 md:pt-12 pb-8">
+                <div className="relative z-10">
+                    <GlassSection className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-3xl">
+                        <div className="text-center mb-8">
+                            <h2 className="text-display text-3xl bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent">{t('navGallery')}</h2>
+                        </div>
+                        <div className="space-y-16 max-w-3xl mx-auto">
+                            {galleries.map((gallery) => (
+                                <article key={gallery.id}>
+                                    <div className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-2xl mb-8">
+                                        <h3 className="heading-organic text-3xl bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent text-left">{gallery.title}</h3>
+                                        {gallery.date && (
+                                            <p className="text-sm text-text-muted mt-1 text-left">
+                                                {new Date(gallery.date).toLocaleDateString(language, {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                })}
+                                            </p>
+                                        )}
+                                        {gallery.description && (
+                                            <p className="prose mt-2 text-text-muted text-left">
+                                                {gallery.description}
+                                            </p>
+                                        )}
+                                    </div>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                {gallery.images.map((image, index) => {
-                                    const caption = language === 'sl' 
-                                        ? image.caption_sl 
-                                        : (image.caption_en || image.caption_sl);
-                                    
-                                    return (
-                                        <button
-                                            key={`${gallery.id}-${index}`}
-                                            className="relative group block p-2 h-full w-full"
-                                            onMouseEnter={() => setHoveredGalleryItem(`${gallery.id}-${index}`)}
-                                            onMouseLeave={() => setHoveredGalleryItem(null)}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                openImage(gallery, index);
-                                            }}
-                                            layoutId={`gallery-${gallery.id}-${index}`}
-                                        >
-                                            <AnimatePresence>
-                                                {hoveredGalleryItem === `${gallery.id}-${index}` && (
-                                                    <motion.span
-                                                        className="absolute inset-0 h-full w-full bg-[var(--ch-border)] block rounded-3xl opacity-70"
-                                                        layoutId="hoverBackground"
-                                                        initial={{ opacity: 0 }}
-                                                        animate={{ opacity: 0.7 }}
-                                                        exit={{ opacity: 0 }}
-                                                        transition={{ duration: 0.15 }}
-                                                    />
-                                                )}
-                                            </AnimatePresence>
-                                            
-                                            <motion.div 
-                                              layoutId={`gallery-img-${gallery.id}-${index}`}
-                                              className="bg-white/90 backdrop-blur-md rounded-lg shadow-lg overflow-hidden group relative text-left w-full h-full border-2 border-transparent group-hover:border-[var(--ch-border)]"
-                                            >
-                                                <LazyImage
-                                                    src={getOptimizedImageUrl(image.image)}
-                                                    srcSet={getResponsiveSrcSet(image.image)}
-                                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                                                    alt={caption || gallery.title}
-                                                    className="absolute inset-0 w-full h-full object-cover"
-                                                />
-                                                
-                                                {(caption || gallery.author) && (
-                                                    <div className="p-3 text-sm">
-                                                        {caption && (
-                                                            <p className="text-text-main line-clamp-2" title={caption}>
-                                                                {caption}
-                                                            </p>
-                                                        )}
-                                                        {gallery.author && (
-                                                            <p className="text-xs text-text-muted mt-1 flex items-center">
-                                                                <svg 
-                                                                    xmlns="http://www.w3.org/2000/svg" 
-                                                                    className="h-4 w-4 mr-1.5 opacity-70"
-                                                                    viewBox="0 0 20 20" 
-                                                                    fill="currentColor"
-                                                                    aria-hidden="true"
-                                                                >
-                                                                    <path 
-                                                                        fillRule="evenodd" 
-                                                                        d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" 
-                                                                        clipRule="evenodd" 
-                                                                    />
-                                                                </svg>
-                                                                <span>
-                                                                    {t('photoBy')}: {gallery.author}
-                                                                </span>
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </motion.div>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </article>
-                    ))}
+                                    <HoverEffect 
+                                        items={transformGalleryForHoverEffect(gallery)}
+                                        className="grid grid-cols-2 sm:grid-cols-3 gap-4"
+                                        onClickItem={handleItemClick}
+                                        getItemLayoutId={getItemLayoutId}
+                                    />
+                                </article>
+                            ))}
+                        </div>
+
+                        {expandedGallery && expandedImageIndex !== null && (
+                          <ExpandableCard
+                            isExpanded={!!expandedGallery}
+                            onToggle={(expanded) => {
+                              if (!expanded) {
+                                closeImage();
+                              }
+                            }}
+                            expandedContent={
+                              <GalleryExpandedContent
+                                gallery={expandedGallery}
+                                imageIndex={expandedImageIndex}
+                                goToPrev={goToPrev}
+                                goToNext={goToNext}
+                                currentIndex={expandedImageIndex}
+                                totalImages={expandedGallery.images.length}
+                                t={t}
+                                language={language}
+                              />
+                            }
+                            className="relative group block p-2 h-full w-full"
+                            expandedClassName={`w-full max-w-4xl max-h-[90vh] flex flex-col ${getGlassVariant('card', { background: 'subtle', border: true, blur: true, shadow: true, rounded: '3xl' })} overflow-auto`}
+                            closeOnBackdropClick={true}
+                            closeOnEscape={true}
+                          />
+                        )}
+                    </GlassSection>
                 </div>
-
-                {expandedGallery && expandedImageIndex !== null && (
-                  <ExpandableCard
-                    isExpanded={!!expandedGallery}
-                    onToggle={(expanded) => {
-                      if (!expanded) {
-                        closeImage();
-                      }
-                    }}
-                    layoutId={`gallery-${expandedGallery.id}-${expandedImageIndex}`}
-                    expandedContent={
-                      <GalleryExpandedContent
-                        gallery={expandedGallery}
-                        imageIndex={expandedImageIndex}
-                        goToPrev={goToPrev}
-                        goToNext={goToNext}
-                        currentIndex={expandedImageIndex}
-                        totalImages={expandedGallery.images.length}
-                        t={t}
-                        language={language}
-                      />
-                    }
-                    className="relative group block p-2 h-full w-full"
-                    expandedClassName="w-full max-w-4xl max-h-[90vh] flex flex-col bg-[var(--glass-bg)] border-[var(--glass-border)] backdrop-blur-sm sm:rounded-3xl overflow-auto"
-                    closeOnBackdropClick={true}
-                    closeOnEscape={true}
-                  />
-                )}
-            </Section>
+            </div>
         </Page>
     );
 }

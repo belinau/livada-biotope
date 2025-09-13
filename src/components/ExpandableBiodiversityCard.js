@@ -4,6 +4,7 @@ import React, { useId, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { HoverEffect } from "../components/ui/HoverEffect";
 import ExpandableCard from "./ExpandableCard";
+import FilteredImage from "./ui/FilteredImage";
 
 
 export function ExpandableBiodiversityCard({ observations, fetchObservationDetails, language, t }) {
@@ -85,10 +86,11 @@ export function ExpandableBiodiversityCard({ observations, fetchObservationDetai
   const BiodiversityExpandedContent = () => (
     <>
       <div>
-        <img
+        <FilteredImage
           src={activeObservation?.photos[0]?.url?.replace('square', 'large') || `https://placehold.co/500x500/2d3748/a0aec0?text=No+Image`}
           alt={activeObservation?.taxon?.preferred_common_name || activeObservation?.taxon?.name || "Unknown"}
           className="w-full h-[560px] lg:h-[560px] sm:rounded-tr-lg sm:rounded-tl-lg object-contain"
+          filterType="glass"
         />
       </div>
 
@@ -115,10 +117,11 @@ export function ExpandableBiodiversityCard({ observations, fetchObservationDetai
                 href={activeContent.iNaturalistLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-3 text-sm rounded-full font-bold bg-primary text-white flex items-center justify-center"
+                className="px-4 py-3 text-sm rounded-full font-bold bg-[var(--glass-icon-bg)] text-[var(--primary)] border-2 border-[var(--glass-icon-outline)] shadow-sm backdrop-blur-sm flex items-center justify-center relative overflow-hidden"
                 aria-label={t('openInINaturalist')}
               >
                 <INaturalistIcon />
+                <div className="absolute inset-0 rounded-full shadow-[0_0_0_1px_var(--glass-icon-outline)] pointer-events-none"></div>
               </motion.a>
             )}
             {activeContent?.wikipediaLink && (
@@ -130,10 +133,11 @@ export function ExpandableBiodiversityCard({ observations, fetchObservationDetai
                 href={activeContent.wikipediaLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-3 text-sm rounded-full font-bold bg-primary text-white flex items-center justify-center"
+                className="px-4 py-3 text-sm rounded-full font-bold bg-[var(--glass-icon-bg)] text-[var(--primary)] border-2 border-[var(--glass-icon-outline)] shadow-sm backdrop-blur-sm flex items-center justify-center relative overflow-hidden"
                 aria-label={t('openInWikipedia')}
               >
                 <WikipediaIcon />
+                <div className="absolute inset-0 rounded-full shadow-[0_0_0_1px_var(--glass-icon-outline)] pointer-events-none"></div>
               </motion.a>
             )}
           </div>
@@ -159,6 +163,7 @@ export function ExpandableBiodiversityCard({ observations, fetchObservationDetai
         items={items} 
         onClickItem={handleCardClick} 
         getItemLayoutId={(item, idx) => `card-${item.originalObservation.id}-${id}`}
+        filterType="glass"
       />
       
       {activeObservation && activeContent && (
@@ -173,7 +178,7 @@ export function ExpandableBiodiversityCard({ observations, fetchObservationDetai
           layoutId={`card-${activeObservation.id}-${id}`}
           expandedContent={<BiodiversityExpandedContent />}
           className="relative group block p-2 h-full w-full"
-          expandedClassName="w-full max-w-2xl max-h-[90vh] flex flex-col bg-[var(--glass-bg)] border-[var(--glass-border)] backdrop-blur-sm sm:rounded-3xl overflow-auto"
+          expandedClassName="w-full max-w-2xl max-h-[90vh] flex flex-col bg-gradient-to-b from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] border-[var(--glass-border)] backdrop-blur-sm sm:rounded-3xl overflow-auto"
           closeOnBackdropClick={true}
           closeOnEscape={true}
         />

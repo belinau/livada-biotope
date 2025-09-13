@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ImagesSlider } from './ui/images-slider';
+import { motion, AnimatePresence } from 'framer-motion';
+import { DisplacementSlider } from './ui/displacement-slider';
 import { getOptimizedImageUrl } from '../shared/image-utils';
 import { fetchRecentImages } from '../shared/image-utils';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +9,7 @@ const JoinHero = ({ language = 'sl' }) => {
   const navigate = useNavigate();
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentActionIndex, setCurrentActionIndex] = useState(0);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -18,7 +19,7 @@ const JoinHero = ({ language = 'sl' }) => {
         setImages(recentImages);
         setLoading(false);
       } catch (error) {
-        console.error("Failed to load images:", error);
+        console.error('Failed to load images:', error);
         setImages([]);
         setLoading(false);
       }
@@ -27,9 +28,19 @@ const JoinHero = ({ language = 'sl' }) => {
     fetchImages();
   }, []);
 
+  // Rotate through actions - always show one action
+  useEffect(() => {
+    const actionInterval = setInterval(() => {
+      // Rotate to next action (always show one)
+      setCurrentActionIndex(prev => (prev + 1) % 3);
+    }, 10000); // Change every 6 seconds for more elegant timing
+
+    return () => clearInterval(actionInterval);
+  }, []);
+
   if (loading) {
     return (
-      <div className="h-screen bg-gradient-to-r from-primary/20 to-primary-light/20 rounded-2xl flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-text-muted">
@@ -42,7 +53,7 @@ const JoinHero = ({ language = 'sl' }) => {
 
   if (images.length === 0) {
     return (
-      <div className="h-screen bg-gradient-to-r from-primary/20 to-primary-light/20 rounded-2xl flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center">
         <p className="text-text-muted">
           {language === 'sl' ? 'Ni najdenih slik' : 'No images found'}
         </p>
@@ -50,7 +61,7 @@ const JoinHero = ({ language = 'sl' }) => {
     );
   }
 
-  // Prepare images array for slider with optimized URLs
+  // Prepare images array with optimized URLs
   const sliderImages = images.map(imagePath => getOptimizedImageUrl(imagePath));
 
   const joinActions = [
@@ -65,74 +76,88 @@ const JoinHero = ({ language = 'sl' }) => {
       title: language === 'sl' ? 'Pridi na srečanje' : 'Come to our gatherings',
       description: language === 'sl'
         ? 'V Biotopu Livada redno izvajamo DITO srečanja o permakulturi, z zemljo povezanih praksah, izdelavi predmetov iz lesa in recikliranih materialov, občasno pa potekajo tudi delavnice o ekofeminističnih praksah, medvrstnem sodelovanju in rešitvah za telemetrijo in okoljske meritve.'
-        : 'At Livada Biotope we regularly hold DITO gatherings on permaculture, land-connected practices, crafting objects from wood and recycled materials, and occasionally workshops on ecofeminist practices, interspecies collaboration and development of solutions for telemetry and environmental monitoring.',
+        : "You can inform your friends about the importance of preserving this urban fen meadow, but we'd rather see you bring them along to our next gathering.",
       link: '/koledar'
     },
     {
       title: language === 'sl' ? 'Širjenje informacij' : 'Spread the word',
       description: language === 'sl'
         ? 'S pomenom ohranjanja tega urbanega barjanskega travnika lahko seznaniš tudi prijatelje, še raje pa vidimo, če jih kar pripelješ s sabo na naslednje srečanje.'
-        : 'You can inform your friends about the importance of preserving this urban fen meadow, but we\'d rather see you bring them along to our next gathering.',
+        : "You can inform your friends about the importance of preserving this urban fen meadow, but we'd rather see you bring them along to our next gathering.",
       link: '/koledar'
     }
   ];
 
+  const currentAction = joinActions[currentActionIndex];
+  const heroTitle = language === 'sl' ? 'Pridruži se nam' : 'Join us';
+  const heroSubtitle = language === 'sl' 
+    ? 'Postani del skupnosti, ki skrbi za ohranjanje in raziskovanje Biotopa Livada.' 
+    : 'Become part of the community caring for and researching Livada Biotope.';
+
   return (
-    <ImagesSlider 
-      className="h-screen rounded-2xl overflow-hidden shadow-xl"
-      images={sliderImages}
-      showArrows={true}
-      showIndicators={true}
-      autoPlay={true}
-      autoPlayInterval={5000}
-      imageFit="cover"
-    >
-      <motion.div
-        initial={{
-          opacity: 0,
-          y: -80,
-        }}
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
-        transition={{
-          duration: 0.6,
-        }}
-        className="z-50 flex flex-col justify-center items-center text-center px-4 w-full h-full"
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent rounded-2xl"></div>
-        
-        <motion.h1
-          className="font-bold text-4xl md:text-5xl text-center text-white py-4 relative z-10 max-w-4xl"
-        >
-          {language === 'sl' ? 'Pridruži se nam' : 'Join us'}
-        </motion.h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 relative z-10 max-w-6xl w-full px-4">
-          {joinActions.map((action, index) => (
-            <div 
-              key={index}
-              className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-left transition-all duration-300 hover:bg-white/20 hover:scale-105"
-            >
-              <h3 className="text-xl font-bold text-white mb-3">{action.title}</h3>
-              <p className="text-white/90 mb-4">{action.description}</p>
-              <button
-                className="px-4 py-2 backdrop-blur-sm border bg-primary/20 border-primary/30 text-white text-center rounded-full relative hover:bg-primary/30 transition-all duration-300"
-                onClick={() => navigate(action.link)}
-              >
-                <span className="text-sm font-medium">
-                  {language === 'sl' ? 'Več o tem' : 'Learn more'} →
-                </span>
-                <div className="absolute inset-x-0 h-px -bottom-px bg-gradient-to-r w-3/4 mx-auto from-transparent via-primary to-transparent" />
-              </button>
+    <div className="w-full">
+      {/* Custom Hero Section with integrated CTA buttons and slider */}
+      <div className="relative min-h-[75vh] flex items-center justify-center overflow-hidden py-8">
+        {/* Constrain width to match other components on HomePage */}
+        <div className="container mx-auto px-4 w-full max-w-6xl">
+          {/* Glassmorphic hero card - now with same width as other components */}
+          <div className="relative z-10 text-center mx-auto p-5 md:p-6 bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm border border-[var(--glass-border)] rounded-3xl w-full max-w-6xl">
+            <h1 className="heading-organic text-3xl md:text-4xl bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent mb-3">
+              {heroTitle}
+            </h1>
+            
+            <p className="text-base md:text-lg text-text-muted mb-5">
+              {heroSubtitle}
+            </p>
+            
+            {/* Image Slider */}
+            <div className="mt-5 rounded-2xl overflow-hidden aspect-video">
+              <DisplacementSlider 
+                images={sliderImages}
+                autoPlay={true}
+                autoPlayInterval={8000}
+                className="w-full h-full"
+              />
             </div>
-          ))}
+            
+            {/* Rotating Action Buttons placed below the slider */}
+            <div className="mt-6">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentActionIndex}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 1.5, ease: "easeInOut" }}
+                  className="max-w-2xl mx-auto"
+                >
+                  <div className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm border border-[var(--glass-border)] rounded-2xl p-4 text-center">
+                    <h3 className="heading-organic text-lg text-primary mb-2">{currentAction.title}</h3>
+                    <p className="text-text-muted mb-4 text-sm">{currentAction.description}</p>
+                    <button
+                      className="px-4 py-2 backdrop-blur-sm border border-[var(--glass-border)] bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] text-white mx-auto text-center rounded-full relative hover:bg-primary/30 transition-all duration-300 transform hover:scale-105 text-sm"
+                      onClick={() => navigate(currentAction.link)}
+                    >
+                      <span className="font-medium">
+                        {language === 'sl' ? 'Več o tem' : 'Learn more'} →
+                      </span>
+                    </button>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            
+            <div className="flex justify-center mt-5">
+              <div className="w-16 h-1 bg-gradient-to-l from-primary to-primary-light rounded-full"></div>
+            </div>
+          </div>
         </div>
-      </motion.div>
-    </ImagesSlider>
+        
+        {/* Subtle background */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-l from-primary/5 to-accent-green/5"></div>
+      </div>
+    </div>
   );
 };
-
 
 export default JoinHero;

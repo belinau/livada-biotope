@@ -1,14 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { getOptimizedImageUrl } from '../shared/image-utils';
-import { marked } from 'marked';
-import { ImagesSlider } from './ui/images-slider';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from '../context/LanguageContext';
+import pLimit from 'p-limit';
+import { getGlassVariant } from './glass-theme';
+import FilteredImage from './ui/FilteredImage';
+
+const limit = pLimit(2);
 
 const PracticesHero = ({ language = 'sl' }) => {
   const navigate = useNavigate();
   const [practices, setPractices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTag, setSelectedTag] = useState(null);
+  const { t } = useTranslation();
 
   // Simple YAML parser for frontmatter
   const parseYAML = useCallback((yamlString) => {
@@ -18,6 +22,17 @@ const PracticesHero = ({ language = 'sl' }) => {
       let currentKey = null;
       let currentValue = '';
       let inArray = false;
+      
+      // Helper function to strip quotes from strings
+      const stripQuotes = (str) => {
+        if (typeof str !== 'string') return str;
+        str = str.trim();
+        if ((str.startsWith('"') && str.endsWith('"')) || 
+            (str.startsWith("'") && str.endsWith("'"))) {
+          return str.substring(1, str.length - 1);
+        }
+        return str;
+      };
       
       lines.forEach(line => {
         // Skip empty lines
@@ -30,7 +45,9 @@ const PracticesHero = ({ language = 'sl' }) => {
             if (!obj[currentKey]) {
               obj[currentKey] = [];
             }
-            obj[currentKey].push(line.trim().substring(1).trim());
+            // Strip quotes from array items
+            const itemValue = stripQuotes(line.trim().substring(1).trim());
+            obj[currentKey].push(itemValue);
           }
           inArray = true;
           return;
@@ -43,7 +60,8 @@ const PracticesHero = ({ language = 'sl' }) => {
             if (inArray && Array.isArray(obj[currentKey])) {
               // Keep as array
             } else {
-              obj[currentKey] = currentValue.trim();
+              // Strip quotes from string values
+              obj[currentKey] = stripQuotes(currentValue);
             }
           }
           
@@ -67,7 +85,7 @@ const PracticesHero = ({ language = 'sl' }) => {
         if (inArray && obj[currentKey] && Array.isArray(obj[currentKey])) {
           // Keep as array
         } else {
-          obj[currentKey] = currentValue.trim();
+          obj[currentKey] = stripQuotes(currentValue);
         }
       }
       
@@ -96,7 +114,7 @@ const PracticesHero = ({ language = 'sl' }) => {
   useEffect(() => {
     const fetchPractices = async () => {
       try {
-        const manifestResponse = await fetch('/content/practices/manifest.json');
+        const manifestResponse = await limit(() => fetch('/content/practices/manifest.json'));
         if (!manifestResponse.ok) throw new Error('Practices manifest not found');
         const manifest = await manifestResponse.json();
         
@@ -109,11 +127,11 @@ const PracticesHero = ({ language = 'sl' }) => {
             const langFile = `${baseName}.${language}.md`;
             const defaultLangFile = `${baseName}.sl.md`;
             let fileToFetch = langFile;
-            let res = await fetch(`/content/practices/${fileToFetch}`);
+            let res = await limit(() => fetch(`/content/practices/${fileToFetch}`));
             
             if (!res.ok) { 
               fileToFetch = defaultLangFile; 
-              res = await fetch(`/content/practices/${fileToFetch}`); 
+              res = await limit(() => fetch(`/content/practices/${fileToFetch}`)); 
             } 
             
             if (!res.ok) return null;
@@ -121,11 +139,31 @@ const PracticesHero = ({ language = 'sl' }) => {
             const text = await res.text();
             const { metadata, content } = parseMarkdown(text);
             
-            // Extract first image from content if available
-            const imageRegex = /!\\[.*?\\]\((.*?)\\(.*)/;
-            const imageMatch = content.match(imageRegex);
-            const firstImage = imageMatch ? imageMatch[1] : null;
-            
+            let firstImage = null;
+            if (metadata.image) {
+              // Resolve image path relative to the markdown file
+              const markdownPath = `/content/practices/${fileToFetch}`;
+              try {
+                const imageUrl = new URL(metadata.image, `http://dummybase${markdownPath}`);
+                firstImage = imageUrl.pathname;
+              } catch (e) {
+                console.error(`Invalid image URL for ${fileToFetch}:`, e);
+              }
+            } else {
+              // Fallback to first image in content
+              const imageRegex = /!\[.*?\]\((.*?)\)/;
+              const imageMatch = content.match(imageRegex);
+              if (imageMatch && imageMatch[1]) {
+                const markdownPath = `/content/practices/${fileToFetch}`;
+                try {
+                  const imageUrl = new URL(imageMatch[1], `http://dummybase${markdownPath}`);
+                  firstImage = imageUrl.pathname;
+                } catch (e) {
+                  console.error(`Invalid image URL in content for ${fileToFetch}:`, e);
+                }
+              }
+            }
+
             return { 
               id: baseName, 
               ...metadata,
@@ -152,14 +190,47 @@ const PracticesHero = ({ language = 'sl' }) => {
     fetchPractices();
   }, [language, parseMarkdown]);
 
+  // Get all unique tags
+  const allTags = useMemo(() => {
+    const tags = new Set();
+    practices.forEach(practice => {
+      if (practice.tags) {
+        practice.tags.forEach(tag => tags.add(tag));
+      }
+    });
+    return ['All', ...Array.from(tags).sort()];
+  }, [practices]);
+
+  // Filter practices by selected tag
+  const filteredPractices = useMemo(() => {
+    if (!selectedTag || selectedTag === 'All') {
+      return practices.slice(0, 6); // Show only first 6 practices
+    }
+    return practices.filter(practice => practice.tags && practice.tags.includes(selectedTag)).slice(0, 6);
+  }, [practices, selectedTag]);
+
+  const handleTagClick = (tag) => {
+    setSelectedTag(tag);
+  };
+
   if (loading) {
     return (
-      <div className="h-screen bg-gradient-to-r from-primary/20 to-primary-light/20 rounded-2xl flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-text-muted">
-            {language === 'sl' ? 'Nalagam prakse...' : 'Loading practices...'}
-          </p>
+      <div className="py-12">
+        <div className="container mx-auto px-4">
+          <div className="relative z-10">
+            <div className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-3xl">
+              <h2 className="heading-organic text-3xl md:text-4xl text-center bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent mb-8">
+                {language === 'sl' ? 'Prakse' : 'Practices'}
+              </h2>
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-pulse flex space-x-2">
+                  <div className="w-3 h-3 bg-primary rounded-full"></div>
+                  <div className="w-3 h-3 bg-primary rounded-full"></div>
+                  <div className="w-3 h-3 bg-primary rounded-full"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -167,94 +238,148 @@ const PracticesHero = ({ language = 'sl' }) => {
 
   if (practices.length === 0) {
     return (
-      <div className="h-screen bg-gradient-to-r from-primary/20 to-primary-light/20 rounded-2xl flex items-center justify-center">
-        <p className="text-text-muted">
-          {language === 'sl' ? 'Ni najdenih praks' : 'No practices found'}
-        </p>
+      <div className="py-12">
+        <div className="container mx-auto px-4">
+          <div className="relative z-10">
+            <div className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-3xl">
+              <h2 className="heading-organic text-3xl md:text-4xl text-center bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent mb-8">
+                {language === 'sl' ? 'Prakse' : 'Practices'}
+              </h2>
+              <div className="text-center py-12">
+                <p className="text-text-muted">
+                  {language === 'sl' ? 'Ni najdenih praks' : 'No practices found'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  // Get the most recent practice
-  const latestPractice = practices[0];
-  
-  // Get optimized image URL if available, otherwise use fallback
-  const imageUrl = latestPractice.firstImage 
-    ? getOptimizedImageUrl(latestPractice.firstImage)
-    : getOptimizedImageUrl('/images/uploads/deva.jpg');
-
-  // Extract first paragraph from content and clean markdown
-  let firstParagraph = '';
-  if (latestPractice.content) {
-    const firstParagraphRaw = latestPractice.content.split('\n\n')[0] || latestPractice.content.substring(0, 200) + '...';
-    // Convert markdown to HTML and then strip tags to get plain text
-    const htmlContent = marked(firstParagraphRaw);
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlContent;
-    firstParagraph = tempDiv.textContent || tempDiv.innerText || '';
-  }
-
-  // Prepare images array for slider (use the main image and fallback)
-  const sliderImages = [imageUrl];
-
   return (
-    <ImagesSlider 
-      className="h-screen rounded-2xl overflow-hidden shadow-xl"
-      images={sliderImages}
-      showArrows={true}
-      showIndicators={true}
-      autoPlay={true}
-      autoPlayInterval={7000}
-      imageFit="cover"
-    >
-      <motion.div
-        initial={{
-          opacity: 0,
-          y: -80,
-        }}
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
-        transition={{
-          duration: 0.6,
-        }}
-        className="z-50 flex flex-col justify-center items-center text-center px-4"
-      >
-        <motion.h1
-          className="font-bold text-4xl md:text-6xl text-center bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-300 py-4"
-        >
-          {latestPractice.title}
-        </motion.h1>
-        <motion.p
-          className="text-xl md:text-2xl text-white/90 max-w-3xl mt-4"
-        >
-          {firstParagraph}
-        </motion.p>
-        <div className="flex flex-col sm:flex-row gap-4 mt-12">
-          <button
-            className="px-8 py-4 backdrop-blur-sm border bg-primary/20 border-primary/30 text-white mx-auto text-center rounded-full relative hover:bg-primary/30 transition-all duration-300 transform hover:scale-105"
-            onClick={() => navigate('/utelesenja')}
-          >
-            <span className="text-lg font-medium">
-              {language === 'sl' ? 'Preberi več' : 'Read more'} →
-            </span>
-            <div className="absolute inset-x-0 h-px -bottom-px bg-gradient-to-r w-3/4 mx-auto from-transparent via-primary to-transparent" />
-          </button>
-          <button
-            className="px-8 py-4 backdrop-blur-sm border bg-secondary/20 border-secondary/30 text-white mx-auto text-center rounded-full relative hover:bg-secondary/30 transition-all duration-300 transform hover:scale-105"
-            onClick={() => navigate('/utelesenja')}
-          >
-            <span className="text-lg font-medium">
-              {language === 'sl' ? 'Vse prakse' : 'All practices'} →
-            </span>
-            <div className="absolute inset-x-0 h-px -bottom-px bg-gradient-to-r w-3/4 mx-auto from-transparent via-secondary to-transparent" />
-          </button>
+    <div className="py-12">
+      <div className="container mx-auto px-4">
+        <div className="relative z-10">
+          <div className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-3xl">
+            <h2 className="heading-organic text-3xl md:text-4xl text-center bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent mb-8">
+              {language === 'sl' ? 'Prakse' : 'Practices'}
+            </h2>
+            
+            {/* Tag Filter */}
+            <div className="flex flex-wrap justify-center items-center mb-8 gap-4">
+              <div className="flex flex-wrap items-center gap-2">
+                {allTags.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => handleTagClick(tag)}
+                    className={`px-3 py-1 text-sm font-medium transition-all duration-300 rounded-full ${
+                      selectedTag === tag || (tag === 'All' && !selectedTag)
+                        ? 'text-[var(--primary)] shadow-md bg-gradient-to-br from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm border border-[var(--glass-border)] rounded-full hover:text-[var(--text-sage)]'
+                        : 'bg-gradient-to-br from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm border border-[var(--glass-border)] rounded-full text-[var(--primary)] hover:bg-primary/20 hover:text-[var(--text-sage)] hover:shadow-md'
+                    }`}
+                  >
+                    {t(tag === 'All' ? 'allTags' : tag) || tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Practices Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredPractices.length > 0 ? (
+                filteredPractices.map(practice => (
+                  <Link 
+                    to={`/utelesenja/${practice.id}`} 
+                    key={practice.id} 
+                    className="block group"
+                  >
+                    <div 
+                      className="bg-gradient-to-br from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm border border-[var(--glass-border)] rounded-xl shadow-xl"
+                    >
+                      <div className="aspect-video overflow-hidden rounded-t-xl">
+                        {practice.firstImage ? (
+                          <div className="relative w-full h-full">
+                            <FilteredImage
+                              src={practice.firstImage}
+                              alt={practice.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              filterType="grid"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent-green/20 flex items-center justify-center">
+                            <div className="text-primary/30 text-4xl">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="p-6 flex flex-col">
+                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                          {practice.date && (
+                            <p className="text-accent text-sm text-text-muted">
+                              {new Date(practice.date).toLocaleDateString(language)}
+                            </p>
+                          )}
+                          {practice.author && (
+                            <p className="text-accent text-sm text-text-muted">
+                              {language === 'sl' ? 'Avtor: ' : 'by '}{practice.author}
+                            </p>
+                          )}
+                        </div>
+                        <h3 className="heading-organic text-xl text-primary mb-3 flex-grow">
+                          {practice.title}
+                        </h3>
+                        
+                        {practice.description && (
+                          <p className="text-text-muted mb-4 line-clamp-3">
+                            {practice.description}
+                          </p>
+                        )}
+                        
+                        {practice.tags && (
+                          <div className="mt-auto flex flex-wrap gap-2">
+                            {practice.tags.map(tag => (
+                              <span
+                                key={tag}
+                                className="inline-block bg-primary/10 text-muted text-xs font-semibold px-2.5 py-0.5 rounded-full"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <p className="text-center text-text-muted col-span-full">
+                  {language === 'sl' ? 'Ni najdenih praks za izbrano oznako' : 'No practices found for selected tag'}
+                </p>
+              )}
+            </div>
+
+            {/* View All Practices Button */}
+            <div className="text-center mt-12">
+              <button
+                className="px-8 py-4 backdrop-blur-sm border border-[var(--glass-border)] bg-gradient-to-br from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] text-[var(--primary)] mx-auto text-center rounded-full relative hover:bg-primary/30 transition-all duration-300 transform hover:scale-105"
+                onClick={() => navigate('/utelesenja')}
+              >
+                <span className="text-lg font-medium">
+                  {language === 'sl' ? 'Vse prakse' : 'All practices'} →
+                </span>
+              </button>
+            </div>
+          </div>
         </div>
-      </motion.div>
-    </ImagesSlider>
+      </div>
+    </div>
   );
 };
-
 
 export default PracticesHero;

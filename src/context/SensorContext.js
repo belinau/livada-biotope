@@ -15,8 +15,12 @@ export const SensorProvider = ({ children }) => {
     const fetchHistory = useCallback(async () => {
         setStatus({ key: 'loading', type: 'connecting' });
         try {
-            const data = await livadaApiClient.getHistoryTelemetry();
-            const transformedData = transformApiData(data.data);
+            const response = await livadaApiClient.getHistoryTelemetry();
+            
+            // Check if response has data property
+            const rawData = response.data || response;
+            
+            const transformedData = transformApiData(rawData);
             
             const processedHistory = {};
             for (const key in transformedData) {

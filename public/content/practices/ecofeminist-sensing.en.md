@@ -1,7 +1,9 @@
 ---
 title: Ecofeminist Composting
+slug: ecofeminist-composting
 date: 2025-06-26T10:00:00.000Z
 author: Urban Belina
+image: ../../images/practices/kompostni-kup.jpg
 tags:
   - ecofeminism
   - practice
@@ -9,16 +11,8 @@ tags:
 ---
 Ecofeminist composting is the practice of transforming outdated, harmful, and colonial ways of thinking and living, which, along with organic matter, decompose in a compost heap, thereby creating fertile ground and transformed thought patterns.
 
-```mermaid
-graph TD
-    A["Outdated ways of thinking,\nharmful beliefs,\nuseless patterns"] --> B["Write on a note"];
-    B --> C["Ritually bury"];
-    C --> D["Contemplate decomposition"];
-    D -- "New cycle" --> A;
 
-```
-
-### 1. Composting Superfluous Ways of Thinking and Living
+## 1. Composting Superfluous Ways of Thinking and Living
 
 ## 1.1. Preparation
 

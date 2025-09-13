@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '../context/LanguageContext';
 import pLimit from 'p-limit';
 import { marked } from 'marked';
 import mermaid from 'mermaid';
 import Page from '../components/layout/Page';
 import Section from '../components/layout/Section';
-import { GlassCard } from '../components/ui/GlassCard';
+import { getGlassVariant } from '../components/glass-theme';
+import FilteredImage from '../components/ui/FilteredImage';
+import ReactDOM from 'react-dom/client';
+import EmbeddedGallery from '../components/EmbeddedGallery';
+import Hero from '../components/Hero';
 
 const limit = pLimit(2);
 
@@ -16,6 +21,17 @@ const parseYAML = (yamlString) => {
     let currentKey = null;
     let currentValue = '';
     let inArray = false;
+    
+    // Helper function to strip quotes from strings
+    const stripQuotes = (str) => {
+      if (typeof str !== 'string') return str;
+      str = str.trim();
+      if ((str.startsWith('"') && str.endsWith('"')) || 
+          (str.startsWith("'") && str.endsWith("'"))) {
+        return str.substring(1, str.length - 1);
+      }
+      return str;
+    };
     
     lines.forEach(line => {
       // Skip empty lines
@@ -28,7 +44,9 @@ const parseYAML = (yamlString) => {
           if (!obj[currentKey]) {
             obj[currentKey] = [];
           }
-          obj[currentKey].push(line.trim().substring(1).trim());
+          // Strip quotes from array items
+          const itemValue = stripQuotes(line.trim().substring(1).trim());
+          obj[currentKey].push(itemValue);
         }
         inArray = true;
         return;
@@ -41,7 +59,8 @@ const parseYAML = (yamlString) => {
           if (inArray && Array.isArray(obj[currentKey])) {
             // Keep as array
           } else {
-            obj[currentKey] = currentValue.trim();
+            // Strip quotes from string values
+            obj[currentKey] = stripQuotes(currentValue);
           }
         }
         
@@ -65,7 +84,7 @@ const parseYAML = (yamlString) => {
       if (inArray && obj[currentKey] && Array.isArray(obj[currentKey])) {
         // Keep as array
       } else {
-        obj[currentKey] = currentValue.trim();
+        obj[currentKey] = stripQuotes(currentValue);
       }
     }
     
@@ -93,8 +112,10 @@ const parseMarkdown = (rawContent) => {
 function enhanceHTML(html) {
   return html
     .replace(/:::details\s+(.+?)\n([\s\S]*?)\n:::/g, '<details><summary>$1</summary><div class="mt-2">$2</div></details>')
-    .replace(/{{youtube\s+(.+?)}}/g, `<div class="aspect-video"><iframe class="w-full h-full" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe></div>`)
-    .replace(/{{vimeo\s+(.+?)}}/g, `<div class="aspect-video"><iframe class="w-full h-full" src="https://player.vimeo.com/video/$1" frameborder="0" allowfullscreen></iframe></div>`);
+    .replace(/{{youtube\s+(.+?)}}/g, '<div class="aspect-video"><iframe class="w-full h-full" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe></div>')
+    .replace(/{{vimeo\s+(.+?)}}/g, '<div class="aspect-video"><iframe class="w-full h-full" src="https://player.vimeo.com/video/$1" frameborder="0" allowfullscreen></iframe></div>')
+    .replace(/{{gallery\s+"(.+?)"}}/g, '<div class="gallery-placeholder" data-gallery-id="$1"></div>')
+    .replace(/<p><a href="([^_"].+?)">([^<]+)<\/a><\/p>/g, '<a href="$1" class="inline-block bg-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-primary/80 transition-colors">$2</a>');
 }
 
 const renderMarkdown = (content) => {
@@ -154,11 +175,140 @@ const renderMermaid = (container) => {
   }
 };
 
-function ContentCollectionPage({ t, title, contentPath }) {
+const renderGalleries = (container) => {
+    if (!container) return;
+    const placeholders = container.querySelectorAll('.gallery-placeholder');
+    placeholders.forEach(placeholder => {
+        const galleryId = placeholder.dataset.galleryId;
+        if (galleryId) {
+            const root = ReactDOM.createRoot(placeholder);
+            root.render(<EmbeddedGallery galleryId={galleryId} />);
+        }
+    });
+};
+
+function ContentCollectionPage({ contentPath, collection, pagePath }) {
     const [items, setItems] = useState([]);
+    const [heroData, setHeroData] = useState({ title: '', description: '' });
     const [isLoading, setIsLoading] = useState(true);
-    const { language } = useTranslation();
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [selectedTag, setSelectedTag] = useState(null);
+    const { t, language } = useTranslation();
     const contentRef = useRef({});
+    const [scrollContainerRef] = useState(null);
+
+    useEffect(() => {
+      const controller = new AbortController();
+      const signal = controller.signal;
+
+      const fetchHeroData = async () => {
+        // Handle projects collection with Intertwinings content
+        if (collection === 'projects') {
+          const langFile = `/content/pages/intertwinings.${language}.md`;
+          const defaultLangFile = `/content/pages/intertwinings.sl.md`;
+          try {
+            let response = await limit(() => fetch(langFile, { signal }));
+            if (!response.ok) {
+              response = await limit(() => fetch(defaultLangFile, { signal }));
+            }
+            if (response.ok) {
+              const text = await response.text();
+              const { metadata, content } = parseMarkdown(text);
+              setHeroData({ 
+                title: metadata.title || t('projects'), 
+                description: metadata.description || t('projectsDescription'),
+                hero_title: metadata.hero_title || metadata.title || t('projects'),
+                hero_subtitle: metadata.hero_subtitle || metadata.description || t('projectsDescription'),
+                content: content
+              });
+            }
+          } catch (error) {
+            if (error.name !== 'AbortError') {
+              console.error('Failed to fetch intertwinings content:', error);
+            }
+          }
+        } 
+        // Handle practices collection with Practices content
+        else if (collection === 'practices') {
+          const langFile = `/content/pages/practices.${language}.md`;
+          const defaultLangFile = `/content/pages/practices.sl.md`;
+          try {
+            let response = await limit(() => fetch(langFile, { signal }));
+            if (!response.ok) {
+              response = await limit(() => fetch(defaultLangFile, { signal }));
+            }
+            if (response.ok) {
+              const text = await response.text();
+              const { metadata, content } = parseMarkdown(text);
+              setHeroData({ 
+                title: metadata.title || t('practices'), 
+                description: metadata.description || t('practicesDescription'),
+                hero_title: metadata.hero_title || metadata.title || t('practices'),
+                hero_subtitle: metadata.hero_subtitle || metadata.description || t('practicesDescription'),
+                content: content
+              });
+            }
+          } catch (error) {
+            if (error.name !== 'AbortError') {
+              console.error('Failed to fetch practices content:', error);
+            }
+          }
+        } else {
+          // For other collections, use default hero data
+          setHeroData({ 
+            title: t(collection), 
+            description: t(`${collection}Description`),
+            hero_title: t(collection),
+            hero_subtitle: t(`${collection}Description`)
+          });
+        }
+      };
+
+      fetchHeroData();
+
+      return () => {
+        controller.abort();
+      };
+    }, [collection, language, t]);
+
+    // Enhanced scroll snapping behavior
+    useEffect(() => {
+        const container = scrollContainerRef;
+        if (!container) return;
+
+        let isScrolling = false;
+        let scrollTimeout;
+
+        const handleScroll = () => {
+            if (!isScrolling) {
+                isScrolling = true;
+                container.classList.add('scrolling');
+            }
+
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                isScrolling = false;
+                container.classList.remove('scrolling');
+            }, 150);
+        };
+
+        container.addEventListener('scroll', handleScroll);
+        return () => {
+            container.removeEventListener('scroll', handleScroll);
+            clearTimeout(scrollTimeout);
+        };
+    }, [scrollContainerRef]);
+
+    const handleTagClick = (tag) => {
+        if (tag === selectedTag) return;
+        setIsTransitioning(true);
+        setTimeout(() => {
+            setSelectedTag(tag);
+            setTimeout(() => {
+                setIsTransitioning(false);
+            }, 100);
+        }, 300);
+    };
 
     const processedItems = useMemo(() => {
       return items.map(item => ({
@@ -166,6 +316,23 @@ function ContentCollectionPage({ t, title, contentPath }) {
         processedContent: renderMarkdown(item.content)
       }));
     }, [items]);
+
+    const allTags = useMemo(() => {
+        const tags = new Set();
+        items.forEach(item => {
+            if (item.metadata.tags) {
+                item.metadata.tags.forEach(tag => tags.add(tag));
+            }
+        });
+        return ['All', ...Array.from(tags).sort()];
+    }, [items]);
+
+    const filteredItems = useMemo(() => {
+        if (!selectedTag || selectedTag === 'All') {
+            return processedItems;
+        }
+        return processedItems.filter(item => item.metadata.tags && item.metadata.tags.includes(selectedTag));
+    }, [processedItems, selectedTag]);
   
     useEffect(() => {
       const controller = new AbortController();
@@ -216,72 +383,125 @@ function ContentCollectionPage({ t, title, contentPath }) {
 
     useEffect(() => {
         if (isLoading) return;
-        processedItems.forEach(item => {
+        filteredItems.forEach(item => {
             if (contentRef.current[item.id] && contentRef.current[item.id].innerHTML !== item.processedContent) {
                 contentRef.current[item.id].innerHTML = item.processedContent;
                 setTimeout(() => {
                     renderMermaid(contentRef.current[item.id]);
+                    renderGalleries(contentRef.current[item.id]);
                 }, 0); 
             }
         });
-    }, [processedItems, isLoading]);
+    }, [filteredItems, isLoading]);
   
     if (isLoading) {
       return (
-        <Section title={title}> 
-          <div className="text-body text-center text-text-muted">{t('loading')}…</div>
+        <Section title={heroData.title}> 
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-pulse flex space-x-2">
+                <div className="w-3 h-3 bg-primary rounded-full"></div>
+                <div className="w-3 h-3 bg-primary rounded-full"></div>
+                <div className="w-3 h-3 bg-primary rounded-full"></div>
+            </div>
+          </div>
         </Section>
       );
     }
   
     return (
-      <Page title={title}> 
-        <Section title={title}> 
-          <div className="space-y-8 max-w-3xl mx-auto">
-                        {processedItems.length ? processedItems.map(item => (
-              <GlassCard key={item.id}> 
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  {item.metadata.date && (
-                    <p className="text-accent text-sm text-text-muted">
-                      {new Date(item.metadata.date).toLocaleDateString(language)}
-                    </p>
-                  )}
-                  {item.metadata.author && (
-                    <p className="text-accent text-sm text-text-muted">
-                      {language === 'sl' ? 'Avtor: ' : 'by '}{item.metadata.author}
-                    </p>
-                  )}
-                </div>
-                <h3 className="heading-organic text-2xl text-primary mb-3">{item.metadata.title}</h3>
-                
-                <div
-                  className="prose-organic max-w-none mb-4"
-                  ref={node => {
-                    if (node && !contentRef.current[item.id]) {
-                        contentRef.current[item.id] = node;
-                        node.innerHTML = item.processedContent;
-                    }
-                  }}
-                />
-  
-                {item.metadata.tags && (
-                  <div className="mt-4">
-                    {item.metadata.tags.map(tag => (
-                      <span
-                        key={tag}
-                        className="inline-block bg-primary/10 text-primary text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full"
+      <Page title={heroData.title}> 
+        <div className="pt-4 md:pt-8 lg:pt-12">
+          <Hero 
+            title={heroData.hero_title || heroData.title} 
+            subtitle={heroData.hero_subtitle || heroData.description} 
+          />
+          <Section title={collection === 'utelešenja' ? null : (heroData.hero_title || heroData.title)}> 
+            <div className="flex flex-wrap justify-center items-center mb-6 gap-4">
+              <div className="flex flex-wrap items-center gap-2">
+                  {allTags.map(tag => (
+                      <button
+                          key={tag}
+                          onClick={() => handleTagClick(tag)}
+                          className={`px-3 py-1 text-sm font-medium transition-all duration-300 rounded-full ${
+                            selectedTag === tag || (tag === 'All' && !selectedTag)
+                              ? 'text-[var(--muted)] shadow-md bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm border border-[var(--glass-border)] rounded-full hover:text-[var(--text-sage)]'
+                              : `bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm border border-[var(--glass-border)] rounded-full text-[var(--primary)] hover:bg-primary/20 hover:text-[var(--text-sage)] hover:shadow-md`
+                          }`}
                       >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                          {t(tag === 'All' ? 'allTags' : tag) || tag}
+                      </button>
+                  ))}
+              </div>
+            </div>
+
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                {filteredItems.length ? filteredItems.map(item => (
+                  <Link to={`${pagePath}/${item.id}`} key={item.id} className="block group">
+                    <div 
+                      className={`bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] border border-[var(--glass-border)] backdrop-blur-sm shadow-xl rounded-xl`}
+                    >
+                      <div className="aspect-video overflow-hidden rounded-t-xl">
+                        {item.metadata.image ? (
+                          <div className="relative w-full h-full">
+                            <FilteredImage
+                              src={item.metadata.image}
+                              alt={item.metadata.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent-green/20 flex items-center justify-center">
+                            <div className="text-primary/30 text-4xl">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="p-6 flex flex-col">
+                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                          {item.metadata.date && (
+                            <p className="text-accent text-sm text-text-muted">
+                              {new Date(item.metadata.date).toLocaleDateString(language)}
+                            </p>
+                          )}
+                          {item.metadata.author && (
+                            <p className="text-accent text-sm text-text-muted">
+                              {language === 'sl' ? 'Avtor: ' : 'by '}{item.metadata.author}
+                            </p>
+                          )}
+                        </div>
+                        <h3 className="heading-organic text-xl text-primary mb-3 flex-grow">{item.metadata.title}</h3>
+                        
+                        {item.metadata.description && (
+                          <p className="text-text-muted mb-4 line-clamp-3">
+                            {item.metadata.description}
+                          </p>
+                        )}
+                        
+                        {item.metadata.tags && (
+                          <div className="mt-auto flex flex-wrap gap-2">
+                            {item.metadata.tags.map(tag => (
+                              <span
+                                key={tag}
+                                className="inline-block bg-primary/10 text-muted text-xs font-semibold px-2.5 py-0.5 rounded-full"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                )) : (
+                  <p className="text-center text-text-muted col-span-full">{t('noMoreObservations')}</p>
                 )}
-              </GlassCard>
-            )) : (
-              <p className="text-center text-text-muted">{t('noMoreObservations')}</p>
-            )}
-          </div>
-        </Section>
+              </div>
+          </Section>
+        </div>
       </Page>
     );
   }

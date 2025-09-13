@@ -25,6 +25,25 @@ collections:
       # The main content of the page is now the "body".
       - { label: "Vsebina Strani", name: "body", widget: "markdown", i18n: true }
 
+  - name: "projects"
+    label: "Projekti"
+    folder: "public/content/projects"
+    create: true
+    slug: "{{slug}}"
+    i18n: true
+    fields:
+      - { label: "Naslov", name: "title", widget: "string", i18n: true }
+      - { label: "Slug", name: "slug", widget: "string", i18n: true }
+      - { label: "Datum objave", name: "date", widget: "datetime" }
+      - { label: "Avtor", name: "author", widget: "string", required: false }
+      - { label: "Naslovna fotografija", name: "image", widget: "image", required: false }
+      - { label: "Kratek opis", name: "description", widget: "text", required: false, i18n: true }
+      - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true }
+      - label: "Vsebina"
+        name: "body"
+        widget: "markdown"
+        i18n: true
+
   - name: "posts"
     label: "Zapisi"
     folder: "public/content/posts"
@@ -43,11 +62,23 @@ collections:
     create: true
     slug: "{{slug}}"
     i18n: true
+    media_folder: "public/images/practices"
+    public_folder: "/images/practices"
     fields:
       - { label: "Naslov", name: "title", widget: "string", i18n: true }
+      - { label: "Slug", name: "slug", widget: "string", i18n: true }
       - { label: "Datum objave", name: "date", widget: "datetime" }
       - { label: "Avtor", name: "author", widget: "string", required: false }
+      - { label: "Naslovna fotografija", name: "image", widget: "image", required: false }
+      - { label: "Kratek opis", name: "description", widget: "text", required: false, i18n: true }
       - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true }
+      - name: "steps"
+        label: "Koraki / Slike"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Slika", name: "image", widget: "image" }
+          - { label: "Napis / Navodilo", name: "caption", widget: "text", i18n: true, required: false }
       - label: "Vsebina"
         name: "body"
         widget: "markdown"

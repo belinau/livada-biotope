@@ -1,0 +1,31 @@
+---
+title: Ne izsušimo prihodnosti
+slug: ne-izsusimo-prihodnosti
+date: 2025-03-01T00:00:00Z
+author: Biotop Livada
+image: 
+description: "Projekt se osredotoča na razvoj trajnostnih praks upravljanja z vodo v Biotopu Livada."
+tags:
+  - voda
+  - prst
+  - biodiverziteta
+---
+
+Projekt se osredotoča na razvoj trajnostnih praks upravljanja z vodo v Biotopu Livada. Z združevanjem radijske tehnologije in tipal smo razvili sistem za spremljanje okoljskih ekoloških kazalnikov, s čimer želimo okrepiti razumevanje dinamik v tem krhkem in ključnem ekosistemu. Največji poudarek je na spremljanju stanja vlage v prsti, saj v poletnem času prihaja do drastičnega izsuševanja in nastajanja velikih razpok na zemljišču, zaradi česar se okrepijo procesi erozije, zato preučujemo vpliv različnih pokrovnih rastlin na blaženje tega pojava.
+
+Z vključevanjem skupnosti v načrtovanje rešitev in ohranitvena prizadevanja želimo spodbuditi globljo povezanost med ljudmi, več kot človeškimi prebivalci travnika in njihovim lokalnim okoljem v iskanju dejanskega ravnovesja, v katerem so upoštevane potrebe vseh živih bitij, ne samo ljudi.
+
+### Cilji projekta
+
+* Spremljanje temperature in vlage v realnem času v prsti in zraku.
+* Preučevanje vpliva različnih pokrovnih rastlin na ohranjanje vlage v prsti.
+* Dokumentiranje in sledenje spremembam biotske raznovrstnosti.
+* Razvoj trajnostnih praks upravljanja z vodo v specifičnem kontekstu.
+* Ustvarjanje izobraževalnih virov o mokriščih in njihovi biotski pestrosti in o izdelavi rešitev.
+* Vključevanje lokalne skupnosti, zlasti mladih, v ohranitvena prizadevanja in več kot človeška razmerja.
+
+### Trenutno stanje
+
+Po celotnem Biotopu Livada smo namestili več senzorjev, ki neprekinjeno spremljajo stanje okolja. Podatki se zbirajo v realnem času in se preko lora radijske zveze pošiljajo v naš sistem za arhiviranje in prikaz.
+
+Vporedno izvajamo tudi redni monitoring vrst oziroma prebivalcev travnika. Do sedaj smo dokumentirali številne rastline in živali, vključno z uvrščenimi na rdeče sezname ogroženosti, ki za svoje preživetje nujno potrebujejo ohranjanje tega zelo specifičnega življenjskega prostora.

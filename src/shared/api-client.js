@@ -1,17 +1,43 @@
 class LivadaAPIClient {
-    constructor(apiBaseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:8000/api' : '/.netlify/functions/api-proxy', wsUrl) {
-        this.apiBaseUrl = apiBaseUrl.endsWith('/') ? apiBaseUrl.slice(0, -1) : apiBaseUrl;
-        this.wsUrl = wsUrl;
-        this.websocket = null;
-        this.onTelemetryUpdate = () => {}; // Callback for real-time updates
-        this.shouldReconnect = false;
+    constructor(apiUrl) {
+        // Use the provided URL or fall back to /api
+        this.apiBaseUrl = apiUrl || '/api';
+        
+        // If it's a full URL, use it directly; otherwise treat as path
+        if (this.apiBaseUrl.startsWith('http')) {
+            // For full URLs, we'll use them directly
+            this.useFullUrl = true;
+            // Extract WebSocket URL from the API base URL
+            const url = new URL(this.apiBaseUrl);
+            const wsProtocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+            this.wsUrl = `${wsProtocol}//${url.host}`;
+        } else {
+            // For paths, we'll prepend them
+            this.useFullUrl = false;
+            // Use environment variable for WebSocket URL if available
+            this.wsUrl = process.env.REACT_APP_PI_WS_URL || 'ws://localhost:8765';
+        }
+        
+        console.log('[LivadaAPIClient] Initialized with apiBaseUrl:', this.apiBaseUrl);
+        console.log('[LivadaAPIClient] WebSocket URL:', this.wsUrl);
     }
-
-    // --- REST API Methods ---
 
     async _fetch(endpoint, options = {}) {
         try {
-            const response = await fetch(`${this.apiBaseUrl}${endpoint}`, options);
+            let url;
+            if (this.useFullUrl) {
+                // For full URLs, append endpoint to base
+                url = `${this.apiBaseUrl}${endpoint}`;
+            } else {
+                // For relative paths
+                if (!endpoint.startsWith('/')) {
+                    endpoint = '/' + endpoint;
+                }
+                url = `${this.apiBaseUrl}${endpoint}`;
+            }
+            
+            console.log(`[LivadaAPIClient] Fetching from: ${url}`);
+            const response = await fetch(url, options);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -30,14 +56,15 @@ class LivadaAPIClient {
         return this._fetch('/telemetry/live');
     }
 
-    getHistoryTelemetry(startDate, endDate) {
+    async getHistoryTelemetry(startDate, endDate) {
+        // Use the correct historical telemetry endpoint
         let endpoint = '/telemetry/history';
         const params = new URLSearchParams();
         if (startDate) {
-            params.append('start_date', startDate.toISOString());
+            params.append('start_date', startDate.toISOString().split('T')[0]);
         }
         if (endDate) {
-            params.append('end_date', endDate.toISOString());
+            params.append('end_date', endDate.toISOString().split('T')[0]);
         }
         if (params.toString()) {
             endpoint += `?${params.toString()}`;

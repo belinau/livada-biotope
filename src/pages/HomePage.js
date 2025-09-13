@@ -3,11 +3,11 @@ import { useTranslation } from '../context/LanguageContext';
 import { parse } from 'yaml';
 import pLimit from 'p-limit';
 import Page from '../components/layout/Page';
-import BiodiversityHero from '../components/BiodiversityHero';
 import PracticesHero from '../components/PracticesHero';
 import JoinHero from '../components/JoinHero';
-import ScatterText from '../components/ui/scramble-text';
 import LiveSensorReadings from '../components/LiveSensorReadings';
+import HomeHero from '../components/HomeHero';
+import { GlassSection } from '../components/ui/GlassSection';
 
 const limit = pLimit(2);
 
@@ -50,9 +50,13 @@ function HomePage() {
               if (error.name !== 'AbortError') {
                 console.error("Failed to fetch home page content:", error);
                 const defaultContent = language === 'sl' 
-                    ? `### Dobrodošli na livada.bio\n\nTo je prostor za urejanje vsebine. Uredite datoteko 
+                    ? `### Dobrodošli na livada.bio
+
+To je prostor za urejanje vsebine. Uredite datoteko 
 /content/pages/home.sl.md.`
-                    : `### Welcome to livada.bio\n\nThis is a placeholder. Edit the file 
+                    : `### Welcome to livada.bio
+
+This is a placeholder. Edit the file 
 /content/pages/home.en.md to change this content.`;
                 setPageData({ content: defaultContent, metadata: {} });
               }
@@ -74,42 +78,48 @@ function HomePage() {
 
     return (
         <Page title={title}> 
-            {/* Main Hero Section - Biodiversity */}
-            <div className="w-full">
-                <BiodiversityHero 
-                    language={language} 
-                    heroTitle={heroTitle}
-                    heroSubtitle={heroSubtitle}
-                />
-            </div>
-            
-            {/* Practices Hero Section */}
-            <div className="w-full">
-                <PracticesHero language={language} />
-            </div>
-            
-            {/* Live Sensor Readings Section */}
-            <div className="w-full">
-                <LiveSensorReadings />
-            </div>
-
-            {/* Main Content */}
-            <div className="bg-[var(--glass-bg)] backdrop-blur-sm rounded-t-3xl shadow-2xl pt-20 pb-16 border-t border-[var(--glass-border)]">
-                 <div className="container mx-auto px-6 py-12">
-                     {isLoading ? ( <div className="text-center text-body-lg max-w-4xl mx-auto text-text-muted">{t('loading')}...</div> ) 
-                               : ( 
-                                 <div className="max-w-4xl mx-auto px-8 py-10">
-                                   <ScatterText 
-                                     content={pageData.content || ''} 
-                                     className="text-text-main"
-                                   />
-                                 </div>
-                               )}
-                </div> 
-            </div>
-            
-            {/* Join Hero Section */}
-            <div className="w-full">
+            <div className="pt-4 md:pt-8 lg:pt-12">
+                {/* Home Hero Section */}
+                <div className="w-full mb-16">
+                    <HomeHero 
+                      title={heroTitle} 
+                      subtitle={heroSubtitle} 
+                      language={language} 
+                    />
+                </div>
+                {/* Main Content */}
+                <div className="py-12">
+                    <div className="container mx-auto px-4">
+                        <GlassSection variant="card-gradient" className="max-w-4xl mx-auto">
+                            <div className="px-6 py-12">
+                                {isLoading ? (
+                                    <div className="text-center text-body-lg text-text-muted">
+                                        {t('loading')}...
+                                    </div>
+                                ) : (
+                                    <div className="text-text-main text-center prose prose-lg max-w-none">
+                                        {pageData.content || ''}
+                                    </div>
+                                )}
+                            </div>
+                        </GlassSection>
+                    </div>
+                </div>
+                {/* Practices Hero Section */}
+                <div className="w-full mb-16">
+                    <PracticesHero language={language} />
+                </div>
+                
+                {/* Live Sensor Readings Section */}
+                <div className="w-full mb-16 portal-container">
+                    <div className="container mx-auto px-4 py-4 w-full">
+                        <div className="w-full max-w-6xl">
+                            <LiveSensorReadings />
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Join Hero Section */}
                 <JoinHero language={language} />
             </div>
         </Page>

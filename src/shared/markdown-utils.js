@@ -2,6 +2,10 @@ import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { parse } from 'yaml';
 import mermaid from 'mermaid';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import EmbeddedGallery from '../components/EmbeddedGallery';
+
 
 export const parseMarkdown = (rawContent) => {
     try {
@@ -18,16 +22,20 @@ export const parseMarkdown = (rawContent) => {
 };
 
 // 2️⃣  Custom short-code renderer
-export function enhanceHTML(html) {
-  return html
+function replaceShortcodes(markdown) {
+  return markdown
     // :::details Title
     // content
     // :::
     .replace(/:::details\s+(.+?)\n([\s\S]*?)\n:::/g, '<details><summary>$1</summary><div class="mt-2">$2</div></details>')
     // {{youtube ID}}
-    .replace(/{{youtube\s+(.+?)}}/g, `<div class="aspect-video"><iframe class="w-full h-full" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe></div>`)
+    .replace(/{{youtube\s+(.+?)}}/g, `<div class="aspect-video video-filter-overlay"><iframe class="w-full h-full" src="https://www.youtube.com/embed/$1?rel=0&modestbranding=1&showinfo=0" frameborder="0" allowfullscreen></iframe></div>`)
     // {{vimeo ID}}
-    .replace(/{{vimeo\s+(.+?)}}/g, `<div class="aspect-video"><iframe class="w-full h-full" src="https://player.vimeo.com/video/$1" frameborder="0" allowfullscreen></iframe></div>`);
+    .replace(/{{vimeo\s+(.+?)}}/g, `<div class="aspect-video video-filter-overlay"><iframe class="w-full h-full" src="https://player.vimeo.com/video/$1?byline=0&portrait=0&title=0&badge=0" frameborder="0" allowfullscreen></iframe></div>`)
+    // {{button "text" "url"}}
+    .replace(/{{button\s+"([^"]+)"\s+"([^"]+)"}}/g, '<a href="$2" class="inline-block bg-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-primary/80 transition-colors">$1</a>')
+    // {{gallery "gallery-id"}}
+    .replace(/{{gallery\s+"(.+?)"}}/g, '<div class="gallery-placeholder" data-gallery-id="$1"></div>');
 }
 
 // Function to render markdown with Mermaid and custom shortcodes
@@ -44,12 +52,17 @@ export const renderMarkdown = (content) => {
     }
   );
   
+  // Process other shortcodes before markdown rendering
+  processedContent = replaceShortcodes(processedContent);
+
   // Process the remaining markdown to HTML
   const html = marked(processedContent);
   
-  // Apply custom shortcodes
-  return enhanceHTML(html);
+  return html;
 };
+
+
+
 
 // Function to render Mermaid diagrams within a given container
 export const renderMermaid = (container) => {
@@ -96,5 +109,44 @@ export const renderMermaid = (container) => {
     
   } catch (error) {
     console.error('Error rendering Mermaid diagrams:', error);
+  }
+};
+
+export function renderGalleries(container, language) {
+    if (!container) return;
+    console.log('renderGalleries called');
+    const placeholders = container.querySelectorAll('.gallery-placeholder');
+    console.log('found placeholders:', placeholders.length);
+    placeholders.forEach(placeholder => {
+        const galleryId = placeholder.dataset.galleryId;
+        if (galleryId) {
+            const root = ReactDOM.createRoot(placeholder);
+            root.render(
+                <React.StrictMode>
+                    <EmbeddedGallery galleryId={galleryId} language={language} />
+                </React.StrictMode>
+            );
+        }
+    });
+}
+
+// Main function to process and render content
+export const processAndRenderContent = (content, contentRef, language) => {
+  if (contentRef.current) {
+    console.log('processAndRenderContent called');
+    const html = renderMarkdown(content);
+    console.log('html:', html);
+    const sanitizedHtml = DOMPurify.sanitize(html, {
+      ADD_TAGS: ['iframe', 'details', 'summary', 'div'],
+      ADD_ATTR: ['allowfullscreen', 'frameborder', 'class', 'data-gallery-id', 'data-diagram', 'id'],
+    });
+    console.log('sanitizedHtml:', sanitizedHtml);
+    contentRef.current.innerHTML = sanitizedHtml;
+    
+    // Use a timeout to ensure the DOM is updated before rendering
+    setTimeout(() => {
+      renderMermaid(contentRef.current);
+      renderGalleries(contentRef.current, language);
+    }, 0);
   }
 };

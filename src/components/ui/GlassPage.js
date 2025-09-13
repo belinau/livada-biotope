@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { getGlassClasses } from '../../lib/glass-theme';
+import { getGlassClasses } from '../glass-theme';
 
 const GlassPage = ({ 
   children, 

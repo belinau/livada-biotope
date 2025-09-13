@@ -5,7 +5,17 @@
 [functions]
   directory = "netlify/functions"
 
+[dev]
+  publish = "build"
+  port = 3001
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api-proxy/:splat"
   status = 200
+
+[[redirects]]
+  from = "/calendar-proxy/*"
+  to = "/.netlify/functions/calendar-proxy"
+  status = 200
+

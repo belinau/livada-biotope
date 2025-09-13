@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import FilteredImage from './ui/FilteredImage';
 
 const LazyImage = ({ src, srcSet, sizes, alt, className, layoutId }) => {
     const [isLoaded, setIsLoaded] = useState(false);
@@ -15,13 +16,14 @@ const LazyImage = ({ src, srcSet, sizes, alt, className, layoutId }) => {
             });
         });
 
-        if (ref.current) {
-            observer.observe(ref.current);
+        const currentRef = ref.current;
+        if (currentRef) {
+            observer.observe(currentRef);
         }
 
         return () => {
-            if (ref.current) {
-                observer.unobserve(ref.current);
+            if (currentRef) {
+                observer.unobserve(currentRef);
             }
         };
     }, []);
@@ -29,17 +31,21 @@ const LazyImage = ({ src, srcSet, sizes, alt, className, layoutId }) => {
     return (
         <div ref={ref} className={className} style={{ position: 'relative', paddingBottom: '100%' }}>
             {isLoaded && (
-                <motion.img
-                    src={src}
-                    srcSet={srcSet}
-                    sizes={sizes}
-                    alt={alt}
-                    className="absolute inset-0 w-full h-full object-cover"
+                <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.3 }}
-                    layoutId={layoutId}
-                />
+                    className="absolute inset-0 w-full h-full"
+                >
+                    <FilteredImage
+                        src={src}
+                        srcSet={srcSet}
+                        sizes={sizes}
+                        alt={alt}
+                        className="w-full h-full object-cover"
+                        layoutId={layoutId}
+                    />
+                </motion.div>
             )}
         </div>
     );

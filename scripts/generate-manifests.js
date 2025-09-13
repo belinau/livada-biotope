@@ -7,7 +7,8 @@ const path = require('path');
 const contentDirectories = [
   'public/content/posts',
   'public/content/practices',
-  'public/content/galleries'
+  'public/content/galleries',
+  'public/content/projects'
 ];
 
 console.log('Generating content manifests...');

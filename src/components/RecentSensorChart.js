@@ -63,23 +63,40 @@ function RecentSensorChart() {
             if (Array.isArray(history[historyKey]) && history[historyKey].length > 0) {
                 const seriesData = history[historyKey].map(processDataPoint);
                 const lastPoint = history[historyKey][history[historyKey].length - 1];
-                const bedId = historyKey.substring(0, historyKey.lastIndexOf('-'));
-                const metricType = historyKey.substring(historyKey.lastIndexOf('-') + 1);
+                
+                // Extract bedId and metricType from the history key
+                let bedId, metricType;
+                if (historyKey.includes('-')) {
+                    bedId = historyKey.substring(0, historyKey.lastIndexOf('-'));
+                    metricType = historyKey.substring(historyKey.lastIndexOf('-') + 1);
+                } else {
+                    // For air temperature/humidity
+                    bedId = 'air';
+                    metricType = historyKey;
+                }
 
                 if (!newLatestReadings[bedId]) { newLatestReadings[bedId] = {}; } 
                 newLatestReadings[bedId][metricType] = lastPoint.y;
                 newLatestReadings[bedId].timestamp = lastPoint.x;
 
-                const bedInfo = BED_MAPPING[bedId];
-                if (bedInfo) {
-                    if (metricType === 'moisture') newChartData.moisture.push({ id: bedInfo.name, color: bedInfo.color, data: seriesData });
-                    else if (metricType === 'temperature') newChartData.temperature.push({ id: bedInfo.name, color: bedInfo.color, data: seriesData });
+                // For soil sensors
+                if (bedId !== 'air') {
+                    const bedInfo = BED_MAPPING[bedId];
+                    if (bedInfo) {
+                        if (metricType === 'moisture') newChartData.moisture.push({ id: bedInfo.name, color: bedInfo.color, data: seriesData });
+                        else if (metricType === 'temperature') newChartData.temperature.push({ id: bedInfo.name, color: bedInfo.color, data: seriesData });
+                    }
                 }
             }
         }
         
-        if (history.airHumidity?.length > 0) newChartData.moisture.push({ id: t('airHumidity'), color: '#76e4f7', data: history.airHumidity.map(processDataPoint) });
-        if (history.airTemperature?.length > 0) newChartData.temperature.push({ id: t('airTemp'), color: '#f6ad55', data: history.airTemperature.map(processDataPoint) });
+        // Handle air humidity and temperature
+        if (history.airHumidity?.length > 0) {
+            newChartData.moisture.push({ id: t('airHumidity'), color: '#76e4f7', data: history.airHumidity.map(processDataPoint) });
+        }
+        if (history.airTemperature?.length > 0) {
+            newChartData.temperature.push({ id: t('airTemp'), color: '#f6ad55', data: history.airTemperature.map(processDataPoint) });
+        }
 
         setChartData(newChartData);
         setLatestReadings(newLatestReadings);
