@@ -23,6 +23,7 @@ exports.handler = async (event, context) => {
     }
 
     if (!PI_API_URL) {
+        console.error('[api-proxy] PI_API_URL environment variable is not set');
         return {
             statusCode: 500,
             headers,
@@ -62,6 +63,7 @@ exports.handler = async (event, context) => {
             };
         }
 
+        console.error(`[api-proxy] Pi API returned status: ${response.status}`);
         return {
             statusCode: response.status,
             headers,
@@ -73,10 +75,10 @@ exports.handler = async (event, context) => {
         };
 
     } catch (error) {
-        console.log('Pi API fetch failed:', error.message);
-
+        console.error('[api-proxy] Pi API fetch failed:', error.message);
+        
         return {
-            statusCode: 504, // Gateway Timeout
+            statusCode: 502, // Bad Gateway
             headers,
             body: JSON.stringify({
                 data: {},

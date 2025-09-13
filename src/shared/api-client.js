@@ -41,7 +41,12 @@ class LivadaAPIClient {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return await response.json();
+            
+            const rawData = await response.json();
+            
+            // Handle both direct API responses (development) and Netlify proxy responses (production)
+            // Netlify proxy wraps the response in a data property
+            return rawData.data || rawData;
         } catch (error) {
             console.error(`[LivadaAPIClient] Fetch error for ${endpoint}:`, error);
             throw error;
