@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from '../context/LanguageContext';
-import { motion } from 'framer-motion';
 import Page from '../components/layout/Page';
 import { GlassSection } from '../components/ui/GlassSection';
 import { getGlassVariant } from '../components/glass-theme';
@@ -8,7 +7,6 @@ import { HoverEffect } from '../components/ui/HoverEffect';
 import ExpandableCard from '../components/ExpandableCard';
 import GalleryExpandedContent from '../components/GalleryExpandedContent';
 import pLimit from 'p-limit';
-import FilteredImage from '../components/ui/FilteredImage';
 import { parse as yamlParse } from 'yaml';
 
 const limit = pLimit(2);
