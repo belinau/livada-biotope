@@ -321,12 +321,12 @@ const PracticesHero = ({ language = 'sl' }) => {
                       <div className="p-6 flex flex-col">
                         <div className="flex flex-wrap items-center gap-2 mb-3">
                           {practice.date && (
-                            <p className="text-accent text-sm text-text-muted">
+                            <p className="text-sm text-text-muted">
                               {new Date(practice.date).toLocaleDateString(language)}
                             </p>
                           )}
                           {practice.author && (
-                            <p className="text-accent text-sm text-text-muted">
+                            <p className="text-sm text-text-muted">
                               {language === 'sl' ? 'Avtor: ' : 'by '}{practice.author}
                             </p>
                           )}
@@ -346,7 +346,7 @@ const PracticesHero = ({ language = 'sl' }) => {
                             {practice.tags.map(tag => (
                               <span
                                 key={tag}
-                                className="inline-block bg-primary/10 text-muted text-xs font-semibold px-2.5 py-0.5 rounded-full"
+                                className="inline-block bg-primary/10 text-text-muted text-xs font-semibold px-2.5 py-0.5 rounded-full"
                               >
                                 {tag}
                               </span>

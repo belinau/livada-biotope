@@ -50,8 +50,6 @@ const Hero = ({ title, subtitle, language = 'sl', children }) => {
         </motion.div>
       </motion.div>
       
-      {/* Subtle background */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 to-accent-green/5"></div>
     </div>
   );
 };
