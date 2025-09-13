@@ -473,7 +473,7 @@ const BlobBackground = () => {
         const initialStyle = { position: 'absolute', left: blob.x, top: blob.y, width: blob.size, height: blob.size, backgroundColor: blob.color, borderRadius: '50%', filter: `blur(${blob.blur})`, transform: 'translate(-50%, -50%)', opacity: 0.7, mixBlendMode: 'multiply' };
 
         if (state && state.isAnimating) {
-          return <motion.div key={blob.id} style={initialStyle} animate={{ x: state.xPoints, y: state.yPoints, scale: state.scalePoints, opacity: state.opacityPoints }} transition={{ duration: state.duration || 3, ease: "easeInOut" }} />;
+          return <motion.div key={blob.id} style={initialStyle} animate={{ x: state.xPoints, y: state.yPoints, scale: state.scalePoints, opacity: state.opacityPoints }} transition={{ duration: state.duration || 3, ease: "easeInOut", repeat: Infinity, repeatType: "loop" }} />;
         } else if (finalPos) {
           // When not animating, maintain the final position
           return <motion.div key={blob.id} style={initialStyle} animate={{ x: finalPos.x, y: finalPos.y, scale: finalPos.scale, opacity: finalPos.opacity }} transition={{ duration: 0.5, ease: "easeOut" }} />;
