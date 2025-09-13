@@ -466,7 +466,7 @@ const BlobBackground = () => {
   }, [location.pathname]);
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: -10, overflow: 'hidden', pointerEvents: 'none' }} className="glass-canvas">
+    <div style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', pointerEvents: 'none' }} className="glass-canvas">
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(222, 3, 3, 0.08)', mixBlendMode: 'multiply' }} />
       {blobs.map((blob) => {
         const state = animationStates[blob.id];
