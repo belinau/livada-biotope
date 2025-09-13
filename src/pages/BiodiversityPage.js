@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from '../context/LanguageContext';
 import pLimit from 'p-limit';
 import Page from '../components/layout/Page';
-import Section from '../components/layout/Section';
 import { ExpandableBiodiversityCard } from '../components/ExpandableBiodiversityCard';
 import BiodiversityHero from '../components/BiodiversityHero';
 

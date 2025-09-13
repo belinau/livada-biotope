@@ -6,7 +6,6 @@ import { marked } from 'marked';
 import mermaid from 'mermaid';
 import Page from '../components/layout/Page';
 import Section from '../components/layout/Section';
-import { getGlassVariant } from '../components/glass-theme';
 import FilteredImage from '../components/ui/FilteredImage';
 import ReactDOM from 'react-dom/client';
 import EmbeddedGallery from '../components/EmbeddedGallery';
