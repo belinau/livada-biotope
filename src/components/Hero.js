@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { getGlassVariant } from '../components/glass-theme';
 
 const Hero = ({ title, subtitle, language = 'sl', children }) => {
   return (

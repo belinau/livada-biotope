@@ -37,7 +37,7 @@
   --glass-bg-subtle: rgba(255, 255, 255, 0.062); /* Very subtle glass background */
   --glass-border: rgba(11, 6, 33, 0.227);
   --glass-border-subtle: rgba(255, 255, 255, 0.1); /* Very subtle glass border */
-  --glass-canvas: #bfbebe; /* Solid white base for canvas to avoid black fallback */
+  --glass-canvas: #f7f1f1a1; /* Solid white base for canvas to avoid black fallback */
   --glass-icon-bg: rgba(170, 160, 20, 0.423);
   --glass-i-bg: rgba(98, 0, 218, 0.563);
   --glass-icon-outline:#dad30561;
@@ -550,6 +550,12 @@
   backdrop-filter: blur(2px);
   background-color: var(--glass-bg-subtle);
   border: 1px solid var(--glass-border-subtle);
+}
+
+.red-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 155, 155, 0.702);
 }
 
 /* ----------------- ANIMATIONS ------------------ */

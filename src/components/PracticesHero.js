@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../context/LanguageContext';
 import pLimit from 'p-limit';
-import { getGlassVariant } from './glass-theme';
 import FilteredImage from './ui/FilteredImage';
 
 const limit = pLimit(2);

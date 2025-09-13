@@ -185,14 +185,14 @@ const MemoryGame = () => {
         
         {/* header */}
         <div className="text-center mb-8">
-          <h3 className="text-xl sm:text-2xl font-mono font-bold text-primary">{t('memoryGameTitle')}</h3>
+          <h3 className="text-xl sm:text-2xl font-mono font-bold text-primary bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent">{t('memoryGameTitle')}</h3>
           <p className="text-text-muted">{t('moves')}: {moves}</p>
           <div className="flex justify-center gap-2 md:gap-4 mt-4">
             {['sl', 'en', 'latin'].map(m => (
               <button
                 key={m}
                 onClick={() => resetGame(m)}
-                className={`px-3 py-2 rounded-lg transition ${gameMode === m ? 'bg-primary text-white shadow' : 'bg-bg-main'}`}
+                className={`px-3 py-2 rounded-lg transition ${gameMode === m ? 'bg-gradient-to-t from-[var(--glass-i-bg)] to-[var(--text-orange)]' : 'bg-gradient-to-b from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)]'}`}
               >
                 {t(m === 'sl' ? 'slovenian' : m === 'en' ? 'english' : 'latin')}
               </button>
