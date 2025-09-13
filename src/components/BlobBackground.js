@@ -470,7 +470,7 @@ const BlobBackground = () => {
       {blobs.map((blob) => {
         const state = animationStates[blob.id];
         const finalPos = finalPositions[blob.id];
-        const initialStyle = { position: 'absolute', left: blob.x, top: blob.y, width: blob.size, height: blob.size, backgroundColor: blob.color, borderRadius: '50%', filter: `blur(${blob.blur})`, transform: 'translate(-50%, -50%)', opacity: 0.7, mixBlendMode: 'multiply' };
+        const initialStyle = { position: 'absolute', left: blob.x, top: blob.y, width: blob.size, height: blob.size, backgroundColor: blob.color, borderRadius: '50%', filter: `blur(${blob.blur})`, transform: 'translate(-50%, -50%)', opacity: 0.7, mixBlendMode: 'screen' };
 
         if (state && state.isAnimating) {
           return <motion.div key={blob.id} style={initialStyle} animate={{ x: state.xPoints, y: state.yPoints, scale: state.scalePoints, opacity: state.opacityPoints }} transition={{ duration: state.duration || 3, ease: "easeInOut" }} />;
