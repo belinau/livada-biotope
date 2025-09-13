@@ -10,7 +10,9 @@ export const SensorProvider = ({ children }) => {
     const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
     const [lastUpdated, setLastUpdated] = useState(null);
 
-    const livadaApiClient = useMemo(() => new LivadaAPIClient(process.env.REACT_APP_PI_API_URL), []);
+    // Use environment variable in development, /api proxy in production
+    const apiUrl = process.env.REACT_APP_PI_API_URL || '/api';
+    const livadaApiClient = useMemo(() => new LivadaAPIClient(apiUrl), [apiUrl]);
 
     const fetchHistory = useCallback(async () => {
         setStatus({ key: 'loading', type: 'connecting' });

@@ -15,7 +15,9 @@ const HistoricalSensorProvider = ({ children, startDate, endDate, onDateChange }
     const [lastUpdated, setLastUpdated] = useState(null);
     const [granularity, setGranularity] = useState('daily');
 
-    const livadaApiClient = useMemo(() => new LivadaAPIClient(process.env.REACT_APP_PI_API_URL), []);
+    // Use environment variable in development, /api proxy in production
+    const apiUrl = process.env.REACT_APP_PI_API_URL || '/api';
+    const livadaApiClient = useMemo(() => new LivadaAPIClient(apiUrl), [apiUrl]);
 
     const fetchLongTermHistory = useCallback(async () => {
         setStatus({ key: 'loading', type: 'connecting' });
