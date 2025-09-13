@@ -99,9 +99,9 @@ const JoinHero = ({ language = 'sl' }) => {
       {/* Custom Hero Section with integrated CTA buttons and slider */}
       <div className="relative min-h-[75vh] flex items-center justify-center overflow-hidden py-8">
         {/* Constrain width to match other components on HomePage */}
-        <div className="container mx-auto px-4 w-full max-w-6xl">
+        <div className="container mx-auto px-4 w-full">
           {/* Glassmorphic hero card - now with same width as other components */}
-          <div className="relative z-10 text-center mx-auto p-5 md:p-6 bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm border border-[var(--glass-border)] rounded-3xl w-full max-w-6xl">
+          <div className="relative z-10 text-center mx-auto p-5 md:p-6 bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm border border-[var(--glass-border)] rounded-3xl w-full">
             <h1 className="heading-organic text-3xl md:text-4xl bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent mb-3">
               {heroTitle}
             </h1>

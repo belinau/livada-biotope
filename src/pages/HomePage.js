@@ -107,20 +107,26 @@ This is a placeholder. Edit the file
                 </div>
                 {/* Practices Hero Section */}
                 <div className="w-full mb-16">
-                    <PracticesHero language={language} />
+                    <div className="container mx-auto px-4">
+                        <PracticesHero language={language} />
+                    </div>
                 </div>
                 
                 {/* Live Sensor Readings Section */}
-                <div className="w-full mb-16 portal-container">
-                    <div className="container mx-auto px-4 py-4 w-full">
-                        <div className="w-full max-w-6xl">
+                <div className="w-full mb-16">
+                    <div className="container mx-auto px-4">
+                        <div className="w-full">
                             <LiveSensorReadings />
                         </div>
                     </div>
                 </div>
                 
                 {/* Join Hero Section */}
-                <JoinHero language={language} />
+                <div className="w-full mb-16">
+                    <div className="container mx-auto px-4">
+                        <JoinHero language={language} />
+                    </div>
+                </div>
             </div>
         </Page>
     );
