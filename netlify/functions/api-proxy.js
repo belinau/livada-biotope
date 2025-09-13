@@ -9,7 +9,7 @@ exports.handler = async (event, context) => {
         clientPath = '/' + clientPath;
     }
 
-    const apiEndpoint = '/api' + clientPath;
+    const apiEndpoint = clientPath.replace(/^\/api/, '');
     console.log(`[api-proxy] Forwarding request to: ${apiEndpoint}`);
 
     const headers = {
