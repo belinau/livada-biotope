@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import AntSprite from './AntSprite';
 
 const Hero = ({ title, subtitle, language = 'sl', children }) => {
   return (
@@ -11,6 +12,7 @@ const Hero = ({ title, subtitle, language = 'sl', children }) => {
         transition={{ duration: 0.8 }}
         className={`relative z-10 text-center max-w-4xl mx-4 p-8 md:p-12 bg-gradient-to-b from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm border border-[var(--glass-border)] rounded-3xl shadow-xl`}
       >
+        <AntSprite />
         <motion.h1 
           className="heading-organic text-4xl md:text-6xl bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent mb-6"
           initial={{ opacity: 0, y: 30 }}

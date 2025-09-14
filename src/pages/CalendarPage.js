@@ -1,15 +1,28 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useTranslation } from '../context/LanguageContext';
 import Page from '../components/layout/Page';
 import { GlassSection } from '../components/ui/GlassSection';
 import CalendarFeed from '../components/CalendarFeed';
+import OdonataSprite from '../components/OdonataSprite';
 
 function CalendarPage() {
+    const containerRef = useRef(null);
+    const [containerDimensions, setContainerDimensions] = useState({ width: 0, height: 0 });
+
+    useEffect(() => {
+        if (containerRef.current) {
+            setContainerDimensions({
+                width: containerRef.current.offsetWidth,
+                height: containerRef.current.offsetHeight,
+            });
+        }
+    }, []);
     const { t } = useTranslation();
     return (
         <Page title={t('navCalendar')}> 
-            <div className="container mx-auto px-4 pt-8 md:pt-12 pb-12">
+            <div ref={containerRef} className="container mx-auto px-4 pt-8 md:pt-12 pb-12 relative">
                 <h2 className="text-display text-3xl mb-8 text-center bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent pt-4">{t('calendarTitle')}</h2>
+                <OdonataSprite className="w-24 h-24 mx-auto mb-8" perchPoint={{ x: 16, y: 32 }} containerDimensions={containerDimensions} />
                 <div className="relative z-10">
                     <GlassSection className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-3xl">
                         <p className="text-body-lg mb-8 text-text-muted max-w-3xl mx-auto text-center">{t('calendarDesc')}</p>

@@ -7,6 +7,7 @@ import PracticesHero from '../components/PracticesHero';
 import JoinHero from '../components/JoinHero';
 import LiveSensorReadings from '../components/LiveSensorReadings';
 import HomeHero from '../components/HomeHero';
+import OdonataSprite from '../components/OdonataSprite';
 import { GlassSection } from '../components/ui/GlassSection';
 
 const limit = pLimit(2);
@@ -90,7 +91,11 @@ This is a placeholder. Edit the file
                 {/* Main Content */}
                 <div className="py-12">
                     <div className="container mx-auto px-4">
-                        <GlassSection variant="card-gradient" className="max-w-4xl mx-auto">
+                        <GlassSection variant="card-gradient" className="max-w-4xl mx-auto relative">
+                            {/* Odonata Sprite in corner */}
+                            <div className="absolute top-4 left-4 z-10">
+                                <OdonataSprite />
+                            </div>
                             <div className="px-6 py-12">
                                 {isLoading ? (
                                     <div className="text-center text-body-lg text-text-muted">

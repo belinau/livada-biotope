@@ -641,6 +641,58 @@
   }
 }
 
+/* Floating animation for Odonata sprite - gentle hovering */
+@keyframes float-odonata {
+  0% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  25% {
+    transform: translate(2px, -5px) rotate(1deg);
+  }
+  50% {
+    transform: translate(0px, -10px) rotate(0deg);
+  }
+  75% {
+    transform: translate(-2px, -5px) rotate(-1deg);
+  }
+  100% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+}
+
+/* Perching animation for Odonata sprite - subtle wing movement */
+@keyframes perch-odonata {
+  0% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  25% {
+    transform: translate(0px, -2px) rotate(0.5deg);
+  }
+  50% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  75% {
+    transform: translate(0px, -1px) rotate(-0.5deg);
+  }
+  100% {
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+}
+
+.odonata-sprite {
+  position: absolute;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.odonata-sprite.animate-float {
+  animation: float-odonata 4s ease-in-out infinite;
+}
+
+.odonata-sprite.animate-perch {
+  animation: perch-odonata 3s ease-in-out infinite;
+}
+
 /* ----------------- RESET ------------------ */
 html,
 body,
