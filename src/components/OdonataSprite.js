@@ -131,7 +131,7 @@ const OdonataSprite = ({ className = '', variant = 'hover', perchPoint = { x: 50
         });
       }
     }
-  }, [isHovered, variant, controls]);
+  }, [isHovered, variant, controls, currentPosition, perchPosition.x, perchPosition]);
 
   // Helper function to find the nearest point in floating cycle
   const findNearestFloatingPoint = (currentPos) => {
