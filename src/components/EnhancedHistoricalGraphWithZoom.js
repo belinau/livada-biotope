@@ -9,10 +9,11 @@ import { HistoricalSensorContext } from './HistoricalSensorVisualization';
 const EnhancedHistoricalGraphWithZoom = ({ 
     visibleMetrics, 
     visibleBeds,
-    onRefreshData 
+    onRefreshData,
+    isLoading // Add isLoading prop
 }) => {
     const { t, language } = useTranslation();
-    const { history, status, startDate, endDate, onDateChange } = useContext(HistoricalSensorContext);
+    const { history, startDate, endDate, onDateChange } = useContext(HistoricalSensorContext);
     const [chartData, setChartData] = useState([]);
     const [xAxisDomain, setXAxisDomain] = useState(null);
     const [yAxisDomain, setYAxisDomain] = useState(null);
@@ -222,7 +223,7 @@ const EnhancedHistoricalGraphWithZoom = ({
     }, [history, visibleMetrics, visibleBeds, t]);
 
     const hasData = chartData.some(series => series.data.length > 1);
-    const isLoading = status.key === 'loading';
+    
 
     // Handle zoom in
     const handleZoomIn = useCallback(() => {

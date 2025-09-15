@@ -72,7 +72,6 @@ const HistoricalSensorProvider = ({ children, startDate, endDate, onDateChange }
 const HistoricalSensorContent = () => {
     const { t } = useTranslation();
     const { 
-        history,
         status, 
         lastUpdated, 
         refreshData, 
@@ -255,27 +254,16 @@ const HistoricalSensorContent = () => {
 
             {/* Enhanced Historical Graph */}
             <div>
-                {isLoading && !history ? (
-                    <div className="text-center py-20">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary-dark rounded-full mb-4 shadow-lg">
-                            <svg className="w-8 h-8 text-[var(--primary)] animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
-                            </svg>
-                        </div>
-                        <div className="text-body-lg text-text-muted">{t('loading')}...</div>
-                        <div className="text-accent text-text-muted mt-2">Pridobivam zgodovinske podatke</div>
-                    </div>
-                ) : (
-                    <div className="border-t-2 border-[var(--glass-border)] rounded-2xl overflow-hidden">
-                        <EnhancedHistoricalGraphWithZoom 
-                            visibleMetrics={visibleMetrics}
-                            visibleBeds={visibleBeds}
-                            granularity={granularity}
-                            onGranularityChange={setGranularity}
-                            onRefreshData={refreshData}
-                        />
-                    </div>
-                )}
+                <div className="border-t-2 border-[var(--glass-border)] rounded-2xl overflow-hidden">
+                    <EnhancedHistoricalGraphWithZoom 
+                        visibleMetrics={visibleMetrics}
+                        visibleBeds={visibleBeds}
+                        granularity={granularity}
+                        onGranularityChange={setGranularity}
+                        onRefreshData={refreshData}
+                        isLoading={isLoading} // Pass isLoading prop
+                    />
+                </div>
             </div>
         </div>
     );
