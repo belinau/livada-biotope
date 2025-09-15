@@ -10,7 +10,7 @@ const GlassSection = ({
   rounded = 'lg',
   ...props 
 }) => {
-  const glassClasses = getGlassVariant(variant, { rounded });
+  const glassClasses = getGlassVariant(variant, { rounded, background: 'gradient' });
   
   const paddingClass = padding;
   

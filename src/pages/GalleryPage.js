@@ -8,6 +8,7 @@ import ExpandableCard from '../components/ExpandableCard';
 import GalleryExpandedContent from '../components/GalleryExpandedContent';
 import pLimit from 'p-limit';
 import { parse as yamlParse } from 'yaml';
+import MetaTags from '../components/MetaTags';
 
 const limit = pLimit(2);
 
@@ -171,9 +172,13 @@ function GalleryPage() {
       preloadImage(images[prevIndex].image);
     }, [expandedGallery, expandedImageIndex]);
 
+    const pageTitle = t('navGallery');
+    const pageDescription = t('galleryPageDescription');
+
     if (isLoading) {
       return (
-        <Page title={t('navGallery')}> 
+        <Page title={pageTitle}> 
+            <MetaTags title={pageTitle} description={pageDescription} />
             <div className="container mx-auto px-4 pt-8 md:pt-12 pb-8">
                 <div className="relative z-10">
                     <GlassSection className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-3xl">
@@ -199,7 +204,8 @@ function GalleryPage() {
 
     if (!isLoading && galleries.length === 0) {
         return (
-            <Page title={t('navGallery')}> 
+            <Page title={pageTitle}> 
+                <MetaTags title={pageTitle} description={pageDescription} />
                 <div className="container mx-auto px-4 pt-8 md:pt-12 pb-8">
                     <div className="relative z-10">
                         <GlassSection className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-3xl">
@@ -243,7 +249,8 @@ function GalleryPage() {
     };
 
     return (
-        <Page title={t('navGallery')}> 
+        <Page title={pageTitle}> 
+            <MetaTags title={pageTitle} description={pageDescription} />
             <div className="container mx-auto px-4 pt-8 md:pt-12 pb-8">
                 <div className="relative z-10">
                     <GlassSection className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-3xl">

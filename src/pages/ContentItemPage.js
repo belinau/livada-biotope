@@ -8,6 +8,7 @@ import { GlassCard } from '../components/ui/GlassCard';
 import FilteredImage from '../components/ui/FilteredImage';
 import { processAndRenderContent, parseMarkdown } from '../shared/markdown-utils';
 import PracticeSteps from '../components/PracticeSteps';
+import MetaTags from '../components/MetaTags';
 // Import sensor components for the specific project
 import LiveSensorReadings from '../components/LiveSensorReadings';
 import HistoricalSensorVisualization from '../components/HistoricalSensorVisualization';
@@ -31,6 +32,8 @@ function ContentItemPage() {
     const navigate = useNavigate();
     const [item, setItem] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [hasRenderError, setHasRenderError] = useState(false); // New state for render errors
+    const [hasFetchError, setHasFetchError] = useState(false); // New state for fetch errors
     const { language, t } = useTranslation();
     const contentRef = useRef(null);
 
@@ -51,8 +54,11 @@ function ContentItemPage() {
         const fetchContent = async () => {
             if (!contentPath || !slug) {
                 setIsLoading(false);
+                setHasFetchError(false); // Reset fetch error if no path/slug
                 return;
             }
+            setIsLoading(true);
+            setHasFetchError(false); // Reset fetch error at the start of a new fetch
             setIsLoading(true);
             try {
                 console.log(`Fetching content for ${collection}/${slug} in ${language}`);
@@ -83,12 +89,14 @@ function ContentItemPage() {
                     setItem(foundItem);
                 } else {
                     console.log(`Content not found for ${collection}/${slug} in ${language}`);
-                    throw new Error('Content not found');
+                    // If content is explicitly not found after fallback, it's not a fetch error but a 404
+                    setItem(null); // Ensure item is null to trigger 404 display
                 }
 
             } catch (err) {
                 if (err.name !== 'AbortError') {
                     console.error(`Error fetching content:`, err);
+                    setHasFetchError(true); // Set fetch error state for network issues
                 }
             } finally {
                 setIsLoading(false);
@@ -104,13 +112,19 @@ function ContentItemPage() {
 
     useEffect(() => {
         if (item && contentRef.current) {
-            processAndRenderContent(item.content, contentRef, language);
+            try {
+                processAndRenderContent(item.content, contentRef, language);
+                setHasRenderError(false); // Reset error if successful
+            } catch (error) {
+                console.error("Error rendering content:", error);
+                setHasRenderError(true);
+            }
         }
     }, [item, contentRef, language]);
 
     if (isLoading) {
         return (
-            <Section title={t('loading')}>
+            <Section title={t('loading')}> 
                 <div className="text-body text-center text-text-muted">{t('loading')}…</div>
             </Section>
         );
@@ -126,13 +140,55 @@ function ContentItemPage() {
         );
     }
 
+    if (hasRenderError) {
+        return (
+            <Page title={t('error')}>
+                <Section title={t('error')}>
+                    <p className="text-center text-red-500">{t('contentRenderError')}</p>
+                </Section>
+            </Page>
+        );
+    }
+
+    if (hasFetchError) {
+        return (
+            <Page title={t('error')}>
+                <Section title={t('error')}>
+                    <p className="text-center text-red-500">{t('contentFetchError')}</p>
+                </Section>
+            </Page>
+        );
+    }
+
+    // Helper function to create a summary from markdown
+    const createSummary = (markdown) => {
+        if (!markdown) return '';
+        const plainText = markdown
+            .replace(/!\[.*?\].*?\)/g, '') // remove images
+            .replace(/\[(.*?)\]\(.*?\)/g, '$1') // remove links, keeping text
+            .replace(/\*\*|\*|_|---/g, '') // remove bold, italic, code, hr
+            .replace(/#+\s/g, '') // remove headings
+            .replace(/{{\s*.*?}}|\n/g, ' ') // remove shortcodes and newlines
+            .trim();
+        return plainText.substring(0, 160) + (plainText.length > 160 ? '...' : '');
+    };
+
+    const pageTitle = item.metadata.title;
+    const pageDescription = item.metadata.description || createSummary(item.content);
+    const pageImage = item.metadata.image ? `${window.location.origin}${item.metadata.image}` : null;
+
     return (
-        <Page title={item.metadata.title}>
+        <Page title={pageTitle}>
+            <MetaTags
+                title={pageTitle}
+                description={pageDescription}
+                imageUrl={pageImage}
+            />
             <div className="max-w-3xl mx-auto pt-6">
                 <div className="mb-6">
                     <button 
                         onClick={() => navigate(-1)}
-                        className="inline-flex items-center text-primary hover:text-primary/80 transition-colors"
+                        className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] text-main border border-glass-border shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />

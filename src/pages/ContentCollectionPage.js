@@ -10,6 +10,7 @@ import FilteredImage from '../components/ui/FilteredImage';
 import ReactDOM from 'react-dom/client';
 import EmbeddedGallery from '../components/EmbeddedGallery';
 import Hero from '../components/Hero';
+import MetaTags from '../components/MetaTags';
 
 const limit = pLimit(2);
 
@@ -213,7 +214,7 @@ function ContentCollectionPage({ contentPath, collection, pagePath }) {
             if (response.ok) {
               const text = await response.text();
               const { metadata, content } = parseMarkdown(text);
-              setHeroData({ 
+              setHeroData({
                 title: metadata.title || t('projects'), 
                 description: metadata.description || t('projectsDescription'),
                 hero_title: metadata.hero_title || metadata.title || t('projects'),
@@ -239,7 +240,7 @@ function ContentCollectionPage({ contentPath, collection, pagePath }) {
             if (response.ok) {
               const text = await response.text();
               const { metadata, content } = parseMarkdown(text);
-              setHeroData({ 
+              setHeroData({
                 title: metadata.title || t('practices'), 
                 description: metadata.description || t('practicesDescription'),
                 hero_title: metadata.hero_title || metadata.title || t('practices'),
@@ -254,7 +255,7 @@ function ContentCollectionPage({ contentPath, collection, pagePath }) {
           }
         } else {
           // For other collections, use default hero data
-          setHeroData({ 
+          setHeroData({
             title: t(collection), 
             description: t(`${collection}Description`),
             hero_title: t(collection),
@@ -409,20 +410,29 @@ function ContentCollectionPage({ contentPath, collection, pagePath }) {
   
     return (
       <Page title={heroData.title}> 
+        <MetaTags title={heroData.title} description={heroData.description} />
         <div className="pt-4 md:pt-8 lg:pt-12">
           <Hero 
             title={heroData.hero_title || heroData.title} 
             subtitle={heroData.hero_subtitle || heroData.description} 
           />
-          <Section title={collection === 'utelešenja' ? null : (heroData.hero_title || heroData.title)}> 
+          {collection !== 'utelešenja' && (
+            <div className="text-center">
+                <div className="inline-block bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-4 px-8 rounded-full mb-8 backdrop-blur-sm border border-[var(--glass-border)] shadow-xl">
+                    <h2 className="text-display text-3xl text-center bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent">
+                        {heroData.hero_title || heroData.title}
+                    </h2>
+                </div>
+            </div>
+          )}
+          <Section> 
             <div className="flex flex-wrap justify-center items-center mb-6 gap-4">
               <div className="flex flex-wrap items-center gap-2">
                   {allTags.map(tag => (
                       <button
                           key={tag}
                           onClick={() => handleTagClick(tag)}
-                          className={`px-3 py-1 text-sm font-medium transition-all duration-300 rounded-full ${
-                            selectedTag === tag || (tag === 'All' && !selectedTag)
+                          className={`px-3 py-1 text-sm font-medium transition-all duration-300 rounded-full ${selectedTag === tag || (tag === 'All' && !selectedTag)
                               ? 'text-[var(--muted)] shadow-md bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm border border-[var(--glass-border)] rounded-full hover:text-[var(--text-sage)]'
                               : `bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm border border-[var(--glass-border)] rounded-full text-[var(--primary)] hover:bg-primary/20 hover:text-[var(--text-sage)] hover:shadow-md`
                           }`}

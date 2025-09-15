@@ -63,17 +63,10 @@ const normalizeAngle = (newAngle, prevAngle) => {
   return normalized;
 };
 
-// Select one ant and two random creatures
+// Select three random creatures from all available options
 const selectCreatures = () => {
-  // Always include one ant
-  const selectedCreatures = [creatures[0]]; // First creature is ant
-  
-  // Select two random creatures from the remaining bugs
-  const availableCreatures = creatures.slice(1); // Exclude the ant
-  const shuffled = [...availableCreatures].sort(() => 0.5 - Math.random());
-  selectedCreatures.push(...shuffled.slice(0, 2));
-  
-  return selectedCreatures;
+  const shuffled = [...creatures].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 3);
 };
 
 const CreatureSprite = ({ creature, delay }) => {

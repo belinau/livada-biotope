@@ -13,7 +13,7 @@ const GlassCard = ({
 }) => {
   const baseClasses = "relative transition-all duration-300 overflow-hidden";
   
-  const glassClasses = getGlassVariant(variant, { rounded });
+  const glassClasses = getGlassVariant(variant, { rounded, background: 'gradient' });
     
   const hoverClasses = hoverEffect 
     ? "hover:shadow-xl hover:border-[var(--glass-icon-outline)]" 

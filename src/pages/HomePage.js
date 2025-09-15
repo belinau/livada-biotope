@@ -9,6 +9,8 @@ import LiveSensorReadings from '../components/LiveSensorReadings';
 import HomeHero from '../components/HomeHero';
 import OdonataSprite from '../components/OdonataSprite';
 import { GlassSection } from '../components/ui/GlassSection';
+import MetaTags from '../components/MetaTags';
+import { GlassCard } from '../components/ui/GlassCard';
 
 const limit = pLimit(2);
 
@@ -76,9 +78,16 @@ This is a placeholder. Edit the file
     const title = pageData.metadata.title || t('navHome');
     const heroTitle = pageData.metadata.hero_title || 'livada.bio';
     const heroSubtitle = pageData.metadata.hero_subtitle || (language === 'sl' ? 'Gojenje sorodstev v več kot človeškem svetu' : 'Fostering kinship in a more than human world');
+    const pageDescription = pageData.metadata.description || heroSubtitle;
+    const pageImage = pageData.metadata.image ? `${window.location.origin}${pageData.metadata.image}` : null;
 
     return (
         <Page title={title}> 
+            <MetaTags
+                title={title}
+                description={pageDescription}
+                imageUrl={pageImage}
+            />
             <div className="pt-4 md:pt-8 lg:pt-12">
                 {/* Home Hero Section */}
                 <div className="w-full mb-16">
@@ -120,9 +129,9 @@ This is a placeholder. Edit the file
                 {/* Live Sensor Readings Section */}
                 <div className="w-full mb-16">
                     <div className="container mx-auto px-4">
-                        <div className="w-full">
+                        <GlassCard className="p-6 rounded-2xl">
                             <LiveSensorReadings />
-                        </div>
+                        </GlassCard>
                     </div>
                 </div>
                 

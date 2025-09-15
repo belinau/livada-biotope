@@ -4,6 +4,7 @@ import pLimit from 'p-limit';
 import Page from '../components/layout/Page';
 import { ExpandableBiodiversityCard } from '../components/ExpandableBiodiversityCard';
 import BiodiversityHero from '../components/BiodiversityHero';
+import MetaTags from '../components/MetaTags';
 
 const limit = pLimit(2);
 
@@ -119,8 +120,15 @@ function BiodiversityPage() {
         };
     }, [scrollContainerRef]);
 
+    const pageTitle = t('navBiodiversity');
+    const pageDescription = t('biodiversityDescription');
+
     return (
-        <Page title={t('navBiodiversity')}>
+        <Page title={pageTitle}>
+            <MetaTags
+                title={pageTitle}
+                description={pageDescription}
+            />
             <BiodiversityHero language={language} />
             <div className="container mx-auto px-4 py-8 md:py-12 bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-3xl">
                 <h2 className="text-display text-3xl mb-8 text-center bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent pt-4">{t('navBiodiversity')}</h2>
