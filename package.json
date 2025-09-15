@@ -2,7 +2,7 @@
   "name": "biotop-livada",
   "version": "0.1.0",
   "private": true,
-  "homepage": ".",
+  "homepage": "/",
   "dependencies": {
     "@netlify/plugin-nextjs": "^5.11.5",
     "@nivo/bar": "^0.99.0",
