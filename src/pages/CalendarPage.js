@@ -8,19 +8,18 @@ import MetaTags from '../components/MetaTags';
 
 function CalendarPage() {
     const containerRef = useRef(null);
-    useEffect(() => {
-        if (containerRef.current) {
-            // You can use containerRef.current.offsetWidth and offsetHeight directly if needed
-        }
-    }, []);
     const { t } = useTranslation();
     const pageTitle = t('navCalendar');
     const pageDescription = t('calendarDesc');
 
+    // Responsive flight path using percentages of the wrapper
     const calendarFlightPath = {
-        y: [-20, -100, -50, -120, -150, -80, -120, -30, -20],
-        x: [0, 200, 400, 600, 400, 200, 0, 0, 0],
+        y: [-0.05, -0.2, -0.1, -0.3, -0.35, -0.15, -0.25, -0.05, -0.05],
+        x: [0, 0.3, 0.6, 0.9, 0.6, 0.3, 0, 0, 0],
     };
+
+    // Responsive perch point
+    const perchPoint = { x: 0, y: -50 }; // Perch at top-left, slightly above
 
     return (
         <Page title={pageTitle}> 
@@ -32,8 +31,9 @@ function CalendarPage() {
                     </div>
                 </div>
                 <OdonataSprite
+                    wrapperRef={containerRef}
                     className="w-24 h-24 mx-auto mb-8"
-                    perchPoint={{ x: 4, y: -62 }}
+                    perchPoint={perchPoint}
                     flightPath={calendarFlightPath}
                 />
                 <div className="relative z-10">

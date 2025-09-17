@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '../context/LanguageContext';
 import { parse } from 'yaml';
 import pLimit from 'p-limit';
@@ -32,6 +32,8 @@ function HomePage() {
     const { t, language } = useTranslation();
     const [pageData, setPageData] = useState({ content: '', metadata: {} });
     const [isLoading, setIsLoading] = useState(true);
+
+    const wrapperRef = useRef(null);
 
     useEffect(() => {
       const controller = new AbortController();
@@ -81,6 +83,13 @@ This is a placeholder. Edit the file
     const pageDescription = pageData.metadata.description || heroSubtitle;
     const pageImage = pageData.metadata.image ? `${window.location.origin}${pageData.metadata.image}` : null;
 
+    const perchPoint = { x: 0, y: -50 };
+
+    const homeFlightPath = {
+        y: [-0.1, -0.5, -1.0, -0.8, -1.2, -0.6, -0.9, -0.2, -0.1],
+        x: [0.05, 0.4, 0.8, 0.8, 0.8, 0.4, 0.05, 0.05, 0.05]
+    };
+
     return (
         <Page title={title}> 
             <MetaTags
@@ -100,10 +109,15 @@ This is a placeholder. Edit the file
                 {/* Main Content */}
                 <div className="py-12">
                     <div className="container mx-auto px-4">
-                        <GlassSection variant="card-gradient" className="max-w-4xl mx-auto relative">
+                        <GlassSection ref={wrapperRef} variant="card-gradient" className="max-w-4xl mx-auto relative">
                             {/* Odonata Sprite in corner */}
-                            <div className="absolute top-4 left-4 z-10">
-                                <OdonataSprite />
+                            <div className="absolute top-0 left-0 z-10">
+                                <OdonataSprite 
+                                    scope="wrapper" 
+                                    wrapperRef={wrapperRef} 
+                                    perchPoint={perchPoint} 
+                                    flightPath={homeFlightPath}
+                                />
                             </div>
                             <div className="px-6 py-12">
                                 {isLoading ? (

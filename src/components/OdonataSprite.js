@@ -24,17 +24,36 @@ const useWindowSize = () => {
   return windowSize;
 };
 
-const OdonataSprite = ({ className = '', perchPoint: initialPerchPoint, flightPath: initialFlightPath }) => {
+const OdonataSprite = ({ 
+  className = '', 
+  perchPoint: initialPerchPoint, 
+  flightPath: initialFlightPath,
+  scope = 'wrapper', // 'wrapper' or 'viewport'
+  wrapperRef 
+}) => {
   const [animationState, setAnimationState] = useState('floating'); // floating, flyingToPerch, perched, returningToFloat
   const [isMobile, setIsMobile] = useState(false);
   const controls = useAnimation();
   const spriteRef = useRef(null);
-  const { width, height } = useWindowSize();
+  const windowSize = useWindowSize();
+
+  const getDimensions = () => {
+    if (scope === 'viewport') {
+      return { width: windowSize.width, height: windowSize.height };
+    }
+    if (wrapperRef && wrapperRef.current) {
+      return { width: wrapperRef.current.offsetWidth, height: wrapperRef.current.offsetHeight };
+    }
+    return { width: windowSize.width, height: windowSize.height }; // Fallback
+  };
+
+  const { width, height } = getDimensions();
 
   const x = useMotionValue(0);
   const y = useMotionValue(-50);
 
-  const perchPoint = useRef(initialPerchPoint || { x: width * 0.1, y: height * 0.2 });
+  const perchPoint = useRef(initialPerchPoint || { x: width * 0.05, y: -height * 0.05 });
+
   const flightPath = useRef(initialFlightPath || {
     y: [height * -0.1, height * -0.3, height * -0.15, height * -0.35, height * -0.4, height * -0.2, height * -0.3, height * -0.1, height * -0.1],
     x: [width * 0.05, width * 0.4, width * 0.8, width * 0.8, width * 0.8, width * 0.4, width * 0.05, width * 0.05, width * 0.05],
@@ -45,6 +64,18 @@ const OdonataSprite = ({ className = '', perchPoint: initialPerchPoint, flightPa
   }, []);
 
   useEffect(() => {
+    const { width, height } = getDimensions();
+    
+    // Recalculate paths and points on resize
+    perchPoint.current = initialPerchPoint || { x: width * 0.05, y: -height * 0.05 };
+    flightPath.current = initialFlightPath ? {
+      x: initialFlightPath.x.map(val => val * width),
+      y: initialFlightPath.y.map(val => val * height)
+    } : {
+      y: [height * -0.1, height * -0.3, height * -0.15, height * -0.35, height * -0.4, height * -0.2, height * -0.3, height * -0.1, height * -0.1],
+      x: [width * 0.05, width * 0.4, width * 0.8, width * 0.8, width * 0.8, width * 0.4, width * 0.05, width * 0.05, width * 0.05],
+    };
+
     const floatAnimation = {
       y: flightPath.current.y,
       x: flightPath.current.x,
@@ -61,7 +92,7 @@ const OdonataSprite = ({ className = '', perchPoint: initialPerchPoint, flightPa
       controls.stop();
       const currentX = x.get();
       const isMovingLeft = currentX > perchPoint.current.x;
-      const flightScaleX = isMovingLeft ? 1 : -1;
+      const flightScaleX = isMovingLeft ? -1 : 1; // Corrected logic
 
       await controls.start({
         scaleX: flightScaleX,
@@ -103,7 +134,7 @@ const OdonataSprite = ({ className = '', perchPoint: initialPerchPoint, flightPa
     return () => {
       controls.stop();
     };
-  }, [animationState, controls, x, y, width, height]);
+  }, [animationState, controls, x, y, width, height, initialFlightPath, initialPerchPoint, scope]);
 
   const handleInteraction = () => {
     if (isMobile) {
@@ -127,10 +158,12 @@ const OdonataSprite = ({ className = '', perchPoint: initialPerchPoint, flightPa
     }
   };
 
+  const positionStyle = scope === 'viewport' ? { position: 'fixed' } : { position: 'absolute' };
+
   return (
     <div
-      className={`odonata-sprite absolute ${className}`}
-      style={{ zIndex: 1000, pointerEvents: 'auto' }}
+      className={`odonata-sprite ${className}`}
+      style={{ ...positionStyle, zIndex: 1000, pointerEvents: 'auto' }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handleInteraction}
