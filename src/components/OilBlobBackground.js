@@ -172,6 +172,103 @@ const OilBlobBackground = () => {
     }
   };
 
+  // Clamp RGB values to our desired color spectrum (yellow, violet, pink, deep blue)
+  const clampToColorPalette = (r, g, b) => {
+    // Calculate the dominant color channel
+    const max = Math.max(r, g, b);
+    
+    // If all channels are relatively low, return the original color to prevent graying
+    if (max < 50) {
+      return { r, g, b };
+    }
+    
+    // More precise color classification based on RGB ratios
+    // Warm Orange-Yellow: high red, high green, low blue (red slightly higher than green)
+    if (r > 200 && g > 120 && b < 80 && r > g) {
+      // Keep as warm orange-yellow
+      return {
+        r: Math.min(255, Math.max(220, r)),
+        g: Math.min(180, Math.max(120, g)),
+        b: Math.min(60, Math.max(0, b))
+      };
+    }
+    
+    // Looser pink detection: high red, low green, medium-high blue (red and blue both high)
+    // This makes it easier for colors to be classified as pink
+    if (r > 150 && b > 100 && g < 150) {
+      // Map to pink
+      return {
+        r: Math.min(255, Math.max(220, r)),
+        g: Math.min(120, Math.max(60, g)),
+        b: Math.min(200, Math.max(150, b))
+      };
+    }
+    
+    // Violet shades: high blue, medium red, very low green
+    // Darker violet
+    if (b > 180 && r > 100 && r < 180 && g < 80) {
+      // Keep as darker violet
+      return {
+        r: Math.min(180, Math.max(100, r)),
+        g: Math.min(60, Math.max(0, g)),
+        b: Math.min(255, Math.max(180, b))
+      };
+    }
+    
+    // Lighter violet
+    if (b > 150 && r > 150 && r < 220 && g < 100) {
+      // Keep as lighter violet
+      return {
+        r: Math.min(220, Math.max(150, r)),
+        g: Math.min(80, Math.max(0, g)),
+        b: Math.min(255, Math.max(150, b))
+      };
+    }
+    
+    // If the color doesn't fit our palette, map it to the closest palette color (excluding blue)
+    // Calculate distances to our primary palette colors
+    const yellowDist = Math.sqrt(
+      Math.pow(r - 255, 2) + 
+      Math.pow(g - 165, 2) + 
+      Math.pow(b - 0, 2)
+    );
+    
+    const pinkDist = Math.sqrt(
+      Math.pow(r - 255, 2) + 
+      Math.pow(g - 105, 2) + 
+      Math.pow(b - 180, 2)
+    );
+    
+    const violet1Dist = Math.sqrt(
+      Math.pow(r - 147, 2) + 
+      Math.pow(g - 52, 2) + 
+      Math.pow(b - 210, 2)
+    );
+    
+    const violet2Dist = Math.sqrt(
+      Math.pow(r - 216, 2) + 
+      Math.pow(g - 191, 2) + 
+      Math.pow(b - 216, 2)
+    );
+    
+    // Find the closest color in our palette (excluding blue)
+    const minDist = Math.min(yellowDist, pinkDist, violet1Dist, violet2Dist);
+    
+    if (minDist === yellowDist) {
+      // Map to warm orange-yellow
+      return { r: 255, g: 165, b: 0 };
+    } else if (minDist === pinkDist) {
+      // Map to pink
+      return { r: 255, g: 105, b: 180 };
+    } else if (minDist === violet1Dist) {
+      // Map to darker violet
+      return { r: 147, g: 52, b: 210 };
+    } else {
+      // Map to lighter violet
+      return { r: 216, g: 191, b: 216 };
+    }
+  };
+
   // Calculate lighting effect with quadratic attenuation
   const calculateLightingEffect = (blob, lights) => {
     // Start with base color
@@ -179,6 +276,9 @@ const OilBlobBackground = () => {
     let r = (baseColor >> 16) & 0xFF;
     let g = (baseColor >> 8) & 0xFF;
     let b = baseColor & 0xFF;
+    
+    // Track the maximum intensity of lights affecting this blob
+    let maxIntensity = 0;
     
     // Apply all lights with proper attenuation
     lights.forEach(light => {
@@ -192,19 +292,33 @@ const OilBlobBackground = () => {
         const attenuation = Math.max(0, 1 - (distance / light.range) * (distance / light.range));
         const intensity = light.intensity * attenuation;
         
-        // Apply light color with intensity
+        // Track maximum intensity
+        maxIntensity = Math.max(maxIntensity, intensity);
+        
+        // Apply light color with intensity (multiplicative rather than additive to preserve saturation)
         const lightR = (light.color >> 16) & 0xFF;
         const lightG = (light.color >> 8) & 0xFF;
         const lightB = light.color & 0xFF;
         
-        // Additive blending with clamping
-        r = Math.min(255, r + (lightR * intensity));
-        g = Math.min(255, g + (lightG * intensity));
-        b = Math.min(255, b + (lightB * intensity));
+        // Instead of additive blending which can wash out colors, we blend toward the light color
+        // This preserves color saturation better
+        r = Math.round(r + (lightR - r) * intensity * 0.7);
+        g = Math.round(g + (lightG - g) * intensity * 0.7);
+        b = Math.round(b + (lightB - b) * intensity * 0.7);
       }
     });
     
-    return { r, g, b };
+    // If no lights are affecting the blob significantly, return the base color
+    if (maxIntensity < 0.05) {
+      return clampToColorPalette(
+        (baseColor >> 16) & 0xFF,
+        (baseColor >> 8) & 0xFF,
+        baseColor & 0xFF
+      );
+    }
+    
+    // Clamp the resulting color to our desired palette
+    return clampToColorPalette(r, g, b);
   };
 
   // Handle pointer events (mouse and touch)
@@ -313,8 +427,8 @@ const OilBlobBackground = () => {
 
         // Create traveling light rays with proper physics (no personalities)
         for (let i = 0; i < 3; i++) {
-          // Use distinct colors for variety
-          const colors = [0xFFD700, 0x8A2BE2, 0x1E90FF]; // Gold, Violet, Blue
+          // Use distinct colors for variety - blue, golden, and green as requested
+          const colors = [0x1E90FF, 0xFFD700, 0x32CD32]; // Deep Blue, Gold, Green
           const size = 400 + Math.random() * 300; // Consistent size range
           const color = colors[i % colors.length];
           
@@ -363,45 +477,53 @@ const OilBlobBackground = () => {
           rayContainer.addChild(graphic);
         }
 
-        // Oil blob colors with realistic tones
-        const colors = [
-          0x4a9c73, // Deep teal
-          0x9c4a8c, // Deep purple
-          0x9c8a4a, // Golden olive
-          0x4a7c9c, // Deep blue
-          0x7c4a9c, // Violet
-          0x9c6a4a  // Burnt orange
+        // Oil blob colors - weighted to favor pink more prominently
+        // Using a weighted array to increase pink probability
+        const colorWeights = [
+          { color: 0xFF8C00, weight: 1 }, // Dark Orange (warm yellow)
+          { color: 0x9932CC, weight: 1 }, // Dark Orchid (clear violet)
+          { color: 0xBA55D3, weight: 1 }, // Medium Orchid (lighter violet)
+          { color: 0xFF69B4, weight: 2 }  // Hot Pink (increased weight)
         ];
+        
+        // Create weighted color array
+        const weightedColors = [];
+        colorWeights.forEach(item => {
+          for (let i = 0; i < item.weight; i++) {
+            weightedColors.push(item.color);
+          }
+        });
 
         // Blob personalities with distinct behaviors
+        // Increased restlessness and reduced viscosity to prevent clumping and improve responsiveness
         const blobPersonalities = [
           {
             name: "Shy",
-            sensitivity: 0.9, // Less sensitive to rays
-            restlessness: 0.005, // More frequent target changes to prevent lumping
+            sensitivity: 1.2, // Less sensitive to rays
+            restlessness: 0.02, // More frequent target changes to prevent lumping
             expressiveness: 0.1, // Less morphing
-            viscosity: 0.95 // High resistance to movement
+            viscosity: 0.85 // Reduced resistance to movement for better responsiveness
           },
           {
             name: "Curious",
             sensitivity: 1.1, // More sensitive to rays
-            restlessness: 0.002, // More frequent target changes to prevent lumping
-            expressiveness: 0.4, // Moderate morphing
-            viscosity: 0.85 // Moderate resistance to movement
+            restlessness: 0.01, // More frequent target changes to prevent lumping
+            expressiveness: 0.3, // Moderate morphing
+            viscosity: 0.75 // Moderate resistance to movement
           },
           {
             name: "Energetic",
             sensitivity: 1.9, // Very sensitive to rays
-            restlessness: 0.05, // Much more frequent target changes to prevent lumping
+            restlessness: 0.1, // Much more frequent target changes to prevent lumping
             expressiveness: 0.6, // Moderate morphing
-            viscosity: 0.75 // Low resistance to movement
+            viscosity: 0.65 // Lower resistance to movement for better responsiveness
           }
         ];
 
         // Create oil blobs with realistic properties and personalities
         for (let i = 0; i < 23; i++) {
           const size = 100 + Math.random() * 150; // Reduced size by 1/4 (was 133-333, now 100-250)
-          const color = colors[Math.floor(Math.random() * colors.length)];
+          const color = weightedColors[Math.floor(Math.random() * weightedColors.length)];
           
           // Assign a personality to the blob
           const personalityType = blobPersonalities[Math.floor(Math.random() * blobPersonalities.length)];
@@ -409,7 +531,7 @@ const OilBlobBackground = () => {
           const graphic = new Graphics();
           createOilBlob(graphic, size, Math.random() * Math.PI * 2);
           graphic.tint = color;
-          graphic.alpha = 0.95; // More opaque for better color mixing
+          graphic.alpha = 0.99; // More opaque for better color mixing
           
           // Position blobs with better distribution
           const x = 50 + Math.random() * (window.innerWidth - 100);
@@ -545,8 +667,8 @@ const OilBlobBackground = () => {
           
           // Update oil blobs and their interactions with rays
           blobs.current.forEach((blob) => {
-            // Slow, continuous morphing (without rotation)
-            blob.morphValue += delta * 0.003 * blob.morphSpeed; // Much slower morphing
+            // Faster, more responsive morphing to break up clumps and improve visual feedback
+            blob.morphValue += delta * 0.01 * blob.morphSpeed; // Increased morphing speed from 0.003 to 0.01
             
             // Create evolving oil-like shape
             createOilBlob(blob.graphic, blob.size, blob.morphValue);
@@ -634,7 +756,7 @@ const OilBlobBackground = () => {
                 
                 if (distance < interactionThreshold && distance > 5) {
                   // ONLY REPULSION - no attraction at all
-                  const force = (1 - distance / interactionThreshold) * 0.1; // Increased repulsion force
+                  const force = (1 - distance / interactionThreshold) * 0.2; // Increased repulsion force from 0.1 to 0.3
                   const angle = Math.atan2(otherBlob.graphic.y - blob.graphic.y, otherBlob.graphic.x - blob.graphic.x);
                   
                   // Always apply repulsion force (negative sign)
@@ -655,15 +777,14 @@ const OilBlobBackground = () => {
               // Calculate repulsion force based on distance to pointer
               // Using inverse square law for stronger repulsion when close
               const normalizedDistance = pointerDistance / pointerAvoidanceThreshold;
-              const force = (1 - normalizedDistance * normalizedDistance) * 0.5; // Stronger force when close
+              const force = (1 - normalizedDistance * normalizedDistance) * 1.2; // Increased force from 0.5 to 0.8 for better responsiveness
               const angle = Math.atan2(pointerPosition.current.y - blob.graphic.y, pointerPosition.current.x - blob.graphic.x);
               
               // Apply repulsion force (opposite direction to pointer)
               blob.vx -= Math.cos(angle) * force * delta;
               blob.vy -= Math.sin(angle) * force * delta;
               
-              // Enhance morphing when blobs are near pointer
-              blob.morphValue += 0.2 * (1 - normalizedDistance) * delta; // More morphing when closer
+              // No additional morphing when pointer is near - blobs should focus on avoiding rather than morphing
             }
             
             // Keep blobs within bounds
