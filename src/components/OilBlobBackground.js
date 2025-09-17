@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Application, Graphics, Container, BlurFilter, Filter } from 'pixi.js';
+import { Application, Graphics, Container, BlurFilter } from 'pixi.js';
 
 const OilBlobBackground = () => {
   const canvasContainer = useRef(null);
@@ -8,7 +8,6 @@ const OilBlobBackground = () => {
   const location = useLocation();
   const blobs = useRef([]);
   const rays = useRef([]);
-  const lightEffects = useRef([]);
   const pointerPosition = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
 
   // Create realistic oil blob with metaball-like appearance
@@ -17,8 +16,6 @@ const OilBlobBackground = () => {
     
     // Create smooth, organic oil-like shape using metaball technique
     const points = 48;
-    const centerX = 0;
-    const centerY = 0;
     
     // Start with base circle
     graphic.beginFill(0xFFFFFF, 1);
@@ -40,10 +37,6 @@ const OilBlobBackground = () => {
     for (let i = 0; i <= points; i++) {
       // Use a fixed set of noise seeds for each point to prevent rotation
       // Using irrational multipliers to ensure no periodic patterns
-      const noiseSeed1 = i * 0.618033988749; // Golden ratio
-      const noiseSeed2 = i * 1.414213562373; // Square root of 2
-      const noiseSeed3 = i * 1.732050807568; // Square root of 3
-      
       // Create organic morphing using noise-based variation with offset morph values
       // This prevents the helicoptering effect by using point-specific morph offsets
       const pointMorphOffset = i * 0.137; // Unique offset for each point
@@ -62,8 +55,8 @@ const OilBlobBackground = () => {
       const radius = size * constrainedVariation;
       
       // Calculate position using precomputed base points
-      const x = centerX + basePoints[i].x * radius;
-      const y = centerY + basePoints[i].y * radius;
+      const x = basePoints[i].x * radius;
+      const y = basePoints[i].y * radius;
       
       vertices.push({ x, y });
     }
@@ -87,8 +80,6 @@ const OilBlobBackground = () => {
     
     // Create a light ray using a polygon with gradient-like appearance
     const points = 40;
-    const centerX = 0;
-    const centerY = 0;
     
     // Create ray shape with varying width for a light ray effect
     graphic.beginFill(color, 0.95); // Increased alpha for brighter rays
@@ -133,46 +124,6 @@ const OilBlobBackground = () => {
     
     graphic.closePath();
     graphic.endFill();
-  };
-
-  // Create point light effect that can illuminate targets
-  const createPointLight = (graphic, radius, color, intensity) => {
-    graphic.clear();
-    
-    // Create radial gradient effect for point light
-    const segments = 64;
-    const centerX = 0;
-    const centerY = 0;
-    
-    // Create a radial gradient using multiple concentric circles with decreasing alpha
-    for (let i = 5; i >= 0; i--) {
-      const ratio = i / 5;
-      const currentRadius = radius * ratio;
-      const currentAlpha = intensity * (1 - ratio) * 0.8; // Decreasing alpha toward edges
-      
-      graphic.beginFill(color, currentAlpha);
-      
-      // Draw circle
-      const vertices = [];
-      for (let j = 0; j <= segments; j++) {
-        const angle = (j / segments) * Math.PI * 2;
-        const x = centerX + Math.cos(angle) * currentRadius;
-        const y = centerY + Math.sin(angle) * currentRadius;
-        vertices.push({ x, y });
-      }
-      
-      // Draw the shape
-      vertices.forEach((vertex, j) => {
-        if (j === 0) {
-          graphic.moveTo(vertex.x, vertex.y);
-        } else {
-          graphic.lineTo(vertex.x, vertex.y);
-        }
-      });
-      
-      graphic.closePath();
-      graphic.endFill();
-    }
   };
 
   // Create a lighting buffer system to prevent flickering
@@ -479,23 +430,6 @@ const OilBlobBackground = () => {
           return Math.sqrt(dx * dx + dy * dy);
         };
 
-        // Helper function to mix colors
-        const mixColors = (color1, color2, ratio = 0.5) => {
-          const r1 = (color1 >> 16) & 0xFF;
-          const g1 = (color1 >> 8) & 0xFF;
-          const b1 = color1 & 0xFF;
-          
-          const r2 = (color2 >> 16) & 0xFF;
-          const g2 = (color2 >> 8) & 0xFF;
-          const b2 = color2 & 0xFF;
-          
-          const r = Math.floor(r1 * (1 - ratio) + r2 * ratio);
-          const g = Math.floor(g1 * (1 - ratio) + g2 * ratio);
-          const b = Math.floor(b1 * (1 - ratio) + b2 * ratio);
-          
-          return (r << 16) | (g << 8) | b;
-        };
-
         // Animation loop with realistic oil physics and ray interactions
         const tick = (ticker) => {
           if (!pixiState.current.mounted) return;
@@ -739,10 +673,11 @@ const OilBlobBackground = () => {
 
     initPixi();
 
+    // Store the current pixiState for cleanup
+    const currentPixiState = pixiState.current;
+
     return () => {
       // Cleanup
-      const currentPixiState = pixiState.current;
-      
       if (currentPixiState) {
         currentPixiState.mounted = false;
       }

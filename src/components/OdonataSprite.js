@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, useAnimation, useMotionValue } from 'framer-motion';
 
 const useWindowSize = () => {
@@ -37,7 +37,7 @@ const OdonataSprite = ({
   const spriteRef = useRef(null);
   const windowSize = useWindowSize();
 
-  const getDimensions = () => {
+  const getDimensions = useCallback(() => {
     if (scope === 'viewport') {
       return { width: windowSize.width, height: windowSize.height };
     }
@@ -45,7 +45,7 @@ const OdonataSprite = ({
       return { width: wrapperRef.current.offsetWidth, height: wrapperRef.current.offsetHeight };
     }
     return { width: windowSize.width, height: windowSize.height }; // Fallback
-  };
+  }, [scope, windowSize, wrapperRef]);
 
   const { width, height } = getDimensions();
 
@@ -64,16 +64,16 @@ const OdonataSprite = ({
   }, []);
 
   useEffect(() => {
-    const { width, height } = getDimensions();
+    const dimensions = getDimensions();
     
     // Recalculate paths and points on resize
-    perchPoint.current = initialPerchPoint || { x: width * 0.05, y: -height * 0.05 };
+    perchPoint.current = initialPerchPoint || { x: dimensions.width * 0.05, y: -dimensions.height * 0.05 };
     flightPath.current = initialFlightPath ? {
-      x: initialFlightPath.x.map(val => val * width),
-      y: initialFlightPath.y.map(val => val * height)
+      x: initialFlightPath.x.map(val => val * dimensions.width),
+      y: initialFlightPath.y.map(val => val * dimensions.height)
     } : {
-      y: [height * -0.1, height * -0.3, height * -0.15, height * -0.35, height * -0.4, height * -0.2, height * -0.3, height * -0.1, height * -0.1],
-      x: [width * 0.05, width * 0.4, width * 0.8, width * 0.8, width * 0.8, width * 0.4, width * 0.05, width * 0.05, width * 0.05],
+      y: [dimensions.height * -0.1, dimensions.height * -0.3, dimensions.height * -0.15, dimensions.height * -0.35, dimensions.height * -0.4, dimensions.height * -0.2, dimensions.height * -0.3, dimensions.height * -0.1, dimensions.height * -0.1],
+      x: [dimensions.width * 0.05, dimensions.width * 0.4, dimensions.width * 0.8, dimensions.width * 0.8, dimensions.width * 0.8, dimensions.width * 0.4, dimensions.width * 0.05, dimensions.width * 0.05, dimensions.width * 0.05],
     };
 
     const floatAnimation = {
@@ -134,7 +134,7 @@ const OdonataSprite = ({
     return () => {
       controls.stop();
     };
-  }, [animationState, controls, x, y, width, height, initialFlightPath, initialPerchPoint, scope]);
+  }, [animationState, controls, x, y, width, height, initialFlightPath, initialPerchPoint, scope, getDimensions]);
 
   const handleInteraction = () => {
     if (isMobile) {

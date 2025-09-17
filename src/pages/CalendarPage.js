@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { useTranslation } from '../context/LanguageContext';
 import Page from '../components/layout/Page';
 import { GlassSection } from '../components/ui/GlassSection';
