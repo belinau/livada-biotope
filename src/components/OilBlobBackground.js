@@ -209,11 +209,6 @@ const OilBlobBackground = () => {
 
   // Handle pointer events (mouse and touch)
   const handlePointerEvent = (e) => {
-    // Prevent default behavior for touch events
-    if (e.type.startsWith('touch')) {
-      e.preventDefault();
-    }
-    
     // Get pointer position from either mouse or touch event
     let clientX, clientY;
     
@@ -305,8 +300,8 @@ const OilBlobBackground = () => {
         
         eventTypes.forEach(eventType => {
           window.addEventListener(eventType, handlePointerEvent, { 
-            passive: false,
-            capture: true
+            passive: true,
+            capture: false
           });
         });
 
@@ -770,7 +765,7 @@ const OilBlobBackground = () => {
         inset: 0, 
         zIndex: 0,
         overflow: 'hidden', 
-        pointerEvents: 'none',
+        pointerEvents: 'auto',
         backgroundColor: 'transparent'
       }} 
       className="glass-canvas"
