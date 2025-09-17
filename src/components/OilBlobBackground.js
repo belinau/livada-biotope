@@ -18,7 +18,7 @@ const OilBlobBackground = () => {
     const points = 48;
     
     // Start with base circle
-    graphic.beginFill(0xFFFFFF, 1);
+    graphic.fillStyle = { color: 0xFFFFFF, alpha: 1 };
     
     // Create a more complex, organic shape with controlled morphing
     const vertices = [];
@@ -71,7 +71,7 @@ const OilBlobBackground = () => {
     });
     
     graphic.closePath();
-    graphic.endFill();
+    graphic.fill();
   };
 
   // Create light ray with gradient and blending effect
@@ -82,7 +82,7 @@ const OilBlobBackground = () => {
     const points = 40;
     
     // Create ray shape with varying width for a light ray effect
-    graphic.beginFill(color, 0.95); // Increased alpha for brighter rays
+    graphic.fillStyle = { color: color, alpha: 0.95 }; // Increased alpha for brighter rays
     
     // Draw the central bright line
     const baseWidth = size * 0.3; // Increased width for more prominent rays
@@ -123,7 +123,7 @@ const OilBlobBackground = () => {
     }
     
     graphic.closePath();
-    graphic.endFill();
+    graphic.fill();
   };
 
   // Create a lighting buffer system to prevent flickering
@@ -207,11 +207,36 @@ const OilBlobBackground = () => {
     return { r, g, b };
   };
 
-  // Handle pointer move events
-  const handlePointerMove = (e) => {
-    // Update pointer position
-    pointerPosition.current.x = e.clientX || (e.touches && e.touches[0]?.clientX) || pointerPosition.current.x;
-    pointerPosition.current.y = e.clientY || (e.touches && e.touches[0]?.clientY) || pointerPosition.current.y;
+  // Handle pointer events (mouse and touch)
+  const handlePointerEvent = (e) => {
+    // Prevent default behavior for touch events
+    if (e.type.startsWith('touch')) {
+      e.preventDefault();
+    }
+    
+    // Get pointer position from either mouse or touch event
+    let clientX, clientY;
+    
+    if (e.type.startsWith('touch')) {
+      // Touch events
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else if (e.changedTouches && e.changedTouches.length > 0) {
+        clientX = e.changedTouches[0].clientX;
+        clientY = e.changedTouches[0].clientY;
+      }
+    } else {
+      // Mouse events
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    
+    // Update pointer position if we have valid coordinates
+    if (clientX !== undefined && clientY !== undefined) {
+      pointerPosition.current.x = clientX;
+      pointerPosition.current.y = clientY;
+    }
   };
 
   useEffect(() => {
@@ -272,10 +297,18 @@ const OilBlobBackground = () => {
         };
         window.addEventListener('resize', handleResize);
 
-        // Add event listeners to the window to capture pointer events
-        window.addEventListener('mousemove', handlePointerMove, { passive: true });
-        window.addEventListener('touchmove', handlePointerMove, { passive: true });
-        window.addEventListener('touchstart', handlePointerMove, { passive: true });
+        // Add comprehensive event listeners for both mouse and touch events
+        const eventTypes = [
+          'mousemove', 'mousedown', 'mouseup',
+          'touchstart', 'touchmove', 'touchend', 'touchcancel'
+        ];
+        
+        eventTypes.forEach(eventType => {
+          window.addEventListener(eventType, handlePointerEvent, { 
+            passive: false,
+            capture: true
+          });
+        });
 
         // Create containers for different layers
         const rayContainer = new Container();      // Light rays layer
@@ -301,10 +334,10 @@ const OilBlobBackground = () => {
           
           // Add multiple blur filters for glow effect
           const blurFilter1 = new BlurFilter();
-          blurFilter1.blur = 40 + Math.random() * 20;
+          blurFilter1.strength = 40 + Math.random() * 20;
           
           const blurFilter2 = new BlurFilter();
-          blurFilter2.blur = 80 + Math.random() * 40;
+          blurFilter2.strength = 80 + Math.random() * 40;
           
           graphic.filters = [blurFilter1, blurFilter2];
           
@@ -391,7 +424,7 @@ const OilBlobBackground = () => {
           
           // Add blur for soft, oil-like appearance
           const blurFilter = new BlurFilter();
-          blurFilter.blur = 25 + Math.random() * 15; // More blur for softer appearance
+          blurFilter.strength = 25 + Math.random() * 15; // Use strength instead of blur
           graphic.filters = [blurFilter];
           
           // Blend mode for beautiful color mixing
@@ -511,8 +544,8 @@ const OilBlobBackground = () => {
             }
           
             // Animate blur filters for glow effect
-            ray.filters[0].blur = 40 + Math.sin(ray.morphValue * 0.25) * 10; // Slower animation
-            ray.filters[1].blur = 80 + Math.sin(ray.morphValue * 0.15) * 20; // Slower animation
+            ray.filters[0].strength = 40 + Math.sin(ray.morphValue * 0.25) * 10; // Use strength instead of blur
+            ray.filters[1].strength = 80 + Math.sin(ray.morphValue * 0.15) * 20; // Use strength instead of blur
           });
           
           // Update oil blobs and their interactions with rays
@@ -682,10 +715,17 @@ const OilBlobBackground = () => {
         currentPixiState.mounted = false;
       }
       
-      // Remove event listeners
-      window.removeEventListener('mousemove', handlePointerMove);
-      window.removeEventListener('touchmove', handlePointerMove);
-      window.removeEventListener('touchstart', handlePointerMove);
+      // Remove all event listeners
+      const eventTypes = [
+        'mousemove', 'mousedown', 'mouseup',
+        'touchstart', 'touchmove', 'touchend', 'touchcancel'
+      ];
+      
+      eventTypes.forEach(eventType => {
+        window.removeEventListener(eventType, handlePointerEvent, { 
+          capture: true 
+        });
+      });
       
       if (currentPixiState && currentPixiState.app) {
         try {
