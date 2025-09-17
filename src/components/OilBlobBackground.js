@@ -269,58 +269,6 @@ const OilBlobBackground = () => {
     }
   };
 
-  // Calculate lighting effect with quadratic attenuation
-  const calculateLightingEffect = (blob, lights) => {
-    // Start with base color
-    const baseColor = blob.color;
-    let r = (baseColor >> 16) & 0xFF;
-    let g = (baseColor >> 8) & 0xFF;
-    let b = baseColor & 0xFF;
-    
-    // Track the maximum intensity of lights affecting this blob
-    let maxIntensity = 0;
-    
-    // Apply all lights with proper attenuation
-    lights.forEach(light => {
-      const dx = blob.graphic.x - light.x;
-      const dy = blob.graphic.y - light.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      
-      // Only affect if within range
-      if (distance < light.range) {
-        // Quadratic attenuation for realistic light falloff
-        const attenuation = Math.max(0, 1 - (distance / light.range) * (distance / light.range));
-        const intensity = light.intensity * attenuation;
-        
-        // Track maximum intensity
-        maxIntensity = Math.max(maxIntensity, intensity);
-        
-        // Apply light color with intensity (multiplicative rather than additive to preserve saturation)
-        const lightR = (light.color >> 16) & 0xFF;
-        const lightG = (light.color >> 8) & 0xFF;
-        const lightB = light.color & 0xFF;
-        
-        // Instead of additive blending which can wash out colors, we blend toward the light color
-        // This preserves color saturation better
-        r = Math.round(r + (lightR - r) * intensity * 0.7);
-        g = Math.round(g + (lightG - g) * intensity * 0.7);
-        b = Math.round(b + (lightB - b) * intensity * 0.7);
-      }
-    });
-    
-    // If no lights are affecting the blob significantly, return the base color
-    if (maxIntensity < 0.05) {
-      return clampToColorPalette(
-        (baseColor >> 16) & 0xFF,
-        (baseColor >> 8) & 0xFF,
-        baseColor & 0xFF
-      );
-    }
-    
-    // Clamp the resulting color to our desired palette
-    return clampToColorPalette(r, g, b);
-  };
-
   // Handle pointer events (mouse and touch)
   const handlePointerEvent = (e) => {
     // Get pointer position from either mouse or touch event
@@ -578,6 +526,58 @@ const OilBlobBackground = () => {
           const dx = x1 - x2;
           const dy = y1 - y2;
           return Math.sqrt(dx * dx + dy * dy);
+        };
+
+        // Calculate lighting effect with quadratic attenuation
+        const calculateLightingEffect = (blob, lights) => {
+          // Start with base color
+          const baseColor = blob.color;
+          let r = (baseColor >> 16) & 0xFF;
+          let g = (baseColor >> 8) & 0xFF;
+          let b = baseColor & 0xFF;
+          
+          // Track the maximum intensity of lights affecting this blob
+          let maxIntensity = 0;
+          
+          // Apply all lights with proper attenuation
+          lights.forEach(light => {
+            const dx = blob.graphic.x - light.x;
+            const dy = blob.graphic.y - light.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Only affect if within range
+            if (distance < light.range) {
+              // Quadratic attenuation for realistic light falloff
+              const attenuation = Math.max(0, 1 - (distance / light.range) * (distance / light.range));
+              const intensity = light.intensity * attenuation;
+              
+              // Track maximum intensity
+              maxIntensity = Math.max(maxIntensity, intensity);
+              
+              // Apply light color with intensity (multiplicative rather than additive to preserve saturation)
+              const lightR = (light.color >> 16) & 0xFF;
+              const lightG = (light.color >> 8) & 0xFF;
+              const lightB = light.color & 0xFF;
+              
+              // Instead of additive blending which can wash out colors, we blend toward the light color
+              // This preserves color saturation better
+              r = Math.round(r + (lightR - r) * intensity * 0.7);
+              g = Math.round(g + (lightG - g) * intensity * 0.7);
+              b = Math.round(b + (lightB - b) * intensity * 0.7);
+            }
+          });
+          
+          // If no lights are affecting the blob significantly, return the base color
+          if (maxIntensity < 0.05) {
+            return clampToColorPalette(
+              (baseColor >> 16) & 0xFF,
+              (baseColor >> 8) & 0xFF,
+              baseColor & 0xFF
+            );
+          }
+          
+          // Clamp the resulting color to our desired palette
+          return clampToColorPalette(r, g, b);
         };
 
         // Animation loop with realistic oil physics and ray interactions
