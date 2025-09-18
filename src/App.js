@@ -15,7 +15,9 @@ import CalendarPage from './pages/CalendarPage';
 import MemoryGamePage from './pages/MemoryGamePage';
 import FundingLogos from './components/FundingLogos';
 import OilBlobBackground from './components/OilBlobBackground';
+import MetaballOilBlobBackground from './components/MetaballOilBlobBackground';
 import OilBlobBackgroundErrorBoundary from './components/OilBlobBackgroundErrorBoundary';
+import MetaballOilBlobBackgroundErrorBoundary from './components/MetaballOilBlobBackgroundErrorBoundary';
 import BlueskyFloatingIcon from './components/BlueskyFloatingIcon';
 import BlueskyMobileIcon from './components/BlueskyMobileIcon';
 import { Navbar } from "./components/ui/resizable-navbar/Navbar";
@@ -76,9 +78,9 @@ function App() {
       
     return (
         <div className="relative flex flex-col min-h-screen">
-          <OilBlobBackgroundErrorBoundary>
-            <OilBlobBackground />
-          </OilBlobBackgroundErrorBoundary>
+          <MetaballOilBlobBackgroundErrorBoundary>
+            <MetaballOilBlobBackground />
+          </MetaballOilBlobBackgroundErrorBoundary>
           {/* Floating Bluesky Icon - visible only on desktop */}
           <BlueskyFloatingIcon className="hidden lg:block" />
           
