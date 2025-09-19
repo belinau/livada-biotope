@@ -35,6 +35,29 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <div id="portal"></div>
+    
+    <!-- Netlify Forms - Static versions for detection -->
+    <form name="contact" netlify netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="contact" />
+      <p class="hidden">
+        <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+      </p>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <textarea name="message"></textarea>
+    </form>
+    
+    <form name="for-our-kin" netlify netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="for-our-kin" />
+      <p class="hidden">
+        <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+      </p>
+      <input type="text" name="initiativeName" />
+      <input type="email" name="email" />
+      <textarea name="initiativeDescription"></textarea>
+      <input type="url" name="initiativeLink" />
+    </form>
+    
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

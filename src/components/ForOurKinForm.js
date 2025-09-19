@@ -14,6 +14,9 @@ function ForOurKinForm() {
 
         const form = event.target;
         const formData = new FormData(form);
+        
+        // Add the form name to the formData for Netlify
+        formData.append("form-name", "for-our-kin");
 
         try {
             const response = await fetch("/", {
@@ -48,7 +51,7 @@ function ForOurKinForm() {
                     <span className="block sm:inline">{t('formErrorMessage')}</span>
                 </div>
             )}
-            <form name="for-our-kin" method="POST" data-netlify="true" onSubmit={handleSubmit} netlify-honeypot="bot-field">
+            <form name="for-our-kin" method="POST" netlify onSubmit={handleSubmit} netlify-honeypot="bot-field">
                 <input type="hidden" name="form-name" value="for-our-kin" />
                 <p className="hidden">
                     <label>Don't fill this out if you're human: <input name="bot-field" /></label>

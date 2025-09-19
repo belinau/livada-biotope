@@ -14,6 +14,9 @@ function ContactForm() {
 
         const form = event.target;
         const formData = new FormData(form);
+        
+        // Add the form name to the formData for Netlify
+        formData.append("form-name", "contact");
 
         try {
             const response = await fetch("/", {
@@ -48,7 +51,7 @@ function ContactForm() {
                     <span className="block sm:inline">{t('formErrorMessage')}</span>
                 </div>
             )}
-            <form name="contact" method="POST" data-netlify="true" onSubmit={handleSubmit} netlify-honeypot="bot-field">
+            <form name="contact" method="POST" netlify onSubmit={handleSubmit} netlify-honeypot="bot-field">
                 <input type="hidden" name="form-name" value="contact" />
                 <p className="hidden">
                     <label>Don't fill this out if you're human: <input name="bot-field" /></label>
