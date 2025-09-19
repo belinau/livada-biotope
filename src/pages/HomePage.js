@@ -154,7 +154,7 @@ This is a placeholder. Edit the file
                     <div className="container mx-auto px-4">
                         <JoinHero language={language} />
                     </div>
-                </div>
+                </div>            
             </div>
         </Page>
     );

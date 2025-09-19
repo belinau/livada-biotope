@@ -27,8 +27,24 @@ class Metaball {
         this.radius = radius;
         this.color = color;
         this.sprite = sprite;
-        this.vx = (Math.random() - 0.5) * 0.1; // Reduced speed
-        this.vy = (Math.random() - 0.5) * 0.1; // Reduced speed
+        
+        // Adjust initial velocity based on screen size
+        const screenWidth = window.innerWidth;
+        let initialSpeedFactor;
+        
+        if (screenWidth < 480) {
+            // Lower initial speed for very small screens
+            initialSpeedFactor = 0.02;
+        } else if (screenWidth < 768) {
+            // Medium initial speed for small screens
+            initialSpeedFactor = 0.05;
+        } else {
+            // Normal initial speed for larger screens
+            initialSpeedFactor = 0.1;
+        }
+        
+        this.vx = (Math.random() - 0.5) * initialSpeedFactor;
+        this.vy = (Math.random() - 0.5) * initialSpeedFactor;
         this.wanderTimer = Math.random() * 100;
     }
 
@@ -41,9 +57,26 @@ class Metaball {
             this.wanderTimer = 50 + Math.random() * 50;
         }
 
-        // Damping / Friction
-        this.vx *= 0.995; // Slightly reduced damping
-        this.vy *= 0.995; // Slightly reduced damping
+        // Dynamic damping based on screen width
+        // Higher damping on smaller screens to reduce erratic movement
+        const baseDamping = 0.995;
+        const screenWidth = window.innerWidth;
+        let dampingFactor;
+        
+        if (screenWidth < 480) {
+            // High damping for very small screens (more fluid movement)
+            dampingFactor = 0.98;
+        } else if (screenWidth < 768) {
+            // Medium damping for small screens
+            dampingFactor = 0.99;
+        } else {
+            // Normal damping for larger screens
+            dampingFactor = baseDamping;
+        }
+
+        // Apply damping
+        this.vx *= dampingFactor;
+        this.vy *= dampingFactor;
 
         this.x += this.vx;
         this.y += this.vy;

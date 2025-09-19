@@ -5,6 +5,7 @@ import { GlassSection } from '../components/ui/GlassSection';
 import CalendarFeed from '../components/CalendarFeed';
 import OdonataSprite from '../components/OdonataSprite';
 import MetaTags from '../components/MetaTags';
+import ContactForm from '../components/ContactForm';
 
 function CalendarPage() {
     const containerRef = useRef(null);
@@ -44,6 +45,10 @@ function CalendarPage() {
                             calendarUrl="https://calendar.google.com/calendar/embed?src=c_5d78eb671288cb126a905292bb719eaf94ae3c84b114b02c622dba9aa1c37cb7%40group.calendar.google.com&ctz=Europe%2FBelgrade"
                         />
                     </GlassSection>
+                </div>
+                {/* Contact Form Section */}
+                <div className="mt-12">
+                    <ContactForm />
                 </div>
             </div>
         </Page>

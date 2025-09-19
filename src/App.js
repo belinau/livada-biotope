@@ -68,6 +68,7 @@ function App() {
         { path: '/', label: t('navHome'), element: HomePage },
         { path: '/prepletanja', label: t('navProjects'), element: ContentCollectionPage, collection: 'projects' },
         { path: '/utelesenja', label: t('navPractices'), element: ContentCollectionPage, collection: 'practices' },
+        { path: '/sorodstva', label: t('navForOurKin'), element: ContentCollectionPage, collection: 'kinships' },
         { path: '/biodiverziteta', label: t('navBiodiversity'), element: BiodiversityPage },
         { path: '/galerija', label: t('navGallery'), element: GalleryPage },
         { path: '/koledar', label: t('navCalendar'), element: CalendarPage },
@@ -86,7 +87,7 @@ function App() {
             <NavBody>
               <NavbarLogo className="hidden md:block" />
               <NavItems items={pages} />
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 hidden md:flex">
                 <NavbarButton onClick={() => setLanguage('sl')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'sl' ? 'text-primary bg-primary/5 shadow-sm' : 'text-text-muted hover:text-primary'}`}>SL</NavbarButton>
                 <NavbarButton onClick={() => setLanguage('en')} className={`text-accent px-3 py-2 font-semibold transition-all duration-300 rounded-lg text-interactive hover:bg-primary/10 ${language === 'en' ? 'text-primary bg-primary/5 shadow-sm' : 'text-text-muted hover:text-primary'}`}>EN</NavbarButton>
               </div>

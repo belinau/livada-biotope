@@ -30,7 +30,7 @@ export const MobileNavMenu = ({ isOpen, onClose, children, className }) => {
           animate={{ opacity: 1, height: "auto" }}
           exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.2 }}
-          className={cn(getGlassVariant('navbar'), "md:hidden overflow-hidden z-[90] border-t border-glass-border/50 absolute top-full left-0 right-0", className)}
+          className={cn(getGlassVariant('navbar'), "md:hidden overflow-hidden z-[90] border-t border-glass-border/50 absolute top-full left-0 right-0 bg-gradient-to-b from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)]", className)}
         >
           <div className="flex flex-col px-4 pt-2 pb-4 space-y-2">
             {children}

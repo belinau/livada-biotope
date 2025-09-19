@@ -25,9 +25,10 @@ class Wave {
     ctx.beginPath();
     ctx.moveTo(0, height);
     
-    // Create smooth wave curve
-    for (let x = 0; x <= width; x += 5) {
-      const y = height - 20 - 
+    // Create smooth wave curve - adjust for smaller screens
+    const step = width < 300 ? 3 : 5; // Smaller step on mobile for better resolution
+    for (let x = 0; x <= width; x += step) {
+      const y = height - 15 - 
                 Math.sin((x / this.wavelength) * Math.PI * 2 + this.offset) * this.amplitude * this.life -
                 Math.sin((x / (this.wavelength * 0.5)) * Math.PI * 2 + this.offset * 1.7) * (this.amplitude * 0.3) * this.life;
       ctx.lineTo(x, y);
@@ -46,8 +47,8 @@ class Wave {
     
     // Draw wave line
     ctx.beginPath();
-    for (let x = 0; x <= width; x += 5) {
-      const y = height - 20 - 
+    for (let x = 0; x <= width; x += step) {
+      const y = height - 15 - 
                 Math.sin((x / this.wavelength) * Math.PI * 2 + this.offset) * this.amplitude * this.life -
                 Math.sin((x / (this.wavelength * 0.5)) * Math.PI * 2 + this.offset * 1.7) * (this.amplitude * 0.3) * this.life;
       if (x === 0) ctx.moveTo(x, y);
@@ -55,7 +56,7 @@ class Wave {
     }
     
     ctx.strokeStyle = `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, ${0.8 * this.life})`;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = width < 300 ? 1.5 : 2; // Thinner line on mobile
     ctx.stroke();
   }
 }
@@ -129,8 +130,8 @@ const WavePropagation = ({ value, label, unit = '', metricType = 'moisture', max
       
       // Draw base line
       ctx.beginPath();
-      ctx.moveTo(0, height - 20);
-      ctx.lineTo(width, height - 20);
+      ctx.moveTo(0, height - 15);
+      ctx.lineTo(width, height - 15);
       ctx.strokeStyle = `rgba(${base[0]}, ${base[1]}, ${base[2]}, 0.5)`;
       ctx.lineWidth = 1;
       ctx.stroke();
@@ -149,17 +150,17 @@ const WavePropagation = ({ value, label, unit = '', metricType = 'moisture', max
   }, [waveIntensity, base, wave]);
   
   return (
-    <div className="sensor-gauge-container h-full flex flex-col">
+    <div className="sensor-gauge-container h-full flex flex-col min-h-[80px]">
       <div className="flex justify-between items-start mb-1">
         <div>
-          <div className="text-[var(--text-sage)] font-medium">{label}</div>
-          <div className="text-2xl md:text-3xl font-mono font-bold text-[var(--text-sage)]">
+          <div className="text-[var(--text-sage)] font-medium text-sm">{label}</div>
+          <div className="text-xl md:text-2xl font-mono font-bold text-[var(--text-sage)]">
             {normalizedValue.toFixed(1)}{unit}
           </div>
         </div>
         <div className="text-right">
           <div className="text-xs text-[var(--text-sage)] font-mono">{formatRetroTimestamp(lastUpdated)}</div>
-          <div className="text-xs text-[var(--text-sage)] font-mono">{formatFullDate(lastUpdated)}</div>
+          <div className="text-xs text-[var(--text-sage)] font-mono hidden sm:block">{formatFullDate(lastUpdated)}</div>
         </div>
       </div>
       <div className="relative w-full flex-grow min-h-0 rounded-lg overflow-hidden border border-[var(--glass-border)] bg-transparent">

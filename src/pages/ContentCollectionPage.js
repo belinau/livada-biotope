@@ -11,6 +11,7 @@ import ReactDOM from 'react-dom/client';
 import EmbeddedGallery from '../components/EmbeddedGallery';
 import Hero from '../components/Hero';
 import MetaTags from '../components/MetaTags';
+import ForOurKinForm from '../components/ForOurKinForm';
 
 const limit = pLimit(2);
 
@@ -251,6 +252,32 @@ function ContentCollectionPage({ contentPath, collection, pagePath }) {
           } catch (error) {
             if (error.name !== 'AbortError') {
               console.error('Failed to fetch practices content:', error);
+            }
+          }
+        }
+        // Handle for-our-kin collection with For Our Kin content
+        else if (collection === 'kinships') {
+          const langFile = `/content/pages/kinships.${language}.md`;
+          const defaultLangFile = `/content/pages/kinships.sl.md`;
+          try {
+            let response = await limit(() => fetch(langFile, { signal }));
+            if (!response.ok) {
+              response = await limit(() => fetch(defaultLangFile, { signal }));
+            }
+            if (response.ok) {
+              const text = await response.text();
+              const { metadata, content } = parseMarkdown(text);
+              setHeroData({
+                title: metadata.title || t('forOurKin'), 
+                description: metadata.description,
+                hero_title: metadata.hero_title || metadata.title,
+                hero_subtitle: metadata.hero_subtitle || metadata.description,
+                content: content
+              });
+            }
+          } catch (error) {
+            if (error.name !== 'AbortError') {
+              console.error('Failed to fetch kinships content:', error);
             }
           }
         } else {
@@ -510,6 +537,29 @@ function ContentCollectionPage({ contentPath, collection, pagePath }) {
                 )}
               </div>
           </Section>
+          {/* Display content body from markdown file for kinships collection */}
+          {collection === 'kinships' && heroData.content && (
+            <Section>
+              <div 
+                className="text-text-main prose prose-lg max-w-none"
+                ref={el => {
+                  if (el) {
+                    el.innerHTML = renderMarkdown(heroData.content);
+                    setTimeout(() => {
+                      renderMermaid(el);
+                      renderGalleries(el);
+                    }, 0);
+                  }
+                }}
+              />
+            </Section>
+          )}
+          {/* For Our Kin Form - only show for kinships collection */}
+          {collection === 'kinships' && (
+            <div className="max-w-4xl mx-auto w-full px-4 py-8">
+              <ForOurKinForm />
+            </div>
+          )}
         </div>
       </Page>
     );

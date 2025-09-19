@@ -5,9 +5,12 @@ import { motion } from "framer-motion";
 import { cn } from "../../../lib/cn";
 
 export const NavItems = ({ items, className }) => {
+  // Filter out home page for desktop navbar since logo links to home
+  const desktopItems = items.filter(item => item.path !== '/');
+  
   return (
     <div className={cn("hidden md:flex items-center gap-1", className)}>
-      {items.map((item) => (
+      {desktopItems.map((item) => (
         <motion.div key={item.path}>
           <NavLink 
             to={item.path} 

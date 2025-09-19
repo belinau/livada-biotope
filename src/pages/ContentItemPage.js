@@ -18,13 +18,15 @@ const limit = pLimit(2);
 const collectionSlugMapping = {
     "prepletanja": "projects",
     "utelesenja": "practices",
-    "zapisi": "posts"
+    "zapisi": "posts",
+    "sorodstva": "kinships"
 };
 
 const collectionPathMap = {
     projects: 'content/projects',
     practices: 'content/practices',
-    posts: 'content/posts'
+    posts: 'content/posts',
+    kinships: 'content/kinships'
 };
 
 function ContentItemPage() {
@@ -187,8 +189,12 @@ function ContentItemPage() {
             <div className="max-w-3xl mx-auto pt-6">
                 <div className="mb-6">
                     <button 
-                        onClick={() => navigate(-1)}
-                        className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] text-main border border-glass-border shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out"
+                        onClick={() => {
+                            console.log('Button clicked, navigating to:', `/${collectionSlug}`);
+                            navigate(`/${collectionSlug}`);
+                        }}
+                        className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] text-text-main border border-glass-border shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out relative z-10 cursor-pointer"
+                        style={{ pointerEvents: 'auto' }}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />

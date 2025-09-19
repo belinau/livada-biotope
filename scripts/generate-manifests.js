@@ -8,7 +8,8 @@ const contentDirectories = [
   'public/content/posts',
   'public/content/practices',
   'public/content/galleries',
-  'public/content/projects'
+  'public/content/projects',
+  'public/content/kinships'
 ];
 
 console.log('Generating content manifests...');

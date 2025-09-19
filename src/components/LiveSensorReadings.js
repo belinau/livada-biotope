@@ -117,7 +117,7 @@ function LiveSensorReadings() {
 
             {/* Air Temperature and Humidity Gauges */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 flex-shrink-0">
-                <GlassCard className="p-3 rounded-xl border border-[var(--glass-border)] bg-gradient-to-b from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm air-gauge-card">
+                <GlassCard className="p-3 sm:p-4 rounded-xl border border-[var(--glass-border)] bg-gradient-to-b from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm air-gauge-card min-h-[140px] sm:min-h-[160px]">
                     <AirTemperatureWave 
                         value={airReadings.airTemperature} 
                         label={t('airTemp')} 
@@ -125,7 +125,7 @@ function LiveSensorReadings() {
                         lastUpdated={airReadings.timestamp}
                     />
                 </GlassCard>
-                <GlassCard className="p-3 rounded-xl border border-[var(--glass-border)] bg-gradient-to-b from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm air-gauge-card">
+                <GlassCard className="p-3 sm:p-4 rounded-xl border border-[var(--glass-border)] bg-gradient-to-b from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] backdrop-blur-sm air-gauge-card min-h-[140px] sm:min-h-[160px]">
                     <AirHumidityWave 
                         value={airReadings.airHumidity} 
                         label={t('airHumidity')} 

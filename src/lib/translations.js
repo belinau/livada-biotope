@@ -17,11 +17,13 @@ const slugify = (text) => {
 const collectionMapping = {
     "projects": "projekti",
     "practices": "prakse",
-    "posts": "zapisi"
+    "posts": "zapisi",
+    "kinships": "sorodstva"
 }
 
 export const getSlug = (item, language, collection) => {
-  const slug = item.metadata[`slug_${language}`] || item.metadata.slug || slugify(item.metadata.title);
+  // Always use Slovenian slug for URLs to maintain consistent Slovenian URL structure
+  const slug = item.metadata[`slug_sl`] || item.metadata.slug || slugify(item.metadata.title);
   const slovenianCollection = collectionMapping[collection] || collection;
   return `/${slovenianCollection}/${slug}`;
 };
@@ -35,6 +37,7 @@ export const translations = {
         navHome: 'Domov',
         navProjects: 'Prepletanja',
         navPractices: 'Utelešenja',
+        navForOurKin: 'Sorodstva',
         navBiodiversity: 'Biodiverziteta',
         navGallery: 'Galerija',
         navCalendar: 'Koledar',
@@ -145,10 +148,27 @@ export const translations = {
         airHumidityFull: 'Vlaga v zraku',
         // Bluesky translations
         followOnBluesky: 'Sledi nam na Bluesky',
+        // Form translations
+        contactFormTitle: 'Stik',
+        contactFormDescription: 'Imaš vprašanje ali predlog?',
+        nameLabel: 'Ime in priimek',
+        emailLabel: 'E-pošta',
+        messageLabel: 'Sporočilo',
+        sendButton: 'Pošlji',
+        forOurKinFormTitle: 'Kaj vse lahko človek podari travniku?',
+        forOurKinFormDescription: 'S spodnjim obrazcem nam lahko posreduješ svoj predlog.',
+        initiativeNameLabel: 'Naslov predloga',
+        initiativeDescriptionLabel: 'Opis predloga',
+        initiativeLink: 'Povezava do dodatne dokumentacije (ni obvezna)',
+        // Form submission messages
+        formSuccessMessage: 'Sporočilo je bilo uspešno poslano!',
+        formErrorMessage: 'Prišlo je do napake pri pošiljanju sporočila. Prosimo, poskusi znova.',
+        botFieldLabel: 'Ne izpolnite, če ste človek:',
         routes: {
             home: '', // Home path is just '/'
             projects: 'prepletanja',
             practices: 'utelesenja',
+            kinships: 'sorodstva',
             biodiversity: 'biodiverziteta',
             gallery: 'galerija',
             calendar: 'koledar',
@@ -160,6 +180,7 @@ export const translations = {
         navHome: 'Home',
         navProjects: 'Intertwinings',
         navPractices: 'Embodiments',
+        navForOurKin: 'Kinships',
         navBiodiversity: 'Biodiversity',
         navGallery: 'Gallery',
         navCalendar: 'Calendar',
@@ -214,6 +235,22 @@ export const translations = {
         previous: 'Previous',
         next: 'Next',
         backToCollection: 'Back to collection',
+        // Form translations
+        contactFormTitle: 'Contact Form',
+        contactFormDescription: 'Do you have a question or suggestion? Write to us!',
+        nameLabel: 'Name',
+        emailLabel: 'Email',
+        messageLabel: 'Message',
+        forOurKinFormTitle: 'What can a human give to the meadow?',
+        forOurKinFormDescription: 'Would you like to contribute to Kinships? Fill out the form bellow.',
+        initiativeNameLabel: 'Name of contribution',
+        initiativeDescriptionLabel: 'Description of contribution',
+        initiativeLink: 'Link to contribution documentation (optional)',
+        sendButton: 'Send',
+        // Form submission messages
+        formSuccessMessage: 'Your message has been sent successfully!',
+        formErrorMessage: 'An error occurred while sending the message. Please try again.',
+        botFieldLabel: 'Don\'t fill this out if you\'re human:',
         memoryGameDescription: 'The Memory game uses images collected during regular monitoring in the Livada Biotope. You can view the entire collection in the biodiversity section. If you would like to see your photos in the game, you can join us in monitoring at Livada and contribute your observations via the iNaturalist platform. All observations in this microlocation (marked with the coordinates of LivadaLAB or its immediate vicinity) are automatically added into our dedicated project on the mentioned platform.',
         congratulations: 'Congratulations!',
         yourScore: 'Your score:',
@@ -284,6 +321,7 @@ export const translations = {
             home: '', // Home path is just '/'
             projects: 'intertwinings',
             practices: 'embodiments',
+            kinships: 'kinships',
             biodiversity: 'biodiversity',
             gallery: 'gallery',
             calendar: 'calendar',

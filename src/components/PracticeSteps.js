@@ -77,6 +77,20 @@ const PracticeSteps = ({ steps, language, t }) => {
 };
 
 const PracticeStepCard = ({ step, index, language, t }) => {
+    const [isHovered, setIsHovered] = useState(false);
+    const [isTouched, setIsTouched] = useState(false);
+    
+    const isInteracted = isHovered || isTouched;
+    
+    const handleTouchStart = () => {
+        setIsTouched(true);
+    };
+    
+    const handleTouchEnd = () => {
+        // Delay the removal of touch state to allow for better interaction
+        setTimeout(() => setIsTouched(false), 300);
+    };
+
     const caption = step.caption;
     const htmlCaption = caption ? marked(caption) : '';
 
@@ -92,16 +106,20 @@ const PracticeStepCard = ({ step, index, language, t }) => {
 
     return (
         <motion.div
-            className="border border-black/[0.2] dark:border-white/[0.2] rounded-lg p-4 relative"
+            className="border border-black/[0.2] dark:border-white/[0.2] rounded-lg p-4 relative cursor-pointer"
+            onHoverStart={() => setIsHovered(true)}
+            onHoverEnd={() => setIsHovered(false)}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
             initial="initial"
-            whileHover="hover"
         >
-            {/* Background on hover */}
+            {/* Background on hover/touch */}
             <motion.div
                 variants={{
                     initial: { opacity: 0, scale: 0.98 },
-                    hover: { opacity: 1, scale: 1 },
+                    hovered: { opacity: 1, scale: 1 },
                 }}
+                animate={isInteracted ? "hovered" : "initial"}
                 className={`absolute inset-0 ${getGlassVariant('card', { 
                     rounded: 'lg', 
                     blur: !step.image, // only blur if no image
@@ -115,8 +133,9 @@ const PracticeStepCard = ({ step, index, language, t }) => {
                 <motion.div
                     variants={{
                         initial: { opacity: 0, scale: 1 },
-                        hover: { opacity: 1, scale: 1, zIndex: 20, transition: { duration: 0.5, ease: "easeInOut" } },
+                        hovered: { opacity: 1, scale: 1, zIndex: 20, transition: { duration: 0.5, ease: "easeInOut" } },
                     }}
+                    animate={isInteracted ? "hovered" : "initial"}
                     className="absolute inset-0"
                 >
                     <img
@@ -127,25 +146,27 @@ const PracticeStepCard = ({ step, index, language, t }) => {
                 </motion.div>
             )}
 
-            {/* Art Nouveau floral border for steps without images - shows on hover */}
+            {/* Art Nouveau floral border for steps without images - shows on hover/touch */}
             {!step.image && (
                 <motion.div
                     variants={{
                         initial: { opacity: 0 },
-                        hover: { opacity: 1, transition: { duration: 0.3 } },
+                        hovered: { opacity: 1, transition: { duration: 0.3 } },
                     }}
+                    animate={isInteracted ? "hovered" : "initial"}
                     className="absolute inset-0"
                 >
                     <ArtNouveauFloralBorder />
                 </motion.div>
             )}
 
-            {/* Text - hides on hover for steps without images, disappears on hover for steps with images */}
+            {/* Text - hides on hover/touch for steps without images, disappears on hover/touch for steps with images */}
             <motion.div
                 variants={{
                     initial: { opacity: 1 },
-                    hover: { opacity: step.image ? 0 : 0, transition: { duration: 0.3 } },
+                    hovered: { opacity: step.image ? 0 : 0, transition: { duration: 0.3 } },
                 }}
+                animate={isInteracted ? "hovered" : "initial"}
                 className="text-center relative z-10"
             >
                 <div className="text-6xl font-bold font-display text-[--primary-dark]">
