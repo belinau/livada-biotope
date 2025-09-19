@@ -69,6 +69,18 @@ function ForOurKinForm() {
                     />
                 </div>
                 <div className="mb-4">
+                    <label htmlFor="fullName" className="block text-body font-bold mb-2">
+                        {t('fullNameLabel')}
+                    </label>
+                    <input
+                        type="text"
+                        id="fullName"
+                        name="fullName"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-body leading-tight focus:outline-none focus:shadow-outline bg-glass-fill border-glass-stroke"
+                        required
+                    />
+                </div>
+                <div className="mb-4">
                     <label htmlFor="email" className="block text-body font-bold mb-2">
                         {t('emailLabel')}
                     </label>
