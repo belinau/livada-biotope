@@ -861,6 +861,39 @@ details summary {
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 }
 
+/* Custom class for glassmorphic markdown buttons */
+.markdown-button-glassmorphic {
+  display: inline-block;
+  background: linear-gradient(to bottom, var(--glass-bg-nav), var(--glass-i-bg));
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease-in-out;
+  text-decoration: none;
+  margin: 0.25rem;
+  box-shadow: var(--shadow);
+}
+
+.markdown-button-glassmorphic:hover {
+  background: linear-gradient(to bottom, var(--glass-i-bg), var(--glass-bg-nav));
+  transform: scale(1.05);
+  text-decoration: none;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to right, var(--primary), var(--text-orange));
+}
+
+/* Ensure custom button shortcode also gets proper styling */
+.inline-block.bg-gradient-to-l {
+  display: inline-block;
+  text-decoration: none;
+  margin: 0.25rem;
+}
+
 /* Form input styling */
 form input[type="text"],
 form input[type="email"],

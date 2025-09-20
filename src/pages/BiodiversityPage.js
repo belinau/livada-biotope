@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from '../context/LanguageContext';
 import pLimit from 'p-limit';
 import Page from '../components/layout/Page';
+import { GlassSection } from '../components/ui/GlassSection';
 import { ExpandableBiodiversityCard } from '../components/ExpandableBiodiversityCard';
 import BiodiversityHero from '../components/BiodiversityHero';
 import MetaTags from '../components/MetaTags';
@@ -130,39 +131,41 @@ function BiodiversityPage() {
                 description={pageDescription}
             />
             <BiodiversityHero language={language} />
-            <div className="container mx-auto px-4 py-8 md:py-12 bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-3xl">
-                <h2 className="text-display text-3xl mb-8 text-center bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent pt-4">{t('navBiodiversity')}</h2>
-                <div className="relative z-10">
-                    <div className="space-y-12">
-                        <div className="text-center max-w-3xl mx-auto">
-                            <p className="text-lg text-text-muted">
-                                {t('biodiversityDescription')}
-                            </p>
-                        </div>
-                        
-                        <ExpandableBiodiversityCard 
-                            observations={observations}
-                            fetchObservationDetails={fetchObservationDetails}
-                            language={language}
-                            t={t}
-                        />
-                        
-                        <div className="text-center mt-8">
-                            {canLoadMore && (
-                                <button 
-                                    onClick={handleLoadMore} 
-                                    disabled={isLoading}
-                                    className="px-6 py-3 bg-gradient-to-t from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] text-[var(--primary)] font-semibold rounded-full border-2 border-[var(--glass-border)] shadow-sm backdrop-blur-sm hover:bg-primary/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isLoading ? t('loading') : t('loadMore')}
-                                </button>
-                            )}
-                            {!canLoadMore && observations.length > 0 && (
-                                <p className="text-text-muted mt-4">{t('noMoreObservations')}</p>
-                            )}
+            <div className="container mx-auto px-4 py-8 md:py-12">
+                <GlassSection className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] p-6 rounded-3xl">
+                    <h2 className="text-display text-3xl mb-8 text-center bg-gradient-to-r from-[var(--primary)] to-[var(--text-orange)] bg-clip-text text-transparent pt-4">{t('navBiodiversity')}</h2>
+                    <div className="relative z-10">
+                        <div className="space-y-12">
+                            <div className="text-center max-w-3xl mx-auto">
+                                <p className="text-lg text-text-muted">
+                                    {t('biodiversityDescription')}
+                                </p>
+                            </div>
+                            
+                            <ExpandableBiodiversityCard 
+                                observations={observations}
+                                fetchObservationDetails={fetchObservationDetails}
+                                language={language}
+                                t={t}
+                            />
+                            
+                            <div className="text-center mt-8">
+                                {canLoadMore && (
+                                    <button 
+                                        onClick={handleLoadMore} 
+                                        disabled={isLoading}
+                                        className="px-6 py-3 bg-gradient-to-t from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] text-[var(--primary)] font-semibold rounded-full border-2 border-[var(--glass-border)] shadow-sm backdrop-blur-sm hover:bg-primary/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isLoading ? t('loading') : t('loadMore')}
+                                    </button>
+                                )}
+                                {!canLoadMore && observations.length > 0 && (
+                                    <p className="text-text-muted mt-4">{t('noMoreObservations')}</p>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
+                </GlassSection>
             </div>
         </Page>
     );

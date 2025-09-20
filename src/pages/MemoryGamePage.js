@@ -22,6 +22,14 @@ function MemoryGamePage() {
               <div className="w-full">
                 <MemoryGame />
               </div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+                <a 
+                  href="/lestvica" 
+                  className="px-4 py-2 bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] text-[var(--primary)] font-bold rounded-lg border border-[var(--glass-border)] shadow-sm backdrop-blur-sm hover:from-[var(--glass-bg-nav)] hover:to-[var(--glass-i-bg)] transition-all duration-300 text-center"
+                >
+                  {t('hallOfFame')}
+                </a>
+              </div>
               <p className="text-center text-text-muted mt-8 max-w-2xl mx-auto">{t('memoryGameDescription')}</p>
             </GlassSection>
           </div>

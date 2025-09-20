@@ -78,17 +78,18 @@ const PracticeSteps = ({ steps, language, t }) => {
 
 const PracticeStepCard = ({ step, index, language, t }) => {
     const [isHovered, setIsHovered] = useState(false);
-    const [isTouched, setIsTouched] = useState(false);
+    const [isActive, setIsActive] = useState(false);
     
-    const isInteracted = isHovered || isTouched;
+    // For desktop: use hover state
+    // For mobile: use active state (toggled on click/tap)
+    const isInteracted = window.matchMedia("(hover: none)").matches ? isActive : isHovered;
     
-    const handleTouchStart = () => {
-        setIsTouched(true);
-    };
-    
-    const handleTouchEnd = () => {
-        // Delay the removal of touch state to allow for better interaction
-        setTimeout(() => setIsTouched(false), 300);
+    const handleInteraction = (e) => {
+        // Only for mobile devices
+        if (window.matchMedia("(hover: none)").matches) {
+            e.preventDefault();
+            setIsActive(prev => !prev);
+        }
     };
 
     const caption = step.caption;
@@ -109,8 +110,8 @@ const PracticeStepCard = ({ step, index, language, t }) => {
             className="border border-black/[0.2] dark:border-white/[0.2] rounded-lg p-4 relative cursor-pointer"
             onHoverStart={() => setIsHovered(true)}
             onHoverEnd={() => setIsHovered(false)}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
+            onClick={handleInteraction}
+            onTouchStart={handleInteraction}
             initial="initial"
         >
             {/* Background on hover/touch */}

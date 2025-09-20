@@ -1,14 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/logo.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#4a7c59" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Skupnostni travnik za raznolike prakse."
     />
+    <meta property="og:title" content="Livada Bio" />
+    <meta property="og:description" content="Skupnostni travnik za raznolike prakse." />
+    <meta property="og:image" content="%PUBLIC_URL%/logo512.png" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Livada Bio" />
+    <meta name="twitter:description" content="Skupnostni travnik za raznolike prakse." />
+    <meta name="twitter:image" content="%PUBLIC_URL%/logo512.png" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -29,7 +37,7 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>React App</title>
+    <title>Livada Bio</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -59,15 +67,11 @@
       <input type="url" name="initiativeLink" />
     </form>
     
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+    <form name="leaderboard" netlify hidden>
+      <input type="hidden" name="form-name" value="leaderboard" />
+      <input type="text" name="player-name" />
+      <input type="number" name="score" />
+      <input type="text" name="date" />
+    </form>
   </body>
 </html>

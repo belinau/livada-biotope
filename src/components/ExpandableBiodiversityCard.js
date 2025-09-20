@@ -98,7 +98,7 @@ export function ExpandableBiodiversityCard({ observations, fetchObservationDetai
         <div className="flex justify-between items-start p-4 bg-black/50 rounded-lg">
           <div>
             <motion.h3
-              className="font-medium text-[var(--text-muted)] text-base">
+              className="font-medium text-[var(--text-muted)] text-base lowercase">
               {activeObservation?.taxon?.preferred_common_name || activeObservation?.taxon?.name || "Unknown"}
             </motion.h3>
             <motion.p

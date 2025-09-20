@@ -13,6 +13,7 @@ import BiodiversityPage from './pages/BiodiversityPage';
 import GalleryPage from './pages/GalleryPage';
 import CalendarPage from './pages/CalendarPage';
 import MemoryGamePage from './pages/MemoryGamePage';
+import LeaderboardPage from './pages/LeaderboardPage';
 import FundingLogos from './components/FundingLogos';
 import MetaballOilBlobBackground from './components/MetaballOilBlobBackground';
 import MetaballOilBlobBackgroundErrorBoundary from './components/MetaballOilBlobBackgroundErrorBoundary';
@@ -30,6 +31,11 @@ import { MobileNavMenu } from "./components/ui/resizable-navbar/MobileNavMenu";
 
 function App() {
     const { t, setLanguage, language } = useTranslation();
+    
+    // Update the HTML lang attribute when language changes
+    useEffect(() => {
+        document.documentElement.lang = language;
+    }, [language]);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const location = useLocation();
 
@@ -147,6 +153,7 @@ function App() {
                                         } 
                                     /> 
                                 ))}
+                                <Route path="/lestvica" element={<LeaderboardPage />} />
                                 <Route path="/:collection/:slug" element={<ContentItemPage />} />
                             </Routes>
                         </motion.div>

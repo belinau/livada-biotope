@@ -89,6 +89,32 @@ collections:
           - vimeo
           - accordion
 
+  - name: "kinships"
+    label: "Sorodstva"
+    folder: "public/content/kinships"
+    create: true
+    slug: "{{slug}}"
+    i18n: true
+    media_folder: "public/images/kinships"
+    public_folder: "/images/kinships"
+    fields:
+      - { label: "Naslov", name: "title", widget: "string", i18n: true }
+      - { label: "Slug", name: "slug", widget: "string", i18n: true }
+      - { label: "Datum objave", name: "date", widget: "datetime" }
+      - { label: "Avtor", name: "author", widget: "string", required: false }
+      - { label: "Naslovna fotografija", name: "image", widget: "image", required: false }
+      - { label: "Kratek opis", name: "description", widget: "text", required: false, i18n: true }
+      - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true }
+      - label: "Vsebina"
+        name: "body"
+        widget: "markdown"
+        i18n: true
+        editor_components:
+          - mermaid
+          - youtube
+          - vimeo
+          - accordion
+
   # The gallery collection remains special, as requested.
   - name: "galleries"
     label: "Galerije"

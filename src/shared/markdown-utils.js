@@ -33,7 +33,7 @@ function replaceShortcodes(markdown) {
     // {{vimeo ID}}
     .replace(/{{vimeo\s+(.+?)}}/g, `<div class="aspect-video video-filter-overlay"><iframe class="w-full h-full" src="https://player.vimeo.com/video/$1?byline=0&portrait=0&title=0&badge=0" frameborder="0" allowfullscreen></iframe></div>`)
     // {{button "text" "url"}}
-    .replace(/{{button\s+"([^"]+)"\s+"([^"]+)"}}/g, '<a href="$2" class="inline-block bg-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-primary/80 transition-colors">$1</a>')
+    .replace(/{{button\s+"([^"]+)"\s+"([^"]+)"}}/g, '<a href="$2" class="markdown-button-glassmorphic">$1</a>')
     // {{gallery "gallery-id"}}
     .replace(/{{gallery\s+"(.+?)"}}/g, '<div class="gallery-placeholder" data-gallery-id="$1"></div>');
 }
@@ -56,7 +56,24 @@ export const renderMarkdown = (content) => {
   processedContent = replaceShortcodes(processedContent);
 
   // Process the remaining markdown to HTML
-  const html = marked(processedContent);
+  let html = marked(processedContent);
+  
+  // Convert all links to glassmorphic buttons (but not already styled buttons)
+  html = html.replace(
+    /<a href="([^"]+)"([^>]*?)>(.*?)<\/a>/g,
+    (match, href, existingAttributes, text) => {
+      // Check if this link already has our button class or is part of our custom button
+      if (existingAttributes.includes('markdown-button-glassmorphic') || 
+          existingAttributes.includes('inline-block')) { // This catches our custom buttons
+        return match; // Don't modify if already has button styling
+      }
+      // Add our glassmorphic button class
+      const classAttr = existingAttributes.includes('class=') 
+        ? existingAttributes.replace(/class="(.*?)"/, 'class="markdown-button-glassmorphic $1"')
+        : `class="markdown-button-glassmorphic" ${existingAttributes}`;
+      return `<a href="${href}" ${classAttr}>${text}</a>`;
+    }
+  );
   
   return html;
 };

@@ -11,6 +11,7 @@ import OdonataSprite from '../components/OdonataSprite';
 import { GlassSection } from '../components/ui/GlassSection';
 import MetaTags from '../components/MetaTags';
 import { GlassCard } from '../components/ui/GlassCard';
+import { processAndRenderContent } from '../shared/markdown-utils';
 
 const limit = pLimit(2);
 
@@ -32,6 +33,7 @@ function HomePage() {
     const { t, language } = useTranslation();
     const [pageData, setPageData] = useState({ content: '', metadata: {} });
     const [isLoading, setIsLoading] = useState(true);
+    const contentRef = useRef(null);
 
     const wrapperRef = useRef(null);
 
@@ -76,6 +78,18 @@ This is a placeholder. Edit the file
         controller.abort();
       };
     }, [language]);
+
+    useEffect(() => {
+        if (pageData.content && contentRef.current) {
+            try {
+                processAndRenderContent(pageData.content, contentRef, language);
+            } catch (error) {
+                console.error("Error rendering content:", error);
+                // Fallback to direct content rendering if processing fails
+                contentRef.current.innerHTML = pageData.content;
+            }
+        }
+    }, [pageData.content, contentRef, language]);
 
     const title = pageData.metadata.title || t('navHome');
     const heroTitle = pageData.metadata.hero_title || 'livada.bio';
@@ -125,9 +139,10 @@ This is a placeholder. Edit the file
                                         {t('loading')}...
                                     </div>
                                 ) : (
-                                    <div className="text-text-main text-center prose prose-lg max-w-none">
-                                        {pageData.content || ''}
-                                    </div>
+                                    <div 
+                                        className="text-text-main text-center prose prose-lg max-w-none"
+                                        ref={contentRef}
+                                    />
                                 )}
                             </div>
                         </GlassSection>

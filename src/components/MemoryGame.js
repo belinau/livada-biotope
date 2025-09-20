@@ -6,6 +6,7 @@ import { useTranslation } from '../context/LanguageContext';
 import MemoryCard from './MemoryCard';
 import FlippedCardView from './FlippedCardView';
 import VictoryEffect from './VictoryEffect';
+import LeaderboardForm from './LeaderboardForm';
 import { getGlassVariant } from './glass-theme';
 
 const limit = pLimit(2); // Limit to 2 concurrent requests
@@ -162,9 +163,12 @@ const MemoryGame = () => {
             >
               <h2 className="text-3xl font-bold mb-4 text-[var(--text-main)]">{t('victory')}</h2>
               <p className="text-xl mb-2 text-[var(--text-main)]">{t('victoryMessage')}</p>
-              <p className="text-lg mb-6 text-[var(--text-main)]">{t('moves')}: {moves}</p>
+              <p className="text-lg mb-6 text-[var(--text-main)]">{t('yourScore')}: {moves} {t('moves')}</p>
               
-              <div className="flex flex-col gap-4">
+              {/* Leaderboard submission form */}
+              <LeaderboardForm moves={moves} onScoreSubmitted={() => {}} />
+              
+              <div className="flex flex-col gap-4 mt-6">
                 <button 
                   onClick={() => resetGame()}
                   className="px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-opacity-90 transition w-full"
