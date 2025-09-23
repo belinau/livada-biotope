@@ -52,11 +52,13 @@ steps:
     image: /images/practices/pursline.jpeg
 ---
 \
-<!--StartFragment-->\
-\
-Tokrat smo se posvetili fermentaciji tolščaka – divje užitne rastline, ki jo večina pozna kot »plevel«. Raste povsod, tudi v mestih, kjer ga pogosto spregledamo. Nabrali smo ga, ga pomešali z zelenjavo z naših permakulturnih gredic, olupili česen, narezali plodove, dihali z vrtom, se smejali … in nato doma potrpežljivo opazovali, kako so v kozarcih začeli plesati prvi mehurčki – znak, da so mikroorganizmi prevzeli vodstvo. Vendar pa le določeni mikroorganizmi omogočajo proces fermentacije. Z ustvarjanjem selektivnega okolja poskrbimo, da jim pogoji pomagajo rasti, hkrati pa je to okolje neprimerno za druge škodljive bakterije. 
 
-Fermentacija pa ni le priprava hrane; je dejanje zaupanja v čas, v naravo, v skupnost. Je prostor, ki ga damo nevidnemu, a vseprisotnemu življenju. Ko po dveh do treh tednih odpremo kozarce, skupaj okušamo, kako se iz rastlinja rodi živa, peneča jed. 
+<!--StartFragment-->\
+
+\
+Tokrat smo se posvetili fermentaciji tolščaka – divje užitne rastline, ki jo večina pozna kot »plevel«. Raste povsod, tudi v mestih, kjer ga pogosto spregledamo. Nabrali smo ga, ga pomešali z zelenjavo z naših permakulturnih gredic, olupili česen, narezali plodove, dihali z vrtom, se smejali … in nato doma potrpežljivo opazovali, kako so v kozarcih začeli plesati prvi mehurčki – znak, da so mikroorganizmi prevzeli vodstvo. Vendar pa le določeni mikroorganizmi omogočajo proces fermentacije. Z ustvarjanjem selektivnega okolja poskrbimo, da jim pogoji pomagajo rasti, hkrati pa je to okolje neprimerno za druge potencialno škodljive organizme. 
+
+Fermentacija pa ni le priprava hrane; je dejanje zaupanja v čas, v naravno okolje, v skupnost. Je prostor, ki ga damo nevidnemu, a vseprisotnemu življenju. Ko po dveh do treh tednih odpremo kozarce, skupaj okušamo, kako se iz rastlinja rodi živa, rahlo peneča, zelo okusna in hranljiva jed. 
 
 Pridi v oblačilih, ki jih ni strah zemlje, prinesi košček svoje zgodbe in odnesi s seboj svoj mikrokosmos v kozarcu – ter občutek, da si del večje, kislo-sladke mreže, ki se razteza čez kontinente in čas.
 
