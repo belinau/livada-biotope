@@ -2,6 +2,8 @@
 title: "Mikrovesolje v kozarcu: fermentacija"
 slug: fermentacija
 date: 2025-09-23T12:57:43.558Z
+author: Nastja Ambrožič
+image: /images/practices/hvlaxyca.jpeg
 description: >
   Na travniku Livada sobivamo z ritmi narave in raziskujemo skrite procese, ki
   ustvarjajo življenje. Postajamo soustvarjalci živega mikrovesolja: s prakso
