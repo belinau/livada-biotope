@@ -12,6 +12,12 @@ description: >
   paleto kompleksnejših okusov. Fermentirana hrana se skozi proces obogati s
   probiotičnimi mikroorganizmi, ki živijo povsod: v tleh, na rastlinah in tudi v
   naših telesih.
+tags:
+  - fermentacija
+  - tolščak
+  - divje rastline
+  - nabiralništvo
+  - probiotiki
 steps:
   - caption: >-
       Naberemo svež tolšak ter preverimo, da smo nabrali pravo rastlino. Liste
