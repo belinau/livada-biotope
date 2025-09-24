@@ -38,7 +38,7 @@ collections:
       - { label: "Avtor", name: "author", widget: "string", required: false }
       - { label: "Naslovna fotografija", name: "image", widget: "image", required: false, i18n: duplicate }
       - { label: "Kratek opis", name: "description", widget: "text", required: false, i18n: true }
-      - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true, field: { label: "Tag", name: "tag", widget: "string" } }
+      - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true, allow_add: true, default: [] }
       - label: "Vsebina"
         name: "body"
         widget: "markdown"
@@ -53,7 +53,7 @@ collections:
     fields:
       - { label: "Naslov", name: "title", widget: "string", i18n: true }
       - { label: "Datum objave", name: "date", widget: "datetime" }
-      - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true, field: { label: "Tag", name: "tag", widget: "string" } }
+      - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true, allow_add: true, default: [] }
       - { label: "Vsebina", name: "body", widget: "markdown", i18n: true }
 
   - name: "practices"
@@ -71,7 +71,7 @@ collections:
       - { label: "Avtor", name: "author", widget: "string", required: false }
       - { label: "Naslovna fotografija", name: "image", widget: "image", required: false, i18n: duplicate }
       - { label: "Kratek opis", name: "description", widget: "text", required: false, i18n: true }
-      - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true, field: { label: "Tag", name: "tag", widget: "string" } }
+      - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true, allow_add: true, default: [] }
       - name: "steps"
         label: "Koraki / Slike"
         widget: "list"
@@ -105,7 +105,7 @@ collections:
       - { label: "Avtor", name: "author", widget: "string", required: false }
       - { label: "Naslovna fotografija", name: "image", widget: "image", required: false, i18n: duplicate }
       - { label: "Kratek opis", name: "description", widget: "text", required: false, i18n: true }
-      - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true, field: { label: "Tag", name: "tag", widget: "string" } }
+      - { label: "Oznake (Tags)", name: "tags", widget: "list", required: false, i18n: true, allow_add: true, default: [] }
       - label: "Vsebina"
         name: "body"
         widget: "markdown"
