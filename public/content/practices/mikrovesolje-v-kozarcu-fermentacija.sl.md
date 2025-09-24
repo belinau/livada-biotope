@@ -57,9 +57,8 @@ steps:
       Fermentiran tolščak je lahko uporaben več mesecev. :)
     image: /images/practices/pursline.jpeg
 ---
+<!--StartFragment-->
 
-
-<!--StartFragment-->\
 Na travniku Livada sobivamo z ritmi narave in raziskujemo skrite procese, ki ustvarjajo življenje. Postajamo soustvarjalci živega mikrovesolja: s prakso fermentiranja – starodavnim biokemijskim postopkom ohranjanja živil – izboljšujemo njihovo prebavljivost, povečamo hranilno vrednost in odpiramo paleto kompleksnejših okusov. Fermentirana hrana se skozi proces obogati s probiotičnimi mikroorganizmi, ki živijo povsod: v tleh, na rastlinah in tudi v naših telesih.
 
 Tokrat smo se posvetili fermentaciji tolščaka – divje užitne rastline, ki jo večina pozna kot »plevel«. Raste povsod, tudi v mestih, kjer ga pogosto spregledamo. Nabrali smo ga, ga pomešali z zelenjavo z naših permakulturnih gredic, olupili česen, narezali plodove, dihali z vrtom, se smejali … in nato doma potrpežljivo opazovali, kako so v kozarcih začeli plesati prvi mehurčki – znak, da so mikroorganizmi prevzeli vodstvo. Vendar pa le določeni mikroorganizmi omogočajo proces fermentacije. Z ustvarjanjem selektivnega okolja poskrbimo, da jim pogoji pomagajo rasti, hkrati pa je to okolje neprimerno za druge potencialno škodljive organizme. 
