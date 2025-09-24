@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../context/LanguageContext';
 import pLimit from 'p-limit';
 import FilteredImage from './ui/FilteredImage';
+import { parse } from 'yaml';
 
 const limit = pLimit(2);
 
@@ -13,87 +14,7 @@ const PracticesHero = ({ language = 'sl' }) => {
   const [selectedTag, setSelectedTag] = useState(null);
   const { t } = useTranslation();
 
-  // Simple YAML parser for frontmatter
-  const parseYAML = useCallback((yamlString) => {
-    try {
-      const obj = {};
-      const lines = yamlString.split('\n').filter(line => line.trim() !== '');
-      let currentKey = null;
-      let currentValue = '';
-      let inArray = false;
-      
-      // Helper function to strip quotes from strings
-      const stripQuotes = (str) => {
-        if (typeof str !== 'string') return str;
-        str = str.trim();
-        if ((str.startsWith('"') && str.endsWith('"')) || 
-            (str.startsWith("'") && str.endsWith("'"))) {
-          return str.substring(1, str.length - 1);
-        }
-        return str;
-      };
-      
-      lines.forEach(line => {
-        // Skip empty lines
-        if (line.trim() === '') return;
-        
-        // Check if line starts with a dash (list item)
-        if (line.trim().startsWith('-')) {
-          // Handle array items
-          if (currentKey) {
-            if (!obj[currentKey]) {
-              obj[currentKey] = [];
-            }
-            // Strip quotes from array items
-            const itemValue = stripQuotes(line.trim().substring(1).trim());
-            obj[currentKey].push(itemValue);
-          }
-          inArray = true;
-          return;
-        }
-        
-        // Check if line has a colon (key-value pair)
-        if (line.includes(':')) {
-          // Save previous key-value pair
-          if (currentKey) {
-            if (inArray && Array.isArray(obj[currentKey])) {
-              // Keep as array
-            } else {
-              // Strip quotes from string values
-              obj[currentKey] = stripQuotes(currentValue);
-            }
-          }
-          
-          // Reset array flag
-          inArray = false;
-          
-          // Start new key-value pair
-          const [key, ...valueParts] = line.split(':');
-          currentKey = key.trim();
-          currentValue = valueParts.join(':').trim();
-        } else if (currentKey && (line.startsWith(' ') || line.startsWith('\t'))) {
-          // Multiline value continuation
-          if (!inArray) {
-            currentValue += '\n' + line.trim();
-          }
-        }
-      });
-      
-      // Save last key-value pair
-      if (currentKey) {
-        if (inArray && obj[currentKey] && Array.isArray(obj[currentKey])) {
-          // Keep as array
-        } else {
-          obj[currentKey] = stripQuotes(currentValue);
-        }
-      }
-      
-      return obj;
-    } catch (e) {
-      console.error("Error parsing YAML:", e);
-      return {};
-    }
-  }, []);
+  
 
   // Parse markdown frontmatter and content
   const parseMarkdown = useCallback((rawContent) => {
@@ -101,14 +22,14 @@ const PracticesHero = ({ language = 'sl' }) => {
       const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
       const match = frontmatterRegex.exec(rawContent);
       if (!match) return { metadata: {}, content: rawContent };
-      const metadata = parseYAML(match[1]) || {};
+      const metadata = parse(match[1]) || {};
       const content = rawContent.slice(match[0].length);
       return { metadata, content };
     } catch (e) {
       console.error("Error parsing markdown frontmatter:", e);
       return { metadata: {}, content: rawContent };
     }
-  }, [parseYAML]);
+  }, []);
 
   useEffect(() => {
     const fetchPractices = async () => {
