@@ -78,7 +78,8 @@ collections:
         required: false
         fields:
           - { label: "Slika", name: "image", widget: "image", i18n: duplicate }
-          - { label: "Napis / Navodilo", name: "caption", widget: "text", i18n: true, required: false }
+          - { label: "Napis / Navodilo (SL)", name: "caption_sl", widget: "text", required: false }
+          - { label: "Caption (EN)", name: "caption_en", widget: "text", required: false }
       - label: "Vsebina"
         name: "body"
         widget: "markdown"
