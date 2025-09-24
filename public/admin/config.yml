@@ -11,7 +11,7 @@ i18n:
   default_locale: sl
 
 # Media will be uploaded to this folder
-media_folder: "public/images/uploads"
+media_folder: "images/uploads"
 public_folder: "/images/uploads"
 
 collections:
@@ -62,7 +62,7 @@ collections:
     create: true
     slug: "{{slug}}"
     i18n: true
-    media_folder: "public/images/practices"
+    media_folder: "../images/practices"
     public_folder: "/images/practices"
     fields:
       - { label: "Naslov", name: "title", widget: "string", i18n: true }
@@ -76,10 +76,10 @@ collections:
         label: "Koraki / Slike"
         widget: "list"
         required: false
+        i18n: true
         fields:
           - { label: "Slika", name: "image", widget: "image", i18n: duplicate }
-          - { label: "Napis / Navodilo (SL)", name: "caption_sl", widget: "text", required: false }
-          - { label: "Caption (EN)", name: "caption_en", widget: "text", required: false }
+          - { label: "Napis / Navodilo", name: "caption", widget: "text", required: false, i18n: true }
       - label: "Vsebina"
         name: "body"
         widget: "markdown"
@@ -96,7 +96,7 @@ collections:
     create: true
     slug: "{{slug}}"
     i18n: true
-    media_folder: "public/images/kinships"
+    media_folder: "../images/kinships"
     public_folder: "/images/kinships"
     fields:
       - { label: "Naslov", name: "title", widget: "string", i18n: true }
