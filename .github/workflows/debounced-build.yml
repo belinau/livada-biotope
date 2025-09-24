@@ -1,0 +1,35 @@
+name: Delayed Build with Debouncing
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  trigger-build-with-delay:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait 30 minutes to allow for additional changes
+        run: sleep 1800  # Wait 30 minutes (1800 seconds)
+      
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Check for meaningful content changes
+        id: changes
+        run: |
+          # Get changes in content directories that would warrant a build
+          # Only trigger builds for changes to content, not for every small change
+          CHANGES=$(git diff --name-only HEAD~1 HEAD -- public/content/ public/images/ src/ package.json package-lock.json)
+          if [ -z "$CHANGES" ]; then
+            echo "No meaningful changes detected, skipping build trigger"
+            echo "should_build=false" >> $GITHUB_OUTPUT
+          else
+            echo "Meaningful changes detected, proceeding with build trigger"
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "Changed files:"
+            echo "$CHANGES"
+          fi
+
+      - name: Trigger Netlify Build
+        if: steps.changes.outputs.should_build == 'true'
+        run: |
+          curl -X POST -d {} https://api.netlify.com/build_hooks/68d41e703c21241e202bd359
