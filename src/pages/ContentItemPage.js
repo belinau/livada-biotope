@@ -9,6 +9,7 @@ import FilteredImage from '../components/ui/FilteredImage';
 import { processAndRenderContent, parseMarkdown } from '../shared/markdown-utils';
 import PracticeSteps from '../components/PracticeSteps';
 import MetaTags from '../components/MetaTags';
+import { normalizeImagePath } from '../utils/path-utils';
 // Import sensor components for the specific project
 import LiveSensorReadings from '../components/LiveSensorReadings';
 import HistoricalSensorVisualization from '../components/HistoricalSensorVisualization';
@@ -177,7 +178,8 @@ function ContentItemPage() {
 
     const pageTitle = item.metadata.title;
     const pageDescription = item.metadata.description || createSummary(item.content);
-    const pageImage = item.metadata.image ? `${window.location.origin}${item.metadata.image}` : null;
+    const normalizedImage = normalizeImagePath(item.metadata.image);
+    const pageImage = normalizedImage ? `${window.location.origin}${normalizedImage}` : null;
 
     return (
         <Page title={pageTitle}>
@@ -203,9 +205,9 @@ function ContentItemPage() {
                     </button>
                 </div>
                 <GlassCard className="bg-gradient-to-l from-[var(--glass-i-bg)] to-[var(--glass-bg-nav)] rounded-2xl p-6">
-                    {item.metadata.image && (
+                    {normalizedImage && (
                         <div className="mb-8 overflow-hidden rounded-lg aspect-video">
-                            <FilteredImage src={item.metadata.image} alt={item.metadata.title} className="w-full h-full object-cover" />
+                            <FilteredImage src={normalizedImage} alt={item.metadata.title} className="w-full h-full object-cover" />
                         </div>
                     )}
                     <div className="flex flex-wrap items-center gap-2 mb-2">

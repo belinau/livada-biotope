@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getOptimizedImageUrl } from '../shared/image-utils';
+import { normalizeImagePath } from '../utils/path-utils';
 import { marked } from 'marked';
 import { motion } from 'framer-motion';
 import { getGlassVariant } from './glass-theme';
@@ -15,10 +16,11 @@ const PracticeSteps = ({ steps, language, t }) => {
             const promises = steps.map(step => {
                 return new Promise(resolve => {
                     if (step.image) {
+                        const normalizedImage = normalizeImagePath(step.image);
                         const img = new Image();
-                        img.src = getOptimizedImageUrl(step.image);
+                        img.src = getOptimizedImageUrl(normalizedImage);
                         img.onload = () => {
-                            dimensions[step.image] = { width: img.width, height: img.height };
+                            dimensions[step.image] = { width: img.width, height: img.height }; // Keep original step.image as key to match with rendering
                             resolve();
                         };
                         img.onerror = () => resolve(); // resolve even if image fails to load
@@ -140,7 +142,7 @@ const PracticeStepCard = ({ step, index, language, t }) => {
                     className="absolute inset-0"
                 >
                     <img
-                        src={getOptimizedImageUrl(step.image)}
+                        src={getOptimizedImageUrl(normalizeImagePath(step.image))}
                         alt={caption || `${t('step')} ${index + 1}`}
                         className="w-full h-full object-cover rounded-lg"
                     />

@@ -12,6 +12,7 @@ import EmbeddedGallery from '../components/EmbeddedGallery';
 import Hero from '../components/Hero';
 import MetaTags from '../components/MetaTags';
 import ForOurKinForm from '../components/ForOurKinForm';
+import { normalizeImagePath } from '../utils/path-utils';
 
 const limit = pLimit(2);
 
@@ -480,7 +481,7 @@ function ContentCollectionPage({ contentPath, collection, pagePath }) {
                         {item.metadata.image ? (
                           <div className="relative w-full h-full">
                             <FilteredImage
-                              src={item.metadata.image}
+                              src={normalizeImagePath(item.metadata.image)}
                               alt={item.metadata.title}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
