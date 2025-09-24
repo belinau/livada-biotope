@@ -1,6 +1,6 @@
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
-import { parse } from 'yaml';
+import { load as yamlLoad } from 'yaml';
 import mermaid from 'mermaid';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -12,7 +12,7 @@ export const parseMarkdown = (rawContent) => {
         const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
         const match = frontmatterRegex.exec(rawContent);
         if (!match) return { metadata: {}, content: rawContent };
-        const metadata = parse(match[1]) || {};
+        const metadata = yamlLoad(match[1]) || {};
         const content = rawContent.slice(match[0].length);
         return { metadata, content };
     } catch (e) {
