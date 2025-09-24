@@ -48,10 +48,9 @@ const HistoricalSensorProvider = ({ children, startDate, endDate, onDateChange }
         }
     }, [startDate, endDate, livadaApiClient]);
 
-    // Re-fetch data when dates change
     useEffect(() => {
         fetchLongTermHistory();
-    }, [startDate, endDate, fetchLongTermHistory]);
+    }, [fetchLongTermHistory]);
 
     return (
         <HistoricalSensorContext.Provider value={{ 

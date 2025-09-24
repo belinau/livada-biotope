@@ -12,19 +12,23 @@ const BedCard = ({ bed, reading, t }) => {
             </div>
             <div className="p-3 space-y-3 flex-grow min-h-0">
                 {reading ? (
-                    <div className="space-y-3 h-full flex flex-col">
-                        <SoilMoistureWave 
-                            value={reading.moisture} 
-                            label={t('soilMoisture')} 
-                            unit="%" 
-                            lastUpdated={lastHeard}
-                        />
-                        <SoilTemperatureWave 
-                            value={reading.temperature} 
-                            label={t('soilTemp')} 
-                            unit="°C" 
-                            lastUpdated={lastHeard}
-                        />
+                    <div className="space-y-3 h-full flex flex-col min-h-[140px]">
+                        <div className="flex-grow min-h-[60px]">
+                            <SoilMoistureWave 
+                                value={reading.moisture} 
+                                label={t('soilMoisture')} 
+                                unit="%" 
+                                lastUpdated={lastHeard}
+                            />
+                        </div>
+                        <div className="flex-grow min-h-[60px]">
+                            <SoilTemperatureWave 
+                                value={reading.temperature} 
+                                label={t('soilTemp')} 
+                                unit="°C" 
+                                lastUpdated={lastHeard}
+                            />
+                        </div>
                     </div>
                 ) : (
                     <div className="flex items-center justify-center flex-grow text-[var(--text-sage)] bg-transparent rounded-lg border-2 border-dashed border-border-color">

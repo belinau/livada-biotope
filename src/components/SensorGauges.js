@@ -163,7 +163,7 @@ const WavePropagation = ({ value, label, unit = '', metricType = 'moisture', max
           <div className="text-xs text-[var(--text-sage)] font-mono hidden sm:block">{formatFullDate(lastUpdated)}</div>
         </div>
       </div>
-      <div className="relative w-full flex-grow min-h-0 rounded-lg border border-[var(--glass-border)] bg-transparent overflow-visible">
+      <div className="relative w-full flex-grow min-h-0 rounded-lg overflow-hidden border border-[var(--glass-border)] bg-transparent">
         <canvas 
           ref={canvasRef} 
           className="absolute inset-0 w-full h-full"
