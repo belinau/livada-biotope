@@ -15,7 +15,7 @@ steps:
       glino.
 
       Naredili smo mešanico gline in zemlje v razmerju 1:3. Če je mešanica suha, dodajamo vodo, dokler se zmes ne začne voljno oblikovati v kroglice.
-    image: /images/practices/img_20250508_190229.jpg
+    image: /images/practices/img_20250508_180247.jpg
   - caption: >-
       Mi smo jih poljubno okrasili s sveže nabranimi cvetovi cvetlic Livadinega
       travnika, nato smo jih položili na zračno površino (kot npr. jajčna
