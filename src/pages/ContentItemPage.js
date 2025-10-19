@@ -146,7 +146,7 @@ function ContentItemPage() {
     if (hasRenderError) {
         return (
             <Page title={t('error')}>
-                <Section title={t('error')}>
+                <Section title={t('error')}> 
                     <p className="text-center text-red-500">{t('contentRenderError')}</p>
                 </Section>
             </Page>
@@ -155,8 +155,8 @@ function ContentItemPage() {
 
     if (hasFetchError) {
         return (
-            <Page title={t('error')}>
-                <Section title={t('error')}>
+            <Page title={t('error')}> 
+                <Section title={t('error')}> 
                     <p className="text-center text-red-500">{t('contentFetchError')}</p>
                 </Section>
             </Page>
@@ -167,8 +167,8 @@ function ContentItemPage() {
     const createSummary = (markdown) => {
         if (!markdown) return '';
         const plainText = markdown
-            .replace(/![\[.*?\]].*?\)/g, '') // remove images
-            .replace(/[\[(.*?)\]]\(.*?\)/g, '$1') // remove links, keeping text
+            .replace(/!\\\[.*?\\].*?\\)/g, '') // remove images
+            .replace(/\\\[(.*?)\\\]\(.*?\\)/g, '$1') // remove links, keeping text
             .replace(/\*\*|\*|_|---/g, '') // remove bold, italic, code, hr
             .replace(/#+\s/g, '') // remove headings
             .replace(/{{\s*.*?}}\n/g, ' ') // remove shortcodes and newlines
