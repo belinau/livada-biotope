@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { ResponsiveLine } from '@nivo/line';
 import { useTranslation } from '../context/LanguageContext';
 import { BED_MAPPING } from '../lib/constants';
@@ -9,11 +9,10 @@ import { HistoricalSensorContext } from './HistoricalSensorVisualization';
 const EnhancedHistoricalGraphWithZoom = ({ 
     visibleMetrics, 
     visibleBeds,
-    onRefreshData,
     isLoading // Add isLoading prop
 }) => {
     const { t, language } = useTranslation();
-    const { history, startDate, endDate, onDateChange } = useContext(HistoricalSensorContext);
+    const { history, startDate, endDate } = useContext(HistoricalSensorContext);
     const [chartData, setChartData] = useState([]);
     const [xAxisDomain, setXAxisDomain] = useState(null);
     const [yAxisDomain, setYAxisDomain] = useState(null);
@@ -22,15 +21,6 @@ const EnhancedHistoricalGraphWithZoom = ({
         setXAxisDomain(null);
         setYAxisDomain(null);
     }, [startDate, endDate]);
-
-    const [isCustomRangeOpen, setIsCustomRangeOpen] = useState(false);
-    const [tempStartDate, setTempStartDate] = useState(formatDateForInput(startDate));
-    const [tempEndDate, setTempEndDate] = useState(formatDateForInput(endDate));
-
-    // Format dates for input fields
-    function formatDateForInput(date) {
-        return date.toISOString().split('T')[0];
-    }
 
     // Calculate date difference for tick values
     const dateDiff = useMemo(() => {
@@ -42,49 +32,6 @@ const EnhancedHistoricalGraphWithZoom = ({
         if (dateDiff <= 30) return 'every 2 days';
         return 'every 7 days';
     }, [dateDiff]);
-
-    // Simplified preset date ranges (only Last Month and Custom)
-    const presets = useMemo(() => [
-        { 
-            id: '7days', 
-            label: t('last7Days'), 
-            getRange: () => {
-                const end = new Date();
-                const start = new Date();
-                start.setDate(end.getDate() - 7);
-                return { start, end };
-            }
-        },
-        { 
-            id: '30days', 
-            label: t('last30Days'), 
-            getRange: () => {
-                const end = new Date();
-                const start = new Date();
-                start.setDate(end.getDate() - 30);
-                return { start, end };
-            }
-        }
-    ], [t]);
-
-    // Handle preset selection
-    const handlePresetSelect = (preset) => {
-        const { start, end } = preset.getRange();
-        onDateChange(start, end);
-        setIsCustomRangeOpen(false);
-    };
-
-    // Handle custom date range apply
-    const handleApplyCustomRange = () => {
-        const [startYear, startMonth, startDay] = tempStartDate.split('-').map(Number);
-        const [endYear, endMonth, endDay] = tempEndDate.split('-').map(Number);
-        
-        const start = new Date(startYear, startMonth - 1, startDay, 0, 0, 0, 0);
-        const end = new Date(endYear, endMonth - 1, endDay, 23, 59, 59, 999);
-        
-        onDateChange(start, end);
-        setIsCustomRangeOpen(false);
-    };
 
     // Nivo theme matching glassmorphic styling
     const nivoTheme = useMemo(() => {
@@ -230,173 +177,6 @@ const EnhancedHistoricalGraphWithZoom = ({
 
     const hasData = chartData.some(series => series.data.length > 1);
     
-
-    // Handle zoom in
-    const handleZoomIn = useCallback(() => {
-        if (!chartData || chartData.length === 0) return;
-        
-        if (!xAxisDomain || !yAxisDomain) {
-            // Initialize domains if not set
-            const allXValues = chartData.flatMap(series => series.data.map(d => d.x));
-            const allYValues = chartData.flatMap(series => series.data.map(d => d.y)).filter(y => y !== null);
-            
-            if (allXValues.length === 0 || allYValues.length === 0) return;
-            
-            // Sort dates properly
-            allXValues.sort((a, b) => a - b);
-            
-            const minX = allXValues[0];
-            const maxX = allXValues[allXValues.length - 1];
-            const minY = Math.min(...allYValues);
-            const maxY = Math.max(...allYValues);
-            
-            // Zoom in by 20%
-            const xRange = maxX - minX;
-            const yRange = maxY - minY;
-            const newXMin = new Date(minX.getTime() + xRange * 0.1);
-            const newXMax = new Date(maxX.getTime() - xRange * 0.1);
-            const newYMin = minY + yRange * 0.1;
-            const newYMax = maxY - yRange * 0.1;
-            
-            setXAxisDomain([newXMin, newXMax]);
-            setYAxisDomain([newYMin, newYMax]);
-        } else {
-            // Zoom in further
-            const [xMin, xMax] = xAxisDomain;
-            const [yMin, yMax] = yAxisDomain;
-            
-            // Validate that we have valid Date objects
-            if (!(xMin instanceof Date) || !(xMax instanceof Date)) return;
-            
-            const xRange = xMax - xMin;
-            const yRange = yMax - yMin;
-            const newXMin = new Date(xMin.getTime() + xRange * 0.1);
-            const newXMax = new Date(xMax.getTime() - xRange * 0.1);
-            const newYMin = yMin + yRange * 0.1;
-            const newYMax = yMax - yRange * 0.1;
-            
-            setXAxisDomain([newXMin, newXMax]);
-            setYAxisDomain([newYMin, newYMax]);
-        }
-    }, [chartData, xAxisDomain, yAxisDomain]);
-
-    // Handle zoom out
-    const handleZoomOut = useCallback(() => {
-        if (!chartData || chartData.length === 0) return;
-        if (!xAxisDomain || !yAxisDomain) return;
-        
-        const [xMin, xMax] = xAxisDomain;
-        const [yMin, yMax] = yAxisDomain;
-        
-        // Validate that we have valid Date objects
-        if (!(xMin instanceof Date) || !(xMax instanceof Date)) return;
-        
-        const xRange = xMax - xMin;
-        const yRange = yMax - yMin;
-        const newXMin = new Date(xMin.getTime() - xRange * 0.1);
-        const newXMax = new Date(xMax.getTime() + xRange * 0.1);
-        const newYMin = yMin - yRange * 0.1;
-        const newYMax = yMax + yRange * 0.1;
-        
-        // Reset to full range if we've zoomed out too far
-        const allXValues = chartData.flatMap(series => series.data.map(d => d.x));
-        const allYValues = chartData.flatMap(series => series.data.map(d => d.y)).filter(y => y !== null);
-        
-        if (allXValues.length === 0 || allYValues.length === 0) return;
-        
-        // Sort dates properly
-        allXValues.sort((a, b) => a - b);
-        
-        const minX = allXValues[0];
-        const maxX = allXValues[allXValues.length - 1];
-        const minY = Math.min(...allYValues);
-        const maxY = Math.max(...allYValues);
-        
-        const finalXMin = newXMin < minX ? minX : newXMin;
-        const finalXMax = newXMax > maxX ? maxX : newXMax;
-        const finalYMin = newYMin < minY ? minY : newYMin;
-        const finalYMax = newYMax > maxY ? maxY : newYMax;
-        
-        // If we're back to full range, reset domains to null
-        if (finalXMin <= minX && finalXMax >= maxX && finalYMin <= minY && finalYMax >= maxY) {
-            setXAxisDomain(null);
-            setYAxisDomain(null);
-        } else {
-            setXAxisDomain([finalXMin, finalXMax]);
-            setYAxisDomain([finalYMin, finalYMax]);
-        }
-    }, [chartData, xAxisDomain, yAxisDomain]);
-
-    // Handle pan left
-    const handlePanLeft = useCallback(() => {
-        if (!chartData || chartData.length === 0) return;
-        if (!xAxisDomain || !yAxisDomain) return;
-        
-        const [xMin, xMax] = xAxisDomain;
-        const [yMin, yMax] = yAxisDomain;
-        
-        // Validate that we have valid Date objects
-        if (!(xMin instanceof Date) || !(xMax instanceof Date)) return;
-        
-        const xRange = xMax - xMin;
-        const shiftAmount = xRange * 0.1;
-        
-        const newXMin = new Date(xMin.getTime() - shiftAmount);
-        const newXMax = new Date(xMax.getTime() - shiftAmount);
-        
-        // Check bounds
-        const allXValues = chartData.flatMap(series => series.data.map(d => d.x));
-        if (allXValues.length === 0) return;
-        
-        // Sort dates properly
-        allXValues.sort((a, b) => a - b);
-        
-        const minX = allXValues[0];
-        
-        if (newXMin >= minX) {
-            setXAxisDomain([newXMin, newXMax]);
-            setYAxisDomain([yMin, yMax]);
-        }
-    }, [chartData, xAxisDomain, yAxisDomain]);
-
-    // Handle pan right
-    const handlePanRight = useCallback(() => {
-        if (!chartData || chartData.length === 0) return;
-        if (!xAxisDomain || !yAxisDomain) return;
-        
-        const [xMin, xMax] = xAxisDomain;
-        const [yMin, yMax] = yAxisDomain;
-        
-        // Validate that we have valid Date objects
-        if (!(xMin instanceof Date) || !(xMax instanceof Date)) return;
-        
-        const xRange = xMax - xMin;
-        const shiftAmount = xRange * 0.1;
-        
-        const newXMin = new Date(xMin.getTime() + shiftAmount);
-        const newXMax = new Date(xMax.getTime() + shiftAmount);
-        
-        // Check bounds
-        const allXValues = chartData.flatMap(series => series.data.map(d => d.x));
-        if (allXValues.length === 0) return;
-        
-        // Sort dates properly
-        allXValues.sort((a, b) => a - b);
-        
-        const maxX = allXValues[allXValues.length - 1];
-        
-        if (newXMax <= maxX) {
-            setXAxisDomain([newXMin, newXMax]);
-            setYAxisDomain([yMin, yMax]);
-        }
-    }, [chartData, xAxisDomain, yAxisDomain]);
-
-    // Reset view to full range
-    const handleResetView = useCallback(() => {
-        setXAxisDomain(null);
-        setYAxisDomain(null);
-    }, []);
-
     return (
         <div className="w-full historical-graph-container">
             {/* Chart Container */}
@@ -464,8 +244,6 @@ const EnhancedHistoricalGraphWithZoom = ({
                     </div>
                 )}
             </div>
-            
-<></>
         </div>
     );
 };
