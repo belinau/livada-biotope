@@ -13,6 +13,7 @@ const EnhancedHistoricalGraphWithZoom = ({
 }) => {
     const { t, language } = useTranslation();
     const { history, startDate, endDate } = useContext(HistoricalSensorContext);
+    console.log('EnhancedHistoricalGraphWithZoom rendered with history:', history);
     const [chartData, setChartData] = useState([]);
     const [xAxisDomain, setXAxisDomain] = useState(null);
     const [yAxisDomain, setYAxisDomain] = useState(null);
@@ -195,6 +196,7 @@ const EnhancedHistoricalGraphWithZoom = ({
                     </div>
                 ) : hasData ? (
                     <ResponsiveLine
+                        key={`${startDate.toISOString()}-${endDate.toISOString()}`}
                         data={chartData}
                         theme={nivoTheme}
                         margin={{ top: 20, right: 30, bottom: 60, left: 80 }}
