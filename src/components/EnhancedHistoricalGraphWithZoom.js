@@ -17,6 +17,12 @@ const EnhancedHistoricalGraphWithZoom = ({
     const [chartData, setChartData] = useState([]);
     const [xAxisDomain, setXAxisDomain] = useState(null);
     const [yAxisDomain, setYAxisDomain] = useState(null);
+
+    useEffect(() => {
+        setXAxisDomain(null);
+        setYAxisDomain(null);
+    }, [startDate, endDate]);
+
     const [isCustomRangeOpen, setIsCustomRangeOpen] = useState(false);
     const [tempStartDate, setTempStartDate] = useState(formatDateForInput(startDate));
     const [tempEndDate, setTempEndDate] = useState(formatDateForInput(endDate));
