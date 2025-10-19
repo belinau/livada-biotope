@@ -12,7 +12,7 @@ import MetaTags from '../components/MetaTags';
 import { normalizeImagePath } from '../utils/path-utils';
 // Import sensor components for the specific project
 import LiveSensorReadings from '../components/LiveSensorReadings';
-import HistoricalSensorVisualization from '../components/HistoricalSensorVisualization';
+import EnhancedHistoricalVisualization from '../components/EnhancedHistoricalVisualization';
 
 const limit = pLimit(2);
 
@@ -167,11 +167,11 @@ function ContentItemPage() {
     const createSummary = (markdown) => {
         if (!markdown) return '';
         const plainText = markdown
-            .replace(/!\[.*?\].*?\)/g, '') // remove images
-            .replace(/\[(.*?)\]\(.*?\)/g, '$1') // remove links, keeping text
+            .replace(/![\[.*?\]].*?\)/g, '') // remove images
+            .replace(/[\[(.*?)\]]\(.*?\)/g, '$1') // remove links, keeping text
             .replace(/\*\*|\*|_|---/g, '') // remove bold, italic, code, hr
             .replace(/#+\s/g, '') // remove headings
-            .replace(/{{\s*.*?}}|\n/g, ' ') // remove shortcodes and newlines
+            .replace(/{{\s*.*?}}\n/g, ' ') // remove shortcodes and newlines
             .trim();
         return plainText.substring(0, 160) + (plainText.length > 160 ? '...' : '');
     };
@@ -259,7 +259,7 @@ function ContentItemPage() {
                             <LiveSensorReadings />
                         </div>
                         <div className="relative p-0 sm:p-0 rounded-2xl shadow-2xl overflow-hidden border-0 bg-transparent">
-                            <HistoricalSensorVisualization />
+                            <EnhancedHistoricalVisualization />
                         </div>
                     </div>
                 )}

@@ -3,7 +3,7 @@ import { ResponsiveLine } from '@nivo/line';
 import { useTranslation } from '../context/LanguageContext';
 import { BED_MAPPING } from '../lib/constants';
 import { SENSOR_COLORS } from '../lib/sensor-colors';
-import { HistoricalSensorContext } from './HistoricalSensorVisualization';
+import { HistoricalSensorContext } from './EnhancedHistoricalVisualization';
 
 // Enhanced Historical Graph Component with Zoom/Pan functionality
 const EnhancedHistoricalGraphWithZoom = ({ 

@@ -7,7 +7,7 @@ import DOMPurify from 'dompurify';
 import Page from '../components/layout/Page';
 import Section from '../components/layout/Section';
 import LiveSensorReadings from '../components/LiveSensorReadings';
-import HistoricalSensorVisualization from '../components/HistoricalSensorVisualization';
+import EnhancedHistoricalVisualization from '../components/EnhancedHistoricalVisualization';
 import JoinHero from '../components/JoinHero';
 import Hero from '../components/Hero';
 
@@ -174,7 +174,7 @@ function ProjectsPage() {
                             <LiveSensorReadings />
                         </div>
                         <div className="relative p-0 sm:p-0 rounded-2xl shadow-2xl overflow-hidden border-0 bg-transparent">
-                            <HistoricalSensorVisualization />
+                            <EnhancedHistoricalVisualization />
                         </div>
                     </div>
                 </Section>
@@ -206,7 +206,7 @@ function ProjectsPage() {
                             <LiveSensorReadings />
                         </div>
                         <div className="relative p-0 sm:p-0 rounded-2xl shadow-2xl overflow-hidden border-0 bg-transparent">
-                            <HistoricalSensorVisualization />
+                            <EnhancedHistoricalVisualization />
                         </div>
                     </div>
                 </Section>
