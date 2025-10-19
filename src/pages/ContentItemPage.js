@@ -168,7 +168,7 @@ function ContentItemPage() {
         if (!markdown) return '';
         const plainText = markdown
             .replace(/!\\\[.*?\\].*?\\)/g, '') // remove images
-            .replace(/\\\[(.*?)\\\]\(.*?\\)/g, '$1') // remove links, keeping text
+            .replace(/\\\\[(.*?)\\\]\(.*?\\)/g, '$1') // remove links, keeping text
             .replace(/\*\*|\*|_|---/g, '') // remove bold, italic, code, hr
             .replace(/#+\s/g, '') // remove headings
             .replace(/{{\s*.*?}}\n/g, ' ') // remove shortcodes and newlines
