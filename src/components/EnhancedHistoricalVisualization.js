@@ -10,7 +10,19 @@ import DateRangeControls from './DateRangeControls'; // Import DateRangeControls
 // Define HistoricalSensorContext and HistoricalSensorProvider here
 const HistoricalSensorContext = createContext();
 
-const HistoricalSensorProvider = ({ children, startDate, endDate, onDateChange }) => {
+const HistoricalSensorProvider = ({ children }) => {
+    const initialEndDate = new Date();
+    const initialStartDate = new Date();
+    initialStartDate.setDate(initialEndDate.getDate() - 7);
+
+    const [startDate, setStartDate] = useState(initialStartDate);
+    const [endDate, setEndDate] = useState(initialEndDate);
+
+    const handleDateChange = (newStartDate, newEndDate) => {
+        setStartDate(newStartDate);
+        setEndDate(newEndDate);
+    };
+
     const [sensorHistory, setSensorHistory] = useState(null);
     const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
     const [lastUpdated, setLastUpdated] = useState(null);
@@ -61,7 +73,7 @@ const HistoricalSensorProvider = ({ children, startDate, endDate, onDateChange }
             refreshData: fetchLongTermHistory,
             startDate,
             endDate,
-            onDateChange,
+            onDateChange: handleDateChange,
             granularity,
             setGranularity
         }}>
@@ -284,26 +296,8 @@ const HistoricalSensorContent = () => {
 };
 
 export default function EnhancedHistoricalVisualization() {
-    // Initialize startDate to 7 days ago and endDate to today
-    const initialEndDate = new Date();
-    const initialStartDate = new Date();
-    initialStartDate.setDate(initialEndDate.getDate() - 7);
-
-    const [startDate, setStartDate] = useState(initialStartDate);
-    const [endDate, setEndDate] = useState(initialEndDate);
-
-    // Handle date changes from child components
-    const handleDateChange = (newStartDate, newEndDate) => {
-        setStartDate(newStartDate);
-        setEndDate(newEndDate);
-    };
-
     return (
-        <HistoricalSensorProvider 
-            startDate={startDate} 
-            endDate={endDate} 
-            onDateChange={handleDateChange}
-        >
+        <HistoricalSensorProvider>
             <HistoricalSensorContent />
         </HistoricalSensorProvider>
     );
