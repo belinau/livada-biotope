@@ -5,6 +5,7 @@ import { SENSOR_COLORS } from '../lib/sensor-colors';
 import LivadaAPIClient from '../shared/api-client';
 import { transformApiData } from '../shared/sensor-utils';
 import EnhancedHistoricalGraphWithZoom from './EnhancedHistoricalGraphWithZoom';
+import DateRangeControls from './DateRangeControls'; // Import DateRangeControls
 
 // Define HistoricalSensorContext and HistoricalSensorProvider here
 const HistoricalSensorContext = createContext();
@@ -76,7 +77,10 @@ const HistoricalSensorContent = () => {
         lastUpdated, 
         refreshData, 
         granularity,
-        setGranularity
+        setGranularity,
+        startDate,
+        endDate,
+        onDateChange
     } = useContext(HistoricalSensorContext);
     
     const [visibleMetrics, setVisibleMetrics] = useState({
@@ -156,6 +160,16 @@ const HistoricalSensorContent = () => {
                         <span className="text-xs font-medium">{isLoading ? t('loading') : t('refreshData')}</span>
                     </button>
                 </div>
+            </div>
+
+            <div className="mb-6">
+                <DateRangeControls
+                    startDate={startDate}
+                    endDate={endDate}
+                    onDateChange={onDateChange}
+                    granularity={granularity}
+                    onGranularityChange={setGranularity}
+                />
             </div>
 
             {/* Unified Filter Panel */}

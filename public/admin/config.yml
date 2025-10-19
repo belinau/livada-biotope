@@ -11,7 +11,7 @@ i18n:
   default_locale: sl
 
 # Media will be uploaded to this folder
-media_folder: "images/uploads"
+media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
 
 collections:
@@ -62,7 +62,7 @@ collections:
     create: true
     slug: "{{slug}}"
     i18n: true
-    media_folder: "../images/practices"
+    media_folder: "public/images/practices"
     public_folder: "/images/practices"
     fields:
       - { label: "Naslov", name: "title", widget: "string", i18n: true }
@@ -96,7 +96,7 @@ collections:
     create: true
     slug: "{{slug}}"
     i18n: true
-    media_folder: "../images/kinships"
+    media_folder: "public/images/kinships"
     public_folder: "/images/kinships"
     fields:
       - { label: "Naslov", name: "title", widget: "string", i18n: true }
