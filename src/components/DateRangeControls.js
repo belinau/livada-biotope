@@ -35,6 +35,26 @@ const DateRangeControls = ({
                 start.setDate(end.getDate() - 30);
                 return { start, end };
             }
+        },
+        { 
+            id: '90days', 
+            label: t('last90Days'), 
+            getRange: () => {
+                const end = new Date();
+                const start = new Date();
+                start.setDate(end.getDate() - 90);
+                return { start, end };
+            }
+        },
+        { 
+            id: '6months', 
+            label: t('last6Months'), 
+            getRange: () => {
+                const end = new Date();
+                const start = new Date();
+                start.setMonth(end.getMonth() - 6);
+                return { start, end };
+            }
         }
     ], [t]);
 
@@ -95,6 +115,7 @@ const DateRangeControls = ({
                         onChange={(e) => onGranularityChange(e.target.value)}
                         className="px-3 py-2 bg-[var(--glass-bg)] text-text-main border border-[var(--glass-border)] rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all text-sm"
                     >
+                        <option value="raw">{t('raw')}</option>
                         <option value="hourly">{t('hourly')}</option>
                         <option value="daily">{t('daily')}</option>
                         <option value="weekly">{t('weekly')}</option>

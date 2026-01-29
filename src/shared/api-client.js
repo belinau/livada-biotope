@@ -61,7 +61,7 @@ class LivadaAPIClient {
         return this._fetch('/telemetry/live');
     }
 
-    async getHistoryTelemetry(startDate, endDate) {
+    async getHistoryTelemetry(startDate, endDate, granularity) {
         // Use the correct historical telemetry endpoint
         let endpoint = '/telemetry/history';
         const params = new URLSearchParams();
@@ -70,6 +70,9 @@ class LivadaAPIClient {
         }
         if (endDate) {
             params.append('end_date', endDate.toISOString().split('T')[0]);
+        }
+        if (granularity) {
+            params.append('granularity', granularity);
         }
         if (params.toString()) {
             endpoint += `?${params.toString()}`;

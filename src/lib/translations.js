@@ -131,6 +131,8 @@ export const translations = {
         // Graph interface translations
         last7Days: 'Zadnjih 7 dni',
         last30Days: 'Zadnjih 30 dni',
+        last90Days: 'Zadnjih 90 dni',
+        last6Months: 'Zadnjih 6 mesecev',
         customRange: 'Po meri',
         startDate: 'Začetni datum',
         endDate: 'Končni datum',
@@ -150,6 +152,7 @@ export const translations = {
         soilTemperatureFull: 'Temperatura prsti',
         airTemperatureFull: 'Temperatura zraka',
         airHumidityFull: 'Vlaga v zraku',
+        raw: 'Surovi',
         // Bluesky translations
         followOnBluesky: 'Sledi nam na Bluesky',
         // Form translations
@@ -297,12 +300,15 @@ export const translations = {
         // Graph interface translations
         last7Days: 'Last 7 days',
         last30Days: 'Last 30 days',
+        last90Days: 'Last 90 days',
+        last6Months: 'Last 6 months',
         customRange: 'Custom range',
         granularity: 'Granularity',
         startDate: 'Start date',
         endDate: 'End date',
         days: 'days',
         refresh: 'Refresh',
+        raw: 'Raw',
         hourly: 'Hourly',
         daily: 'Daily',
         weekly: 'Weekly',

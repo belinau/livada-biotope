@@ -17,7 +17,10 @@ export const SensorProvider = ({ children }) => {
     const fetchHistory = useCallback(async () => {
         setStatus({ key: 'loading', type: 'connecting' });
         try {
-            const response = await livadaApiClient.getHistoryTelemetry();
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(endDate.getDate() - 1); // Fetch last 24 hours for the main context
+            const response = await livadaApiClient.getHistoryTelemetry(startDate, endDate, 'hourly');
             
             // Check if response has data property
             const rawData = response.data || response;

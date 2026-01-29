@@ -23,7 +23,21 @@ const HistoricalSensorProvider = ({ children, startDate, endDate, onDateChange }
     const fetchLongTermHistory = useCallback(async () => {
         setStatus({ key: 'loading', type: 'connecting' });
         try {
-            const response = await livadaApiClient.getHistoryTelemetry(startDate, endDate);
+            // Smart granularity selection
+            const diffDays = (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24);
+            let selectedGranularity = 'daily'; // Default
+            if (diffDays <= 1) {
+                selectedGranularity = 'raw'; // Raw for 1 day or less
+            } else if (diffDays <= 7) {
+                selectedGranularity = 'hourly'; // Hourly for up to a week
+            } else if (diffDays > 90) {
+                selectedGranularity = 'weekly'; // Weekly for over 3 months
+            }
+
+            // The user's choice from the UI overrides the automatic selection
+            const finalGranularity = granularity || selectedGranularity;
+
+            const response = await livadaApiClient.getHistoryTelemetry(startDate, endDate, finalGranularity);
             
             // Check if response has data property
             const rawData = response.data || response;
@@ -47,7 +61,7 @@ const HistoricalSensorProvider = ({ children, startDate, endDate, onDateChange }
             setStatus({ key: 'fetchError', type: 'error' });
             setSensorHistory({});
         }
-    }, [startDate, endDate, livadaApiClient]);
+    }, [startDate, endDate, livadaApiClient, granularity]);
 
     useEffect(() => {
         fetchLongTermHistory();
@@ -287,7 +301,7 @@ export default function EnhancedHistoricalVisualization() {
     // Initialize startDate to 7 days ago and endDate to today
     const initialEndDate = new Date();
     const initialStartDate = new Date();
-    initialStartDate.setDate(initialEndDate.getDate() - 7);
+    initialStartDate.setDate(initialEndDate.getDate() - 30);
 
     const [startDate, setStartDate] = useState(initialStartDate);
     const [endDate, setEndDate] = useState(initialEndDate);
