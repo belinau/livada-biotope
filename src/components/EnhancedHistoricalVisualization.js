@@ -42,20 +42,28 @@ const HistoricalSensorProvider = ({ children, startDate, endDate, onDateChange }
             // Check if response has data property
             const rawData = response.data || response;
             
-            const transformedData = transformApiData(rawData);
-            
-            const processedHistory = {};
-            for (const key in transformedData) {
-                if (Array.isArray(transformedData[key])) {
-                    processedHistory[key] = transformedData[key].map(point => ({
-                        ...point,
-                        x: new Date(point.x)
-                    }));
+            console.log("Raw history data from API:", rawData);
+
+            try {
+                const transformedData = transformApiData(rawData);
+                
+                const processedHistory = {};
+                for (const key in transformedData) {
+                    if (Array.isArray(transformedData[key])) {
+                        processedHistory[key] = transformedData[key].map(point => ({
+                            ...point,
+                            x: new Date(point.x)
+                        }));
+                    }
                 }
+                setSensorHistory(processedHistory);
+                setStatus({ key: 'dataUpdated', type: 'success' });
+                setLastUpdated(new Date());
+            } catch (error) {
+                console.error("Error processing historical data:", error);
+                setStatus({ key: 'processingError', type: 'error', message: error.message });
+                setSensorHistory({});
             }
-            setSensorHistory(processedHistory);
-            setStatus({ key: 'dataUpdated', type: 'success' });
-            setLastUpdated(new Date());
         } catch (error) {
             console.error("Could not fetch long term history:", error.message || error);
             setStatus({ key: 'fetchError', type: 'error' });
@@ -116,6 +124,7 @@ const HistoricalSensorContent = () => {
     const isLoading = status.key === 'loading';
 
     const getStatusMessage = () => {
+        if (status.key === 'processingError') return t('processingError');
         if (status.type === 'error') return t('fetchError');
         if (status.type === 'success') return `${t('dataUpdated')} (${lastUpdated?.toLocaleTimeString()})`;
         return `${t('loading')}...`;

@@ -4,6 +4,10 @@ export const transformApiData = (apiData) => {
     if (!apiData) {
         return {};
     }
+
+    if (typeof apiData !== 'object' || Array.isArray(apiData) || apiData === null) {
+        throw new Error('Unexpected API data format: expected an object of nodes.');
+    }
     
     const transformed = {};
 
