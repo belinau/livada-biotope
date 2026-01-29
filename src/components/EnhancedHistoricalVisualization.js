@@ -7,46 +7,52 @@ import { transformApiData } from '../shared/sensor-utils';
 import EnhancedHistoricalGraphWithZoom from './EnhancedHistoricalGraphWithZoom';
 import DateRangeControls from './DateRangeControls'; // Import DateRangeControls
 
-// Define HistoricalSensorContext and HistoricalSensorProvider here
+// Define HistoricalSensorContext
 const HistoricalSensorContext = createContext();
 
-const HistoricalSensorProvider = ({ children, startDate, endDate, onDateChange }) => {
+// Create a new, self-contained provider
+const HistoricalSensorProvider = ({ children }) => {
     const [sensorHistory, setSensorHistory] = useState(null);
     const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
     const [lastUpdated, setLastUpdated] = useState(null);
     const [granularity, setGranularity] = useState('daily');
+    
+    // State for date range is now managed inside the provider
+    const initialEndDate = new Date();
+    const initialStartDate = new Date();
+    initialStartDate.setDate(initialEndDate.getDate() - 30);
+    const [startDate, setStartDate] = useState(initialStartDate);
+    const [endDate, setEndDate] = useState(initialEndDate);
 
-    // Use environment variable in development, /api proxy in production
+    // The date change handler is also inside the provider
+    const handleDateChange = (newStartDate, newEndDate) => {
+        setStartDate(newStartDate);
+        setEndDate(newEndDate);
+    };
+
     const apiUrl = process.env.REACT_APP_PI_API_URL || '/api';
     const livadaApiClient = useMemo(() => new LivadaAPIClient(apiUrl), [apiUrl]);
 
     const fetchLongTermHistory = useCallback(async () => {
+        if (!startDate || !endDate) return; // Don't fetch if dates are not set
+
         setStatus({ key: 'loading', type: 'connecting' });
         try {
-            // Smart granularity selection
             const diffDays = (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24);
-            let selectedGranularity = 'daily'; // Default
-            if (diffDays <= 1) {
-                selectedGranularity = 'raw'; // Raw for 1 day or less
-            } else if (diffDays <= 7) {
-                selectedGranularity = 'hourly'; // Hourly for up to a week
-            } else if (diffDays > 90) {
-                selectedGranularity = 'weekly'; // Weekly for over 3 months
-            }
+            let selectedGranularity = 'daily';
+            if (diffDays <= 1) selectedGranularity = 'raw';
+            else if (diffDays <= 7) selectedGranularity = 'hourly';
+            else if (diffDays > 90) selectedGranularity = 'weekly';
 
-            // The user's choice from the UI overrides the automatic selection
             const finalGranularity = granularity || selectedGranularity;
 
             const response = await livadaApiClient.getHistoryTelemetry(startDate, endDate, finalGranularity);
-            
-            // Check if response has data property
             const rawData = response.data || response;
             
             console.log("Raw history data from API:", rawData);
 
             try {
                 const transformedData = transformApiData(rawData);
-                
                 const processedHistory = {};
                 for (const key in transformedData) {
                     if (Array.isArray(transformedData[key])) {
@@ -75,22 +81,26 @@ const HistoricalSensorProvider = ({ children, startDate, endDate, onDateChange }
         fetchLongTermHistory();
     }, [fetchLongTermHistory]);
 
+    // The context now provides the dates and the handler function directly
+    const contextValue = {
+        history: sensorHistory,
+        status,
+        lastUpdated,
+        refreshData: fetchLongTermHistory,
+        startDate,
+        endDate,
+        onDateChange: handleDateChange, // Pass the internal handler
+        granularity,
+        setGranularity
+    };
+
     return (
-        <HistoricalSensorContext.Provider value={{ 
-            history: sensorHistory, 
-            status, 
-            lastUpdated, 
-            refreshData: fetchLongTermHistory,
-            startDate,
-            endDate,
-            onDateChange,
-            granularity,
-            setGranularity
-        }}>
+        <HistoricalSensorContext.Provider value={contextValue}>
             {children}
         </HistoricalSensorContext.Provider>
     );
 };
+
 
 const HistoricalSensorContent = () => {
     const { t } = useTranslation();
@@ -306,27 +316,10 @@ const HistoricalSensorContent = () => {
     );
 };
 
+// The main export is now a much simpler component
 export default function EnhancedHistoricalVisualization() {
-    // Initialize startDate to 7 days ago and endDate to today
-    const initialEndDate = new Date();
-    const initialStartDate = new Date();
-    initialStartDate.setDate(initialEndDate.getDate() - 30);
-
-    const [startDate, setStartDate] = useState(initialStartDate);
-    const [endDate, setEndDate] = useState(initialEndDate);
-
-    // Handle date changes from child components
-    const handleDateChange = (newStartDate, newEndDate) => {
-        setStartDate(newStartDate);
-        setEndDate(newEndDate);
-    };
-
     return (
-        <HistoricalSensorProvider 
-            startDate={startDate} 
-            endDate={endDate} 
-            onDateChange={handleDateChange}
-        >
+        <HistoricalSensorProvider>
             <HistoricalSensorContent />
         </HistoricalSensorProvider>
     );
