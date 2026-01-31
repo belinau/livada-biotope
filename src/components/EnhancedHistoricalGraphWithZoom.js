@@ -197,8 +197,8 @@ const EnhancedHistoricalGraphWithZoom = ({
                                             xScale={{
                                                 type: 'time',
                                                 format: 'native',
-                                                min: 'auto',
-                                                max: 'auto',
+                                                min: startDate,
+                                                max: endDate,
                                             }}
                                             yScale={{
                                                 type: 'linear',
