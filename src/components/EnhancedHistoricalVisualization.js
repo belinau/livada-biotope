@@ -36,6 +36,7 @@ const HistoricalSensorProvider = ({ children }) => {
     const fetchLongTermHistory = useCallback(async () => {
         if (!startDate || !endDate) return; // Don't fetch if dates are not set
 
+        setSensorHistory(null); // Clear old data immediately
         setStatus({ key: 'loading', type: 'connecting' });
         try {
             const diffDays = (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24);
