@@ -14,15 +14,8 @@ const EnhancedHistoricalGraphWithZoom = ({
     const { history, startDate, endDate, status } = useContext(HistoricalSensorContext);
     console.log('EnhancedHistoricalGraphWithZoom rendered with history:', history);
     const [chartData, setChartData] = useState([]);
-    const [xAxisDomain, setXAxisDomain] = useState(null);
-    const [yAxisDomain, setYAxisDomain] = useState(null);
 
     const isLoading = status.key === 'loading';
-
-    useEffect(() => {
-        setXAxisDomain(null);
-        setYAxisDomain(null);
-    }, [startDate, endDate]);
 
     // Calculate date difference for tick values
     const dateDiff = useMemo(() => {
