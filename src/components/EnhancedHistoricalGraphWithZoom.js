@@ -116,10 +116,7 @@ const EnhancedHistoricalGraphWithZoom = ({
 
     // Process history data into chart format
     useEffect(() => {
-        if (!history) {
-            setChartData([]);
-            return;
-        }
+        if (!history) return;
 
         const newChartData = [];
         const processDataPoint = (item) => ({ 
@@ -200,8 +197,8 @@ const EnhancedHistoricalGraphWithZoom = ({
                                             xScale={{
                                                 type: 'time',
                                                 format: 'native',
-                                                min: startDate,
-                                                max: endDate,
+                                                min: 'auto',
+                                                max: 'auto',
                                             }}
                                             yScale={{
                                                 type: 'linear',
