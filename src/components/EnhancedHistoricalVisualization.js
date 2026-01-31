@@ -15,7 +15,7 @@ const HistoricalSensorProvider = ({ children }) => {
     const [sensorHistory, setSensorHistory] = useState(null);
     const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
     const [lastUpdated, setLastUpdated] = useState(null);
-    const [granularity, setGranularity] = useState('daily');
+    const [granularity, setGranularity] = useState(null);
     
     // State for date range is now managed inside the provider
     const initialEndDate = new Date();
@@ -28,6 +28,7 @@ const HistoricalSensorProvider = ({ children }) => {
     const handleDateChange = (newStartDate, newEndDate) => {
         setStartDate(newStartDate);
         setEndDate(newEndDate);
+        setGranularity(null); // Reset granularity to allow auto-detection
     };
 
     const apiUrl = process.env.REACT_APP_PI_API_URL || '/api';

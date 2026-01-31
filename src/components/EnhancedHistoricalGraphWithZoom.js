@@ -116,7 +116,10 @@ const EnhancedHistoricalGraphWithZoom = ({
 
     // Process history data into chart format
     useEffect(() => {
-        if (!history) return;
+        if (!history) {
+            setChartData([]);
+            return;
+        }
 
         const newChartData = [];
         const processDataPoint = (item) => ({ 
