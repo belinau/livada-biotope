@@ -15,7 +15,7 @@ const HistoricalSensorProvider = ({ children }) => {
     const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
     const [lastUpdated, setLastUpdated] = useState(null);
     const [granularity, setGranularity] = useState(null);
-    
+
     const initialEndDate = new Date();
     const initialStartDate = new Date();
     initialStartDate.setDate(initialEndDate.getDate() - 30);
@@ -30,20 +30,35 @@ const HistoricalSensorProvider = ({ children }) => {
 
         setSensorHistory(null);
         setStatus({ key: 'loading', type: 'connecting' });
-        
+
         try {
             const diffDays = (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24);
             let selectedGranularity = 'daily';
             if (diffDays <= 1) selectedGranularity = 'raw';
             else if (diffDays <= 7) selectedGranularity = 'hourly';
-            else if (diffDays > 90) selectedGranularity = 'weekly';
+            else if (diffDays > 90) selectedGranularity = 'weekly';  // This might not be supported by API
 
             const finalGranularity = granularity || selectedGranularity;
 
             console.log('Fetching history:', { startDate, endDate, diffDays, finalGranularity });
 
-            const response = await livadaApiClient.getHistoryTelemetry(startDate, endDate, finalGranularity);
-            const rawData = response.data || response;
+            let response;
+            let rawData;
+
+            try {
+                response = await livadaApiClient.getHistoryTelemetry(startDate, endDate, finalGranularity);
+                rawData = response.data || response;
+            } catch (apiError) {
+                // If the API doesn't support the requested granularity (e.g., 'weekly'),
+                // fall back to 'daily' granularity
+                if ((apiError.message || '').includes('400') || finalGranularity === 'weekly') {
+                    console.warn(`Granularity '${finalGranularity}' not supported, falling back to 'daily'`);
+                    response = await livadaApiClient.getHistoryTelemetry(startDate, endDate, 'daily');
+                    rawData = response.data || response;
+                } else {
+                    throw apiError; // Re-throw if it's a different error
+                }
+            }
 
             try {
                 const transformedData = transformApiData(rawData);
@@ -104,17 +119,17 @@ const HistoricalSensorProvider = ({ children }) => {
 
 const HistoricalSensorContent = () => {
     const { t } = useTranslation();
-    const { 
-        status, 
-        lastUpdated, 
-        refreshData, 
+    const {
+        status,
+        lastUpdated,
+        refreshData,
         granularity,
         setGranularity,
         startDate,
         endDate,
         onDateChange
     } = useContext(HistoricalSensorContext);
-    
+
     const [visibleMetrics, setVisibleMetrics] = useState({
         moisture: true,
         temperature: true,
@@ -138,7 +153,7 @@ const HistoricalSensorContent = () => {
         if (status.type === 'success') return `${t('dataUpdated')} (${lastUpdated?.toLocaleTimeString()})`;
         return `${t('loading')}...`;
     };
-    
+
     const toggleMetric = (metric) => {
         setVisibleMetrics(prev => ({
             ...prev,
@@ -237,14 +252,14 @@ const HistoricalSensorContent = () => {
                                             : 'bg-[var(--glass-bg-nav)] text-text-main border-[var(--glass-border)] hover:bg-primary/30'
                                     }`}
                                     style={{
-                                        background: visibleMetrics[metric.id] 
-                                            ? `linear-gradient(135deg, ${metric.color}, ${metric.color}dd)` 
+                                        background: visibleMetrics[metric.id]
+                                            ? `linear-gradient(135deg, ${metric.color}, ${metric.color}dd)`
                                             : undefined
                                     }}
                                 >
-                                    <span 
+                                    <span
                                         className="w-2 h-2 rounded-full"
-                                        style={{ 
+                                        style={{
                                             backgroundColor: visibleMetrics[metric.id] ? 'white' : metric.color,
                                             opacity: visibleMetrics[metric.id] ? 1 : 0.7
                                         }}
@@ -254,7 +269,7 @@ const HistoricalSensorContent = () => {
                             ))}
                         </div>
                     </div>
-                    
+
                     {/* Bed Filters */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3">
                         <h4 className="text-text-main font-medium text-sm">{t('bedFilters')}:</h4>
@@ -275,14 +290,14 @@ const HistoricalSensorContent = () => {
                                             : 'bg-[var(--glass-bg-nav)] text-text-main border-[var(--glass-border)] hover:bg-primary/30'
                                     }`}
                                     style={{
-                                        background: visibleBeds[bedId] 
-                                            ? `linear-gradient(135deg, ${bed.color}, ${bed.color}dd)` 
+                                        background: visibleBeds[bedId]
+                                            ? `linear-gradient(135deg, ${bed.color}, ${bed.color}dd)`
                                             : undefined
                                     }}
                                 >
-                                    <span 
+                                    <span
                                         className="w-2 h-2 rounded-full"
-                                        style={{ 
+                                        style={{
                                             backgroundColor: visibleBeds[bedId] ? 'white' : bed.color,
                                             opacity: visibleBeds[bedId] ? 1 : 0.7
                                         }}
@@ -298,7 +313,7 @@ const HistoricalSensorContent = () => {
             {/* Enhanced Historical Graph */}
             <div className="mt-6">
                 <div className="border-t-2 border-[var(--glass-border)] rounded-2xl overflow-hidden">
-                    <EnhancedHistoricalGraphWithZoom 
+                    <EnhancedHistoricalGraphWithZoom
                         visibleMetrics={visibleMetrics}
                         visibleBeds={visibleBeds}
                     />
