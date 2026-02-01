@@ -5,19 +5,16 @@ import { BED_MAPPING } from '../lib/constants';
 import { SENSOR_COLORS } from '../lib/sensor-colors';
 import { HistoricalSensorContext } from './EnhancedHistoricalVisualization';
 
-// Enhanced Historical Graph Component with Zoom/Pan functionality
 const EnhancedHistoricalGraphWithZoom = ({ 
     visibleMetrics, 
     visibleBeds
 }) => {
     const { t, language } = useTranslation();
     const { history, startDate, endDate, status } = useContext(HistoricalSensorContext);
-    console.log('EnhancedHistoricalGraphWithZoom rendered with history:', history);
     const [chartData, setChartData] = useState([]);
 
     const isLoading = status.key === 'loading';
 
-    // Calculate date difference for tick values
     const dateDiff = useMemo(() => {
         return Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
     }, [startDate, endDate]);
@@ -28,56 +25,55 @@ const EnhancedHistoricalGraphWithZoom = ({
         return 'every 7 days';
     }, [dateDiff]);
 
-    // Nivo theme matching glassmorphic styling
     const nivoTheme = useMemo(() => {
         if (typeof window === 'undefined') return {};
         const style = getComputedStyle(document.documentElement);
         return {
             background: 'transparent',
-            textColor: style.getPropertyValue('--text-main'),
+            textColor: style.getPropertyValue('--text-main') || '#ffffff',
             fontSize: 12,
             axis: {
                 domain: {
                     line: {
-                        stroke: style.getPropertyValue('--glass-border'),
+                        stroke: style.getPropertyValue('--glass-border') || '#ffffff33',
                         strokeWidth: 1
                     }
                 },
                 ticks: {
                     line: {
-                        stroke: style.getPropertyValue('--glass-border'),
+                        stroke: style.getPropertyValue('--glass-border') || '#ffffff33',
                         strokeWidth: 1
                     },
                     text: {
-                        fill: style.getPropertyValue('--text-muted'),
+                        fill: style.getPropertyValue('--text-muted') || '#ffffffaa',
                         fontSize: 11
                     }
                 },
                 legend: {
                     text: {
-                        fill: style.getPropertyValue('--text-main'),
+                        fill: style.getPropertyValue('--text-main') || '#ffffff',
                         fontSize: 12
                     }
                 }
             },
             grid: {
                 line: {
-                    stroke: style.getPropertyValue('--glass-border'),
+                    stroke: style.getPropertyValue('--glass-border') || '#ffffff33',
                     strokeWidth: 1,
                     strokeDasharray: '2 2'
                 }
             },
             legends: {
                 text: {
-                    fill: style.getPropertyValue('--text-main'),
+                    fill: style.getPropertyValue('--text-main') || '#ffffff',
                     fontSize: 12
                 }
             },
             tooltip: {
                 container: {
-                    background: style.getPropertyValue('--glass-bg'),
-                    color: style.getPropertyValue('--text-main'),
-                    border: `1px solid ${style.getPropertyValue('--glass-border')}`,
+                    background: style.getPropertyValue('--glass-bg') || '#1a1a2e',
+                    color: style.getPropertyValue('--text-main') || '#ffffff',
+                    border: `1px solid ${style.getPropertyValue('--glass-border') || '#ffffff33'}`,
                     borderRadius: '12px',
                     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
                 }
@@ -85,7 +81,6 @@ const EnhancedHistoricalGraphWithZoom = ({
         };
     }, []);
 
-    // Custom tooltip component with crosshair functionality
     const CustomTooltip = ({ point }) => {
         const date = new Date(point.data.x);
         const formattedDate = date.toLocaleString(language, {
@@ -114,137 +109,150 @@ const EnhancedHistoricalGraphWithZoom = ({
         );
     };
 
-    // Process history data into chart format
     useEffect(() => {
-        if (!history) {
+        if (!history || typeof history !== 'object') {
             setChartData([]);
             return;
         }
 
         const newChartData = [];
-        const processDataPoint = (item) => ({ 
-            x: new Date(item.x), 
-            y: typeof item.y === 'number' && !isNaN(item.y) ? item.y : null 
-        });
-
-        // Process bed data
-        for (const historyKey in history) {
-            if (Array.isArray(history[historyKey]) && history[historyKey].length > 0) {
-                const seriesData = history[historyKey].map(processDataPoint);
-                const bedId = historyKey.substring(0, historyKey.lastIndexOf('-'));
-                const metricType = historyKey.substring(historyKey.lastIndexOf('-') + 1);
-
-                const bedInfo = BED_MAPPING[bedId];
-                if (bedInfo) {
-                    // Check if both the metric and bed are visible
-                    const isMetricVisible = visibleMetrics[metricType];
-                    const isBedVisible = visibleBeds ? visibleBeds[bedId] : true;
-                    
-                    if (isMetricVisible && isBedVisible) {
-                        // Use unified color mapping
-                        const color = SENSOR_COLORS[metricType]?.line || '#76e4f7';
-                        newChartData.push({
-                            id: `${bedInfo.name} - ${t(metricType)}`,
-                            color: color,
-                            data: seriesData
-                        });
-                    }
-                }
-            }
-        }
-
-        // Process air data (always visible if metric is visible, not tied to specific beds)
-        if (visibleMetrics.airHumidity && history.airHumidity?.length > 0) {
-            newChartData.push({
-                id: t('airHumidity'),
-                color: SENSOR_COLORS.airHumidity.line,
-                data: history.airHumidity.map(processDataPoint)
-            });
-        }
         
-        if (visibleMetrics.airTemperature && history.airTemperature?.length > 0) {
-            newChartData.push({
-                id: t('airTemp'),
-                color: SENSOR_COLORS.airTemperature.line,
-                data: history.airTemperature.map(processDataPoint)
-            });
-        }
+        // Process each key in history
+        Object.keys(history).forEach(historyKey => {
+            const dataArray = history[historyKey];
+            
+            if (!Array.isArray(dataArray) || dataArray.length === 0) {
+                return;
+            }
+
+            // Check if this is air data (airHumidity, airTemperature)
+            if (historyKey === 'airHumidity' && visibleMetrics.airHumidity) {
+                newChartData.push({
+                    id: t('airHumidity'),
+                    color: SENSOR_COLORS.airHumidity?.line || '#00bcd4',
+                    data: dataArray.map(item => ({
+                        x: new Date(item.x),
+                        y: typeof item.y === 'number' && !isNaN(item.y) ? item.y : null
+                    }))
+                });
+                return;
+            }
+            
+            if (historyKey === 'airTemperature' && visibleMetrics.airTemperature) {
+                newChartData.push({
+                    id: t('airTemp'),
+                    color: SENSOR_COLORS.airTemperature?.line || '#ff9800',
+                    data: dataArray.map(item => ({
+                        x: new Date(item.x),
+                        y: typeof item.y === 'number' && !isNaN(item.y) ? item.y : null
+                    }))
+                });
+                return;
+            }
+
+            // Process bed data (format: bedId-metricType)
+            const lastDashIndex = historyKey.lastIndexOf('-');
+            if (lastDashIndex === -1) return;
+
+            const bedId = historyKey.substring(0, lastDashIndex);
+            const metricType = historyKey.substring(lastDashIndex + 1);
+
+            const bedInfo = BED_MAPPING[bedId];
+            if (!bedInfo) return;
+
+            const isMetricVisible = visibleMetrics[metricType];
+            const isBedVisible = visibleBeds?.[bedId] !== false;
+
+            if (isMetricVisible && isBedVisible) {
+                const color = SENSOR_COLORS[metricType]?.line || '#76e4f7';
+                newChartData.push({
+                    id: `${bedInfo.name} - ${t(metricType)}`,
+                    color: color,
+                    data: dataArray.map(item => ({
+                        x: new Date(item.x),
+                        y: typeof item.y === 'number' && !isNaN(item.y) ? item.y : null
+                    }))
+                });
+            }
+        });
 
         setChartData(newChartData);
     }, [history, visibleMetrics, visibleBeds, t]);
 
-    const hasData = chartData.some(series => series.data && series.data.length > 0);
+    const hasData = chartData.length > 0 && chartData.some(series => 
+        series.data && series.data.length > 0
+    );
     
-    return (
-        <div className="w-full historical-graph-container">
-            {/* Chart Container */}
-            <div className="h-[500px] w-full historical-graph-chart-container">
-                {isLoading ? (
-                    <div className="flex items-center justify-center h-full historical-graph-loading-container">
-                        <div className="text-center historical-graph-loading-content">
-                            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary-dark rounded-full mb-4 shadow-lg">
-                                <svg className="w-8 h-8 text-white animate-spin historical-graph-loading-spinner" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
-                                </svg>
-                            </div>
-                            <div className="text-body-lg text-text-muted historical-graph-loading-text">{t('loading')}...</div>
-                            <div className="text-accent text-text-muted mt-2 historical-graph-loading-subtext">{t('loadingDescription')}</div>
-                        </div>
+    if (isLoading) {
+        return (
+            <div className="h-[500px] w-full flex items-center justify-center">
+                <div className="text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary-dark rounded-full mb-4 shadow-lg">
+                        <svg className="w-8 h-8 text-white animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5m7 7v-5h-5m9-2a8.96 8.96 0 00-12.065-5.565m-2.87 5.565a8.96 8.96 0 0012.065 5.565" />
+                        </svg>
                     </div>
-                ) : hasData ? (
-                    <div key={`${startDate.toISOString()}-${endDate.toISOString()}`}>
-                        <ResponsiveLine
-                            data={chartData}
-                            theme={nivoTheme}
-                            margin={{ top: 20, right: 30, bottom: 60, left: 80 }}
-                            xScale={{
-                                type: 'time',
-                                format: 'native',
-                                min: 'auto',
-                                max: 'auto',
-                            }}
-                            yScale={{
-                                type: 'linear',
-                                min: 'auto',
-                                max: 'auto',
-                            }}
-                            axisBottom={{
-                                format: '%b %d',
-                                tickValues: tickValues,
-                                legend: t('time'),
-                                legendOffset: 40,
-                                legendPosition: 'middle',
-                                tickRotation: -45
-                            }}
-                            axisLeft={{
-                                legend: t('values'),
-                                legendOffset: -60,
-                                legendPosition: 'middle'
-                            }}
-                            colors={{ datum: 'color' }}
-                            enablePoints={false}
-                            useMesh={true}
-                            curve="monotoneX"
-                            animate={true}
-                            motionConfig="gentle"
-                            tooltip={CustomTooltip}
-                            legends={[]}
-                            enableCrosshair={true}
-                            crosshairType="bottom-left"
-                        />
-                    </div>
-                ) : (
-                    <div className="flex items-center justify-center h-full bg-[var(--glass-bg)] rounded-xl border border-[var(--glass-border)] backdrop-blur-sm historical-graph-no-data-container">
-                        <div className="text-center p-8 historical-graph-no-data-content">
-                            <div className="text-4xl mb-3 historical-graph-no-data-emoji">📊</div>
-                            <div className="text-body font-medium text-text-main historical-graph-no-data-text">{t('noChartData')}</div>
-                            <div className="text-accent text-text-muted mt-2 historical-graph-no-data-subtext">
-                                {t('selectMetricsOrExpandTimeRange') || 'Select visible metrics or expand time range'}
-                            </div>
-                        </div>
-                    </div>
-                )}
+                    <div className="text-body-lg text-text-muted">{t('loading')}...</div>
+                </div>
             </div>
+        );
+    }
+
+    if (!hasData) {
+        return (
+            <div className="h-[500px] w-full flex items-center justify-center bg-[var(--glass-bg)] rounded-xl border border-[var(--glass-border)] backdrop-blur-sm">
+                <div className="text-center p-8">
+                    <div className="text-4xl mb-3">📊</div>
+                    <div className="text-body font-medium text-text-main">{t('noChartData')}</div>
+                    <div className="text-accent text-text-muted mt-2">
+                        Izberite vidne metrike ali razširite časovno obdobje
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="h-[500px] w-full">
+            <ResponsiveLine
+                data={chartData}
+                theme={nivoTheme}
+                margin={{ top: 20, right: 30, bottom: 60, left: 80 }}
+                xScale={{
+                    type: 'time',
+                    format: 'native',
+                    min: 'auto',
+                    max: 'auto',
+                }}
+                yScale={{
+                    type: 'linear',
+                    min: 'auto',
+                    max: 'auto',
+                }}
+                axisBottom={{
+                    format: '%b %d',
+                    tickValues: tickValues,
+                    legend: t('time'),
+                    legendOffset: 40,
+                    legendPosition: 'middle',
+                    tickRotation: -45
+                }}
+                axisLeft={{
+                    legend: t('values'),
+                    legendOffset: -60,
+                    legendPosition: 'middle'
+                }}
+                colors={{ datum: 'color' }}
+                enablePoints={false}
+                useMesh={true}
+                curve="monotoneX"
+                animate={true}
+                motionConfig="gentle"
+                tooltip={CustomTooltip}
+                legends={[]}
+                enableCrosshair={true}
+                crosshairType="bottom-left"
+            />
         </div>
     );
 };
