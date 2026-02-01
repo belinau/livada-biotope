@@ -150,12 +150,15 @@ const EnhancedHistoricalGraphWithZoom = ({
                 return;
             }
 
-            // Process bed data (format: bedId-metricType)
-            const lastDashIndex = historyKey.lastIndexOf('-');
-            if (lastDashIndex === -1) return;
+            // Process bed data (format: nodeId-index-metricType from transformApiData)
+            // Example: !1641e779-0-temperature where !1641e779-0 should match BED_MAPPING
+            const parts = historyKey.split('-');
+            if (parts.length < 3) return; // Need at least nodeId-index-metricType
 
-            const bedId = historyKey.substring(0, lastDashIndex);
-            const metricType = historyKey.substring(lastDashIndex + 1);
+            // Reconstruct bedId by joining all parts except the last one (metricType)
+            // This handles cases like: !1641e779-0-temperature -> bedId: !1641e779-0, metricType: temperature
+            const metricType = parts.pop(); // Remove and get the last part (metricType)
+            const bedId = parts.join('-'); // Join remaining parts to form bedId
 
             const bedInfo = BED_MAPPING[bedId];
             if (!bedInfo) return;
