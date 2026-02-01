@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from '../context/LanguageContext';
 import { GlassCard } from './ui/GlassCard';
 
@@ -11,10 +11,22 @@ const DateRangeControls = ({
 }) => {
     const { t } = useTranslation();
     const [isCustomRangeOpen, setIsCustomRangeOpen] = useState(false);
+    
+    // Format dates for input fields
+    function formatDateForInput(date) {
+        return date.toISOString().split('T')[0];
+    }
+    
     const [tempStartDate, setTempStartDate] = useState(formatDateForInput(startDate));
     const [tempEndDate, setTempEndDate] = useState(formatDateForInput(endDate));
     
-    // Simplified preset date ranges (only Last Month and Custom)
+    // Update temp dates when props change
+    useEffect(() => {
+        setTempStartDate(formatDateForInput(startDate));
+        setTempEndDate(formatDateForInput(endDate));
+    }, [startDate, endDate]);
+    
+    // Simplified preset date ranges
     const presets = useMemo(() => [
         { 
             id: '7days', 
@@ -57,11 +69,6 @@ const DateRangeControls = ({
             }
         }
     ], [t]);
-
-    // Format dates for input fields
-    function formatDateForInput(date) {
-        return date.toISOString().split('T')[0];
-    }
 
     // Handle preset selection
     const handlePresetSelect = (preset) => {
@@ -111,7 +118,7 @@ const DateRangeControls = ({
                 <div className="flex items-center gap-2">
                     <label className="text-text-main text-sm font-medium">{t('granularity')}:</label>
                     <select
-                        value={granularity}
+                        value={granularity || 'daily'}
                         onChange={(e) => onGranularityChange(e.target.value)}
                         className="px-3 py-2 bg-[var(--glass-bg)] text-text-main border border-[var(--glass-border)] rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all text-sm"
                     >
