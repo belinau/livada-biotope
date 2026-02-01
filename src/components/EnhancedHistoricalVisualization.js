@@ -5,10 +5,10 @@ import { SENSOR_COLORS } from '../lib/sensor-colors';
 import LivadaAPIClient from '../shared/api-client';
 import { transformApiData } from '../shared/sensor-utils';
 import EnhancedHistoricalGraphWithZoom from './EnhancedHistoricalGraphWithZoom';
-import DateRangeControls from './DateRangeControls'; // Import DateRangeControls
+import DateRangeControls from './DateRangeControls';
 
-// Define HistoricalSensorContext
-const HistoricalSensorContext = createContext();
+// Define and EXPORT HistoricalSensorContext immediately
+export const HistoricalSensorContext = createContext();
 
 // Create a new, self-contained provider
 const HistoricalSensorProvider = ({ children }) => {
@@ -91,7 +91,7 @@ const HistoricalSensorProvider = ({ children }) => {
         refreshData: fetchLongTermHistory,
         startDate,
         endDate,
-        onDateChange: handleDateChange, // Pass the internal handler
+        onDateChange: handleDateChange,
         granularity,
         setGranularity
     };
@@ -158,19 +158,19 @@ const HistoricalSensorContent = () => {
         }));
     };
 
-    // Toggle all beds visibility
+    // Toggle all beds
     const toggleAllBeds = () => {
         const allVisible = Object.values(visibleBeds).every(visible => visible);
-        const newVisibleBeds = {};
-        Object.keys(visibleBeds).forEach(bedId => {
-            newVisibleBeds[bedId] = !allVisible;
+        const newState = {};
+        Object.keys(BED_MAPPING).forEach(bedId => {
+            newState[bedId] = !allVisible;
         });
-        setVisibleBeds(newVisibleBeds);
+        setVisibleBeds(newState);
     };
 
     return (
-        <div className="relative p-0 sm:p-0 rounded-2xl shadow-2xl overflow-hidden border-0 bg-transparent">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+        <div className="p-6">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
                     <div className="live-sensor-readings-icon">
                         <svg className="w-6 h-6 icon-primary-stroke" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -302,15 +302,11 @@ const HistoricalSensorContent = () => {
             </div>
 
             {/* Enhanced Historical Graph */}
-            <div>
+            <div className="mt-6">
                 <div className="border-t-2 border-[var(--glass-border)] rounded-2xl overflow-hidden">
                     <EnhancedHistoricalGraphWithZoom 
                         visibleMetrics={visibleMetrics}
                         visibleBeds={visibleBeds}
-                        granularity={granularity}
-                        onGranularityChange={setGranularity}
-                        onRefreshData={refreshData}
-                        isLoading={isLoading} // Pass isLoading prop
                     />
                 </div>
             </div>
@@ -326,5 +322,3 @@ export default function EnhancedHistoricalVisualization() {
         </HistoricalSensorProvider>
     );
 }
-
-export { HistoricalSensorContext };

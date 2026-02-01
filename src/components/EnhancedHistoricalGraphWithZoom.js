@@ -116,7 +116,10 @@ const EnhancedHistoricalGraphWithZoom = ({
 
     // Process history data into chart format
     useEffect(() => {
-        if (!history) return;
+        if (!history) {
+            setChartData([]);
+            return;
+        }
 
         const newChartData = [];
         const processDataPoint = (item) => ({ 
@@ -170,13 +173,13 @@ const EnhancedHistoricalGraphWithZoom = ({
         setChartData(newChartData);
     }, [history, visibleMetrics, visibleBeds, t]);
 
-    const hasData = chartData.some(series => series.data.length > 1);
+    const hasData = chartData.some(series => series.data && series.data.length > 0);
     
     return (
         <div className="w-full historical-graph-container">
             {/* Chart Container */}
             <div className="h-[500px] w-full historical-graph-chart-container">
-                {isLoading && !history ? (
+                {isLoading ? (
                     <div className="flex items-center justify-center h-full historical-graph-loading-container">
                         <div className="text-center historical-graph-loading-content">
                             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary-dark rounded-full mb-4 shadow-lg">
@@ -188,53 +191,56 @@ const EnhancedHistoricalGraphWithZoom = ({
                             <div className="text-accent text-text-muted mt-2 historical-graph-loading-subtext">{t('loadingDescription')}</div>
                         </div>
                     </div>
-                                ) : hasData ? (
-                                    <div key={`${startDate.toISOString()}-${endDate.toISOString()}`}>
-                                        <ResponsiveLine
-                                            data={chartData}
-                                            theme={nivoTheme}
-                                            margin={{ top: 20, right: 30, bottom: 60, left: 80 }}
-                                            xScale={{
-                                                type: 'time',
-                                                format: 'native',
-                                                min: 'auto',
-                                                max: 'auto',
-                                            }}
-                                            yScale={{
-                                                type: 'linear',
-                                                min: 'auto',
-                                                max: 'auto',
-                                            }}
-                                            axisBottom={{
-                                                format: '%b %d',
-                                                tickValues: tickValues,
-                                                legend: t('time'),
-                                                legendOffset: 40,
-                                                legendPosition: 'middle',
-                                                tickRotation: -45
-                                            }}
-                                            axisLeft={{
-                                                legend: t('values'),
-                                                legendOffset: -60,
-                                                legendPosition: 'middle'
-                                            }}
-                                            colors={{ datum: 'color' }}
-                                            enablePoints={false}
-                                            useMesh={true}
-                                            curve="monotoneX"
-                                            animate={true}
-                                            motionConfig="gentle"
-                                            tooltip={CustomTooltip}
-                                            legends={[]}
-                                            enableCrosshair={true}
-                                            crosshairType="bottom-left"
-                                        />
-                                    </div>                ) : (
+                ) : hasData ? (
+                    <div key={`${startDate.toISOString()}-${endDate.toISOString()}`}>
+                        <ResponsiveLine
+                            data={chartData}
+                            theme={nivoTheme}
+                            margin={{ top: 20, right: 30, bottom: 60, left: 80 }}
+                            xScale={{
+                                type: 'time',
+                                format: 'native',
+                                min: 'auto',
+                                max: 'auto',
+                            }}
+                            yScale={{
+                                type: 'linear',
+                                min: 'auto',
+                                max: 'auto',
+                            }}
+                            axisBottom={{
+                                format: '%b %d',
+                                tickValues: tickValues,
+                                legend: t('time'),
+                                legendOffset: 40,
+                                legendPosition: 'middle',
+                                tickRotation: -45
+                            }}
+                            axisLeft={{
+                                legend: t('values'),
+                                legendOffset: -60,
+                                legendPosition: 'middle'
+                            }}
+                            colors={{ datum: 'color' }}
+                            enablePoints={false}
+                            useMesh={true}
+                            curve="monotoneX"
+                            animate={true}
+                            motionConfig="gentle"
+                            tooltip={CustomTooltip}
+                            legends={[]}
+                            enableCrosshair={true}
+                            crosshairType="bottom-left"
+                        />
+                    </div>
+                ) : (
                     <div className="flex items-center justify-center h-full bg-[var(--glass-bg)] rounded-xl border border-[var(--glass-border)] backdrop-blur-sm historical-graph-no-data-container">
                         <div className="text-center p-8 historical-graph-no-data-content">
                             <div className="text-4xl mb-3 historical-graph-no-data-emoji">📊</div>
                             <div className="text-body font-medium text-text-main historical-graph-no-data-text">{t('noChartData')}</div>
-                            <div className="text-accent text-text-muted mt-2 historical-graph-no-data-subtext">Izberite vidne metrike ali razširite časovno obdobje</div>
+                            <div className="text-accent text-text-muted mt-2 historical-graph-no-data-subtext">
+                                {t('selectMetricsOrExpandTimeRange') || 'Select visible metrics or expand time range'}
+                            </div>
                         </div>
                     </div>
                 )}
