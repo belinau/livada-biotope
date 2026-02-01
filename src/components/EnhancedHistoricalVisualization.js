@@ -10,35 +10,27 @@ import DateRangeControls from './DateRangeControls';
 // Define and EXPORT HistoricalSensorContext immediately
 export const HistoricalSensorContext = createContext();
 
-// Create a new, self-contained provider
 const HistoricalSensorProvider = ({ children }) => {
     const [sensorHistory, setSensorHistory] = useState(null);
     const [status, setStatus] = useState({ key: 'loading', type: 'connecting' });
     const [lastUpdated, setLastUpdated] = useState(null);
     const [granularity, setGranularity] = useState(null);
     
-    // State for date range is now managed inside the provider
     const initialEndDate = new Date();
     const initialStartDate = new Date();
     initialStartDate.setDate(initialEndDate.getDate() - 30);
     const [startDate, setStartDate] = useState(initialStartDate);
     const [endDate, setEndDate] = useState(initialEndDate);
 
-    // The date change handler is also inside the provider
-    const handleDateChange = (newStartDate, newEndDate) => {
-        setStartDate(newStartDate);
-        setEndDate(newEndDate);
-        setGranularity(null); // Reset granularity to allow auto-detection
-    };
-
     const apiUrl = process.env.REACT_APP_PI_API_URL || '/api';
     const livadaApiClient = useMemo(() => new LivadaAPIClient(apiUrl), [apiUrl]);
 
     const fetchLongTermHistory = useCallback(async () => {
-        if (!startDate || !endDate) return; // Don't fetch if dates are not set
+        if (!startDate || !endDate) return;
 
-        setSensorHistory(null); // Clear old data immediately
+        setSensorHistory(null);
         setStatus({ key: 'loading', type: 'connecting' });
+        
         try {
             const diffDays = (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24);
             let selectedGranularity = 'daily';
@@ -48,10 +40,10 @@ const HistoricalSensorProvider = ({ children }) => {
 
             const finalGranularity = granularity || selectedGranularity;
 
+            console.log('Fetching history:', { startDate, endDate, diffDays, finalGranularity });
+
             const response = await livadaApiClient.getHistoryTelemetry(startDate, endDate, finalGranularity);
             const rawData = response.data || response;
-            
-            console.log("Raw history data from API:", rawData);
 
             try {
                 const transformedData = transformApiData(rawData);
@@ -79,12 +71,19 @@ const HistoricalSensorProvider = ({ children }) => {
         }
     }, [startDate, endDate, livadaApiClient, granularity]);
 
+    const handleDateChange = useCallback((newStartDate, newEndDate) => {
+        console.log('Date change requested:', { newStartDate, newEndDate });
+        setStartDate(newStartDate);
+        setEndDate(newEndDate);
+        setGranularity(null);
+    }, []);
+
     useEffect(() => {
+        console.log('Triggering fetch due to date/granularity change');
         fetchLongTermHistory();
     }, [fetchLongTermHistory]);
 
-    // The context now provides the dates and the handler function directly
-    const contextValue = {
+    const contextValue = useMemo(() => ({
         history: sensorHistory,
         status,
         lastUpdated,
@@ -94,7 +93,7 @@ const HistoricalSensorProvider = ({ children }) => {
         onDateChange: handleDateChange,
         granularity,
         setGranularity
-    };
+    }), [sensorHistory, status, lastUpdated, fetchLongTermHistory, startDate, endDate, handleDateChange, granularity]);
 
     return (
         <HistoricalSensorContext.Provider value={contextValue}>
@@ -102,7 +101,6 @@ const HistoricalSensorProvider = ({ children }) => {
         </HistoricalSensorContext.Provider>
     );
 };
-
 
 const HistoricalSensorContent = () => {
     const { t } = useTranslation();
@@ -124,7 +122,6 @@ const HistoricalSensorContent = () => {
         airTemperature: true
     });
 
-    // Initialize visible beds with all beds visible
     const [visibleBeds, setVisibleBeds] = useState(() => {
         const bedState = {};
         Object.keys(BED_MAPPING).forEach(bedId => {
@@ -142,7 +139,6 @@ const HistoricalSensorContent = () => {
         return `${t('loading')}...`;
     };
     
-    // Toggle metric visibility
     const toggleMetric = (metric) => {
         setVisibleMetrics(prev => ({
             ...prev,
@@ -150,7 +146,6 @@ const HistoricalSensorContent = () => {
         }));
     };
 
-    // Toggle bed visibility
     const toggleBed = (bedId) => {
         setVisibleBeds(prev => ({
             ...prev,
@@ -158,7 +153,6 @@ const HistoricalSensorContent = () => {
         }));
     };
 
-    // Toggle all beds
     const toggleAllBeds = () => {
         const allVisible = Object.values(visibleBeds).every(visible => visible);
         const newState = {};
@@ -314,7 +308,6 @@ const HistoricalSensorContent = () => {
     );
 };
 
-// The main export is now a much simpler component
 export default function EnhancedHistoricalVisualization() {
     return (
         <HistoricalSensorProvider>
