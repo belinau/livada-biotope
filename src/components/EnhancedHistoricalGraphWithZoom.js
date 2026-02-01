@@ -5,8 +5,8 @@ import { BED_MAPPING } from '../lib/constants';
 import { SENSOR_COLORS } from '../lib/sensor-colors';
 import { HistoricalSensorContext } from './EnhancedHistoricalVisualization';
 
-const EnhancedHistoricalGraphWithZoom = ({ 
-    visibleMetrics, 
+const EnhancedHistoricalGraphWithZoom = ({
+    visibleMetrics,
     visibleBeds
 }) => {
     const { t, language } = useTranslation();
@@ -87,16 +87,16 @@ const EnhancedHistoricalGraphWithZoom = ({
             dateStyle: 'short',
             timeStyle: 'short',
         });
-        
+
         return (
             <div className="bg-[var(--glass-bg)] p-3 border border-[var(--glass-border)] rounded-xl shadow-lg backdrop-blur-sm">
                 <div className="flex items-center mb-1">
-                    <span 
-                        style={{ 
-                            display: 'block', 
-                            width: '12px', 
-                            height: '12px', 
-                            background: point.serieColor, 
+                    <span
+                        style={{
+                            display: 'block',
+                            width: '12px',
+                            height: '12px',
+                            background: point.serieColor,
                             marginRight: '8px',
                             borderRadius: '50%'
                         }}
@@ -116,11 +116,11 @@ const EnhancedHistoricalGraphWithZoom = ({
         }
 
         const newChartData = [];
-        
+
         // Process each key in history
         Object.keys(history).forEach(historyKey => {
             const dataArray = history[historyKey];
-            
+
             if (!Array.isArray(dataArray) || dataArray.length === 0) {
                 return;
             }
@@ -137,7 +137,7 @@ const EnhancedHistoricalGraphWithZoom = ({
                 });
                 return;
             }
-            
+
             if (historyKey === 'airTemperature' && visibleMetrics.airTemperature) {
                 newChartData.push({
                     id: t('airTemp'),
@@ -179,10 +179,10 @@ const EnhancedHistoricalGraphWithZoom = ({
         setChartData(newChartData);
     }, [history, visibleMetrics, visibleBeds, t]);
 
-    const hasData = chartData.length > 0 && chartData.some(series => 
+    const hasData = chartData.length > 0 && chartData.some(series =>
         series.data && series.data.length > 0
     );
-    
+
     if (isLoading) {
         return (
             <div className="h-[500px] w-full flex items-center justify-center">
@@ -221,8 +221,8 @@ const EnhancedHistoricalGraphWithZoom = ({
                 xScale={{
                     type: 'time',
                     format: 'native',
-                    min: 'auto',
-                    max: 'auto',
+                    min: startDate,
+                    max: endDate,
                 }}
                 yScale={{
                     type: 'linear',
