@@ -26,7 +26,7 @@ const HistoricalSensorProvider = ({ children }) => {
     const livadaApiClient = useMemo(() => new LivadaAPIClient(apiUrl), [apiUrl]);
 
     // Function to downsample data for better performance with large datasets
-    const downsampleData = useCallback((data, maxPoints = 5000) => {
+    const downsampleData = useCallback((data, maxPoints = 2000) => {
         if (!Array.isArray(data) || data.length <= maxPoints) {
             return data;
         }
@@ -51,11 +51,8 @@ const HistoricalSensorProvider = ({ children }) => {
             if (diffDays <= 1) selectedGranularity = 'raw';
             else if (diffDays <= 7) selectedGranularity = 'hourly';
             // Note: Avoid 'weekly' granularity as it's not supported by the API
-            // For longer periods, use 'daily' or no granularity (raw data) to get all available data
-
-            // For periods > 90 days, don't specify granularity to get raw data points
-            // This ensures we get all available historical data rather than aggregated data
-            const finalGranularity = granularity || (diffDays > 90 ? null : selectedGranularity);
+            // Use selected granularity (defaults to daily for > 7 days) unless user overrides
+            const finalGranularity = granularity || selectedGranularity;
 
             console.log('Fetching history:', { startDate, endDate, diffDays, finalGranularity });
 

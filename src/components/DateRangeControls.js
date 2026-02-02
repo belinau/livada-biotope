@@ -125,7 +125,6 @@ const DateRangeControls = ({
                         <option value="raw">{t('raw')}</option>
                         <option value="hourly">{t('hourly')}</option>
                         <option value="daily">{t('daily')}</option>
-                        <option value="weekly">{t('weekly')}</option>
                         <option value="monthly">{t('monthly')}</option>
                     </select>
                 </div>
