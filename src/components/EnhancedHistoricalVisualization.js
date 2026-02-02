@@ -36,29 +36,17 @@ const HistoricalSensorProvider = ({ children }) => {
             let selectedGranularity = 'daily';
             if (diffDays <= 1) selectedGranularity = 'raw';
             else if (diffDays <= 7) selectedGranularity = 'hourly';
-            else if (diffDays > 90) selectedGranularity = 'weekly';  // This might not be supported by API
+            // Note: Avoid 'weekly' granularity as it's not supported by the API
+            // For longer periods, use 'daily' or no granularity (raw data) to get all available data
 
-            const finalGranularity = granularity || selectedGranularity;
+            // For periods > 90 days, don't specify granularity to get raw data points
+            // This ensures we get all available historical data rather than aggregated data
+            const finalGranularity = granularity || (diffDays > 90 ? null : selectedGranularity);
 
             console.log('Fetching history:', { startDate, endDate, diffDays, finalGranularity });
 
-            let response;
-            let rawData;
-
-            try {
-                response = await livadaApiClient.getHistoryTelemetry(startDate, endDate, finalGranularity);
-                rawData = response.data || response;
-            } catch (apiError) {
-                // If the API doesn't support the requested granularity (e.g., 'weekly'),
-                // fall back to 'daily' granularity
-                if ((apiError.message || '').includes('400') || finalGranularity === 'weekly') {
-                    console.warn(`Granularity '${finalGranularity}' not supported, falling back to 'daily'`);
-                    response = await livadaApiClient.getHistoryTelemetry(startDate, endDate, 'daily');
-                    rawData = response.data || response;
-                } else {
-                    throw apiError; // Re-throw if it's a different error
-                }
-            }
+            const response = await livadaApiClient.getHistoryTelemetry(startDate, endDate, finalGranularity);
+            const rawData = response.data || response;
 
             try {
                 const transformedData = transformApiData(rawData);
