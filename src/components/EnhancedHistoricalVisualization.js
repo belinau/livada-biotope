@@ -25,6 +25,20 @@ const HistoricalSensorProvider = ({ children }) => {
     const apiUrl = process.env.REACT_APP_PI_API_URL || '/api';
     const livadaApiClient = useMemo(() => new LivadaAPIClient(apiUrl), [apiUrl]);
 
+    // Function to downsample data for better performance with large datasets
+    const downsampleData = useCallback((data, maxPoints = 5000) => {
+        if (!Array.isArray(data) || data.length <= maxPoints) {
+            return data;
+        }
+
+        const step = Math.ceil(data.length / maxPoints);
+        const downsampled = [];
+        for (let i = 0; i < data.length; i += step) {
+            downsampled.push(data[i]);
+        }
+        return downsampled;
+    }, []);
+
     const fetchLongTermHistory = useCallback(async () => {
         if (!startDate || !endDate) return;
 
@@ -51,14 +65,19 @@ const HistoricalSensorProvider = ({ children }) => {
             try {
                 const transformedData = transformApiData(rawData);
                 const processedHistory = {};
+
                 for (const key in transformedData) {
                     if (Array.isArray(transformedData[key])) {
-                        processedHistory[key] = transformedData[key].map(point => ({
+                        // Downsample the data to prevent performance issues with large datasets
+                        const downsampledData = downsampleData(transformedData[key]);
+
+                        processedHistory[key] = downsampledData.map(point => ({
                             ...point,
                             x: new Date(point.x)
                         }));
                     }
                 }
+
                 setSensorHistory(processedHistory);
                 setStatus({ key: 'dataUpdated', type: 'success' });
                 setLastUpdated(new Date());
@@ -72,7 +91,7 @@ const HistoricalSensorProvider = ({ children }) => {
             setStatus({ key: 'fetchError', type: 'error' });
             setSensorHistory({});
         }
-    }, [startDate, endDate, livadaApiClient, granularity]);
+    }, [startDate, endDate, livadaApiClient, granularity, downsampleData]);
 
     const handleDateChange = useCallback((newStartDate, newEndDate) => {
         console.log('Date change requested:', { newStartDate, newEndDate });
