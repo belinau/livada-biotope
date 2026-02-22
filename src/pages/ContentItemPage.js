@@ -12,7 +12,7 @@ import MetaTags from '../components/MetaTags';
 import { normalizeImagePath } from '../utils/path-utils';
 // Import sensor components for the specific project
 import LiveSensorReadings from '../components/LiveSensorReadings';
-import EnhancedHistoricalVisualization from '../components/EnhancedHistoricalVisualization';
+import Sensors2025 from '../components/Sensors2025';
 
 const limit = pLimit(2);
 
@@ -259,7 +259,7 @@ function ContentItemPage() {
                             <LiveSensorReadings />
                         </div>
                         <div className="relative p-0 sm:p-0 rounded-2xl shadow-2xl overflow-hidden border-0 bg-transparent">
-                            <EnhancedHistoricalVisualization />
+                            <Sensors2025 />
                         </div>
                     </div>
                 )}
