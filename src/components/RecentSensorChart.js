@@ -3,6 +3,8 @@ import { ResponsiveLine } from '@nivo/line';
 import { useTranslation } from '../context/LanguageContext';
 import { useSensorData } from '../context/SensorContext';
 import BedCard from './BedCard';
+import WindCard from './WindCard';
+import PaxCard from './PaxCard';
 import { GlassCard } from './ui/GlassCard';
 import { BED_MAPPING } from '../lib/constants';
 
@@ -18,7 +20,9 @@ export const ChartWrapper = ({ title, children }) => (
 function RecentSensorChart() {
     const { t, language } = useTranslation();
     const { history, status, lastUpdated, refreshData } = useSensorData();
-    const [chartData, setChartData] = useState({ moisture: [], temperature: [] });
+    const [chartData, setChartData] = useState({ moisture: [], temperature: [], wind: [] });
+    const [windData, setWindData] = useState({ latest: {}, direction: [] });
+    const [paxData, setPaxData] = useState({ wifi: null, ble: null, lastUpdated: null });
     const [latestReadings, setLatestReadings] = useState({});
 
     const nivoTheme = useMemo(() => {
@@ -36,10 +40,18 @@ function RecentSensorChart() {
 
     const CustomTooltip = ({ point }) => {
         const date = new Date(point.data.x);
-        const formattedDate = date.toLocaleString(language, {
-            dateStyle: 'short',
-            timeStyle: 'short',
-        });
+        let formattedDate;
+        
+        if (language === 'sl') {
+            const d = `${date.getDate()}. ${date.getMonth() + 1}. ${date.getFullYear()}`;
+            const t = date.toLocaleTimeString(language, { hour: '2-digit', minute: '2-digit' });
+            formattedDate = `${d}, ${t}`;
+        } else {
+            formattedDate = date.toLocaleString(language, {
+                dateStyle: 'short',
+                timeStyle: 'short',
+            });
+        }
         return (
             <div className="bg-bg-main p-3 border border-border-color rounded-sm shadow-lg">
                 <div className="flex items-center">
@@ -55,41 +67,58 @@ function RecentSensorChart() {
     useEffect(() => {
         if (!history) return;
 
-        const newChartData = { moisture: [], temperature: [] };
+        const newChartData = { moisture: [], temperature: [], wind: [] };
         const newLatestReadings = {};
+        const newWindData = { latest: {}, direction: [] };
+        const newPaxData = { wifi: null, ble: null, lastUpdated: null };
         const processDataPoint = (item) => ({ x: new Date(item.x), y: typeof item.y === 'number' && !isNaN(item.y) ? item.y : 0 });
 
+        // Process all history entries
         for (const historyKey in history) {
             if (Array.isArray(history[historyKey]) && history[historyKey].length > 0) {
                 const seriesData = history[historyKey].map(processDataPoint);
                 const lastPoint = history[historyKey][history[historyKey].length - 1];
-                
+
                 // Extract bedId and metricType from the history key
                 let bedId, metricType;
                 if (historyKey.includes('-')) {
                     bedId = historyKey.substring(0, historyKey.lastIndexOf('-'));
                     metricType = historyKey.substring(historyKey.lastIndexOf('-') + 1);
                 } else {
-                    // For air temperature/humidity
+                    // For air temperature/humidity and other metrics
                     bedId = 'air';
                     metricType = historyKey;
                 }
 
-                if (!newLatestReadings[bedId]) { newLatestReadings[bedId] = {}; } 
-                newLatestReadings[bedId][metricType] = lastPoint.y;
+                // Initialize bed readings if needed
+                if (!newLatestReadings[bedId]) { 
+                    newLatestReadings[bedId] = { moisture: null, temperature: null }; 
+                }
+                
+                // Store the latest value for this metric
+                if (metricType === 'moisture') {
+                    newLatestReadings[bedId].moisture = lastPoint.y;
+                } else if (metricType === 'temperature') {
+                    newLatestReadings[bedId].temperature = lastPoint.y;
+                }
+                
+                // Store timestamp
                 newLatestReadings[bedId].timestamp = lastPoint.x;
 
-                // For soil sensors
+                // For soil sensors - add to chart data
                 if (bedId !== 'air') {
                     const bedInfo = BED_MAPPING[bedId];
                     if (bedInfo) {
-                        if (metricType === 'moisture') newChartData.moisture.push({ id: bedInfo.name, color: bedInfo.color, data: seriesData });
-                        else if (metricType === 'temperature') newChartData.temperature.push({ id: bedInfo.name, color: bedInfo.color, data: seriesData });
+                        if (metricType === 'moisture') {
+                            newChartData.moisture.push({ id: bedInfo.name, color: bedInfo.color, data: seriesData });
+                        } else if (metricType === 'temperature') {
+                            newChartData.temperature.push({ id: bedInfo.name, color: bedInfo.color, data: seriesData });
+                        }
                     }
                 }
             }
         }
-        
+
         // Handle air humidity and temperature
         if (history.airHumidity?.length > 0) {
             newChartData.moisture.push({ id: t('airHumidity'), color: '#76e4f7', data: history.airHumidity.map(processDataPoint) });
@@ -98,20 +127,67 @@ function RecentSensorChart() {
             newChartData.temperature.push({ id: t('airTemp'), color: '#f6ad55', data: history.airTemperature.map(processDataPoint) });
         }
 
+        // Handle wind data
+        if (history.windSpeed?.length > 0) {
+            newChartData.wind.push({ 
+                id: t('windSpeed'), 
+                color: '#3b82f6', 
+                data: history.windSpeed.map(processDataPoint) 
+            });
+            newWindData.latest.wind_speed = history.windSpeed[history.windSpeed.length - 1].y;
+        }
+        if (history.windGust?.length > 0) {
+            newChartData.wind.push({ 
+                id: t('windGust'), 
+                color: '#f59e0b', 
+                data: history.windGust.map(processDataPoint) 
+            });
+            newWindData.latest.wind_gust = history.windGust[history.windGust.length - 1].y;
+        }
+        if (history.windDirection?.length > 0) {
+            newWindData.direction = history.windDirection.map(processDataPoint);
+            newWindData.latest.wind_direction = history.windDirection[history.windDirection.length - 1].y;
+        }
+
+        // Handle PAX data
+        if (history.paxWifi?.length > 0) {
+            newPaxData.wifi = history.paxWifi[history.paxWifi.length - 1].y;
+            newPaxData.lastUpdated = history.paxWifi[history.paxWifi.length - 1].x;
+        }
+        if (history.paxBle?.length > 0) {
+            newPaxData.ble = history.paxBle[history.paxBle.length - 1].y;
+            if (!newPaxData.lastUpdated) {
+                newPaxData.lastUpdated = history.paxBle[history.paxBle.length - 1].x;
+            }
+        }
+
         setChartData(newChartData);
+        setWindData(newWindData);
+        setPaxData(newPaxData);
         setLatestReadings(newLatestReadings);
     }, [history, t]);
 
     const hasMoistureData = chartData.moisture.some(series => series.data.length > 1);
     const hasTemperatureData = chartData.temperature.some(series => series.data.length > 1);
+    const hasWindData = chartData.wind.some(series => series.data.length > 1);
+    const hasPaxData = paxData.wifi !== null || paxData.ble !== null;
     const isLoading = status.key === 'loading';
+
+    // Filter beds that have sensor data
+    const bedsWithData = Object.entries(BED_MAPPING).filter(([bedId, bed]) => {
+        const reading = latestReadings[bedId];
+        return reading && (
+            (reading.moisture !== null && reading.moisture !== undefined) ||
+            (reading.temperature !== null && reading.temperature !== undefined)
+        );
+    });
 
     const getStatusMessage = () => {
         if (status.type === 'error') return t('fetchError');
         if (status.type === 'success') return `${t('dataUpdated')} (${lastUpdated?.toLocaleTimeString()})`;
         return `${t('loading')}...`;
     };
-    
+
     return (
         <div className="relative">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
@@ -153,11 +229,26 @@ function RecentSensorChart() {
                 </div>
             ) : (
                 <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                        {Object.entries(BED_MAPPING).map(([bedId, bed]) => (
-                            <BedCard key={bedId} bed={bed} reading={latestReadings[bedId]} t={t} />
-                        ))}
-                    </div>
+                    {/* Bed Cards - Only show beds with data */}
+                    {bedsWithData.length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                            {bedsWithData.map(([bedId, bed]) => (
+                                <BedCard key={bedId} bed={bed} reading={latestReadings[bedId]} t={t} />
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Wind and PAX cards - Only show when data is available */}
+                    {(hasWindData || hasPaxData) && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                            {hasWindData && (
+                                <WindCard windData={{ ...windData, lastUpdated: lastUpdated }} t={t} />
+                            )}
+                            {hasPaxData && (
+                                <PaxCard paxData={paxData} t={t} />
+                            )}
+                        </div>
+                    )}
 
                     <div className="space-y-8 pt-8 border-t-2 border-border-color">
                         <div className="text-center">
@@ -165,7 +256,7 @@ function RecentSensorChart() {
                             <p className="text-body text-text-muted">Spremljanje vlage in temperature skozi čas</p>
                         </div>
                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                            <ChartWrapper title={t('moistureFlows')}> 
+                            <ChartWrapper title={t('moistureFlows')}>
                                 {hasMoistureData ? (
                                     <ResponsiveLine
                                         tooltip={CustomTooltip}
@@ -182,7 +273,7 @@ function RecentSensorChart() {
                                         curve="monotoneX"
                                         animate={true}
                                         motionConfig="wobbly"
-                                        legends={[{ 
+                                        legends={[{
                                             anchor: 'bottom',
                                             direction: 'row',
                                             justify: false,
@@ -205,7 +296,7 @@ function RecentSensorChart() {
                                     </div>
                                 )}
                             </ChartWrapper>
-                            <ChartWrapper title={t('temperatureFlows')}> 
+                            <ChartWrapper title={t('temperatureFlows')}>
                                 {hasTemperatureData ? (
                                     <ResponsiveLine
                                         tooltip={CustomTooltip}
@@ -222,7 +313,7 @@ function RecentSensorChart() {
                                         curve="monotoneX"
                                         animate={true}
                                         motionConfig="wobbly"
-                                        legends={[{ 
+                                        legends={[{
                                             anchor: 'bottom',
                                             direction: 'row',
                                             justify: false,
@@ -245,6 +336,38 @@ function RecentSensorChart() {
                                     </div>
                                 )}
                             </ChartWrapper>
+                            {hasWindData && (
+                                <ChartWrapper title={t('windSpeed')}>
+                                    <ResponsiveLine
+                                        tooltip={CustomTooltip}
+                                        data={chartData.wind}
+                                        theme={nivoTheme}
+                                        colors={{ datum: 'color' }}
+                                        margin={{ top: 20, right: 30, bottom: 140, left: 80 }}
+                                        xScale={{ type: 'time', format: 'native' }}
+                                        yScale={{ type: 'linear', min: 'auto', max: 'auto' }}
+                                        axisBottom={{ format: '%H:%M', tickValues: 5, legend: t('time'), legendOffset: 40, legendPosition: 'middle' }}
+                                        axisLeft={{ legend: 'm/s', legendOffset: -60, legendPosition: 'middle' }}
+                                        enablePoints={false}
+                                        useMesh={true}
+                                        curve="monotoneX"
+                                        animate={true}
+                                        motionConfig="wobbly"
+                                        legends={[{
+                                            anchor: 'bottom',
+                                            direction: 'row',
+                                            justify: false,
+                                            translateX: 0,
+                                            translateY: 100,
+                                            itemsSpacing: 8,
+                                            itemWidth: 140,
+                                            itemHeight: 20,
+                                            symbolSize: 14,
+                                            itemTextColor: 'var(--text-main)'
+                                        }]}
+                                    />
+                                </ChartWrapper>
+                            )}
                         </div>
                     </div>
                 </>

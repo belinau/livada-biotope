@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { getWaveColors } from '../lib/sensor-colors';
+import { useTranslation } from '../context/LanguageContext';
 
 // Wave class - moved outside component to fix react-hooks/exhaustive-deps warning
 class Wave {
@@ -63,6 +64,7 @@ class Wave {
 
 // WavePropagation - Clean physics-based wave propagation
 const WavePropagation = ({ value, label, unit = '', metricType = 'moisture', maxValue = 100, lastUpdated }) => {
+  const { language } = useTranslation();
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
   const wavesRef = useRef([]);
@@ -78,14 +80,17 @@ const WavePropagation = ({ value, label, unit = '', metricType = 'moisture', max
   const formatRetroTimestamp = (timestamp) => {
     if (!timestamp) return '--:--:--';
     const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    return date.toLocaleTimeString(language, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
   };
   
   // Format full date
   const formatFullDate = (timestamp) => {
     if (!timestamp) return '';
     const date = new Date(timestamp);
-    return date.toLocaleDateString();
+    if (language === 'sl') {
+        return `${date.getDate()}. ${date.getMonth() + 1}. ${date.getFullYear()}`;
+    }
+    return date.toLocaleDateString(language);
   };
   
   // Animation loop
@@ -155,7 +160,7 @@ const WavePropagation = ({ value, label, unit = '', metricType = 'moisture', max
         <div>
           <div className="text-[var(--text-sage)] font-medium text-sm">{label}</div>
           <div className="text-xl md:text-2xl font-mono font-bold text-[var(--text-sage)]">
-            {normalizedValue.toFixed(1)}{unit}
+            {language === 'sl' ? normalizedValue.toFixed(1).replace('.', ',') : normalizedValue.toFixed(1)}{unit}
           </div>
         </div>
         <div className="text-right">
