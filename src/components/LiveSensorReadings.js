@@ -141,7 +141,9 @@ function LiveSensorReadings() {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const data = await response.json();
+            const json = await response.json();
+            // Handle Netlify proxy wrapper (it wraps response in .data) or direct response
+            const data = json.data || json;
             processLiveData(data);
             setLastUpdated(new Date());
             setIsLoading(false);
