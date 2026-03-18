@@ -22,6 +22,7 @@ function LiveSensorReadings() {
     // Ref for polling interval to clear it on unmount
     const pollInterval = useRef(null);
 
+    // Reverted to standard pattern matching SensorContext
     const API_URL = process.env.REACT_APP_PI_API_URL || '/api';
 
     const processLiveData = useCallback((data) => {
