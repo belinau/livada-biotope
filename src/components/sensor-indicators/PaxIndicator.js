@@ -198,7 +198,7 @@ const PaxIndicator = ({ wifi = null, ble = null, lastUpdated = null }) => {
 
     draw();
     return () => cancelAnimationFrame(rafRef.current);
-  }, []); // canvas + animation loop — runs once only
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Re-sync boid count whenever wifi or ble props change
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTranslation } from '../../context/LanguageContext';
 import { V, VP, rc, PI2 } from './sensorPalette';
 

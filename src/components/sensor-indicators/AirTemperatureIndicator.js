@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from '../../context/LanguageContext';
-import { V, A, lerp, lerp3, clamp, rc, flockStep, makeOffscreen, PI2 } from './sensorPalette';
+import { V, A, lerp, lerp3, clamp, flockStep, makeOffscreen, PI2 } from './sensorPalette';
 
 const N_PARTICLES = 26;
 
