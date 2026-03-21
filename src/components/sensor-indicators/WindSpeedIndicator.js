@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { useTranslation } from '../context/LanguageContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { V, VP, rc, clamp, PI2 } from './sensorPalette';
 
 /**

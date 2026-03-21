@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { useTranslation } from '../context/LanguageContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { V, VP, rc, PI2 } from './sensorPalette';
 
 const DIRS_SL = ['S','SSV','SV','VSV','V','VJV','JV','JJV','J','JJZ','JZ','ZJZ','Z','ZSZ','SZ','SSZ'];
@@ -127,7 +127,7 @@ const WindCompassIndicator = ({ windDirection = null, lastUpdated = null }) => {
       });
 
       // — main bloom petal toward wind —
-      const wr = (st.smoothDir - 90) * Math.PI / 180;
+      const wr = (st.smoothDir - 45) * Math.PI / 180;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(wr);

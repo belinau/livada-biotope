@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { useTranslation } from '../context/LanguageContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { C, lerp, clamp, rc, flockStep, makeOffscreen, PI2 } from './sensorPalette';
 
 const MAX_P = 30;

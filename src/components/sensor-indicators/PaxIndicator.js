@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useCallback } from 'react';
-import { useTranslation } from '../context/LanguageContext';
+import React, { useEffect, useRef } from 'react';
+import { useTranslation } from '../../context/LanguageContext';
 import { VP, TG, rc, clamp, makeOffscreen, PI2 } from './sensorPalette';
 
 const MAX_PER_TYPE = 25;
@@ -52,12 +52,11 @@ const PaxIndicator = ({ wifi = null, ble = null, lastUpdated = null }) => {
   const offRef     = useRef(null);
   const dimRef     = useRef({ W: 280, H: 150 });
 
-  // Sync boid array when counts change
-  const syncBoids = useCallback((W, H) => {
+  // Plain sync — reads wifi/ble from closure, no useCallback needed
+  const syncBoids = (W, H) => {
     const targetW = clamp(wifi  ?? 0, 0, MAX_PER_TYPE);
     const targetB = clamp(ble   ?? 0, 0, MAX_PER_TYPE);
     const boids   = boidsRef.current;
-
     ['w', 'b'].forEach((tp, ti) => {
       const target = ti === 0 ? targetW : targetB;
       const cur    = boids.filter(b => b.type === tp).length;
@@ -70,7 +69,7 @@ const PaxIndicator = ({ wifi = null, ble = null, lastUpdated = null }) => {
         }
       }
     });
-  }, [wifi, ble]);
+  };
 
   useEffect(() => {
     const cv = canvasRef.current;
@@ -199,13 +198,13 @@ const PaxIndicator = ({ wifi = null, ble = null, lastUpdated = null }) => {
 
     draw();
     return () => cancelAnimationFrame(rafRef.current);
-  }, []); // canvas setup once
+  }, []); // canvas + animation loop — runs once only
 
-  // Re-sync boids when counts change without restarting the loop
+  // Re-sync boid count whenever wifi or ble props change
   useEffect(() => {
     const { W, H } = dimRef.current;
     syncBoids(W, H);
-  }, [syncBoids]);
+  }, [wifi, ble]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const total = (wifi ?? 0) + (ble ?? 0);
 

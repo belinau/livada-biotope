@@ -6,27 +6,8 @@ import PaxCard from './PaxCard';
 import { BED_MAPPING } from '../lib/constants';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/**
- * LiveSensorReadings
- *
- * Layout changes from previous version:
- *
- *   Before:  [WeatherCard (col-span-2)] [PaxCard (col-span-1)]
- *            [BedCard] [BedCard] [BedCard] …
- *
- *   After:   [WeatherCard — full width]
- *            [PaxCard (col-span-2)] [BedCard] [BedCard] …
- *              — or if no PAX —
- *            [BedCard] [BedCard] [BedCard] …
- *
- * Rationale: the new WeatherCard contains a 2×2 grid of canvas indicators
- * (compass, wind speed, air temp, air humidity) and needs full width to
- * render each indicator at a comfortable size. PaxCard with its wider
- * murmuration canvas sits better in a 2-column slot alongside bed cards.
- *
- * Everything else — data fetching, polling, portal mode, processLiveData —
- * is unchanged from the previous version.
- */
+// LiveSensorReadings
+
 function LiveSensorReadings() {
     const { t } = useTranslation();
 
@@ -40,7 +21,7 @@ function LiveSensorReadings() {
     const pollInterval = useRef(null);
     const API_URL = process.env.REACT_APP_PI_API_URL || '/api';
 
-    const processLiveData = useCallback((data) => {
+    const parseLiveData = useCallback((data) => {
         const newLatestReadings = {};
         const newWindData       = { latest: {}, direction: [] };
         const newPaxData        = { wifi: null, ble: null, lastUpdated: null };
@@ -124,9 +105,7 @@ function LiveSensorReadings() {
             };
         }
 
-        setLatestReadings(newLatestReadings);
-        setWindData(newWindData);
-        setPaxData(newPaxData);
+        return { newLatestReadings, newWindData, newPaxData };
     }, []);
 
     const fetchLiveData = useCallback(async () => {
@@ -135,14 +114,55 @@ function LiveSensorReadings() {
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const json = await response.json();
             const data = json.data || json;
-            processLiveData(data);
+            
+            const { newLatestReadings, newWindData, newPaxData } = parseLiveData(data);
+            const now = new Date();
+            const ONE_HOUR = 60 * 60 * 1000;
+
+            const isFresh = (ts) => {
+                if (!ts) return false;
+                return (now - new Date(ts)) < ONE_HOUR;
+            };
+
+            // Update Wind Data
+            setWindData(prev => {
+                const candidate = (newWindData.latest && newWindData.latest.timestamp) ? newWindData : prev;
+                if (candidate.latest && candidate.latest.timestamp && isFresh(candidate.latest.timestamp)) {
+                    return candidate;
+                }
+                return { latest: {}, direction: [] };
+            });
+
+            // Update PAX Data
+            setPaxData(prev => {
+                const candidate = newPaxData.lastUpdated ? newPaxData : prev;
+                if (candidate.lastUpdated && isFresh(candidate.lastUpdated)) {
+                    return candidate;
+                }
+                return { wifi: null, ble: null, lastUpdated: null };
+            });
+
+            // Update Bed Readings
+            setLatestReadings(prev => {
+                const nextReadings = {};
+                const allKeys = [...Object.keys(BED_MAPPING), 'air'];
+                
+                allKeys.forEach(key => {
+                    const candidate = newLatestReadings[key] || prev[key];
+                    if (candidate && candidate.timestamp && isFresh(candidate.timestamp)) {
+                        nextReadings[key] = candidate;
+                    }
+                });
+                return nextReadings;
+            });
+
             setLastUpdated(new Date());
             setIsLoading(false);
         } catch (error) {
             console.error('Error fetching live data:', error);
             setIsLoading(false);
         }
-    }, [API_URL, processLiveData]);
+    }, [API_URL, parseLiveData]);
 
     useEffect(() => {
         fetchLiveData();
@@ -246,13 +266,6 @@ function LiveSensorReadings() {
                 </div>
             </div>
 
-            {/* ── WeatherCard — full width ── */}
-            {hasWeatherData && (
-                <div className="mb-3 flex-shrink-0">
-                    <WeatherCard weatherData={combinedWeatherData} t={t} />
-                </div>
-            )}
-
             {/* ── PAX + Bed cards — unified grid ── */}
             <div className="relative flex-grow flex flex-col min-h-0">
 
@@ -275,6 +288,13 @@ function LiveSensorReadings() {
                     }}
                     transition={{ duration: 0.5 }}
                 >
+                    {/* WeatherCard spans 2 columns */}
+                    {hasWeatherData && (
+                        <div className="sm:col-span-2">
+                            <WeatherCard weatherData={combinedWeatherData} t={t} />
+                        </div>
+                    )}
+
                     {/* PaxCard spans 2 columns so its wider murmuration canvas has room */}
                     {hasPaxData && (
                         <div className="sm:col-span-2">
